@@ -9,3 +9,4 @@ pub mod dec128;
 mod data;
 mod constants;
 mod internal;
+mod bid128;

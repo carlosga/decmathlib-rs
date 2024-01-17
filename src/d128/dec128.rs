@@ -9,22 +9,45 @@
 /* --------------------------------------------------------------------- */
 
 #![allow(non_camel_case_types)]
+#![allow(dead_code)]
 
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
 
-pub type BID_UINT32 = u32;
+pub (crate) type BID_UINT32 = u32;
 
-pub type BID_UINT64 = u64;
+pub (crate) type BID_UINT64 = u64;
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UI32FLOAT {
+    pub (crate) i: BID_UINT32,
+    pub (crate) f: f32
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UI64DOUBLE {
+    pub (crate) i: BID_UINT64,
+    pub (crate) d: f64
+}
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct BID_UINT128 {
-    pub w: [BID_UINT64; 2]
+    pub (crate)  w: [BID_UINT64; 2]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT192 {
+    pub (crate) w: [BID_UINT64; 3]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT256 {
+    pub (crate) w: [BID_UINT64; 4]
 }
 
 impl BID_UINT128 {
-    pub fn new(l: BID_UINT64, h: BID_UINT64) -> Self {
+    pub fn new(l: u64, h: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [l, h] };
         #[cfg(target_endian = "little")]
