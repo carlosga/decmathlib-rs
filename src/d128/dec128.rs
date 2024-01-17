@@ -13,7 +13,7 @@
 
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
-use crate::d128::internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
+use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
 
 pub (crate) type BID_UINT32 = u32;
 
