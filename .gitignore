@@ -14,4 +14,4 @@ Cargo.lock
 *.pdb
 
 # RustRover
-.ideas/
+.idea/
