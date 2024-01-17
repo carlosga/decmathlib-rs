@@ -7,11 +7,32 @@
 
 #[macro_export]
 macro_rules! dec_test {
-    ($name:ident, bid64_to_bid128, $input1:expr, $x:expr, $y:expr) => {
+    ($name:ident, bid128_class, $input1:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let dec   = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let class = dec.class();
+
+            assert!(matches!($expected, class));
+        }
+    };
+
+    ($name:ident, bid128_copy, $input1:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let dec      = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
+            let copy     = dec.copy();
+
+            assert_eq!(expected, copy);
+        }
+    };
+
+    ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr) => {
         #[test]
         fn $name() {
             let res1     = decmathlib_rs::d128::dec128::bid64_to_bid128($input1);
-            let expected = decmathlib_rs::d128::dec128::BID_UINT128::new($x, $y);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($exp);
 
             assert_eq!(expected, res1);
         }

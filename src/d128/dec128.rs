@@ -1,9 +1,6 @@
 /* --------------------------------------------------------------------- */
 /* decimal128 type from Intel decimal math library port to Rust.         */
-/* Ported to rust-lang by Carlos Guzmán Álvarez                          */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
 /* --------------------------------------------------------------------- */
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
@@ -11,13 +8,36 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use crate::d128::bid128_noncomp::{bid128_class, bid128_copy};
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
 
+#[derive(Debug, Copy, Clone)]
+pub enum ClassTypes {
+    signalingNaN,
+    quietNaN,
+    negativeInfinity,
+    negativeNormal,
+    negativeSubnormal,
+    negativeZero,
+    positiveZero,
+    positiveSubnormal,
+    positiveNormal,
+    positiveInfinity
+}
+
 pub (crate) type BID_UINT32 = u32;
 
 pub (crate) type BID_UINT64 = u64;
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct DEC_DIGITS {
+    pub (crate) digits: u32,
+    pub (crate) threshold_hi: BID_UINT64,
+    pub (crate) threshold_lo: BID_UINT64,
+    pub (crate) digits1: u32
+}
 
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct BID_UI32FLOAT {
@@ -55,11 +75,59 @@ impl BID_UINT128 {
     }
 }
 
+impl BID_UINT128 {
+    pub fn class(&self) -> ClassTypes {
+        bid128_class(&self)
+    }
+
+    pub fn copy(&self) -> Self { bid128_copy(&self) }
+}
+
 impl Eq for BID_UINT128 {}
 
 impl PartialEq for BID_UINT128 {
     fn eq(&self, other: &Self) -> bool {
         self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
+    }
+}
+
+impl From<i64> for BID_UINT128 {
+    fn from(value: i64) -> Self {
+        let mut res = Self::default();
+
+        // if integer is negative, use the absolute value
+        if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
+            res.w[BID_HIGH_128W] = 0xb040000000000000u64;
+            res.w[BID_LOW_128W]  = !(value as u64) + 1;	// 2's complement of x
+        } else {
+            res.w[BID_HIGH_128W] = 0x3040000000000000u64;
+            res.w[BID_LOW_128W]  = value as u64;
+        }
+
+        res
+    }
+}
+
+impl From<u64> for BID_UINT128 {
+    fn from(value: u64) -> Self {
+        let mut res = Self::default();
+
+        res.w[BID_HIGH_128W] = 0x3040000000000000u64;
+        res.w[BID_LOW_128W]  = value;
+
+        res
+    }
+}
+
+impl From<i128> for BID_UINT128 {
+    fn from(value: i128) -> Self {
+        Self::new((value >> 64) as u64, value as u64)
+    }
+}
+
+impl From<u128> for BID_UINT128 {
+    fn from(value: u128) -> Self {
+        Self::new((value >> 64) as u64, value as u64)
     }
 }
 

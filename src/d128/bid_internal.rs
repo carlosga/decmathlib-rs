@@ -1,9 +1,6 @@
 /* --------------------------------------------------------------------- */
 /* decimal128 type from Intel decimal math library port to Rust.         */
-/* Ported to rust-lang by Carlos Guzmán Álvarez                          */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
 /* --------------------------------------------------------------------- */
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
@@ -17,22 +14,8 @@ use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT64};
 
-#[derive(Debug, Copy, Clone)]
-pub (crate) enum ClassTypes {
-    signalingNaN,
-    quietNaN,
-    negativeInfinity,
-    negativeNormal,
-    negativeSubnormal,
-    negativeZero,
-    positiveZero,
-    positiveSubnormal,
-    positiveNormal,
-    positiveInfinity
-}
-
 ///  BID32 unpack, input pased by reference
-pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32{
+pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {
     let tmp: BID_UINT32;
 
     *psign_x = x & 0x80000000;
@@ -114,7 +97,7 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
 }
 
 ///  BID128 unpack, input pased by reference
-pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, px: &BID_UINT128) -> BID_UINT64{
+pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, px: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = BID_UINT128::default();
     let T33: BID_UINT128;
     let T34: BID_UINT128;
@@ -206,7 +189,7 @@ pub (crate) fn __add_carry_in_out(S: &mut BID_UINT64, CY: &mut BID_UINT64, X: BI
     *CY = if *S < X1 || X1 < CI { 1 } else { 0 };
 }
 
-pub (crate) fn __mul_64x128_full(Ph: &mut BID_UINT64, Ql: &mut BID_UINT128, A: BID_UINT64, B: &BID_UINT256) {
+pub (crate) fn __mul_64x128_full(Ph: &mut BID_UINT64, Ql: &mut BID_UINT128, A: BID_UINT64, B: &BID_UINT128) {
     let mut ALBL: BID_UINT128 = BID_UINT128::default();
     let mut ALBH: BID_UINT128 = BID_UINT128::default();
     let mut QM2: BID_UINT128  = BID_UINT128::default();
@@ -234,7 +217,7 @@ pub (crate) fn __mul_64x128_to_192(Q: &mut BID_UINT192, A: BID_UINT64, B: &BID_U
     Q.w[2] = QM2.w[1];
 }
 
-pub (crate) fn __mul_128x128_to_256(P256: &mut BID_UINT256, A: &BID_UINT256, B: &BID_UINT256) {
+pub (crate) fn __mul_128x128_to_256(P256: &mut BID_UINT256, A: &BID_UINT128, B: &BID_UINT128) {
     let mut Qll: BID_UINT128 = BID_UINT128::default();
     let mut Qlh: BID_UINT128 = BID_UINT128::default();
     let mut Phl: BID_UINT64 = BID_UINT64::default();

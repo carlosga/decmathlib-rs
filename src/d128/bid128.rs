@@ -1,9 +1,6 @@
 /* --------------------------------------------------------------------- */
 /* decimal128 type from Intel decimal math library port to Rust.         */
-/* Ported to rust-lang by Carlos Guzmán Álvarez                          */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
 /* --------------------------------------------------------------------- */
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
@@ -13,7 +10,6 @@
 #![allow(unused)]
 #![allow(dead_code)]
 
-/*
 // the first entry of bid_nr_digits[i - 1] (where 1 <= i <= 113), indicates
 // the number of decimal digits needed to represent a binary number with i bits;
 // however, if a binary number of i bits may require either k or k + 1 decimal
@@ -21,237 +17,125 @@
 // number is less than the value represented by the second and third entries
 // concatenated, then the number of decimal digits k is the fourth entry, else
 // the number of decimal digits is the fourth entry plus 1
-DEC_DIGITS bid_nr_digits[] = {	// only the first entry is used if it is not 0
-  {1, 0x0000000000000000u64, 0x000000000000000au64, 1}
-  ,	//   1-bit n < 10^1
-  {1, 0x0000000000000000u64, 0x000000000000000au64, 1}
-  ,	//   2-bit n < 10^1
-  {1, 0x0000000000000000u64, 0x000000000000000au64, 1}
-  ,	//   3-bit n < 10^1
-  {0, 0x0000000000000000u64, 0x000000000000000au64, 1}
-  ,	//   4-bit n ? 10^1
-  {2, 0x0000000000000000u64, 0x0000000000000064u64, 2}
-  ,	//   5-bit n < 10^2
-  {2, 0x0000000000000000u64, 0x0000000000000064u64, 2}
-  ,	//   6-bit n < 10^2
-  {0, 0x0000000000000000u64, 0x0000000000000064u64, 2}
-  ,	//   7-bit n ? 10^2
-  {3, 0x0000000000000000u64, 0x00000000000003e8u64, 3}
-  ,	//   8-bit n < 10^3
-  {3, 0x0000000000000000u64, 0x00000000000003e8u64, 3}
-  ,	//   9-bit n < 10^3
-  {0, 0x0000000000000000u64, 0x00000000000003e8u64, 3}
-  ,	//  10-bit n ? 10^3
-  {4, 0x0000000000000000u64, 0x0000000000002710u64, 4}
-  ,	//  11-bit n < 10^4
-  {4, 0x0000000000000000u64, 0x0000000000002710u64, 4}
-  ,	//  12-bit n < 10^4
-  {4, 0x0000000000000000u64, 0x0000000000002710u64, 4}
-  ,	//  13-bit n < 10^4
-  {0, 0x0000000000000000u64, 0x0000000000002710u64, 4}
-  ,	//  14-bit n ? 10^4
-  {5, 0x0000000000000000u64, 0x00000000000186a0u64, 5}
-  ,	//  15-bit n < 10^5
-  {5, 0x0000000000000000u64, 0x00000000000186a0u64, 5}
-  ,	//  16-bit n < 10^5
-  {0, 0x0000000000000000u64, 0x00000000000186a0u64, 5}
-  ,	//  17-bit n ? 10^5
-  {6, 0x0000000000000000u64, 0x00000000000f4240u64, 6}
-  ,	//  18-bit n < 10^6
-  {6, 0x0000000000000000u64, 0x00000000000f4240u64, 6}
-  ,	//  19-bit n < 10^6
-  {0, 0x0000000000000000u64, 0x00000000000f4240u64, 6}
-  ,	//  20-bit n ? 10^6
-  {7, 0x0000000000000000u64, 0x0000000000989680u64, 7}
-  ,	//  21-bit n < 10^7
-  {7, 0x0000000000000000u64, 0x0000000000989680u64, 7}
-  ,	//  22-bit n < 10^7
-  {7, 0x0000000000000000u64, 0x0000000000989680u64, 7}
-  ,	//  23-bit n < 10^7
-  {0, 0x0000000000000000u64, 0x0000000000989680u64, 7}
-  ,	//  24-bit n ? 10^7
-  {8, 0x0000000000000000u64, 0x0000000005f5e100u64, 8}
-  ,	//  25-bit n < 10^8
-  {8, 0x0000000000000000u64, 0x0000000005f5e100u64, 8}
-  ,	//  26-bit n < 10^8
-  {0, 0x0000000000000000u64, 0x0000000005f5e100u64, 8}
-  ,	//  27-bit n ? 10^8
-  {9, 0x0000000000000000u64, 0x000000003b9aca00u64, 9}
-  ,	//  28-bit n < 10^9
-  {9, 0x0000000000000000u64, 0x000000003b9aca00u64, 9}
-  ,	//  29-bit n < 10^9
-  {0, 0x0000000000000000u64, 0x000000003b9aca00u64, 9}
-  ,	//  30-bit n ? 10^9
-  {10, 0x0000000000000000u64, 0x00000002540be400u64, 10}
-  ,	//  31-bit n < 10^10
-  {10, 0x0000000000000000u64, 0x00000002540be400u64, 10}
-  ,	//  32-bit n < 10^10
-  {10, 0x0000000000000000u64, 0x00000002540be400u64, 10}
-  ,	//  33-bit n < 10^10
-  {0, 0x0000000000000000u64, 0x00000002540be400u64, 10}
-  ,	//  34-bit n ? 10^10
-  {11, 0x0000000000000000u64, 0x000000174876e800u64, 11}
-  ,	//  35-bit n < 10^11
-  {11, 0x0000000000000000u64, 0x000000174876e800u64, 11}
-  ,	//  36-bit n < 10^11
-  {0, 0x0000000000000000u64, 0x000000174876e800u64, 11}
-  ,	//  37-bit n ? 10^11
-  {12, 0x0000000000000000u64, 0x000000e8d4a51000u64, 12}
-  ,	//  38-bit n < 10^12
-  {12, 0x0000000000000000u64, 0x000000e8d4a51000u64, 12}
-  ,	//  39-bit n < 10^12
-  {0, 0x0000000000000000u64, 0x000000e8d4a51000u64, 12}
-  ,	//  40-bit n ? 10^12
-  {13, 0x0000000000000000u64, 0x000009184e72a000u64, 13}
-  ,	//  41-bit n < 10^13
-  {13, 0x0000000000000000u64, 0x000009184e72a000u64, 13}
-  ,	//  42-bit n < 10^13
-  {13, 0x0000000000000000u64, 0x000009184e72a000u64, 13}
-  ,	//  43-bit n < 10^13
-  {0, 0x0000000000000000u64, 0x000009184e72a000u64, 13}
-  ,	//  44-bit n ? 10^13
-  {14, 0x0000000000000000u64, 0x00005af3107a4000u64, 14}
-  ,	//  45-bit n < 10^14
-  {14, 0x0000000000000000u64, 0x00005af3107a4000u64, 14}
-  ,	//  46-bit n < 10^14
-  {0, 0x0000000000000000u64, 0x00005af3107a4000u64, 14}
-  ,	//  47-bit n ? 10^14
-  {15, 0x0000000000000000u64, 0x00038d7ea4c68000u64, 15}
-  ,	//  48-bit n < 10^15
-  {15, 0x0000000000000000u64, 0x00038d7ea4c68000u64, 15}
-  ,	//  49-bit n < 10^15
-  {0, 0x0000000000000000u64, 0x00038d7ea4c68000u64, 15}
-  ,	//  50-bit n ? 10^15
-  {16, 0x0000000000000000u64, 0x002386f26fc10000u64, 16}
-  ,	//  51-bit n < 10^16
-  {16, 0x0000000000000000u64, 0x002386f26fc10000u64, 16}
-  ,	//  52-bit n < 10^16
-  {16, 0x0000000000000000u64, 0x002386f26fc10000u64, 16}
-  ,	//  53-bit n < 10^16
-  {0, 0x0000000000000000u64, 0x002386f26fc10000u64, 16}
-  ,	//  54-bit n ? 10^16
-  {17, 0x0000000000000000u64, 0x016345785d8a0000u64, 17}
-  ,	//  55-bit n < 10^17
-  {17, 0x0000000000000000u64, 0x016345785d8a0000u64, 17}
-  ,	//  56-bit n < 10^17
-  {0, 0x0000000000000000u64, 0x016345785d8a0000u64, 17}
-  ,	//  57-bit n ? 10^17
-  {18, 0x0000000000000000u64, 0x0de0b6b3a7640000u64, 18}
-  ,	//  58-bit n < 10^18
-  {18, 0x0000000000000000u64, 0x0de0b6b3a7640000u64, 18}
-  ,	//  59-bit n < 10^18
-  {0, 0x0000000000000000u64, 0x0de0b6b3a7640000u64, 18}
-  ,	//  60-bit n ? 10^18
-  {19, 0x0000000000000000u64, 0x8ac7230489e80000u64, 19}
-  ,	//  61-bit n < 10^19
-  {19, 0x0000000000000000u64, 0x8ac7230489e80000u64, 19}
-  ,	//  62-bit n < 10^19
-  {19, 0x0000000000000000u64, 0x8ac7230489e80000u64, 19}
-  ,	//  63-bit n < 10^19
-  {0, 0x0000000000000000u64, 0x8ac7230489e80000u64, 19}
-  ,	//  64-bit n ? 10^19
-  {20, 0x0000000000000005u64, 0x6bc75e2d63100000u64, 20}
-  ,	//  65-bit n < 10^20
-  {20, 0x0000000000000005u64, 0x6bc75e2d63100000u64, 20}
-  ,	//  66-bit n < 10^20
-  {0, 0x0000000000000005u64, 0x6bc75e2d63100000u64, 20}
-  ,	//  67-bit n ? 10^20
-  {21, 0x0000000000000036u64, 0x35c9adc5dea00000u64, 21}
-  ,	//  68-bit n < 10^21
-  {21, 0x0000000000000036u64, 0x35c9adc5dea00000u64, 21}
-  ,	//  69-bit n < 10^21
-  {0, 0x0000000000000036u64, 0x35c9adc5dea00000u64, 21}
-  ,	//  70-bit n ? 10^21
-  {22, 0x000000000000021eu64, 0x19e0c9bab2400000u64, 22}
-  ,	//  71-bit n < 10^22
-  {22, 0x000000000000021eu64, 0x19e0c9bab2400000u64, 22}
-  ,	//  72-bit n < 10^22
-  {22, 0x000000000000021eu64, 0x19e0c9bab2400000u64, 22}
-  ,	//  73-bit n < 10^22
-  {0, 0x000000000000021eu64, 0x19e0c9bab2400000u64, 22}
-  ,	//  74-bit n ? 10^22
-  {23, 0x000000000000152du64, 0x02c7e14af6800000u64, 23}
-  ,	//  75-bit n < 10^23
-  {23, 0x000000000000152du64, 0x02c7e14af6800000u64, 23}
-  ,	//  76-bit n < 10^23
-  {0, 0x000000000000152du64, 0x02c7e14af6800000u64, 23}
-  ,	//  77-bit n ? 10^23
-  {24, 0x000000000000d3c2u64, 0x1bcecceda1000000u64, 24}
-  ,	//  78-bit n < 10^24
-  {24, 0x000000000000d3c2u64, 0x1bcecceda1000000u64, 24}
-  ,	//  79-bit n < 10^24
-  {0, 0x000000000000d3c2u64, 0x1bcecceda1000000u64, 24}
-  ,	//  80-bit n ? 10^24
-  {25, 0x0000000000084595u64, 0x161401484a000000u64, 25}
-  ,	//  81-bit n < 10^25
-  {25, 0x0000000000084595u64, 0x161401484a000000u64, 25}
-  ,	//  82-bit n < 10^25
-  {25, 0x0000000000084595u64, 0x161401484a000000u64, 25}
-  ,	//  83-bit n < 10^25
-  {0, 0x0000000000084595u64, 0x161401484a000000u64, 25}
-  ,	//  84-bit n ? 10^25
-  {26, 0x000000000052b7d2u64, 0xdcc80cd2e4000000u64, 26}
-  ,	//  85-bit n < 10^26
-  {26, 0x000000000052b7d2u64, 0xdcc80cd2e4000000u64, 26}
-  ,	//  86-bit n < 10^26
-  {0, 0x000000000052b7d2u64, 0xdcc80cd2e4000000u64, 26}
-  ,	//  87-bit n ? 10^26
-  {27, 0x00000000033b2e3cu64, 0x9fd0803ce8000000u64, 27}
-  ,	//  88-bit n < 10^27
-  {27, 0x00000000033b2e3cu64, 0x9fd0803ce8000000u64, 27}
-  ,	//  89-bit n < 10^27
-  {0, 0x00000000033b2e3cu64, 0x9fd0803ce8000000u64, 27}
-  ,	//  90-bit n ? 10^27
-  {28, 0x00000000204fce5eu64, 0x3e25026110000000u64, 28}
-  ,	//  91-bit n < 10^28
-  {28, 0x00000000204fce5eu64, 0x3e25026110000000u64, 28}
-  ,	//  92-bit n < 10^28
-  {28, 0x00000000204fce5eu64, 0x3e25026110000000u64, 28}
-  ,	//  93-bit n < 10^28
-  {0, 0x00000000204fce5eu64, 0x3e25026110000000u64, 28}
-  ,	//  94-bit n ? 10^28
-  {29, 0x00000001431e0faeu64, 0x6d7217caa0000000u64, 29}
-  ,	//  95-bit n < 10^29
-  {29, 0x00000001431e0faeu64, 0x6d7217caa0000000u64, 29}
-  ,	//  96-bit n < 10^29
-  {0, 0x00000001431e0faeu64, 0x6d7217caa0000000u64, 29}
-  ,	//  97-bit n ? 10^29
-  {30, 0x0000000c9f2c9cd0u64, 0x4674edea40000000u64, 30}
-  ,	//  98-bit n < 10^30
-  {30, 0x0000000c9f2c9cd0u64, 0x4674edea40000000u64, 30}
-  ,	//  99-bit n < 10^30
-  {0, 0x0000000c9f2c9cd0u64, 0x4674edea40000000u64, 30}
-  ,	// 100-bit n ? 10^30
-  {31, 0x0000007e37be2022u64, 0xc0914b2680000000u64, 31}
-  ,	// 101-bit n < 10^31
-  {31, 0x0000007e37be2022u64, 0xc0914b2680000000u64, 31}
-  ,	// 102-bit n < 10^31
-  {0, 0x0000007e37be2022u64, 0xc0914b2680000000u64, 31}
-  ,	// 103-bit n ? 10^31
-  {32, 0x000004ee2d6d415bu64, 0x85acef8100000000u64, 32}
-  ,	// 104-bit n < 10^32
-  {32, 0x000004ee2d6d415bu64, 0x85acef8100000000u64, 32}
-  ,	// 105-bit n < 10^32
-  {32, 0x000004ee2d6d415bu64, 0x85acef8100000000u64, 32}
-  ,	// 106-bit n < 10^32
-  {0, 0x000004ee2d6d415bu64, 0x85acef8100000000u64, 32}
-  ,	// 107-bit n ? 10^32
-  {33, 0x0000314dc6448d93u64, 0x38c15b0a00000000u64, 33}
-  ,	// 108-bit n < 10^33
-  {33, 0x0000314dc6448d93u64, 0x38c15b0a00000000u64, 33}
-  ,	// 109-bit n < 10^33
-  {0, 0x0000314dc6448d93u64, 0x38c15b0a00000000u64, 33}
-  ,	// 100-bit n ? 10^33
-  {34, 0x0001ed09bead87c0u64, 0x378d8e6400000000u64, 34}
-  ,	// 111-bit n < 10^34
-  {34, 0x0001ed09bead87c0u64, 0x378d8e6400000000u64, 34}
-  ,	// 112-bit n < 10^34
-  {0, 0x0001ed09bead87c0u64, 0x378d8e6400000000u64, 34}	// 113-bit n ? 10^34
+pub (crate) const bid_nr_digits: [DEC_DIGITS; 113] = [ // only the first entry is used if it is not 0
+  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   1-bit n < 10^1
+  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   2-bit n < 10^1
+  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   3-bit n < 10^1
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   4-bit n ? 10^1
+  DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   5-bit n < 10^2
+  DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   6-bit n < 10^2
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   7-bit n ? 10^2
+  DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   8-bit n < 10^3
+  DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   9-bit n < 10^3
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//  10-bit n ? 10^3
+  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  11-bit n < 10^4
+  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  12-bit n < 10^4
+  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  13-bit n < 10^4
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  14-bit n ? 10^4
+  DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  15-bit n < 10^5
+  DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  16-bit n < 10^5
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  17-bit n ? 10^5
+  DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  18-bit n < 10^6
+  DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  19-bit n < 10^6
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  20-bit n ? 10^6
+  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  21-bit n < 10^7
+  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  22-bit n < 10^7
+  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  23-bit n < 10^7
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  24-bit n ? 10^7
+  DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  25-bit n < 10^8
+  DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  26-bit n < 10^8
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  27-bit n ? 10^8
+  DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  28-bit n < 10^9
+  DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  29-bit n < 10^9
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  30-bit n ? 10^9
+  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  31-bit n < 10^10
+  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  32-bit n < 10^10
+  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  33-bit n < 10^10
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  34-bit n ? 10^10
+  DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  35-bit n < 10^11
+  DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  36-bit n < 10^11
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  37-bit n ? 10^11
+  DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  38-bit n < 10^12
+  DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  39-bit n < 10^12
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  40-bit n ? 10^12
+  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  41-bit n < 10^13
+  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  42-bit n < 10^13
+  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  43-bit n < 10^13
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  44-bit n ? 10^13
+  DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  45-bit n < 10^14
+  DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  46-bit n < 10^14
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  47-bit n ? 10^14
+  DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  48-bit n < 10^15
+  DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  49-bit n < 10^15
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  50-bit n ? 10^15
+  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  51-bit n < 10^16
+  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  52-bit n < 10^16
+  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  53-bit n < 10^16
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  54-bit n ? 10^16
+  DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  55-bit n < 10^17
+  DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  56-bit n < 10^17
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  57-bit n ? 10^17
+  DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  58-bit n < 10^18
+  DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  59-bit n < 10^18
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  60-bit n ? 10^18
+  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  61-bit n < 10^19
+  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  62-bit n < 10^19
+  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  63-bit n < 10^19
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  64-bit n ? 10^19
+  DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  65-bit n < 10^20
+  DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  66-bit n < 10^20
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  67-bit n ? 10^20
+  DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  68-bit n < 10^21
+  DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  69-bit n < 10^21
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  70-bit n ? 10^21
+  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  71-bit n < 10^22
+  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  72-bit n < 10^22
+  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  73-bit n < 10^22
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  74-bit n ? 10^22
+  DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  75-bit n < 10^23
+  DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  76-bit n < 10^23
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  77-bit n ? 10^23
+  DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  78-bit n < 10^24
+  DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  79-bit n < 10^24
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  80-bit n ? 10^24
+  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  81-bit n < 10^25
+  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  82-bit n < 10^25
+  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  83-bit n < 10^25
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  84-bit n ? 10^25
+  DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  85-bit n < 10^26
+  DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  86-bit n < 10^26
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  87-bit n ? 10^26
+  DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  88-bit n < 10^27
+  DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  89-bit n < 10^27
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  90-bit n ? 10^27
+  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  91-bit n < 10^28
+  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  92-bit n < 10^28
+  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  93-bit n < 10^28
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  94-bit n ? 10^28
+  DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  95-bit n < 10^29
+  DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  96-bit n < 10^29
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  97-bit n ? 10^29
+  DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  98-bit n < 10^30
+  DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  99-bit n < 10^30
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	// 100-bit n ? 10^30
+  DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 101-bit n < 10^31
+  DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 102-bit n < 10^31
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 103-bit n ? 10^31
+  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 104-bit n < 10^32
+  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 105-bit n < 10^32
+  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 106-bit n < 10^32
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 107-bit n ? 10^32
+  DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 108-bit n < 10^33
+  DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 109-bit n < 10^33
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 100-bit n ? 10^33
+  DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 111-bit n < 10^34
+  DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 112-bit n < 10^34
+  DEC_DIGITS { digits: 0   , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34}	// 113-bit n ? 10^34
 //{ 35, 0x0013426172c74d82u64, 0x2b878fe800000000u64, 35 }  // 114-bit n < 10^35
-};
-*/
+];
 
-use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+
+use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 
 // bid_midpoint64[i - 1] = 1/2 * 10^i = 5 * 10^(i-1), 1 <= i <= 19
 pub (crate) const bid_midpoint64: [BID_UINT64; 19] = [

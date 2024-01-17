@@ -1,9 +1,6 @@
 /* --------------------------------------------------------------------- */
 /* decimal128 type from Intel decimal math library port to Rust.         */
-/* Ported to rust-lang by Carlos Guzmán Álvarez                          */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
 /* --------------------------------------------------------------------- */
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
