@@ -8,7 +8,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN};
+use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN, bid128_isNormal};
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
@@ -39,16 +39,32 @@ pub (crate) struct DEC_DIGITS {
     pub (crate) digits1: u32
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UI32FLOAT {
+#[derive(Copy, Clone)]
+pub (crate) union BID_UI32FLOAT {
     pub (crate) i: BID_UINT32,
     pub (crate) f: f32
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UI64DOUBLE {
+impl Default for BID_UI32FLOAT {
+    fn default() -> Self {
+        Self {
+            i: 0
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub (crate) union BID_UI64DOUBLE {
     pub (crate) i: BID_UINT64,
     pub (crate) d: f64
+}
+
+impl Default for BID_UI64DOUBLE {
+    fn default() -> Self {
+        Self {
+            i: 0
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Default)]
@@ -102,6 +118,10 @@ impl BID_UINT128 {
 
     pub fn is_nan(&self) -> bool {
         bid128_isNaN(self)
+    }
+
+    pub fn is_normal(&self) -> bool {
+        bid128_isNormal(self)
     }
 }
 

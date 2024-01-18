@@ -50,6 +50,26 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_from_int64, $input1:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let dec      = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
+
+            assert_eq!(expected, dec);
+        }
+    };
+
+    ($name:ident, bid128_from_uint64, $input1:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let dec      = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
+
+            assert_eq!(expected, dec);
+        }
+    };
+
     ($name:ident, bid128_inf, $exp:expr) => {
         #[test]
         fn $name() {
@@ -96,23 +116,12 @@ macro_rules! dec_test {
         }
     };
 
-    ($name:ident, bid128_from_int64, $input1:expr, $expected:expr) => {
+    ($name:ident, bid128_is_normal, $input1:expr, $exp:expr) => {
         #[test]
         fn $name() {
-            let dec      = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
-            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
+            let res1 = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
 
-            assert_eq!(expected, dec);
-        }
-    };
-
-    ($name:ident, bid128_from_uint64, $input1:expr, $expected:expr) => {
-        #[test]
-        fn $name() {
-            let dec      = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
-            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
-
-            assert_eq!(expected, dec);
+            assert_eq!($exp, res1.is_normal());
         }
     };
 }
