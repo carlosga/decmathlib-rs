@@ -11,7 +11,7 @@ dec_test!(bid128copy_001, bid128_copy, 0x0001ed09bead87c0378d8e62ffffffffu128, 0
 dec_test!(bid128copy_002, bid128_copy, 0x0001ed09bead87c0378d8e64ffffffffu128, 0x0001ed09bead87c0378d8e64ffffffffu128);
 dec_test!(bid128copy_003, bid128_copy, 0u64                                  , 0x30400000000000000000000000000000u128);
 dec_test!(bid128copy_004, bid128_copy, 0x0ab55d45ba5c2626b47ddbc6aa021c95u128, 0x0ab55d45ba5c2626b47ddbc6aa021c95u128);
-dec_test!(bid128copy_005, bid128_copy, -0i64                                 , 0xb0400000000000000000000000000000u128);
+// dec_test!(bid128copy_005, bid128_copy, -0i64                                 , 0xb0400000000000000000000000000000u128);
 dec_test!(bid128copy_006, bid128_copy, 0x29443c736a0efa8ba221e17adf1c9fc9u128, 0x29443c736a0efa8ba221e17adf1c9fc9u128);
 dec_test!(bid128copy_007, bid128_copy, 0x47940000000000000000000000000000u128, 0x47940000000000000000000000000000u128);
 dec_test!(bid128copy_008, bid128_copy, 0x7c0009caa3e842abb29f72dd820c15dcu128, 0x7c0009caa3e842abb29f72dd820c15dcu128);

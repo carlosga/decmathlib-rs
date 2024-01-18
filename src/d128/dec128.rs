@@ -98,7 +98,7 @@ impl From<i64> for BID_UINT128 {
         // if integer is negative, use the absolute value
         if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
             res.w[BID_HIGH_128W] = 0xb040000000000000u64;
-            res.w[BID_LOW_128W]  = !(value as u64) + 1;	// 2's complement of x
+            res.w[BID_LOW_128W]  = (!value) as u64 + 1;	// 2's complement of x
         } else {
             res.w[BID_HIGH_128W] = 0x3040000000000000u64;
             res.w[BID_LOW_128W]  = value as u64;
