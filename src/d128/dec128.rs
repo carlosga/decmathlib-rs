@@ -8,7 +8,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign};
+use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf};
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
@@ -83,6 +83,10 @@ impl BID_UINT128 {
     pub fn copy(&self) -> Self { bid128_copy(self) }
 
     pub fn copy_sign(&self, other: &Self) -> Self { bid128_copySign(self, other) }
+
+    pub fn infinity() -> Self {
+        bid128_inf()
+    }
 }
 
 impl Eq for BID_UINT128 {}

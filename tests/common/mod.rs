@@ -50,6 +50,16 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_inf, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let res1     = decmathlib_rs::d128::dec128::BID_UINT128::infinity();
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($exp);
+
+            assert_eq!(expected, res1);
+        }
+    };
+
     ($name:ident, bid128_from_int64, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
