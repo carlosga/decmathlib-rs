@@ -8,6 +8,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use std::ops::Neg;
 use crate::d128::bid128_noncomp::*;
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
@@ -140,6 +141,10 @@ impl BID_UINT128 {
         bid128_isZero(self)
     }
 
+    pub fn negate(x: &Self) -> Self {
+        bid128_negate(x)
+    }
+
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
         bid128_sameQuantum(x, y)
     }
@@ -161,6 +166,22 @@ impl PartialEq for BID_UINT128 {
     }
 }
 
+impl Neg for BID_UINT128 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        bid128_negate(&self)
+    }
+}
+
+impl Neg for &BID_UINT128 {
+    type Output = BID_UINT128;
+
+    fn neg(self) -> Self::Output {
+        bid128_negate(self)
+    }
+}
+
 impl From<i64> for BID_UINT128 {
     fn from(value: i64) -> Self {
         let mut res = Self::default();
@@ -168,7 +189,7 @@ impl From<i64> for BID_UINT128 {
         // if integer is negative, use the absolute value
         if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
             res.w[BID_HIGH_128W] = 0xb040000000000000u64;
-            res.w[BID_LOW_128W]  = (!value) as u64 + 1;	// 2's complement of x
+            res.w[BID_LOW_128W]  = (!value + 1) as BID_UINT64;	// 2's complement of x
         } else {
             res.w[BID_HIGH_128W] = 0x3040000000000000u64;
             res.w[BID_LOW_128W]  = value as u64;

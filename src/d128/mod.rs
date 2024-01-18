@@ -11,3 +11,4 @@ mod bid_internal;
 mod bid128;
 mod bid_conf;
 mod bid128_noncomp;
+mod bid128_mul;
