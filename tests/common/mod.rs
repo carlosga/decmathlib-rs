@@ -28,6 +28,18 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_copySign, $input1:expr, $input2:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let x        = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let y        = decmathlib_rs::d128::dec128::BID_UINT128::from($input2);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($expected);
+            let copy     = x.copy_sign(&y);
+
+            assert_eq!(expected, copy);
+        }
+    };
+
     ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr) => {
         #[test]
         fn $name() {
