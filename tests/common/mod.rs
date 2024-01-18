@@ -87,6 +87,15 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_is_nan, $input1:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let res1 = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+
+            assert_eq!($exp, res1.is_nan());
+        }
+    };
+
     ($name:ident, bid128_from_int64, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
