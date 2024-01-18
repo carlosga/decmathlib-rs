@@ -160,4 +160,15 @@ macro_rules! dec_test {
             assert_eq!($exp, res1.is_zero());
         }
     };
+
+    ($name:ident, bid128_same_quantum, $input1:expr, $input2:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let dec1 = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let dec2 = decmathlib_rs::d128::dec128::BID_UINT128::from($input2);
+            let res  = decmathlib_rs::d128::dec128::BID_UINT128::same_quantum(&dec1, &dec2);
+
+            assert_eq!($exp, res);
+        }
+    };
 }
