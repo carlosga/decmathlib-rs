@@ -182,4 +182,15 @@ macro_rules! dec_test {
             assert_eq!($exp, res);
         }
     };
+
+    ($name:ident, bid128_total_order_mag, $input1:expr, $input2:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let dec1 = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let dec2 = decmathlib_rs::d128::dec128::BID_UINT128::from($input2);
+            let res  = decmathlib_rs::d128::dec128::BID_UINT128::total_order_mag(&dec1, &dec2);
+
+            assert_eq!($exp, res);
+        }
+    };
 }

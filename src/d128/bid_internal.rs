@@ -170,7 +170,7 @@ pub (crate) fn __set_status_flags(fpsc: &mut BID_UINT64, status: BID_UINT64)
 /// add 64-bit value to 128-bit
 pub (crate) fn __add_128_64(R128: &mut BID_UINT128, A128: &BID_UINT128, B64: BID_UINT64) {
     let mut R64H: BID_UINT64 = A128.w[1];
-    R128.w[0] = B64 + A128.w[0];
+    R128.w[0] = BID_UINT64::overflowing_add(B64, A128.w[0]).0;
     if R128.w[0] < B64 {
         R64H += 1;
     }
