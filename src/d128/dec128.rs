@@ -8,7 +8,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN, bid128_isNormal, bid128_isSignaling, bid128_isSigned, bid128_isSubnormal, bid128_isZero, bid128_sameQuantum};
+use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN, bid128_isNormal, bid128_isSignaling, bid128_isSigned, bid128_isSubnormal, bid128_isZero, bid128_sameQuantum, bid128_totalOrder};
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
@@ -142,6 +142,10 @@ impl BID_UINT128 {
 
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
         bid128_sameQuantum(x, y)
+    }
+
+    pub fn total_order(x: &Self, y: &Self) -> bool {
+        bid128_totalOrder(x, y)
     }
 }
 

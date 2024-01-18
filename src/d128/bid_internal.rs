@@ -179,13 +179,13 @@ pub (crate) fn __add_128_64(R128: &mut BID_UINT128, A128: &BID_UINT128, B64: BID
 
 pub (crate) fn __add_carry_out(S: &mut BID_UINT64, CY: &mut BID_UINT64, X: BID_UINT64, Y: BID_UINT64) {
     let X1: BID_UINT64 = X;
-    *S  = X + Y;
+    *S  = BID_UINT64::overflowing_add(X, Y).0;
     *CY = if *S < X1 { 1 } else { 0 };
 }
 
 pub (crate) fn __add_carry_in_out(S: &mut BID_UINT64, CY: &mut BID_UINT64, X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) {
     let X1:BID_UINT64 = X + CI;
-    *S  = X1 + Y;
+    *S  = BID_UINT64::overflowing_add(X1, Y).0;
     *CY = if *S < X1 || X1 < CI { 1 } else { 0 };
 }
 
