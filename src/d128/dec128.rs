@@ -8,7 +8,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN, bid128_isNormal, bid128_isSignaling, bid128_isSigned, bid128_isSubnormal};
+use crate::d128::bid128_noncomp::{bid128_class, bid128_copy, bid128_copySign, bid128_inf, bid128_isCanonical, bid128_isFinite, bid128_isInf, bid128_isNaN, bid128_isNormal, bid128_isSignaling, bid128_isSigned, bid128_isSubnormal, bid128_isZero};
 use crate::d128::constants::*;
 use crate::d128::data::bid_power10_table_128;
 use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
@@ -134,6 +134,10 @@ impl BID_UINT128 {
 
     pub fn is_subnormal(&self) -> bool {
         bid128_isSubnormal(self)
+    }
+
+    pub fn is_zero(&self) -> bool {
+        bid128_isZero(self)
     }
 }
 
