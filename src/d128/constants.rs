@@ -124,14 +124,14 @@ pub (crate) const BID_INVALID_MODE:u32     = 0x00000080;
 /////////////////////////////////////////
 // BID64 definitions
 ////////////////////////////////////////
-pub (crate) const DECIMAL_MAX_EXPON_64: u32  = 767;
-pub (crate) const DECIMAL_EXPONENT_BIAS: u32 = 398;
+pub (crate) const DECIMAL_MAX_EXPON_64: i32  = 767;
+pub (crate) const DECIMAL_EXPONENT_BIAS: i32 = 398;
 pub (crate) const MAX_FORMAT_DIGITS: u32     = 16;
 /////////////////////////////////////////
 // BID128 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_128: u32     = 12287;
-pub (crate) const DECIMAL_EXPONENT_BIAS_128: u32 = 6176;
+pub (crate) const DECIMAL_EXPONENT_BIAS_128: i32 = 6176;
 pub (crate) const MAX_FORMAT_DIGITS_128: u32     = 34;
 /////////////////////////////////////////
 // BID32 definitions
