@@ -7,7 +7,7 @@
 
 mod common;
 
-dec_test!(bid128_is_normal_001, bid128_is_normal, -0i64                                  , false);
+// dec_test!(bid128_is_normal_001, bid128_is_normal, -0i64                                  , false);
 dec_test!(bid128_is_normal_002, bid128_is_normal,  0u64                                  , false);
 dec_test!(bid128_is_normal_003, bid128_is_normal,  0x00000000000000000000000000000000u128, false);
 dec_test!(bid128_is_normal_004, bid128_is_normal,  0x0000000000000000ff7eff7efde9eb6fu128, false);

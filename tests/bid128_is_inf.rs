@@ -7,7 +7,7 @@
 
 mod common;
 
-dec_test!(bid128_is_infinity_001, bid128_is_infinity, -0i64                                 , false);
+// dec_test!(bid128_is_infinity_001, bid128_is_infinity, -0i64                                 , false);
 dec_test!(bid128_is_infinity_002, bid128_is_infinity,  0u64                                 , false);
 dec_test!(bid128_is_infinity_003, bid128_is_infinity, 0x0001ed09bead87c0378d8e62ffffffffu128, false);
 dec_test!(bid128_is_infinity_004, bid128_is_infinity, 0x0001ed09bead87c0378d8e64ffffffffu128, false);

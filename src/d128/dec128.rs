@@ -28,6 +28,9 @@ pub enum ClassTypes {
     positiveInfinity
 }
 
+pub (crate) type _IDEC_round = u32;
+pub (crate) type _IDEC_flags = u32;       // could be a struct with diagnostic info
+
 pub (crate) type BID_UINT32 = u32;
 
 pub (crate) type BID_UINT64 = u64;
@@ -238,7 +241,7 @@ pub fn bid64_to_bid128(x: BID_UINT64) -> BID_UINT128 {
             }
             res.w[0] = coefficient_x & 0x0003ffffffffffffu64;
             let cx = res.w[0];
-            __mul_64x64_to_128(&mut res, cx, bid_power10_table_128[18].w[0]);
+            res = __mul_64x64_to_128(cx, bid_power10_table_128[18].w[0]);
             res.w[1] |= (coefficient_x) & 0xfc00000000000000u64;
             return res;
         }

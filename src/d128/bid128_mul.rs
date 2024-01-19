@@ -87,9 +87,9 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32) -> B
         true_p_exp = ((x_exp >> 49) - 6176 + (y_exp >> 49) - 6176) as i32;
         // true_p_exp, p_exp are used only for 0 * 0, 0 * f, or f * 0
         p_exp = if true_p_exp < -398 {
-            0                                               // cannot be less than EXP_MIN
+            0                                       // cannot be less than EXP_MIN
         } else if true_p_exp > 369 {
-            ((369 + 398) as BID_UINT64) << 53      // cannot be more than EXP_MAX
+            ((369 + 398) as BID_UINT64) << 53       // cannot be more than EXP_MAX
         } else {
             ((true_p_exp + 398) as BID_UINT64) << 53
         };
@@ -102,6 +102,25 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32) -> B
     }
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
     return bid64qqq_fma(y, x, z, rnd_mode);
+}
+
+pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32) -> BID_UINT128 {
+    let mut is_midpoint_lt_even: i32;
+    let mut is_midpoint_gt_even: i32;
+    let mut is_inexact_lt_midpoint: i32;
+    let mut is_inexact_gt_midpoint: i32;
+
+    let res = bid128_ext_fma(
+        &mut is_midpoint_lt_even,
+        &mut is_midpoint_gt_even,
+        &mut is_inexact_lt_midpoint,
+        &mut is_inexact_gt_midpoint,
+        &x,
+        &y,
+        &z,
+        rnd_mode);
+
+    return res;
 }
 
 pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: u32) -> BID_UINT128 {
@@ -211,9 +230,7 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32) -> BI
         if (C1.w[1] == 0x0 && C1.w[0] == 0x0) || (C2.w[1] == 0x0 && C2.w[0] == 0x0) {
             // x = 0 or y = 0
             // the result is 0
-            let mut res = BID_UINT128::default();
-            res.w[1] = p_sign | p_exp;	// preferred exponent in [EXP_MIN, EXP_MAX]
-            res.w[0] = 0x0;
+            let mut res = BID_UINT128 { w: [0x0, p_sign | p_exp] }; // preferred exponent in [EXP_MIN, EXP_MAX]
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut resres);
             return res;
@@ -230,6 +247,6 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32) -> BI
     BID_SWAP128(&mut z);
 
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
-    return bid128_fma(y, x, z, rnd_mode);
+    return bid128_fma(y, x, &z, rnd_mode);
 }
 */
