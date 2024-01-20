@@ -11,26 +11,12 @@
 use std::ops::Neg;
 use crate::d128::bid128_noncomp::*;
 use crate::d128::constants::*;
-use crate::d128::bid_decimal_data::bid_power10_table_128;
-use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
-
-#[derive(Debug, Copy, Clone)]
-pub enum ClassTypes {
-    signalingNaN,
-    quietNaN,
-    negativeInfinity,
-    negativeNormal,
-    negativeSubnormal,
-    negativeZero,
-    positiveZero,
-    positiveSubnormal,
-    positiveNormal,
-    positiveInfinity
-}
+use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
+use crate::d128::core::{ClassTypes, RoundingMode};
 
 pub (crate) type _IDEC_round = u32;
 
-pub (crate) type _IDEC_flags = u32;       // could be a struct with diagnostic info
+pub type _IDEC_flags = u32;       // could be a struct with diagnostic info
 
 pub (crate) type BID_UINT32 = u32;
 
@@ -161,6 +147,14 @@ impl BID_UINT128 {
 
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
         bid128_totalOrderMag(x, y)
+    }
+
+    pub fn from_decimal64(bid: BID_UINT64, status: &mut _IDEC_flags) -> Self {
+        bid64_to_bid128(bid, status)
+    }
+
+    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> BID_UINT64 {
+        bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
 }
 

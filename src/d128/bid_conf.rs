@@ -6,6 +6,9 @@
 /* --------------------------------------------------------------------- */
 
 #[cfg(target_endian = "big")]
+use crate::d128::dec128::{BID_UINT128, BID_UINT64};
+
+#[cfg(target_endian = "big")]
 pub (crate) fn BID_SWAP128(x: &mut BID_UINT128) {
     let sw: BID_UINT64 = x.w[1];
     x.w[1] = x.w[0];

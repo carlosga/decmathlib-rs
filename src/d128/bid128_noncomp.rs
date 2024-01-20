@@ -35,7 +35,11 @@
 use crate::d128::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
 use crate::d128::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
 use crate::d128::constants::*;
-use crate::d128::dec128::{BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, ClassTypes};
+use crate::d128::core::ClassTypes;
+use crate::d128::dec128::{BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+
+#[cfg(target_endian = "big")]
+use crate::d128::bid_conf::BID_SWAP128;
 
 pub (crate) fn bid128_isSigned(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_SIGN) == MASK_SIGN
@@ -142,9 +146,9 @@ pub (crate) fn bid128_isSubnormal(x: &BID_UINT128) -> bool {
     }
     // test for non-canonical values of the argument x
     if (((C1_hi > 0x0001ed09bead87c0u64)
-        || ((C1_hi == 0x0001ed09bead87c0u64) && (C1_lo > 0x378d8e63ffffffffu64)))
-        && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
-        || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+     || ((C1_hi == 0x0001ed09bead87c0u64) && (C1_lo > 0x378d8e63ffffffffu64)))
+     && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
+     || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
         return false;
     }
     // x is subnormal or normal
@@ -359,13 +363,13 @@ pub (crate) fn bid128_sameQuantum(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let y_exp: BID_UINT64;
 
     #[cfg(target_endian = "big")]
-        let mut x = *x;
+    let mut x = *x;
 
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
 
     #[cfg(target_endian = "big")]
-        let mut y = *y;
+    let mut y = *y;
 
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut y);

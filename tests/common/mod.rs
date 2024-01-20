@@ -7,6 +7,17 @@
 
 #[macro_export]
 macro_rules! dec_test {
+    ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::dec128::_IDEC_flags = 0;
+            let res1     = decmathlib_rs::d128::dec128::BID_UINT128::from_decimal64($input1, &mut status);
+            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($exp);
+
+            assert_eq!(expected, res1);
+        }
+    };
+
     ($name:ident, bid128_class, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
@@ -37,16 +48,6 @@ macro_rules! dec_test {
             let copy     = x.copy_sign(&y);
 
             assert_eq!(expected, copy);
-        }
-    };
-
-    ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr) => {
-        #[test]
-        fn $name() {
-            let res1     = decmathlib_rs::d128::dec128::bid64_to_bid128($input1);
-            let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($exp);
-
-            assert_eq!(expected, res1);
         }
     };
 
@@ -180,6 +181,19 @@ macro_rules! dec_test {
             let res  = decmathlib_rs::d128::dec128::BID_UINT128::same_quantum(&dec1, &dec2);
 
             assert_eq!($exp, res);
+        }
+    };
+
+    ($name:ident, bid128_to_bid64, $rnd_mode:expr, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::dec128::_IDEC_flags = 0;
+            let rnd_mode = Some($rnd_mode);
+            let dec1 = decmathlib_rs::d128::dec128::BID_UINT128::from($input1);
+            let res1 = dec1.to_decimal64(rnd_mode, &mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
         }
     };
 

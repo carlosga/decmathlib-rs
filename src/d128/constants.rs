@@ -11,10 +11,13 @@
 
 #[cfg(target_endian = "big")]
 pub (crate) const BID_HIGH_128W: usize = 0;
+
 #[cfg(target_endian = "big")]
 pub (crate) const BID_LOW_128W: usize = 1;
+
 #[cfg(target_endian = "little")]
 pub (crate) const BID_HIGH_128W: usize = 1;
+
 #[cfg(target_endian = "little")]
 pub (crate) const BID_LOW_128W: usize = 0;
 
@@ -71,19 +74,6 @@ pub (crate) const BID128_MAXDIGITS: u32 = 34;
 pub (crate) const BID64_MAXDIGITS: u32  = 16;
 pub (crate) const BID32_MAXDIGITS: u32  = 7;
 
-// rounding modes
-pub (crate) const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
-pub (crate) const BID_ROUNDING_DOWN: u32        = 0x00001;
-pub (crate) const BID_ROUNDING_UP: u32          = 0x00002;
-pub (crate) const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
-pub (crate) const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
-
-pub (crate) const BID_RMODE_MASK: u32  = BID_ROUNDING_TO_NEAREST
-                                       | BID_ROUNDING_DOWN
-                                       | BID_ROUNDING_UP
-                                       | BID_ROUNDING_TO_ZERO
-                                       | BID_ROUNDING_TIES_AWAY;
-
 // status
 pub (crate) const BID_FLAG_MASK: u32     = 0x0000003f;
 pub (crate) const DEC_FE_ALL_EXCEPT: u32 = 0x0000003f;
@@ -99,15 +89,6 @@ pub (crate) const DEC_FE_INEXACT:u32    = 0x20;
 
 ////////////////////////////////////////////////////////
 
-pub (crate) const BID_INEXACT_EXCEPTION: u32            = DEC_FE_INEXACT;
-pub (crate) const BID_UNDERFLOW_EXCEPTION: u32          = DEC_FE_UNDERFLOW;
-pub (crate) const BID_OVERFLOW_EXCEPTION: u32           = DEC_FE_OVERFLOW;
-pub (crate) const BID_ZERO_DIVIDE_EXCEPTION: u32        = DEC_FE_DIVBYZERO;
-pub (crate) const BID_DENORMAL_EXCEPTION: u32           = DEC_FE_UNNORMAL;
-pub (crate) const BID_INVALID_EXCEPTION: u32            = DEC_FE_INVALID;
-pub (crate) const BID_UNDERFLOW_INEXACT_EXCEPTION: u32  = DEC_FE_UNDERFLOW | DEC_FE_INEXACT;
-pub (crate) const BID_OVERFLOW_INEXACT_EXCEPTION: u32   = DEC_FE_OVERFLOW | DEC_FE_INEXACT;
-
 pub (crate) const BID_MODE_MASK:u32        = 0x00001f80;
 pub (crate) const BID_INEXACT_MODE:u32     = 0x00001000;
 pub (crate) const BID_UNDERFLOW_MODE:u32   = 0x00000800;
@@ -116,29 +97,31 @@ pub (crate) const BID_ZERO_DIVIDE_MODE:u32 = 0x00000200;
 pub (crate) const BID_DENORMAL_MODE:u32    = 0x00000100;
 pub (crate) const BID_INVALID_MODE:u32     = 0x00000080;
 
-/*********************************************************************
- *
- *      BID Pack/Unpack Macros
- *
- *********************************************************************/
+//////////////////////////////////////////////
+//      BID Pack/Unpack Macros
+//////////////////////////////////////////////
+
 /////////////////////////////////////////
 // BID64 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_64: i32  = 767;
 pub (crate) const DECIMAL_EXPONENT_BIAS: i32 = 398;
 pub (crate) const MAX_FORMAT_DIGITS: u32     = 16;
+
 /////////////////////////////////////////
 // BID128 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_128: u32     = 12287;
 pub (crate) const DECIMAL_EXPONENT_BIAS_128: i32 = 6176;
 pub (crate) const MAX_FORMAT_DIGITS_128: u32     = 34;
+
 /////////////////////////////////////////
 // BID32 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_32: u32     = 191;
 pub (crate) const DECIMAL_EXPONENT_BIAS_32: u32 = 101;
 pub (crate) const MAX_FORMAT_DIGITS_32: u32     = 7;
+
 ////////////////////////////////////////
 // Constant Definitions
 ///////////////////////////////////////

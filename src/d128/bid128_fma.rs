@@ -5,9 +5,13 @@
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
 
+/*
 use crate::d128::bid128::{bid_ten2k128, bid_ten2k256, bid_ten2k64};
 use crate::d128::constants::*;
-use crate::d128::dec128::{_IDEC_flags, bid64_to_bid128, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::d128::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+
+#[cfg(target_endian = "big")]
+use crate::d128::bid_conf::BID_SWAP128;
 
 // ********************************************************************************************************************
 // BID128 fma   x * y + z
@@ -4320,3 +4324,4 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     *pfpsf |= save_fpsf;
     return res1;
 }
+*/
