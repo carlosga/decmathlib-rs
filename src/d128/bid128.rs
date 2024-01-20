@@ -10,319 +10,319 @@
 #![allow(unused)]
 #![allow(dead_code)]
 
-// the first entry of bid_nr_digits[i - 1] (where 1 <= i <= 113), indicates
-// the number of decimal digits needed to represent a binary number with i bits;
-// however, if a binary number of i bits may require either k or k + 1 decimal
-// digits, then the first entry of bid_nr_digits[i - 1] is 0; in this case if the
-// number is less than the value represented by the second and third entries
-// concatenated, then the number of decimal digits k is the fourth entry, else
-// the number of decimal digits is the fourth entry plus 1
+/// the first entry of bid_nr_digits[i - 1] (where 1 <= i <= 113), indicates
+/// the number of decimal digits needed to represent a binary number with i bits;
+/// however, if a binary number of i bits may require either k or k + 1 decimal
+/// digits, then the first entry of bid_nr_digits[i - 1] is 0; in this case if the
+/// number is less than the value represented by the second and third entries
+/// concatenated, then the number of decimal digits k is the fourth entry, else
+/// the number of decimal digits is the fourth entry plus 1
 pub (crate) const bid_nr_digits: [DEC_DIGITS; 113] = [ // only the first entry is used if it is not 0
-  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   1-bit n < 10^1
-  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   2-bit n < 10^1
-  DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   3-bit n < 10^1
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   4-bit n ? 10^1
-  DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   5-bit n < 10^2
-  DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   6-bit n < 10^2
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   7-bit n ? 10^2
-  DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   8-bit n < 10^3
-  DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   9-bit n < 10^3
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//  10-bit n ? 10^3
-  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  11-bit n < 10^4
-  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  12-bit n < 10^4
-  DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  13-bit n < 10^4
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  14-bit n ? 10^4
-  DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  15-bit n < 10^5
-  DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  16-bit n < 10^5
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  17-bit n ? 10^5
-  DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  18-bit n < 10^6
-  DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  19-bit n < 10^6
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  20-bit n ? 10^6
-  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  21-bit n < 10^7
-  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  22-bit n < 10^7
-  DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  23-bit n < 10^7
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  24-bit n ? 10^7
-  DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  25-bit n < 10^8
-  DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  26-bit n < 10^8
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  27-bit n ? 10^8
-  DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  28-bit n < 10^9
-  DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  29-bit n < 10^9
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  30-bit n ? 10^9
-  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  31-bit n < 10^10
-  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  32-bit n < 10^10
-  DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  33-bit n < 10^10
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  34-bit n ? 10^10
-  DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  35-bit n < 10^11
-  DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  36-bit n < 10^11
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  37-bit n ? 10^11
-  DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  38-bit n < 10^12
-  DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  39-bit n < 10^12
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  40-bit n ? 10^12
-  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  41-bit n < 10^13
-  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  42-bit n < 10^13
-  DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  43-bit n < 10^13
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  44-bit n ? 10^13
-  DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  45-bit n < 10^14
-  DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  46-bit n < 10^14
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  47-bit n ? 10^14
-  DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  48-bit n < 10^15
-  DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  49-bit n < 10^15
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  50-bit n ? 10^15
-  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  51-bit n < 10^16
-  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  52-bit n < 10^16
-  DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  53-bit n < 10^16
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  54-bit n ? 10^16
-  DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  55-bit n < 10^17
-  DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  56-bit n < 10^17
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  57-bit n ? 10^17
-  DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  58-bit n < 10^18
-  DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  59-bit n < 10^18
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  60-bit n ? 10^18
-  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  61-bit n < 10^19
-  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  62-bit n < 10^19
-  DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  63-bit n < 10^19
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  64-bit n ? 10^19
-  DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  65-bit n < 10^20
-  DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  66-bit n < 10^20
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  67-bit n ? 10^20
-  DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  68-bit n < 10^21
-  DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  69-bit n < 10^21
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  70-bit n ? 10^21
-  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  71-bit n < 10^22
-  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  72-bit n < 10^22
-  DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  73-bit n < 10^22
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  74-bit n ? 10^22
-  DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  75-bit n < 10^23
-  DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  76-bit n < 10^23
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  77-bit n ? 10^23
-  DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  78-bit n < 10^24
-  DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  79-bit n < 10^24
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  80-bit n ? 10^24
-  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  81-bit n < 10^25
-  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  82-bit n < 10^25
-  DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  83-bit n < 10^25
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  84-bit n ? 10^25
-  DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  85-bit n < 10^26
-  DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  86-bit n < 10^26
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  87-bit n ? 10^26
-  DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  88-bit n < 10^27
-  DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  89-bit n < 10^27
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  90-bit n ? 10^27
-  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  91-bit n < 10^28
-  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  92-bit n < 10^28
-  DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  93-bit n < 10^28
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  94-bit n ? 10^28
-  DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  95-bit n < 10^29
-  DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  96-bit n < 10^29
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  97-bit n ? 10^29
-  DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  98-bit n < 10^30
-  DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  99-bit n < 10^30
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	// 100-bit n ? 10^30
-  DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 101-bit n < 10^31
-  DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 102-bit n < 10^31
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 103-bit n ? 10^31
-  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 104-bit n < 10^32
-  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 105-bit n < 10^32
-  DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 106-bit n < 10^32
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 107-bit n ? 10^32
-  DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 108-bit n < 10^33
-  DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 109-bit n < 10^33
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 100-bit n ? 10^33
-  DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 111-bit n < 10^34
-  DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 112-bit n < 10^34
-  DEC_DIGITS { digits: 0   , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34}	// 113-bit n ? 10^34
-//{ 35, 0x0013426172c74d82u64, 0x2b878fe800000000u64, 35 }  // 114-bit n < 10^35
+    DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   1-bit n < 10^1
+    DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   2-bit n < 10^1
+    DEC_DIGITS { digits: 1   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   3-bit n < 10^1
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000000000000au64, digits1: 1},	//   4-bit n ? 10^1
+    DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   5-bit n < 10^2
+    DEC_DIGITS { digits: 2   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   6-bit n < 10^2
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000000064u64, digits1: 2},	//   7-bit n ? 10^2
+    DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   8-bit n < 10^3
+    DEC_DIGITS { digits: 3   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//   9-bit n < 10^3
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000003e8u64, digits1: 3},	//  10-bit n ? 10^3
+    DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  11-bit n < 10^4
+    DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  12-bit n < 10^4
+    DEC_DIGITS { digits: 4   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  13-bit n < 10^4
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000002710u64, digits1: 4},	//  14-bit n ? 10^4
+    DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  15-bit n < 10^5
+    DEC_DIGITS { digits: 5   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  16-bit n < 10^5
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000186a0u64, digits1: 5},	//  17-bit n ? 10^5
+    DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  18-bit n < 10^6
+    DEC_DIGITS { digits: 6   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  19-bit n < 10^6
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000000000f4240u64, digits1: 6},	//  20-bit n ? 10^6
+    DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  21-bit n < 10^7
+    DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  22-bit n < 10^7
+    DEC_DIGITS { digits: 7   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  23-bit n < 10^7
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000000989680u64, digits1: 7},	//  24-bit n ? 10^7
+    DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  25-bit n < 10^8
+    DEC_DIGITS { digits: 8   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  26-bit n < 10^8
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0000000005f5e100u64, digits1: 8},	//  27-bit n ? 10^8
+    DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  28-bit n < 10^9
+    DEC_DIGITS { digits: 9   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  29-bit n < 10^9
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000003b9aca00u64, digits1: 9},	//  30-bit n ? 10^9
+    DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  31-bit n < 10^10
+    DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  32-bit n < 10^10
+    DEC_DIGITS { digits: 10  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  33-bit n < 10^10
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00000002540be400u64, digits1: 10},	//  34-bit n ? 10^10
+    DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  35-bit n < 10^11
+    DEC_DIGITS { digits: 11  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  36-bit n < 10^11
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000174876e800u64, digits1: 11},	//  37-bit n ? 10^11
+    DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  38-bit n < 10^12
+    DEC_DIGITS { digits: 12  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  39-bit n < 10^12
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000000e8d4a51000u64, digits1: 12},	//  40-bit n ? 10^12
+    DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  41-bit n < 10^13
+    DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  42-bit n < 10^13
+    DEC_DIGITS { digits: 13  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  43-bit n < 10^13
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x000009184e72a000u64, digits1: 13},	//  44-bit n ? 10^13
+    DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  45-bit n < 10^14
+    DEC_DIGITS { digits: 14  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  46-bit n < 10^14
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00005af3107a4000u64, digits1: 14},	//  47-bit n ? 10^14
+    DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  48-bit n < 10^15
+    DEC_DIGITS { digits: 15  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  49-bit n < 10^15
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x00038d7ea4c68000u64, digits1: 15},	//  50-bit n ? 10^15
+    DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  51-bit n < 10^16
+    DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  52-bit n < 10^16
+    DEC_DIGITS { digits: 16  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  53-bit n < 10^16
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x002386f26fc10000u64, digits1: 16},	//  54-bit n ? 10^16
+    DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  55-bit n < 10^17
+    DEC_DIGITS { digits: 17  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  56-bit n < 10^17
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x016345785d8a0000u64, digits1: 17},	//  57-bit n ? 10^17
+    DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  58-bit n < 10^18
+    DEC_DIGITS { digits: 18  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  59-bit n < 10^18
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x0de0b6b3a7640000u64, digits1: 18},	//  60-bit n ? 10^18
+    DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  61-bit n < 10^19
+    DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  62-bit n < 10^19
+    DEC_DIGITS { digits: 19  , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  63-bit n < 10^19
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000000u64, threshold_lo: 0x8ac7230489e80000u64, digits1: 19},	//  64-bit n ? 10^19
+    DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  65-bit n < 10^20
+    DEC_DIGITS { digits: 20  , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  66-bit n < 10^20
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000005u64, threshold_lo: 0x6bc75e2d63100000u64, digits1: 20},	//  67-bit n ? 10^20
+    DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  68-bit n < 10^21
+    DEC_DIGITS { digits: 21  , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  69-bit n < 10^21
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000000036u64, threshold_lo: 0x35c9adc5dea00000u64, digits1: 21},	//  70-bit n ? 10^21
+    DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  71-bit n < 10^22
+    DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  72-bit n < 10^22
+    DEC_DIGITS { digits: 22  , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  73-bit n < 10^22
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000021eu64, threshold_lo: 0x19e0c9bab2400000u64, digits1: 22},	//  74-bit n ? 10^22
+    DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  75-bit n < 10^23
+    DEC_DIGITS { digits: 23  , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  76-bit n < 10^23
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000152du64, threshold_lo: 0x02c7e14af6800000u64, digits1: 23},	//  77-bit n ? 10^23
+    DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  78-bit n < 10^24
+    DEC_DIGITS { digits: 24  , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  79-bit n < 10^24
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000000d3c2u64, threshold_lo: 0x1bcecceda1000000u64, digits1: 24},	//  80-bit n ? 10^24
+    DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  81-bit n < 10^25
+    DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  82-bit n < 10^25
+    DEC_DIGITS { digits: 25  , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  83-bit n < 10^25
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000000084595u64, threshold_lo: 0x161401484a000000u64, digits1: 25},	//  84-bit n ? 10^25
+    DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  85-bit n < 10^26
+    DEC_DIGITS { digits: 26  , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  86-bit n < 10^26
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x000000000052b7d2u64, threshold_lo: 0xdcc80cd2e4000000u64, digits1: 26},	//  87-bit n ? 10^26
+    DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  88-bit n < 10^27
+    DEC_DIGITS { digits: 27  , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  89-bit n < 10^27
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000033b2e3cu64, threshold_lo: 0x9fd0803ce8000000u64, digits1: 27},	//  90-bit n ? 10^27
+    DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  91-bit n < 10^28
+    DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  92-bit n < 10^28
+    DEC_DIGITS { digits: 28  , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  93-bit n < 10^28
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x00000000204fce5eu64, threshold_lo: 0x3e25026110000000u64, digits1: 28},	//  94-bit n ? 10^28
+    DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  95-bit n < 10^29
+    DEC_DIGITS { digits: 29  , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  96-bit n < 10^29
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x00000001431e0faeu64, threshold_lo: 0x6d7217caa0000000u64, digits1: 29},	//  97-bit n ? 10^29
+    DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  98-bit n < 10^30
+    DEC_DIGITS { digits: 30  , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	//  99-bit n < 10^30
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000000c9f2c9cd0u64, threshold_lo: 0x4674edea40000000u64, digits1: 30},	// 100-bit n ? 10^30
+    DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 101-bit n < 10^31
+    DEC_DIGITS { digits: 31  , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 102-bit n < 10^31
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000007e37be2022u64, threshold_lo: 0xc0914b2680000000u64, digits1: 31},	// 103-bit n ? 10^31
+    DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 104-bit n < 10^32
+    DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 105-bit n < 10^32
+    DEC_DIGITS { digits: 32  , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 106-bit n < 10^32
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x000004ee2d6d415bu64, threshold_lo: 0x85acef8100000000u64, digits1: 32},	// 107-bit n ? 10^32
+    DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 108-bit n < 10^33
+    DEC_DIGITS { digits: 33  , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 109-bit n < 10^33
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0000314dc6448d93u64, threshold_lo: 0x38c15b0a00000000u64, digits1: 33},	// 100-bit n ? 10^33
+    DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 111-bit n < 10^34
+    DEC_DIGITS { digits: 34  , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34},	// 112-bit n < 10^34
+    DEC_DIGITS { digits: 0   , threshold_hi: 0x0001ed09bead87c0u64, threshold_lo: 0x378d8e6400000000u64, digits1: 34}	// 113-bit n ? 10^34
+    //{ 35, 0x0013426172c74d82u64, 0x2b878fe800000000u64, 35 }  // 114-bit n < 10^35
 ];
 
 
 use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 
-// bid_midpoint64[i - 1] = 1/2 * 10^i = 5 * 10^(i-1), 1 <= i <= 19
+/// bid_midpoint64[i - 1] = 1/2 * 10^i = 5 * 10^(i-1), 1 <= i <= 19
 pub (crate) const bid_midpoint64: [BID_UINT64; 19] = [
-  0x0000000000000005u64,    // 1/2 * 10^1 = 5 * 10^0
-  0x0000000000000032u64,    // 1/2 * 10^2 = 5 * 10^1
-  0x00000000000001f4u64,    // 1/2 * 10^3 = 5 * 10^2
-  0x0000000000001388u64,    // 1/2 * 10^4 = 5 * 10^3
-  0x000000000000c350u64,    // 1/2 * 10^5 = 5 * 10^4
-  0x000000000007a120u64,    // 1/2 * 10^6 = 5 * 10^5
-  0x00000000004c4b40u64,    // 1/2 * 10^7 = 5 * 10^6
-  0x0000000002faf080u64,    // 1/2 * 10^8 = 5 * 10^7
-  0x000000001dcd6500u64,    // 1/2 * 10^9 = 5 * 10^8
-  0x000000012a05f200u64,    // 1/2 * 10^10 = 5 * 10^9
-  0x0000000ba43b7400u64,    // 1/2 * 10^11 = 5 * 10^10
-  0x000000746a528800u64,    // 1/2 * 10^12 = 5 * 10^11
-  0x0000048c27395000u64,    // 1/2 * 10^13 = 5 * 10^12
-  0x00002d79883d2000u64,    // 1/2 * 10^14 = 5 * 10^13
-  0x0001c6bf52634000u64,    // 1/2 * 10^15 = 5 * 10^14
-  0x0011c37937e08000u64,    // 1/2 * 10^16 = 5 * 10^15
-  0x00b1a2bc2ec50000u64,    // 1/2 * 10^17 = 5 * 10^16
-  0x06f05b59d3b20000u64,    // 1/2 * 10^18 = 5 * 10^17
-  0x4563918244f40000u64	    // 1/2 * 10^19 = 5 * 10^18
+    0x0000000000000005u64,    // 1/2 * 10^1 = 5 * 10^0
+    0x0000000000000032u64,    // 1/2 * 10^2 = 5 * 10^1
+    0x00000000000001f4u64,    // 1/2 * 10^3 = 5 * 10^2
+    0x0000000000001388u64,    // 1/2 * 10^4 = 5 * 10^3
+    0x000000000000c350u64,    // 1/2 * 10^5 = 5 * 10^4
+    0x000000000007a120u64,    // 1/2 * 10^6 = 5 * 10^5
+    0x00000000004c4b40u64,    // 1/2 * 10^7 = 5 * 10^6
+    0x0000000002faf080u64,    // 1/2 * 10^8 = 5 * 10^7
+    0x000000001dcd6500u64,    // 1/2 * 10^9 = 5 * 10^8
+    0x000000012a05f200u64,    // 1/2 * 10^10 = 5 * 10^9
+    0x0000000ba43b7400u64,    // 1/2 * 10^11 = 5 * 10^10
+    0x000000746a528800u64,    // 1/2 * 10^12 = 5 * 10^11
+    0x0000048c27395000u64,    // 1/2 * 10^13 = 5 * 10^12
+    0x00002d79883d2000u64,    // 1/2 * 10^14 = 5 * 10^13
+    0x0001c6bf52634000u64,    // 1/2 * 10^15 = 5 * 10^14
+    0x0011c37937e08000u64,    // 1/2 * 10^16 = 5 * 10^15
+    0x00b1a2bc2ec50000u64,    // 1/2 * 10^17 = 5 * 10^16
+    0x06f05b59d3b20000u64,    // 1/2 * 10^18 = 5 * 10^17
+    0x4563918244f40000u64	    // 1/2 * 10^19 = 5 * 10^18
 ];
 
-// bid_midpoint128[i - 20] = 1/2 * 10^i = 5 * 10^(i-1), 20 <= i <= 38
+/// bid_midpoint128[i - 20] = 1/2 * 10^i = 5 * 10^(i-1), 20 <= i <= 38
 pub (crate) const bid_midpoint128: [BID_UINT128; 19] = [	         // the 64-bit word order is L, H
-  BID_UINT128 { w: [0xb5e3af16b1880000u64, 0x0000000000000002u64] }, // 1/2 * 10^20 = 5 * 10^19
-  BID_UINT128 { w: [0x1ae4d6e2ef500000u64, 0x000000000000001bu64] }, // 1/2 * 10^21 = 5 * 10^20
-  BID_UINT128 { w: [0x0cf064dd59200000u64, 0x000000000000010fu64] }, // 1/2 * 10^22 = 5 * 10^21
-  BID_UINT128 { w: [0x8163f0a57b400000u64, 0x0000000000000a96u64] }, // 1/2 * 10^23 = 5 * 10^22
-  BID_UINT128 { w: [0x0de76676d0800000u64, 0x00000000000069e1u64] }, // 1/2 * 10^24 = 5 * 10^23
-  BID_UINT128 { w: [0x8b0a00a425000000u64, 0x00000000000422cau64] }, // 1/2 * 10^25 = 5 * 10^24
-  BID_UINT128 { w: [0x6e64066972000000u64, 0x0000000000295be9u64] }, // 1/2 * 10^26 = 5 * 10^25
-  BID_UINT128 { w: [0x4fe8401e74000000u64, 0x00000000019d971eu64] }, // 1/2 * 10^27 = 5 * 10^26
-  BID_UINT128 { w: [0x1f12813088000000u64, 0x000000001027e72fu64] }, // 1/2 * 10^28 = 5 * 10^27
-  BID_UINT128 { w: [0x36b90be550000000u64, 0x00000000a18f07d7u64] }, // 1/2 * 10^29 = 5 * 10^28
-  BID_UINT128 { w: [0x233a76f520000000u64, 0x000000064f964e68u64] }, // 1/2 * 10^30 = 5 * 10^29
-  BID_UINT128 { w: [0x6048a59340000000u64, 0x0000003f1bdf1011u64] }, // 1/2 * 10^31 = 5 * 10^30
-  BID_UINT128 { w: [0xc2d677c080000000u64, 0x0000027716b6a0adu64] }, // 1/2 * 10^32 = 5 * 10^31
-  BID_UINT128 { w: [0x9c60ad8500000000u64, 0x000018a6e32246c9u64] }, // 1/2 * 10^33 = 5 * 10^32
-  BID_UINT128 { w: [0x1bc6c73200000000u64, 0x0000f684df56c3e0u64] }, // 1/2 * 10^34 = 5 * 10^33
-  BID_UINT128 { w: [0x15c3c7f400000000u64, 0x0009a130b963a6c1u64] }, // 1/2 * 10^35 = 5 * 10^34
-  BID_UINT128 { w: [0xd9a5cf8800000000u64, 0x00604be73de4838au64] }, // 1/2 * 10^36 = 5 * 10^35
-  BID_UINT128 { w: [0x807a1b5000000000u64, 0x03c2f7086aed236cu64] }, // 1/2 * 10^37 = 5 * 10^36
-  BID_UINT128 { w: [0x04c5112000000000u64, 0x259da6542d43623du64] }  // 1/2 * 10^38 = 5 * 10^37
+    BID_UINT128 { w: [0xb5e3af16b1880000u64, 0x0000000000000002u64] }, // 1/2 * 10^20 = 5 * 10^19
+    BID_UINT128 { w: [0x1ae4d6e2ef500000u64, 0x000000000000001bu64] }, // 1/2 * 10^21 = 5 * 10^20
+    BID_UINT128 { w: [0x0cf064dd59200000u64, 0x000000000000010fu64] }, // 1/2 * 10^22 = 5 * 10^21
+    BID_UINT128 { w: [0x8163f0a57b400000u64, 0x0000000000000a96u64] }, // 1/2 * 10^23 = 5 * 10^22
+    BID_UINT128 { w: [0x0de76676d0800000u64, 0x00000000000069e1u64] }, // 1/2 * 10^24 = 5 * 10^23
+    BID_UINT128 { w: [0x8b0a00a425000000u64, 0x00000000000422cau64] }, // 1/2 * 10^25 = 5 * 10^24
+    BID_UINT128 { w: [0x6e64066972000000u64, 0x0000000000295be9u64] }, // 1/2 * 10^26 = 5 * 10^25
+    BID_UINT128 { w: [0x4fe8401e74000000u64, 0x00000000019d971eu64] }, // 1/2 * 10^27 = 5 * 10^26
+    BID_UINT128 { w: [0x1f12813088000000u64, 0x000000001027e72fu64] }, // 1/2 * 10^28 = 5 * 10^27
+    BID_UINT128 { w: [0x36b90be550000000u64, 0x00000000a18f07d7u64] }, // 1/2 * 10^29 = 5 * 10^28
+    BID_UINT128 { w: [0x233a76f520000000u64, 0x000000064f964e68u64] }, // 1/2 * 10^30 = 5 * 10^29
+    BID_UINT128 { w: [0x6048a59340000000u64, 0x0000003f1bdf1011u64] }, // 1/2 * 10^31 = 5 * 10^30
+    BID_UINT128 { w: [0xc2d677c080000000u64, 0x0000027716b6a0adu64] }, // 1/2 * 10^32 = 5 * 10^31
+    BID_UINT128 { w: [0x9c60ad8500000000u64, 0x000018a6e32246c9u64] }, // 1/2 * 10^33 = 5 * 10^32
+    BID_UINT128 { w: [0x1bc6c73200000000u64, 0x0000f684df56c3e0u64] }, // 1/2 * 10^34 = 5 * 10^33
+    BID_UINT128 { w: [0x15c3c7f400000000u64, 0x0009a130b963a6c1u64] }, // 1/2 * 10^35 = 5 * 10^34
+    BID_UINT128 { w: [0xd9a5cf8800000000u64, 0x00604be73de4838au64] }, // 1/2 * 10^36 = 5 * 10^35
+    BID_UINT128 { w: [0x807a1b5000000000u64, 0x03c2f7086aed236cu64] }, // 1/2 * 10^37 = 5 * 10^36
+    BID_UINT128 { w: [0x04c5112000000000u64, 0x259da6542d43623du64] }  // 1/2 * 10^38 = 5 * 10^37
 ];
 
-// bid_midpoint192[i - 39] = 1/2 * 10^i = 5 * 10^(i-1), 39 <= i <= 58
+/// bid_midpoint192[i - 39] = 1/2 * 10^i = 5 * 10^(i-1), 39 <= i <= 58
 pub (crate) const id_midpoint192: [BID_UINT192; 20] = [ // the 64-bit word order is L, M, H
-  BID_UINT192 { w: [0x2fb2ab4000000000u64, 0x78287f49c4a1d662u64, 0x0000000000000001u64 ] },  // 1/2 * 10^39 = 5 * 10^38
-  BID_UINT192 { w: [0xdcfab08000000000u64, 0xb194f8e1ae525fd5u64, 0x000000000000000eu64 ] },  // 1/2 * 10^40 = 5 * 10^39
-  BID_UINT192 { w: [0xa1cae50000000000u64, 0xefd1b8d0cf37be5au64, 0x0000000000000092u64 ] },  // 1/2 * 10^41 = 5 * 10^40
-  BID_UINT192 { w: [0x51ecf20000000000u64, 0x5e313828182d6f8au64, 0x00000000000005bdu64 ] },  // 1/2 * 10^42 = 5 * 10^41
-  BID_UINT192 { w: [0x3341740000000000u64, 0xadec3190f1c65b67u64, 0x0000000000003965u64 ] },  // 1/2 * 10^43 = 5 * 10^42
-  BID_UINT192 { w: [0x008e880000000000u64, 0xcb39efa971bf9208u64, 0x0000000000023df8u64 ] },  // 1/2 * 10^44 = 5 * 10^43
-  BID_UINT192 { w: [0x0591500000000000u64, 0xf0435c9e717bb450u64, 0x0000000000166bb7u64 ] },  // 1/2 * 10^45 = 5 * 10^44
-  BID_UINT192 { w: [0x37ad200000000000u64, 0x62a19e306ed50b20u64, 0x0000000000e0352fu64 ] },  // 1/2 * 10^46 = 5 * 10^45
-  BID_UINT192 { w: [0x2cc3400000000000u64, 0xda502de454526f42u64, 0x0000000008c213d9u64 ] },  // 1/2 * 10^47 = 5 * 10^46
-  BID_UINT192 { w: [0xbfa0800000000000u64, 0x8721caeb4b385895u64, 0x000000005794c682u64 ] },  // 1/2 * 10^48 = 5 * 10^47
-  BID_UINT192 { w: [0x7c45000000000000u64, 0x4751ed30f03375d9u64, 0x000000036bcfc119u64 ] },  // 1/2 * 10^49 = 5 * 10^48
-  BID_UINT192 { w: [0xdab2000000000000u64, 0xc93343e962029a7eu64, 0x00000022361d8afcu64 ] },  // 1/2 * 10^50 = 5 * 10^49
-  BID_UINT192 { w: [0x8af4000000000000u64, 0xdc00a71dd41a08f4u64, 0x000001561d276ddfu64 ] },  // 1/2 * 10^51 = 5 * 10^50
-  BID_UINT192 { w: [0x6d88000000000000u64, 0x9806872a4904598du64, 0x00000d5d238a4abeu64 ] },  // 1/2 * 10^52 = 5 * 10^51
-  BID_UINT192 { w: [0x4750000000000000u64, 0xf04147a6da2b7f86u64, 0x000085a36366eb71u64 ] },  // 1/2 * 10^53 = 5 * 10^52
-  BID_UINT192 { w: [0xc920000000000000u64, 0x628ccc8485b2fb3eu64, 0x00053861e2053273u64 ] },  // 1/2 * 10^54 = 5 * 10^53
-  BID_UINT192 { w: [0xdb40000000000000u64, 0xd97ffd2d38fdd073u64, 0x003433d2d433f881u64 ] },  // 1/2 * 10^55 = 5 * 10^54
-  BID_UINT192 { w: [0x9080000000000000u64, 0x7effe3c439ea2486u64, 0x020a063c4a07b512u64 ] },  // 1/2 * 10^56 = 5 * 10^55
-  BID_UINT192 { w: [0xa500000000000000u64, 0xf5fee5aa43256d41u64, 0x14643e5ae44d12b8u64 ] },  // 1/2 * 10^57 = 5 * 10^56
-  BID_UINT192 { w: [0x7200000000000000u64, 0x9bf4f8a69f764490u64, 0xcbea6f8ceb02bb39u64 ] }   // 1/2 * 10^58 = 5 * 10^57
+    BID_UINT192 { w: [0x2fb2ab4000000000u64, 0x78287f49c4a1d662u64, 0x0000000000000001u64 ] },  // 1/2 * 10^39 = 5 * 10^38
+    BID_UINT192 { w: [0xdcfab08000000000u64, 0xb194f8e1ae525fd5u64, 0x000000000000000eu64 ] },  // 1/2 * 10^40 = 5 * 10^39
+    BID_UINT192 { w: [0xa1cae50000000000u64, 0xefd1b8d0cf37be5au64, 0x0000000000000092u64 ] },  // 1/2 * 10^41 = 5 * 10^40
+    BID_UINT192 { w: [0x51ecf20000000000u64, 0x5e313828182d6f8au64, 0x00000000000005bdu64 ] },  // 1/2 * 10^42 = 5 * 10^41
+    BID_UINT192 { w: [0x3341740000000000u64, 0xadec3190f1c65b67u64, 0x0000000000003965u64 ] },  // 1/2 * 10^43 = 5 * 10^42
+    BID_UINT192 { w: [0x008e880000000000u64, 0xcb39efa971bf9208u64, 0x0000000000023df8u64 ] },  // 1/2 * 10^44 = 5 * 10^43
+    BID_UINT192 { w: [0x0591500000000000u64, 0xf0435c9e717bb450u64, 0x0000000000166bb7u64 ] },  // 1/2 * 10^45 = 5 * 10^44
+    BID_UINT192 { w: [0x37ad200000000000u64, 0x62a19e306ed50b20u64, 0x0000000000e0352fu64 ] },  // 1/2 * 10^46 = 5 * 10^45
+    BID_UINT192 { w: [0x2cc3400000000000u64, 0xda502de454526f42u64, 0x0000000008c213d9u64 ] },  // 1/2 * 10^47 = 5 * 10^46
+    BID_UINT192 { w: [0xbfa0800000000000u64, 0x8721caeb4b385895u64, 0x000000005794c682u64 ] },  // 1/2 * 10^48 = 5 * 10^47
+    BID_UINT192 { w: [0x7c45000000000000u64, 0x4751ed30f03375d9u64, 0x000000036bcfc119u64 ] },  // 1/2 * 10^49 = 5 * 10^48
+    BID_UINT192 { w: [0xdab2000000000000u64, 0xc93343e962029a7eu64, 0x00000022361d8afcu64 ] },  // 1/2 * 10^50 = 5 * 10^49
+    BID_UINT192 { w: [0x8af4000000000000u64, 0xdc00a71dd41a08f4u64, 0x000001561d276ddfu64 ] },  // 1/2 * 10^51 = 5 * 10^50
+    BID_UINT192 { w: [0x6d88000000000000u64, 0x9806872a4904598du64, 0x00000d5d238a4abeu64 ] },  // 1/2 * 10^52 = 5 * 10^51
+    BID_UINT192 { w: [0x4750000000000000u64, 0xf04147a6da2b7f86u64, 0x000085a36366eb71u64 ] },  // 1/2 * 10^53 = 5 * 10^52
+    BID_UINT192 { w: [0xc920000000000000u64, 0x628ccc8485b2fb3eu64, 0x00053861e2053273u64 ] },  // 1/2 * 10^54 = 5 * 10^53
+    BID_UINT192 { w: [0xdb40000000000000u64, 0xd97ffd2d38fdd073u64, 0x003433d2d433f881u64 ] },  // 1/2 * 10^55 = 5 * 10^54
+    BID_UINT192 { w: [0x9080000000000000u64, 0x7effe3c439ea2486u64, 0x020a063c4a07b512u64 ] },  // 1/2 * 10^56 = 5 * 10^55
+    BID_UINT192 { w: [0xa500000000000000u64, 0xf5fee5aa43256d41u64, 0x14643e5ae44d12b8u64 ] },  // 1/2 * 10^57 = 5 * 10^56
+    BID_UINT192 { w: [0x7200000000000000u64, 0x9bf4f8a69f764490u64, 0xcbea6f8ceb02bb39u64 ] }   // 1/2 * 10^58 = 5 * 10^57
 ];
 
-// bid_midpoint256[i - 59] = 1/2 * 10^i = 5 * 10^(i-1), 59 <= i <= 68
+/// bid_midpoint256[i - 59] = 1/2 * 10^i = 5 * 10^(i-1), 59 <= i <= 68
 pub (crate) const bid_midpoint256: [BID_UINT256; 19] = [  // the 64-bit word order is LL, LH, HL, HH
-  BID_UINT256{ w: [0x7400000000000000u64, 0x1791b6823a9eada4u64, 0xf7285b812e1b5040u64, 0x0000000000000007u64 ] },	// 1/2 * 10^59 = 5 * 10^58
-  BID_UINT256{ w: [0x8800000000000000u64, 0xebb121164a32c86cu64, 0xa793930bcd112280u64, 0x000000000000004fu64 ] },	// 1/2 * 10^60 = 5 * 10^59
-  BID_UINT256{ w: [0x5000000000000000u64, 0x34eb4adee5fbd43du64, 0x8bc3be7602ab5909u64, 0x000000000000031cu64 ] },	// 1/2 * 10^61 = 5 * 10^60
-  BID_UINT256{ w: [0x2000000000000000u64, 0x1130ecb4fbd64a65u64, 0x75a5709c1ab17a5cu64, 0x0000000000001f1du64 ] },	// 1/2 * 10^62 = 5 * 10^61
-  BID_UINT256{ w: [0x4000000000000000u64, 0xabe93f11d65ee7f3u64, 0x987666190aeec798u64, 0x0000000000013726u64 ] },	// 1/2 * 10^63 = 5 * 10^62
-  BID_UINT256{ w: [0x8000000000000000u64, 0xb71c76b25fb50f80u64, 0xf49ffcfa6d53cbf6u64, 0x00000000000c2781u64 ] },	// 1/2 * 10^64 = 5 * 10^63
-  BID_UINT256{ w: [0x0000000000000000u64, 0x271ca2f7bd129b05u64, 0x8e3fe1c84545f7a3u64, 0x0000000000798b13u64 ] },	// 1/2 * 10^65 = 5 * 10^64
-  BID_UINT256{ w: [0x0000000000000000u64, 0x871e5dad62ba0e32u64, 0x8e7ed1d2b4bbac5fu64, 0x0000000004bf6ec3u64 ] },	// 1/2 * 10^66 = 5 * 10^65
-  BID_UINT256{ w: [0x0000000000000000u64, 0x472fa8c5db448df4u64, 0x90f4323b0f54bbbbu64, 0x000000002f7a53a3u64 ] },	// 1/2 * 10^67 = 5 * 10^66
-  BID_UINT256{ w: [0x0000000000000000u64, 0xc7dc97ba90ad8b88u64, 0xa989f64e994f5550u64, 0x00000001dac74463u64 ] },	// 1/2 * 10^68 = 5 * 10^67
-  BID_UINT256{ w: [0x0000000000000000u64, 0xce9ded49a6c77350u64, 0x9f639f11fd195527u64, 0x000000128bc8abe4u64 ] },	// 1/2 * 10^69 = 5 * 10^68
-  BID_UINT256{ w: [0x0000000000000000u64, 0x122b44e083ca8120u64, 0x39e436b3e2fd538eu64, 0x000000b975d6b6eeu64 ] },	// 1/2 * 10^70 = 5 * 10^69
-  BID_UINT256{ w: [0x0000000000000000u64, 0xb5b0b0c525e90b40u64, 0x42ea2306dde5438cu64, 0x0000073e9a63254eu64 ] },	// 1/2 * 10^71 = 5 * 10^70
-  BID_UINT256{ w: [0x0000000000000000u64, 0x18e6e7b37b1a7080u64, 0x9d255e44aaf4a37fu64, 0x0000487207df750eu64 ] },	// 1/2 * 10^72 = 5 * 10^71
-  BID_UINT256{ w: [0x0000000000000000u64, 0xf9050d02cf086500u64, 0x2375aeaead8e62f6u64, 0x0002d4744eba9292u64 ] },	// 1/2 * 10^73 = 5 * 10^72
-  BID_UINT256{ w: [0x0000000000000000u64, 0xba32821c1653f200u64, 0x6298d2d2c78fdda5u64, 0x001c4c8b1349b9b5u64 ] },	// 1/2 * 10^74 = 5 * 10^73
-  BID_UINT256{ w: [0x0000000000000000u64, 0x45f91518df477400u64, 0xd9f83c3bcb9ea879u64, 0x011afd6ec0e14115u64 ] },	// 1/2 * 10^75 = 5 * 10^74
-  BID_UINT256{ w: [0x0000000000000000u64, 0xbbbad2f8b8ca8800u64, 0x83b25a55f43294bcu64, 0x0b0de65388cc8adau64 ] },	// 1/2 * 10^76 = 5 * 10^75
-  BID_UINT256{ w: [0x0000000000000000u64, 0x554c3db737e95000u64, 0x24f7875b89f9cf5fu64, 0x6e8aff4357fd6c89u64 ] }	// 1/2 * 10^77 = 5 * 10^76
+    BID_UINT256{ w: [0x7400000000000000u64, 0x1791b6823a9eada4u64, 0xf7285b812e1b5040u64, 0x0000000000000007u64 ] },	// 1/2 * 10^59 = 5 * 10^58
+    BID_UINT256{ w: [0x8800000000000000u64, 0xebb121164a32c86cu64, 0xa793930bcd112280u64, 0x000000000000004fu64 ] },	// 1/2 * 10^60 = 5 * 10^59
+    BID_UINT256{ w: [0x5000000000000000u64, 0x34eb4adee5fbd43du64, 0x8bc3be7602ab5909u64, 0x000000000000031cu64 ] },	// 1/2 * 10^61 = 5 * 10^60
+    BID_UINT256{ w: [0x2000000000000000u64, 0x1130ecb4fbd64a65u64, 0x75a5709c1ab17a5cu64, 0x0000000000001f1du64 ] },	// 1/2 * 10^62 = 5 * 10^61
+    BID_UINT256{ w: [0x4000000000000000u64, 0xabe93f11d65ee7f3u64, 0x987666190aeec798u64, 0x0000000000013726u64 ] },	// 1/2 * 10^63 = 5 * 10^62
+    BID_UINT256{ w: [0x8000000000000000u64, 0xb71c76b25fb50f80u64, 0xf49ffcfa6d53cbf6u64, 0x00000000000c2781u64 ] },	// 1/2 * 10^64 = 5 * 10^63
+    BID_UINT256{ w: [0x0000000000000000u64, 0x271ca2f7bd129b05u64, 0x8e3fe1c84545f7a3u64, 0x0000000000798b13u64 ] },	// 1/2 * 10^65 = 5 * 10^64
+    BID_UINT256{ w: [0x0000000000000000u64, 0x871e5dad62ba0e32u64, 0x8e7ed1d2b4bbac5fu64, 0x0000000004bf6ec3u64 ] },	// 1/2 * 10^66 = 5 * 10^65
+    BID_UINT256{ w: [0x0000000000000000u64, 0x472fa8c5db448df4u64, 0x90f4323b0f54bbbbu64, 0x000000002f7a53a3u64 ] },	// 1/2 * 10^67 = 5 * 10^66
+    BID_UINT256{ w: [0x0000000000000000u64, 0xc7dc97ba90ad8b88u64, 0xa989f64e994f5550u64, 0x00000001dac74463u64 ] },	// 1/2 * 10^68 = 5 * 10^67
+    BID_UINT256{ w: [0x0000000000000000u64, 0xce9ded49a6c77350u64, 0x9f639f11fd195527u64, 0x000000128bc8abe4u64 ] },	// 1/2 * 10^69 = 5 * 10^68
+    BID_UINT256{ w: [0x0000000000000000u64, 0x122b44e083ca8120u64, 0x39e436b3e2fd538eu64, 0x000000b975d6b6eeu64 ] },	// 1/2 * 10^70 = 5 * 10^69
+    BID_UINT256{ w: [0x0000000000000000u64, 0xb5b0b0c525e90b40u64, 0x42ea2306dde5438cu64, 0x0000073e9a63254eu64 ] },	// 1/2 * 10^71 = 5 * 10^70
+    BID_UINT256{ w: [0x0000000000000000u64, 0x18e6e7b37b1a7080u64, 0x9d255e44aaf4a37fu64, 0x0000487207df750eu64 ] },	// 1/2 * 10^72 = 5 * 10^71
+    BID_UINT256{ w: [0x0000000000000000u64, 0xf9050d02cf086500u64, 0x2375aeaead8e62f6u64, 0x0002d4744eba9292u64 ] },	// 1/2 * 10^73 = 5 * 10^72
+    BID_UINT256{ w: [0x0000000000000000u64, 0xba32821c1653f200u64, 0x6298d2d2c78fdda5u64, 0x001c4c8b1349b9b5u64 ] },	// 1/2 * 10^74 = 5 * 10^73
+    BID_UINT256{ w: [0x0000000000000000u64, 0x45f91518df477400u64, 0xd9f83c3bcb9ea879u64, 0x011afd6ec0e14115u64 ] },	// 1/2 * 10^75 = 5 * 10^74
+    BID_UINT256{ w: [0x0000000000000000u64, 0xbbbad2f8b8ca8800u64, 0x83b25a55f43294bcu64, 0x0b0de65388cc8adau64 ] },	// 1/2 * 10^76 = 5 * 10^75
+    BID_UINT256{ w: [0x0000000000000000u64, 0x554c3db737e95000u64, 0x24f7875b89f9cf5fu64, 0x6e8aff4357fd6c89u64 ] }	// 1/2 * 10^77 = 5 * 10^76
 ];
 
 pub (crate) const bid_ten2k64: [BID_UINT64; 20] = [
-  0x0000000000000001u64,    // 10^0
-  0x000000000000000au64,    // 10^1
-  0x0000000000000064u64,    // 10^2
-  0x00000000000003e8u64,    // 10^3
-  0x0000000000002710u64,    // 10^4
-  0x00000000000186a0u64,    // 10^5
-  0x00000000000f4240u64,    // 10^6
-  0x0000000000989680u64,    // 10^7
-  0x0000000005f5e100u64,    // 10^8
-  0x000000003b9aca00u64,    // 10^9
-  0x00000002540be400u64,    // 10^10
-  0x000000174876e800u64,    // 10^11
-  0x000000e8d4a51000u64,    // 10^12
-  0x000009184e72a000u64,    // 10^13
-  0x00005af3107a4000u64,    // 10^14
-  0x00038d7ea4c68000u64,    // 10^15
-  0x002386f26fc10000u64,    // 10^16
-  0x016345785d8a0000u64,    // 10^17
-  0x0de0b6b3a7640000u64,    // 10^18
-  0x8ac7230489e80000u64	    // 10^19 (20 digits)
+    0x0000000000000001u64,    // 10^0
+    0x000000000000000au64,    // 10^1
+    0x0000000000000064u64,    // 10^2
+    0x00000000000003e8u64,    // 10^3
+    0x0000000000002710u64,    // 10^4
+    0x00000000000186a0u64,    // 10^5
+    0x00000000000f4240u64,    // 10^6
+    0x0000000000989680u64,    // 10^7
+    0x0000000005f5e100u64,    // 10^8
+    0x000000003b9aca00u64,    // 10^9
+    0x00000002540be400u64,    // 10^10
+    0x000000174876e800u64,    // 10^11
+    0x000000e8d4a51000u64,    // 10^12
+    0x000009184e72a000u64,    // 10^13
+    0x00005af3107a4000u64,    // 10^14
+    0x00038d7ea4c68000u64,    // 10^15
+    0x002386f26fc10000u64,    // 10^16
+    0x016345785d8a0000u64,    // 10^17
+    0x0de0b6b3a7640000u64,    // 10^18
+    0x8ac7230489e80000u64	    // 10^19 (20 digits)
 ];
 
-// bid_ten2k128[i - 20] = 10^i, 20 <= i <= 38
-pub (crate) const bid_ten2k128: [BID_UINT128; 19] = [                // the 64-bit word order is L, H
-  BID_UINT128 { w: [0x6bc75e2d63100000u64, 0x0000000000000005u64] }, // 10^20
-  BID_UINT128 { w: [0x35c9adc5dea00000u64, 0x0000000000000036u64] }, // 10^21
-  BID_UINT128 { w: [0x19e0c9bab2400000u64, 0x000000000000021eu64] }, // 10^22
-  BID_UINT128 { w: [0x02c7e14af6800000u64, 0x000000000000152du64] }, // 10^23
-  BID_UINT128 { w: [0x1bcecceda1000000u64, 0x000000000000d3c2u64] }, // 10^24
-  BID_UINT128 { w: [0x161401484a000000u64, 0x0000000000084595u64] }, // 10^25
-  BID_UINT128 { w: [0xdcc80cd2e4000000u64, 0x000000000052b7d2u64] }, // 10^26
-  BID_UINT128 { w: [0x9fd0803ce8000000u64, 0x00000000033b2e3cu64] }, // 10^27
-  BID_UINT128 { w: [0x3e25026110000000u64, 0x00000000204fce5eu64] }, // 10^28
-  BID_UINT128 { w: [0x6d7217caa0000000u64, 0x00000001431e0faeu64] }, // 10^29
-  BID_UINT128 { w: [0x4674edea40000000u64, 0x0000000c9f2c9cd0u64] }, // 10^30
-  BID_UINT128 { w: [0xc0914b2680000000u64, 0x0000007e37be2022u64] }, // 10^31
-  BID_UINT128 { w: [0x85acef8100000000u64, 0x000004ee2d6d415bu64] }, // 10^32
-  BID_UINT128 { w: [0x38c15b0a00000000u64, 0x0000314dc6448d93u64] }, // 10^33
-  BID_UINT128 { w: [0x378d8e6400000000u64, 0x0001ed09bead87c0u64] }, // 10^34
-  BID_UINT128 { w: [0x2b878fe800000000u64, 0x0013426172c74d82u64] }, // 10^35
-  BID_UINT128 { w: [0xb34b9f1000000000u64, 0x00c097ce7bc90715u64] }, // 10^36
-  BID_UINT128 { w: [0x00f436a000000000u64, 0x0785ee10d5da46d9u64] }, // 10^37
-  BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] }  // 10^38 (39 digits)
+/// bid_ten2k128[i - 20] = 10^i, 20 <= i <= 38
+pub (crate) const bid_ten2k128: [BID_UINT128; 19] = [                    // the 64-bit word order is L, H
+      BID_UINT128 { w: [0x6bc75e2d63100000u64, 0x0000000000000005u64] }, // 10^20
+      BID_UINT128 { w: [0x35c9adc5dea00000u64, 0x0000000000000036u64] }, // 10^21
+      BID_UINT128 { w: [0x19e0c9bab2400000u64, 0x000000000000021eu64] }, // 10^22
+      BID_UINT128 { w: [0x02c7e14af6800000u64, 0x000000000000152du64] }, // 10^23
+      BID_UINT128 { w: [0x1bcecceda1000000u64, 0x000000000000d3c2u64] }, // 10^24
+      BID_UINT128 { w: [0x161401484a000000u64, 0x0000000000084595u64] }, // 10^25
+      BID_UINT128 { w: [0xdcc80cd2e4000000u64, 0x000000000052b7d2u64] }, // 10^26
+      BID_UINT128 { w: [0x9fd0803ce8000000u64, 0x00000000033b2e3cu64] }, // 10^27
+      BID_UINT128 { w: [0x3e25026110000000u64, 0x00000000204fce5eu64] }, // 10^28
+      BID_UINT128 { w: [0x6d7217caa0000000u64, 0x00000001431e0faeu64] }, // 10^29
+      BID_UINT128 { w: [0x4674edea40000000u64, 0x0000000c9f2c9cd0u64] }, // 10^30
+      BID_UINT128 { w: [0xc0914b2680000000u64, 0x0000007e37be2022u64] }, // 10^31
+      BID_UINT128 { w: [0x85acef8100000000u64, 0x000004ee2d6d415bu64] }, // 10^32
+      BID_UINT128 { w: [0x38c15b0a00000000u64, 0x0000314dc6448d93u64] }, // 10^33
+      BID_UINT128 { w: [0x378d8e6400000000u64, 0x0001ed09bead87c0u64] }, // 10^34
+      BID_UINT128 { w: [0x2b878fe800000000u64, 0x0013426172c74d82u64] }, // 10^35
+      BID_UINT128 { w: [0xb34b9f1000000000u64, 0x00c097ce7bc90715u64] }, // 10^36
+      BID_UINT128 { w: [0x00f436a000000000u64, 0x0785ee10d5da46d9u64] }, // 10^37
+      BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] }  // 10^38 (39 digits)
 ];
 
 // might split into ten2k192[] and bid_ten2k256[]
 
-// bid_ten2k256[i - 39] = 10^i, 39 <= i <= 68
+/// bid_ten2k256[i - 39] = 10^i, 39 <= i <= 68
 pub (crate) const bid_ten2k256: [BID_UINT256; 39] = [     // the 64-bit word order is LL, LH, HL, HH
-  BID_UINT256 { w: [0x5f65568000000000u64, 0xf050fe938943acc4u64, 0x0000000000000002u64, 0x0000000000000000u64] },	// 10^39
-  BID_UINT256 { w: [0xb9f5610000000000u64, 0x6329f1c35ca4bfabu64, 0x000000000000001du64, 0x0000000000000000u64] },	// 10^40
-  BID_UINT256 { w: [0x4395ca0000000000u64, 0xdfa371a19e6f7cb5u64, 0x0000000000000125u64, 0x0000000000000000u64] },	// 10^41
-  BID_UINT256 { w: [0xa3d9e40000000000u64, 0xbc627050305adf14u64, 0x0000000000000b7au64, 0x0000000000000000u64] },	// 10^42
-  BID_UINT256 { w: [0x6682e80000000000u64, 0x5bd86321e38cb6ceu64, 0x00000000000072cbu64, 0x0000000000000000u64] },	// 10^43
-  BID_UINT256 { w: [0x011d100000000000u64, 0x9673df52e37f2410u64, 0x0000000000047bf1u64, 0x0000000000000000u64] },	// 10^44
-  BID_UINT256 { w: [0x0b22a00000000000u64, 0xe086b93ce2f768a0u64, 0x00000000002cd76fu64, 0x0000000000000000u64] },	// 10^45
-  BID_UINT256 { w: [0x6f5a400000000000u64, 0xc5433c60ddaa1640u64, 0x0000000001c06a5eu64, 0x0000000000000000u64] },	// 10^46
-  BID_UINT256 { w: [0x5986800000000000u64, 0xb4a05bc8a8a4de84u64, 0x00000000118427b3u64, 0x0000000000000000u64] },	// 10^47
-  BID_UINT256 { w: [0x7f41000000000000u64, 0x0e4395d69670b12bu64, 0x00000000af298d05u64, 0x0000000000000000u64] },	// 10^48
-  BID_UINT256 { w: [0xf88a000000000000u64, 0x8ea3da61e066ebb2u64, 0x00000006d79f8232u64, 0x0000000000000000u64] },	// 10^49
-  BID_UINT256 { w: [0xb564000000000000u64, 0x926687d2c40534fdu64, 0x000000446c3b15f9u64, 0x0000000000000000u64] },	// 10^50
-  BID_UINT256 { w: [0x15e8000000000000u64, 0xb8014e3ba83411e9u64, 0x000002ac3a4edbbfu64, 0x0000000000000000u64] },	// 10^51
-  BID_UINT256 { w: [0xdb10000000000000u64, 0x300d0e549208b31au64, 0x00001aba4714957du64, 0x0000000000000000u64] },	// 10^52
-  BID_UINT256 { w: [0x8ea0000000000000u64, 0xe0828f4db456ff0cu64, 0x00010b46c6cdd6e3u64, 0x0000000000000000u64] },	// 10^53
-  BID_UINT256 { w: [0x9240000000000000u64, 0xc51999090b65f67du64, 0x000a70c3c40a64e6u64, 0x0000000000000000u64] },	// 10^54
-  BID_UINT256 { w: [0xb680000000000000u64, 0xb2fffa5a71fba0e7u64, 0x006867a5a867f103u64, 0x0000000000000000u64] },	// 10^55
-  BID_UINT256 { w: [0x2100000000000000u64, 0xfdffc78873d4490du64, 0x04140c78940f6a24u64, 0x0000000000000000u64] },	// 10^56
-  BID_UINT256 { w: [0x4a00000000000000u64, 0xebfdcb54864ada83u64, 0x28c87cb5c89a2571u64, 0x0000000000000000u64] },	// 10^57 (58 digits)
-  BID_UINT256 { w: [0xe400000000000000u64, 0x37e9f14d3eec8920u64, 0x97d4df19d6057673u64, 0x0000000000000001u64] },	// 10^58
-  BID_UINT256 { w: [0xe800000000000000u64, 0x2f236d04753d5b48u64, 0xee50b7025c36a080u64, 0x000000000000000fu64] },	// 10^59
-  BID_UINT256 { w: [0x1000000000000000u64, 0xd762422c946590d9u64, 0x4f2726179a224501u64, 0x000000000000009fu64] },	// 10^60
-  BID_UINT256 { w: [0xa000000000000000u64, 0x69d695bdcbf7a87au64, 0x17877cec0556b212u64, 0x0000000000000639u64] },	// 10^61
-  BID_UINT256 { w: [0x4000000000000000u64, 0x2261d969f7ac94cau64, 0xeb4ae1383562f4b8u64, 0x0000000000003e3au64] },	// 10^62
-  BID_UINT256 { w: [0x8000000000000000u64, 0x57d27e23acbdcfe6u64, 0x30eccc3215dd8f31u64, 0x0000000000026e4du64] },	// 10^63
-  BID_UINT256 { w: [0x0000000000000000u64, 0x6e38ed64bf6a1f01u64, 0xe93ff9f4daa797edu64, 0x0000000000184f03u64] },	// 10^64
-  BID_UINT256 { w: [0x0000000000000000u64, 0x4e3945ef7a25360au64, 0x1c7fc3908a8bef46u64, 0x0000000000f31627u64] },	// 10^65
-  BID_UINT256 { w: [0x0000000000000000u64, 0x0e3cbb5ac5741c64u64, 0x1cfda3a5697758bfu64, 0x00000000097edd87u64] },	// 10^66
-  BID_UINT256 { w: [0x0000000000000000u64, 0x8e5f518bb6891be8u64, 0x21e864761ea97776u64, 0x000000005ef4a747u64] },	// 10^67
-  BID_UINT256 { w: [0x0000000000000000u64, 0x8fb92f75215b1710u64, 0x5313ec9d329eaaa1u64, 0x00000003b58e88c7u64] },	// 10^68
-  BID_UINT256 { w: [0x0000000000000000u64, 0x9d3bda934d8ee6a0u64, 0x3ec73e23fa32aa4fu64, 0x00000025179157c9u64] },	// 10^69
-  BID_UINT256 { w: [0x0000000000000000u64, 0x245689c107950240u64, 0x73c86d67c5faa71cu64, 0x00000172ebad6ddcu64] },	// 10^70
-  BID_UINT256 { w: [0x0000000000000000u64, 0x6b61618a4bd21680u64, 0x85d4460dbbca8719u64, 0x00000e7d34c64a9cu64] },	// 10^71
-  BID_UINT256 { w: [0x0000000000000000u64, 0x31cdcf66f634e100u64, 0x3a4abc8955e946feu64, 0x000090e40fbeea1du64] },	// 10^72
-  BID_UINT256 { w: [0x0000000000000000u64, 0xf20a1a059e10ca00u64, 0x46eb5d5d5b1cc5edu64, 0x0005a8e89d752524u64] },	// 10^73
-  BID_UINT256 { w: [0x0000000000000000u64, 0x746504382ca7e400u64, 0xc531a5a58f1fbb4bu64, 0x003899162693736au64] },	// 10^74
-  BID_UINT256 { w: [0x0000000000000000u64, 0x8bf22a31be8ee800u64, 0xb3f07877973d50f2u64, 0x0235fadd81c2822bu64] },	// 10^75
-  BID_UINT256 { w: [0x0000000000000000u64, 0x7775a5f171951000u64, 0x0764b4abe8652979u64, 0x161bcca7119915b5u64] },	// 10^76
-  BID_UINT256 { w: [0x0000000000000000u64, 0xaa987b6e6fd2a000u64, 0x49ef0eb713f39ebeu64, 0xdd15fe86affad912u64] }	// 10^77
+    BID_UINT256 { w: [0x5f65568000000000u64, 0xf050fe938943acc4u64, 0x0000000000000002u64, 0x0000000000000000u64] },	// 10^39
+    BID_UINT256 { w: [0xb9f5610000000000u64, 0x6329f1c35ca4bfabu64, 0x000000000000001du64, 0x0000000000000000u64] },	// 10^40
+    BID_UINT256 { w: [0x4395ca0000000000u64, 0xdfa371a19e6f7cb5u64, 0x0000000000000125u64, 0x0000000000000000u64] },	// 10^41
+    BID_UINT256 { w: [0xa3d9e40000000000u64, 0xbc627050305adf14u64, 0x0000000000000b7au64, 0x0000000000000000u64] },	// 10^42
+    BID_UINT256 { w: [0x6682e80000000000u64, 0x5bd86321e38cb6ceu64, 0x00000000000072cbu64, 0x0000000000000000u64] },	// 10^43
+    BID_UINT256 { w: [0x011d100000000000u64, 0x9673df52e37f2410u64, 0x0000000000047bf1u64, 0x0000000000000000u64] },	// 10^44
+    BID_UINT256 { w: [0x0b22a00000000000u64, 0xe086b93ce2f768a0u64, 0x00000000002cd76fu64, 0x0000000000000000u64] },	// 10^45
+    BID_UINT256 { w: [0x6f5a400000000000u64, 0xc5433c60ddaa1640u64, 0x0000000001c06a5eu64, 0x0000000000000000u64] },	// 10^46
+    BID_UINT256 { w: [0x5986800000000000u64, 0xb4a05bc8a8a4de84u64, 0x00000000118427b3u64, 0x0000000000000000u64] },	// 10^47
+    BID_UINT256 { w: [0x7f41000000000000u64, 0x0e4395d69670b12bu64, 0x00000000af298d05u64, 0x0000000000000000u64] },	// 10^48
+    BID_UINT256 { w: [0xf88a000000000000u64, 0x8ea3da61e066ebb2u64, 0x00000006d79f8232u64, 0x0000000000000000u64] },	// 10^49
+    BID_UINT256 { w: [0xb564000000000000u64, 0x926687d2c40534fdu64, 0x000000446c3b15f9u64, 0x0000000000000000u64] },	// 10^50
+    BID_UINT256 { w: [0x15e8000000000000u64, 0xb8014e3ba83411e9u64, 0x000002ac3a4edbbfu64, 0x0000000000000000u64] },	// 10^51
+    BID_UINT256 { w: [0xdb10000000000000u64, 0x300d0e549208b31au64, 0x00001aba4714957du64, 0x0000000000000000u64] },	// 10^52
+    BID_UINT256 { w: [0x8ea0000000000000u64, 0xe0828f4db456ff0cu64, 0x00010b46c6cdd6e3u64, 0x0000000000000000u64] },	// 10^53
+    BID_UINT256 { w: [0x9240000000000000u64, 0xc51999090b65f67du64, 0x000a70c3c40a64e6u64, 0x0000000000000000u64] },	// 10^54
+    BID_UINT256 { w: [0xb680000000000000u64, 0xb2fffa5a71fba0e7u64, 0x006867a5a867f103u64, 0x0000000000000000u64] },	// 10^55
+    BID_UINT256 { w: [0x2100000000000000u64, 0xfdffc78873d4490du64, 0x04140c78940f6a24u64, 0x0000000000000000u64] },	// 10^56
+    BID_UINT256 { w: [0x4a00000000000000u64, 0xebfdcb54864ada83u64, 0x28c87cb5c89a2571u64, 0x0000000000000000u64] },	// 10^57 (58 digits)
+    BID_UINT256 { w: [0xe400000000000000u64, 0x37e9f14d3eec8920u64, 0x97d4df19d6057673u64, 0x0000000000000001u64] },	// 10^58
+    BID_UINT256 { w: [0xe800000000000000u64, 0x2f236d04753d5b48u64, 0xee50b7025c36a080u64, 0x000000000000000fu64] },	// 10^59
+    BID_UINT256 { w: [0x1000000000000000u64, 0xd762422c946590d9u64, 0x4f2726179a224501u64, 0x000000000000009fu64] },	// 10^60
+    BID_UINT256 { w: [0xa000000000000000u64, 0x69d695bdcbf7a87au64, 0x17877cec0556b212u64, 0x0000000000000639u64] },	// 10^61
+    BID_UINT256 { w: [0x4000000000000000u64, 0x2261d969f7ac94cau64, 0xeb4ae1383562f4b8u64, 0x0000000000003e3au64] },	// 10^62
+    BID_UINT256 { w: [0x8000000000000000u64, 0x57d27e23acbdcfe6u64, 0x30eccc3215dd8f31u64, 0x0000000000026e4du64] },	// 10^63
+    BID_UINT256 { w: [0x0000000000000000u64, 0x6e38ed64bf6a1f01u64, 0xe93ff9f4daa797edu64, 0x0000000000184f03u64] },	// 10^64
+    BID_UINT256 { w: [0x0000000000000000u64, 0x4e3945ef7a25360au64, 0x1c7fc3908a8bef46u64, 0x0000000000f31627u64] },	// 10^65
+    BID_UINT256 { w: [0x0000000000000000u64, 0x0e3cbb5ac5741c64u64, 0x1cfda3a5697758bfu64, 0x00000000097edd87u64] },	// 10^66
+    BID_UINT256 { w: [0x0000000000000000u64, 0x8e5f518bb6891be8u64, 0x21e864761ea97776u64, 0x000000005ef4a747u64] },	// 10^67
+    BID_UINT256 { w: [0x0000000000000000u64, 0x8fb92f75215b1710u64, 0x5313ec9d329eaaa1u64, 0x00000003b58e88c7u64] },	// 10^68
+    BID_UINT256 { w: [0x0000000000000000u64, 0x9d3bda934d8ee6a0u64, 0x3ec73e23fa32aa4fu64, 0x00000025179157c9u64] },	// 10^69
+    BID_UINT256 { w: [0x0000000000000000u64, 0x245689c107950240u64, 0x73c86d67c5faa71cu64, 0x00000172ebad6ddcu64] },	// 10^70
+    BID_UINT256 { w: [0x0000000000000000u64, 0x6b61618a4bd21680u64, 0x85d4460dbbca8719u64, 0x00000e7d34c64a9cu64] },	// 10^71
+    BID_UINT256 { w: [0x0000000000000000u64, 0x31cdcf66f634e100u64, 0x3a4abc8955e946feu64, 0x000090e40fbeea1du64] },	// 10^72
+    BID_UINT256 { w: [0x0000000000000000u64, 0xf20a1a059e10ca00u64, 0x46eb5d5d5b1cc5edu64, 0x0005a8e89d752524u64] },	// 10^73
+    BID_UINT256 { w: [0x0000000000000000u64, 0x746504382ca7e400u64, 0xc531a5a58f1fbb4bu64, 0x003899162693736au64] },	// 10^74
+    BID_UINT256 { w: [0x0000000000000000u64, 0x8bf22a31be8ee800u64, 0xb3f07877973d50f2u64, 0x0235fadd81c2822bu64] },	// 10^75
+    BID_UINT256 { w: [0x0000000000000000u64, 0x7775a5f171951000u64, 0x0764b4abe8652979u64, 0x161bcca7119915b5u64] },	// 10^76
+    BID_UINT256 { w: [0x0000000000000000u64, 0xaa987b6e6fd2a000u64, 0x49ef0eb713f39ebeu64, 0xdd15fe86affad912u64] }	// 10^77
 ];
 
-// bid_ten2mk128[k - 1] = 10^(-k) * 2^exp (k), where 1 <= k <= 34 and
-// exp (k) = bid_shiftright128[k - 1] + 128
+/// bid_ten2mk128[k - 1] = 10^(-k) * 2^exp (k), where 1 <= k <= 34 and
+/// exp (k) = bid_shiftright128[k - 1] + 128
 pub (crate) const bid_ten2mk128: [BID_UINT128; 34] = [
     BID_UINT128 { w: [0x999999999999999au64, 0x1999999999999999u64] },  //  10^(-1) * 2^128
     BID_UINT128 { w: [0x28f5c28f5c28f5c3u64, 0x028f5c28f5c28f5cu64] },  //  10^(-2) * 2^128
@@ -360,8 +360,8 @@ pub (crate) const bid_ten2mk128: [BID_UINT128; 34] = [
     BID_UINT128 { w: [0xad2f56bc4efbc2c5u64, 0x00213b0f25f69892u64] },  // 10^(-34) * 2^230
 ];
 
-// bid_shiftright128[] contains the right shift count to obtain C2* from the top
-// 128 bits of the 128x128-bit product C2 * Kx
+/// bid_shiftright128[] contains the right shift count to obtain C2* from the top
+/// 128 bits of the 128x128-bit product C2 * Kx
 pub (crate) const bid_shiftright128: [i32; 34] = [
     0,   // 128 - 128
     0,   // 128 - 128
@@ -401,9 +401,8 @@ pub (crate) const bid_shiftright128: [i32; 34] = [
     102  // 230 - 128
 ];
 
-// bid_maskhigh128[] contains the mask to apply to the top 128 bits of the
-// 128x128-bit product in order to obtain the high bits of f2*
-// the 64-bit word order is L, H
+/// bid_maskhigh128[] contains the mask to apply to the top 128 bits of the
+/// 128x128-bit product in order to obtain the high bits of f2* the 64-bit word order is L, H
 pub (crate) const bid_maskhigh128: [BID_UINT64; 34] = [
     0x0000000000000000u64,  //  0 = 128 - 128 bits
     0x0000000000000000u64,  //  0 = 128 - 128 bits
@@ -441,9 +440,8 @@ pub (crate) const bid_maskhigh128: [BID_UINT64; 34] = [
     0x0000003fffffffffu64   // 38 = 230 - 192 bits
 ];
 
-// bid_onehalf128[] contains the high bits of 1/2 positioned correctly for
-// comparison with the high bits of f2*
-// the 64-bit word order is L, H
+/// bid_onehalf128[] contains the high bits of 1/2 positioned correctly for
+/// comparison with the high bits of f2* the 64-bit word order is L, H
 pub (crate) const bid_onehalf128: [BID_UINT64; 34] = [
     0x0000000000000000u64,  //  0 bits
     0x0000000000000000u64,  //  0 bits
@@ -500,9 +498,8 @@ pub (crate) const bid_ten2mk64: [BID_UINT64; 16] = [
     0x0039a5652fb11379u64,  // 10^(-16) * 2^107
 ];
 
-// bid_ten2mk128trunc[] contains T*, the top Ex >= 128 bits of 10^(-k),
-// for 1 <= k <= 34
-// the 64-bit word order is L, H
+/// bid_ten2mk128trunc[] contains T*, the top Ex >= 128 bits of 10^(-k),
+/// for 1 <= k <= 34 the 64-bit word order is L, H
 pub (crate) const bid_ten2mk128trunc: [BID_UINT128; 34] = [
     BID_UINT128 { w: [0x9999999999999999u64, 0x1999999999999999u64] },  //  10^(-1) * 2^128
     BID_UINT128 { w: [0x28f5c28f5c28f5c2u64, 0x028f5c28f5c28f5cu64] },  //  10^(-2) * 2^128
@@ -614,9 +611,8 @@ pub (crate) const bid_ten2mk192M: [BID_UINT192; 19] = [
     BID_UINT192 { w: [0x8d6f439b43088651u64, 0x75b7053c0f178293u64, 0xc16d9a0095928a27u64] }  //  10^(-23) * 2^268
 ];
 
-// bid_ten2mk192truncM[] contains T*, the top Ex >= 192 bits of 10^(-k),
-// for 5 <= k <= 23; the top bits which are 0 are not represented
-// the 64-bit word order is L, M, H
+/// bid_ten2mk192truncM[] contains T*, the top Ex >= 192 bits of 10^(-k),
+/// for 5 <= k <= 23; the top bits which are 0 are not represented the 64-bit word order is L, M, H
 pub (crate) const bid_ten2mk192truncM: [BID_UINT192; 19] = [
     BID_UINT192 { w: [0xcddd6e04c0592103u64, 0x0fcf80dc33721d53u64, 0xa7c5ac471b478423u64] }, //  10^(-5) * 2^208
     BID_UINT192 { w: [0xd7e45803cd141a69u64, 0xa63f9a49c2c1b10fu64, 0x8637bd05af6c69b5u64] }, //  10^(-6) * 2^211
@@ -1015,7 +1011,7 @@ pub (crate) const bid_shift_ten2m3k128: [u32; 11] = [
 
 // Note: 64-bit tables generated with ten2mx64.ma; output in ten2mx64.out
 
-// Kx from 10^(-x) ~= Kx * 2^(-Ex); Kx rounded up to 64 bits, 1 <= x <= 17
+/// Kx from 10^(-x) ~= Kx * 2^(-Ex); Kx rounded up to 64 bits, 1 <= x <= 17
 pub (crate) const bid_Kx64: [BID_UINT64; 17] = [
     0xcccccccccccccccdu64,  // 10^-1 ~= cccccccccccccccd * 2^-67
     0xa3d70a3d70a3d70bu64,  // 10^-2 ~= a3d70a3d70a3d70b * 2^-70

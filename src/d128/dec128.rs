@@ -79,6 +79,7 @@ impl BID_UINT128 {
     pub fn new(l: u64, h: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [l, h] };
+
         #[cfg(target_endian = "little")]
         return Self { w: [h, l] };
     }
