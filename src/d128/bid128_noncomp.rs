@@ -237,12 +237,11 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
         sig_x.w[1] = x.w[1] & 0x00003fffffffffffu64;	// 46 bits
         sig_x.w[0] = x.w[0];	// 64 bits
         // payload must be < 10^33 = 0x0000314dc6448d93_38c15b0a00000000
-        if sig_x.w[1] < 0x0000314dc6448d93u64
-            || (sig_x.w[1] == 0x0000314dc6448d93u64
-            && sig_x.w[0] < 0x38c15b0a00000000u64) {
-            return true;
+        return if sig_x.w[1] < 0x0000314dc6448d93u64
+              || (sig_x.w[1] == 0x0000314dc6448d93u64 && sig_x.w[0] < 0x38c15b0a00000000u64) {
+            true
         } else {
-            return false;
+            false
         }
     } else if (x.w[1] & MASK_INF) == MASK_INF {	// infinity
         return if (x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0 { false } else { true };
@@ -431,10 +430,10 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     //       iv) else if bitwise identical (in canonical form), return 1
     if (x.w[1] & MASK_NAN) == MASK_NAN {
         // if x is -NaN
-        if (x.w[1] & MASK_SIGN) == MASK_SIGN {
+        return if (x.w[1] & MASK_SIGN) == MASK_SIGN {
             // return true, unless y is -NaN also
             if (y.w[1] & MASK_NAN) != MASK_NAN || (y.w[1] & MASK_SIGN) != MASK_SIGN {
-                return true;   // y is a number, return 1
+                true   // y is a number, return 1
             } else {        // if y and x are both -NaN
                 pyld_x.w[1] = x.w[1] & 0x00003fffffffffffu64;
                 pyld_x.w[0] = x.w[0];
@@ -456,7 +455,7 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                     // it comes down to the payload.  we want to return true if x has a
                     // larger payload, or if the payloads are equal (canonical forms
                     // are bitwise identical)
-                    return if (pyld_x.w[1] > pyld_y.w[1]) ||
+                    if (pyld_x.w[1] > pyld_y.w[1]) ||
                         ((pyld_x.w[1] == pyld_y.w[1]) && (pyld_x.w[0] >= pyld_y.w[0])) {
                         true
                     } else {
@@ -464,15 +463,15 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                     }
                 } else {
                     // either x = -SNaN and y = -QNaN or x = -QNaN and y = -SNaN
-                    return (y.w[1] & MASK_SNAN) == MASK_SNAN;
+                    (y.w[1] & MASK_SNAN) == MASK_SNAN
                     // totalOrder (-QNaN, -SNaN) == 1
                 }
             }
-        } else {	// x is +NaN
+        } else {    // x is +NaN
             // return false, unless y is +NaN also
             if (y.w[1] & MASK_NAN) != MASK_NAN || (y.w[1] & MASK_SIGN) == MASK_SIGN {
                 // TODO: Check comment
-                return false;	// y is a number, return 1
+                false    // y is a number, return 1
             } else {
                 // x and y are both +NaN;
                 pyld_x.w[1] = x.w[1] & 0x00003fffffffffffu64;
@@ -491,7 +490,7 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                 }
                 // if x and y are both +SNaN or both +QNaN, we have to compare payloads
                 // this statement evaluates to true if both are SNaN or QNaN
-                return if !(((y.w[1] & MASK_SNAN) == MASK_SNAN) ^ ((x.w[1] & MASK_SNAN) == MASK_SNAN)) {
+                if !(((y.w[1] & MASK_SNAN) == MASK_SNAN) ^ ((x.w[1] & MASK_SNAN) == MASK_SNAN)) {
                     // it comes down to the payload.  we want to return true if x has a
                     // smaller payload, or if the payloads are equal (canonical forms
                     // are bitwise identical)
@@ -719,8 +718,8 @@ pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     if (x.w[1] & MASK_NAN) == MASK_NAN {
         // x is +NaN
         // return false, unless y is +NaN also
-        if (y.w[1] & MASK_NAN) != MASK_NAN {
-            return false;	// y is a number, return 0
+        return if (y.w[1] & MASK_NAN) != MASK_NAN {
+            false    // y is a number, return 0
         } else {
             // x and y are both +NaN;
             pyld_x.w[1] = x.w[1] & 0x00003fffffffffffu64;
@@ -743,10 +742,10 @@ pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                 // it comes down to the payload.  we want to return true if x has a
                 // smaller payload, or if the payloads are equal (canonical forms
                 // are bitwise identical)
-                return (pyld_x.w[1] < pyld_y.w[1]) || ((pyld_x.w[1] == pyld_y.w[1]) && (pyld_x.w[0] <= pyld_y.w[0]));
+                (pyld_x.w[1] < pyld_y.w[1]) || ((pyld_x.w[1] == pyld_y.w[1]) && (pyld_x.w[0] <= pyld_y.w[0]))
             } else {
                 // either x = SNaN and y = QNaN or x = QNaN and y = SNaN
-                return (x.w[1] & MASK_SNAN) == MASK_SNAN;
+                (x.w[1] & MASK_SNAN) == MASK_SNAN
                 // totalOrder (-QNaN, -SNaN) == 1
             }
         }

@@ -186,7 +186,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                 // result is 0
                 return sgn;
             }
-            if sgn != 0 && ((rmode - 1) as u32) < 2 {
+            if sgn != 0 && (rmode - 1) < 2 {
                 rmode = 3 - rmode;
             }
 
