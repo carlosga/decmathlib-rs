@@ -8,6 +8,7 @@
 #![allow(unused_variables)]
 
 use std::convert::From;
+
 use decmathlib_rs::d128::core::ClassTypes;
 
 mod common;

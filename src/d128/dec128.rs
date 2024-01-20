@@ -9,6 +9,7 @@
 #![allow(dead_code)]
 
 use std::ops::Neg;
+
 use crate::d128::bid128_noncomp::*;
 use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};

@@ -10,14 +10,14 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-use crate::d128::bid_internal::*;
-use crate::d128::constants::*;
-use crate::d128::bid_decimal_data::*;
-use crate::d128::core::{RoundingMode, StatusFlags};
-use crate::d128::dec128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
-
 #[cfg(target_endian = "big")]
 use crate::d128::bid_conf::BID_SWAP128;
+
+use crate::d128::bid_decimal_data::*;
+use crate::d128::bid_internal::*;
+use crate::d128::constants::*;
+use crate::d128::core::{RoundingMode, StatusFlags};
+use crate::d128::dec128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
 
 /// Takes a BID64 as input and converts it to a BID128 and returns it.
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -148,8 +148,8 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                     T128 = bid_round_const_table_128[rmode as usize][extra_digits as usize];
                     __add_carry_out(&mut CX1.w[0], &mut carry, T128.w[0], CX.w[0]);
                     CX1.w[1] = CX.w[1] + T128.w[1] + carry;
-                    #[cfg(DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
-                    if (__unsigned_compare_ge_128(CX1, bid_power10_table_128[extra_digits + 16])) {
+                    #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
+                    if __unsigned_compare_ge_128(CX1, bid_power10_table_128[extra_digits + 16]) {
                         uf_check = 0;
                     }
                 }

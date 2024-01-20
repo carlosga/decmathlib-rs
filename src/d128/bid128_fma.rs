@@ -5,13 +5,14 @@
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
 
-/*
-use crate::d128::bid128::{bid_ten2k128, bid_ten2k256, bid_ten2k64};
-use crate::d128::constants::*;
-use crate::d128::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
-
 #[cfg(target_endian = "big")]
 use crate::d128::bid_conf::BID_SWAP128;
+
+use crate::d128::bid128::*;
+use crate::d128::constants::*;
+use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
+use crate::d128::core::{RoundingMode, StatusFlags};
+use crate::d128::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
 // ********************************************************************************************************************
 // BID128 fma   x * y + z
@@ -43,17 +44,17 @@ pub(crate) fn bid_rounding_correction(
     // result (so they seem to be reversed)
 
     if is_inexact_lt_midpoint || is_inexact_gt_midpoint || is_midpoint_lt_even || is_midpoint_gt_even {
-        *ptrfpsf |= BID_INEXACT_EXCEPTION;
+        *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
     }
     // apply correction to result calculated with unbounded exponent
     sign = res.w[1] & MASK_SIGN;
     exp  = ((unbexp + 6176) << 49) as BID_UINT64; // valid only if expmin<=unbexp<=expmax
     C_hi = res.w[1] & MASK_COEFF;
     C_lo = res.w[0];
-    if (sign == 0 && ((rnd_mode == BID_ROUNDING_UP && is_inexact_lt_midpoint) ||
-        ((rnd_mode == BID_ROUNDING_TIES_AWAY || rnd_mode == BID_ROUNDING_UP) && is_midpoint_gt_even))) ||
-        (sign != 0 && ((rnd_mode == BID_ROUNDING_DOWN && is_inexact_lt_midpoint) ||
-            ((rnd_mode == BID_ROUNDING_TIES_AWAY || rnd_mode == BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
+    if (sign == 0 && ((rnd_mode == RoundingMode::BID_ROUNDING_UP && is_inexact_lt_midpoint) ||
+        ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY || rnd_mode == RoundingMode::BID_ROUNDING_UP) && is_midpoint_gt_even))) ||
+        (sign != 0 && ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN && is_inexact_lt_midpoint) ||
+            ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
         // C = C + 1
         C_lo = C_lo + 1;
         if C_lo == 0 {
@@ -68,8 +69,8 @@ pub(crate) fn bid_rounding_correction(
             exp    = ((unbexp + 6176) << 49) as BID_UINT64;
         }
     } else if (is_midpoint_lt_even || is_inexact_gt_midpoint) &&
-        ((sign != 0 && (rnd_mode == BID_ROUNDING_UP   || rnd_mode == BID_ROUNDING_TO_ZERO)) ||
-            (sign == 0 && (rnd_mode == BID_ROUNDING_DOWN || rnd_mode == BID_ROUNDING_TO_ZERO))) {
+        ((sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP   || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO)) ||
+            (sign == 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
         // C = C - 1
         C_lo = C_lo - 1;
         if C_lo == 0xffffffffffffffffu64 {
@@ -85,17 +86,17 @@ pub(crate) fn bid_rounding_correction(
                 unbexp = unbexp - 1;
                 exp    = ((unbexp + 6176) << 49) as BID_UINT64;
             } else { // if exp = 0 the result is tiny & inexact
-                *ptrfpsf |= BID_UNDERFLOW_EXCEPTION;
+                *ptrfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
         }
     } else {
         ; // the result is already correct
     }
     if unbexp > expmax { // 6111
-        *ptrfpsf |= BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION;
+        *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION;
         exp       = 0;
         if sign == 0 { // result is positive
-            if rnd_mode == BID_ROUNDING_UP || rnd_mode == BID_ROUNDING_TIES_AWAY { // +inf
+            if rnd_mode == RoundingMode::BID_ROUNDING_UP || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // +inf
                 C_hi = 0x7800000000000000u64;
                 C_lo = 0x0000000000000000u64;
             } else { // res = +MAXFP = (10^34-1) * 10^emax
@@ -103,7 +104,7 @@ pub(crate) fn bid_rounding_correction(
                 C_lo = 0x378d8e63ffffffffu64;
             }
         } else { // result is negative
-            if rnd_mode == BID_ROUNDING_DOWN || rnd_mode == BID_ROUNDING_TIES_AWAY { // -inf
+            if rnd_mode == RoundingMode::BID_ROUNDING_DOWN || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // -inf
                 C_hi = 0xf800000000000000u64;
                 C_lo = 0x0000000000000000u64;
             } else { // res = -MAXFP = -(10^34-1) * 10^emax
@@ -358,7 +359,7 @@ pub (crate) fn bid_add_and_round(
         // (x*y and z had opposite signs)
         if R256.w[3] == 0x0u64 && R256.w[2] == 0x0u64
             && R256.w[1] == 0x0u64 && R256.w[0] == 0x0u64 {
-            p_sign = if rnd_mode != BID_ROUNDING_DOWN {
+            p_sign = if rnd_mode != RoundingMode::BID_ROUNDING_DOWN {
                 0x0000000000000000u64
             } else {
                 0x8000000000000000u64
@@ -433,7 +434,7 @@ pub (crate) fn bid_add_and_round(
 
         // the rounded result has p34 = 34 digits
         e4 = e4 + x0 + incr_exp;
-        if rnd_mode == BID_ROUNDING_TO_NEAREST {
+        if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
             #[cfg(DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
             if e4 < expmin {
                 is_tiny = 1; // for other rounding modes apply correction
@@ -471,11 +472,11 @@ pub (crate) fn bid_add_and_round(
     // Note: res is correct only if expmin <= e4 <= expmax
 
     // check for overflow if RN
-    if rnd_mode == BID_ROUNDING_TO_NEAREST && (ind + e4) > (p34 + expmax) {
+    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (ind + e4) > (p34 + expmax) {
         res.w[1]  = p_sign | 0x7800000000000000u64;
         res.w[0]  = 0x0000000000000000u64;
         *ptrres   = res;
-        *ptrfpsf |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+        *ptrfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
         return; // BID_RETURN (res)
     } // else not overflow or not RN, so continue
 
@@ -626,7 +627,7 @@ pub (crate) fn bid_add_and_round(
     }
     // res contains the correct result
     // apply correction if not rounding to nearest
-    if rnd_mode != BID_ROUNDING_TO_NEAREST {
+    if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
         bid_rounding_correction(
             rnd_mode,
             is_inexact_lt_midpoint,
@@ -637,9 +638,9 @@ pub (crate) fn bid_add_and_round(
     }
     if (is_midpoint_lt_even || is_midpoint_gt_even || is_inexact_lt_midpoint || is_inexact_gt_midpoint) {
         // set the inexact flag
-        *ptrfpsf |= BID_INEXACT_EXCEPTION;
+        *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
         if (is_tiny) {
-            *ptrfpsf |= BID_UNDERFLOW_EXCEPTION;
+            *ptrfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
         }
     }
 
@@ -656,7 +657,7 @@ pub (crate) fn bid128_ext_fma (
     ptr_is_inexact_lt_midpoint: &mut bool,
     ptr_is_inexact_gt_midpoint: &mut bool,
     x: &BID_UINT128,
-    y: &mut BID_UINT128,
+    y: &BID_UINT128,
     z: &BID_UINT128,
     rnd_mode: u32,
     pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -1033,7 +1034,7 @@ pub (crate) fn bid128_ext_fma (
             res.w[1] |= z_sign;
             res.w[0] = 0x0;
         } else { // x * y and z have opposite signs
-            if rnd_mode == BID_ROUNDING_DOWN {
+            if rnd_mode == RoundingMode::BID_ROUNDING_DOWN {
                 // res = -0.0
                 res.w[1] |= MASK_SIGN;
                 res.w[0] = 0x0;
@@ -1385,7 +1386,7 @@ pub (crate) fn bid128_ext_fma (
 
                 #[cfg(!DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
                 if q4 + e4 == expmin + p34 {
-                    *pfpsf |= (BID_INEXACT_EXCEPTION | BID_UNDERFLOW_EXCEPTION);
+                    *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_UNDERFLOW_EXCEPTION);
                 }
             }
             // res is now the coefficient of the result rounded to the destination
@@ -1423,10 +1424,10 @@ pub (crate) fn bid128_ext_fma (
 
         // check for overflow
         if q4 + e4 > p34 + expmax {
-            if rnd_mode == BID_ROUNDING_TO_NEAREST {
+            if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
                 res.w[1] = p_sign | 0x7800000000000000u64; // +/-inf
                 res.w[0] = 0x0000000000000000u64;
-                *pfpsf  |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                *pfpsf  |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
             } else {
                 res.w[1] = p_sign | res.w[1];
                 bid_rounding_correction(
@@ -1625,11 +1626,11 @@ pub (crate) fn bid128_ext_fma (
             // check for inexact result
             if (is_inexact_lt_midpoint || is_inexact_gt_midpoint || is_midpoint_lt_even || is_midpoint_gt_even) {
                 // set the inexact flag and the underflow flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
-                *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
             res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49) | res.w[1];
-            if (rnd_mode != BID_ROUNDING_TO_NEAREST) {
+            if (rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST) {
                 bid_rounding_correction(
                     rnd_mode,
                     is_inexact_lt_midpoint,
@@ -1654,7 +1655,7 @@ pub (crate) fn bid128_ext_fma (
         // get here if incr_exp = 1 and then q4 + e4 == expmin + p34)
         res.w[1] = p_sign | ((BID_UINT64) (e4 + 6176) << 49) | res.w[1];
 
-        if (rnd_mode != BID_ROUNDING_TO_NEAREST) {
+        if (rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST) {
             bid_rounding_correction(
                 rnd_mode,
                 is_inexact_lt_midpoint,
@@ -1674,13 +1675,13 @@ pub (crate) fn bid128_ext_fma (
 
         if (is_inexact_lt_midpoint || is_inexact_gt_midpoint || is_midpoint_lt_even || is_midpoint_gt_even) {
             // set the inexact flag
-            *pfpsf |= BID_INEXACT_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
             if (is_tiny) {
-                *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
         }
 
-        if (*pfpsf & BID_INEXACT_EXCEPTION) == 0 { // x * y is exact
+        if (*pfpsf & StatusFlags::BID_INEXACT_EXCEPTION) == 0 { // x * y is exact
             // need to ensure that the result has the preferred exponent
             p_exp = res.w[1] & MASK_EXP;
             if z_exp < p_exp { // the preferred exponent is z_exp
@@ -1742,10 +1743,10 @@ pub (crate) fn bid128_ext_fma (
             if (q3 + e3) > (p34 + expmax) && p34 <= delta - 1 {
                 // e3 > expmax implies p34 <= delta-1 and e3 > expmax is a necessary
                 // condition for (q3 + e3) > (p34 + expmax)
-                if rnd_mode == BID_ROUNDING_TO_NEAREST {
+                if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
                     res.w[1] = z_sign | 0x7800000000000000u64; // +/-inf
                     res.w[0] = 0x0000000000000000u64;
-                    *pfpsf  |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                    *pfpsf  |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
                 } else {
                     if p_sign == z_sign {
                         is_inexact_lt_midpoint = true;
@@ -1821,7 +1822,7 @@ pub (crate) fn bid128_ext_fma (
                 e3       = e3 - scale;
                 res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
                 if (scale + q3 < p34) {
-                    *pfpsf |= BID_UNDERFLOW_EXCEPTION;  // OK for tininess detection
+                    *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;  // OK for tininess detection
                     // before or after rounding, because the exponent of the
                     // rounded result with unbounded exponent does not change
                     // due to rounding overflow
@@ -1933,14 +1934,14 @@ pub (crate) fn bid128_ext_fma (
                             // result not tiny (in round-to-nearest mode)
                             // rounds to 10^33 * 10^emin
                         } else {
-                            *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                            *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
                         }
                         #[cfg(!DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
-                        *pfpsf |= BID_UNDERFLOW_EXCEPTION; // tiny if detected before rounding
+                        *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // tiny if detected before rounding
                     }
                 } // end 10^(q3+scale-1)
                 // set the inexact flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
             } else {
                 if p_sign == z_sign {
                     // if (z_sign), set as if for absolute value
@@ -1949,7 +1950,7 @@ pub (crate) fn bid128_ext_fma (
                     // if (z_sign), set as if for absolute value
                     is_inexact_gt_midpoint = true;
                 }
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
             }
             // the result is always inexact => set the inexact flag
             // Determine tininess:
@@ -2010,9 +2011,9 @@ pub (crate) fn bid128_ext_fma (
                     && (res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64 // 10^33_high
                     && res.w[0] == 0x38c15b0a00000000u64 // 10^33_low
                     && z_sign != p_sign
-                    && (rnd_mode == BID_ROUNDING_TO_NEAREST || rnd_mode == BID_ROUNDING_TIES_AWAY)
+                    && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY)
                     && (delta == (p34 + 1)) && C4gt5toq4m1)) {
-                    *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                    *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
                 }
             }
 
@@ -2022,10 +2023,10 @@ pub (crate) fn bid128_ext_fma (
                     (res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64 &&	// 10^33_high
                     res.w[0] == 0x38c15b0a00000000u64 &&	// 10^33_low
                     z_sign != p_sign)) {
-                *pfpsf |= BID_UNDERFLOW_EXCEPTION; // for all rounding modes
+                *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // for all rounding modes
             }
 
-            if rnd_mode != BID_ROUNDING_TO_NEAREST {
+            if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                 bid_rounding_correction(
                     rnd_mode,
                     is_inexact_lt_midpoint,
@@ -2165,12 +2166,12 @@ pub (crate) fn bid128_ext_fma (
                 }
                 // the result is always inexact, and never tiny
                 // set the inexact flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                 // check for overflow
-                if e3 > expmax && rnd_mode == BID_ROUNDING_TO_NEAREST {
+                if e3 > expmax && rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
                     res.w[1]                    = z_sign | 0x7800000000000000u64; // +/-inf
                     res.w[0]                    = 0x0000000000000000u64;
-                    *pfpsf                     |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                    *pfpsf                     |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
                     *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
                     *ptr_is_midpoint_gt_even    = is_midpoint_gt_even;
                     *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
@@ -2181,7 +2182,7 @@ pub (crate) fn bid128_ext_fma (
 
                     return res;
                 }
-                if rnd_mode != BID_ROUNDING_TO_NEAREST {
+                if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                     bid_rounding_correction (
                         rnd_mode,
                         is_inexact_lt_midpoint,
@@ -2219,10 +2220,10 @@ pub (crate) fn bid128_ext_fma (
                     // the result is always inexact, and never tiny
                     // check for overflow for RN
                     if e3 > expmax {
-                        if rnd_mode == BID_ROUNDING_TO_NEAREST {
+                        if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
                             res.w[1] = z_sign | 0x7800000000000000u64; // +/-inf
                             res.w[0] = 0x0000000000000000u64;
-                            *pfpsf  |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                            *pfpsf  |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
                         } else {
                             bid_rounding_correction(
                                 rnd_mode,
@@ -2243,8 +2244,8 @@ pub (crate) fn bid128_ext_fma (
                         return res;
                     }
                     // set the inexact flag
-                    *pfpsf |= BID_INEXACT_EXCEPTION;
-                    if rnd_mode != BID_ROUNDING_TO_NEAREST {
+                    *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                    if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                         bid_rounding_correction(
                             rnd_mode,
                             is_inexact_lt_midpoint,
@@ -2355,10 +2356,10 @@ pub (crate) fn bid128_ext_fma (
                                 // the result is always inexact, and never tiny
                                 // check for overflow for RN
                                 if e3 > expmax {
-                                    if rnd_mode == BID_ROUNDING_TO_NEAREST {
+                                    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
                                         res.w[1] = z_sign | 0x7800000000000000u64; // +/-inf
                                         res.w[0] = 0x0000000000000000u64;
-                                        *pfpsf  |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                                        *pfpsf  |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
                                     } else {
                                         bid_rounding_correction(
                                             rnd_mode,
@@ -2379,9 +2380,9 @@ pub (crate) fn bid128_ext_fma (
                                     return res;
                                 }
                                 // set the inexact flag
-                                *pfpsf  |= BID_INEXACT_EXCEPTION;
+                                *pfpsf  |= StatusFlags::BID_INEXACT_EXCEPTION;
                                 res.w[1] = z_sign | ((e3 + 6176) as BID_UINT64 << 49) | res.w[1];
-                                if rnd_mode != BID_ROUNDING_TO_NEAREST {
+                                if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                     bid_rounding_correction(
                                         rnd_mode,
                                         is_inexact_lt_midpoint,
@@ -2411,7 +2412,7 @@ pub (crate) fn bid128_ext_fma (
                             res.w[0] = 0x38c15b0a00000000u64;
                         }
                         res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
-                        *pfpsf  |= BID_UNDERFLOW_EXCEPTION; // inexact is set later
+                        *pfpsf  |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // inexact is set later
 
                         if eq_half_ulp {
                             is_midpoint_lt_even = true; // if (z_sign), as if for absolute value
@@ -2421,7 +2422,7 @@ pub (crate) fn bid128_ext_fma (
                             is_inexact_lt_midpoint = true; //if(z_sign), as if for absolute value
                         }
 
-                        if rnd_mode != BID_ROUNDING_TO_NEAREST {
+                        if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                             bid_rounding_correction(
                                 rnd_mode,
                                 is_inexact_lt_midpoint,
@@ -2435,7 +2436,7 @@ pub (crate) fn bid128_ext_fma (
                     // set the inexact flag (if the result was not exact)
                     if (is_inexact_lt_midpoint || is_inexact_gt_midpoint
                         || is_midpoint_lt_even    || is_midpoint_gt_even)
-                        *pfpsf |= BID_INEXACT_EXCEPTION;
+                        *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                 } // end 10^33
             } // end if (p_sign != z_sign)
 
@@ -2739,7 +2740,7 @@ pub (crate) fn bid128_ext_fma (
                             // if the result is pure zero, the sign depends on the rounding
                             // mode (x*y and z had opposite signs)
                             if res.w[1] == 0x0u64 && res.w[0] == 0x0u64 {
-                                z_sign = if rnd_mode !=  BID_ROUNDING_DOWN {
+                                z_sign = if rnd_mode !=  RoundingMode::BID_ROUNDING_DOWN {
                                     0x0000000000000000u64
                                 } else {
                                     0x8000000000000000u64
@@ -2836,7 +2837,7 @@ pub (crate) fn bid128_ext_fma (
                         // if the result is pure zero, the sign depends on the rounding
                         // mode (x*y and z had opposite signs)
                         if res.w[1] == 0x0u64 && res.w[0] == 0x0u64 {
-                            z_sign = if (rnd_mode != BID_ROUNDING_DOWN) {
+                            z_sign = if (rnd_mode != RoundingMode::BID_ROUNDING_DOWN) {
                                 0x0000000000000000u64
                             } else {
                                 0x8000000000000000u64
@@ -3022,9 +3023,9 @@ pub (crate) fn bid128_ext_fma (
             if (is_inexact_lt_midpoint || is_inexact_gt_midpoint ||
                 is_midpoint_lt_even || is_midpoint_gt_even) {
                 // set the inexact flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                 if (is_tiny)
-                    *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                    *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
             // now check for significand = 10^34 (may have resulted from going
             // back to case2_repeat)
@@ -3036,12 +3037,12 @@ pub (crate) fn bid128_ext_fma (
             }
             res.w[1] = z_sign | ((BID_UINT64) (e3 + 6176) << 49) | res.w[1];
             // check for overflow
-            if (rnd_mode == BID_ROUNDING_TO_NEAREST && e3 > expmax) {
+            if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && e3 > expmax) {
                 res.w[1] = z_sign | 0x7800000000000000u64; // +/-inf
                 res.w[0] = 0x0000000000000000u64;
-                *pfpsf |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
             }
-            if (rnd_mode != BID_ROUNDING_TO_NEAREST) {
+            if (rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST) {
                 bid_rounding_correction (rnd_mode,
                                          is_inexact_lt_midpoint,
                                          is_inexact_gt_midpoint,
@@ -3231,15 +3232,15 @@ pub (crate) fn bid128_ext_fma (
                 ; // the rounded result is already correct
             }
             // check for overflow
-            if (rnd_mode == BID_ROUNDING_TO_NEAREST && e4 > expmax) {
+            if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && e4 > expmax) {
                 res.w[1] = p_sign | 0x7800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
-                *pfpsf |= (BID_OVERFLOW_EXCEPTION | BID_INEXACT_EXCEPTION);
+                *pfpsf |= (StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
             } else { // no overflow or not RN
                 p_exp = ((BID_UINT64) (e4 + 6176) << 49);
                 res.w[1] = p_sign | (p_exp & MASK_EXP) | res.w[1];
             }
-            if (rnd_mode != BID_ROUNDING_TO_NEAREST) {
+            if (rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST) {
                 bid_rounding_correction (rnd_mode,
                                          is_inexact_lt_midpoint,
                                          is_inexact_gt_midpoint,
@@ -3249,7 +3250,7 @@ pub (crate) fn bid128_ext_fma (
             if (is_inexact_lt_midpoint || is_inexact_gt_midpoint ||
                 is_midpoint_lt_even || is_midpoint_gt_even) {
                 // set the inexact flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
             }
             *ptr_is_midpoint_lt_even = is_midpoint_lt_even;
             *ptr_is_midpoint_gt_even = is_midpoint_gt_even;
@@ -3507,7 +3508,7 @@ pub (crate) fn bid128_ext_fma (
             }
 
             // determine tininess
-            if (rnd_mode == BID_ROUNDING_TO_NEAREST) {
+            if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST) {
                 if (e4 < expmin) {
                     is_tiny = 1; // for other rounding modes apply correction
                 }
@@ -3543,11 +3544,11 @@ pub (crate) fn bid128_ext_fma (
             // Note: res is correct only if expmin <= e4 <= expmax
 
             // check for overflow if RN
-            if (rnd_mode == BID_ROUNDING_TO_NEAREST
+            if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
                 && (ind + e4) > (p34 + expmax)) {
                 res.w[1] = p_sign | 0x7800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
-                *pfpsf |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+                *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
                 *ptr_is_midpoint_lt_even = is_midpoint_lt_even;
                 *ptr_is_midpoint_gt_even = is_midpoint_gt_even;
                 *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
@@ -3710,7 +3711,7 @@ pub (crate) fn bid128_ext_fma (
             }
             // res contains the correct result
             // apply correction if not rounding to nearest
-            if (rnd_mode != BID_ROUNDING_TO_NEAREST) {
+            if (rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST) {
                 bid_rounding_correction (rnd_mode,
                                          is_inexact_lt_midpoint,
                                          is_inexact_gt_midpoint,
@@ -3722,11 +3723,11 @@ pub (crate) fn bid128_ext_fma (
             if ((((res.w[1] & 0x7fffffffffffffffu64) == 0x0000314dc6448d93u64) &&
                 // 10^33*10^-6176_high
                 (res.w[0] == 0x38c15b0a00000000u64)) &&  // 10^33*10^-6176_low
-                (((rnd_mode == BID_ROUNDING_TO_NEAREST ||
-                    rnd_mode == BID_ROUNDING_TIES_AWAY) &&
+                (((rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST ||
+                    rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) &&
                     (is_midpoint_lt_even || is_inexact_gt_midpoint)) ||
-                    ((((rnd_mode == BID_ROUNDING_UP) && !(res.w[1] & MASK_SIGN)) ||
-                        ((rnd_mode == BID_ROUNDING_DOWN) && (res.w[1] & MASK_SIGN)))
+                    ((((rnd_mode == RoundingMode::BID_ROUNDING_UP) && !(res.w[1] & MASK_SIGN)) ||
+                        ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && (res.w[1] & MASK_SIGN)))
                         && (is_midpoint_lt_even || is_midpoint_gt_even ||
                         is_inexact_lt_midpoint || is_inexact_gt_midpoint)))) {
                 is_tiny = 1;
@@ -3735,9 +3736,9 @@ pub (crate) fn bid128_ext_fma (
             if (is_midpoint_lt_even || is_midpoint_gt_even ||
                 is_inexact_lt_midpoint || is_inexact_gt_midpoint) {
                 // set the inexact flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                 if (is_tiny)
-                    *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                    *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
             *ptr_is_midpoint_lt_even = is_midpoint_lt_even;
             *ptr_is_midpoint_gt_even = is_midpoint_gt_even;
@@ -3992,14 +3993,14 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     let sign: BID_UINT64;
     let exp: BID_UINT64;
     let unbexp: i32;
-    let C: BID_UINT128;
-    let tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
     let nr_bits: i32;
     let q: i32;
     let x0: i32;
     let scale: i32;
-    let lt_half_ulp:i32 = 0;
-    let eq_half_ulp: i32 = 0;
+    let mut lt_half_ulp:bool = false;
+    let mut eq_half_ulp:bool = false;
 
     // Note: for rounding modes other than RN or RA, the result can be obtained
     // by rounding first to BID128 and then to BID64
@@ -4015,41 +4016,40 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
         x, y, z,
         rnd_mode, pfpsf);
 
-    if ((rnd_mode == BID_ROUNDING_DOWN) || (rnd_mode == BID_ROUNDING_UP) ||
-        (rnd_mode == BID_ROUNDING_TO_ZERO) ||                   // no double rounding error is possible
-        ((res.w[BID_HIGH_128W] & MASK_NAN) == MASK_NAN) ||      // res=QNaN (cannot be SNaN)
-        ((res.w[BID_HIGH_128W] & MASK_ANY_INF) == MASK_INF)) {  // result is infinity
-        res1 = bid128_to_bid64(res, rnd_mode);
+    if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN) || (rnd_mode == RoundingMode::BID_ROUNDING_UP) ||
+       (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO) ||      // no double rounding error is possible
+       ((res.w[BID_HIGH_128W] & MASK_NAN) == MASK_NAN) ||       // res=QNaN (cannot be SNaN)
+       ((res.w[BID_HIGH_128W] & MASK_ANY_INF) == MASK_INF) {    // result is infinity
+        res1 = bid128_to_bid64(&res, rnd_mode, pfpsf);
         // determine the unbiased exponent of the result
-        unbexp = ((res1 >> 53) & 0x3ff) - 398;
+        unbexp = (((res1 >> 53) & 0x3ff) - 398) as i32;
 
-        if (!((res1 & MASK_NAN) == MASK_NAN)) { // res1 not NaN
+        if !((res1 & MASK_NAN) == MASK_NAN) { // res1 not NaN
             // if subnormal, res1  must have exp = -398
             // if tiny and inexact set underflow and inexact status flags
-            if ((unbexp == -398)
-                && ((res1 & MASK_BINARY_SIG1) < 1000000000000000u64)
-                && (is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0
-                || is_midpoint_lt_even0    || is_midpoint_gt_even0)) {
+            if (unbexp == -398)
+             & ((res1 & MASK_BINARY_SIG1) < 1000000000000000u64)
+             && (is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0
+              || is_midpoint_lt_even0    || is_midpoint_gt_even0) {
                 // set the inexact flag and the underflow flag
-                *pfpsf |= (BID_INEXACT_EXCEPTION | BID_UNDERFLOW_EXCEPTION);
-            } else if (is_inexact_lt_midpoint0
-                || is_inexact_gt_midpoint0
-                || is_midpoint_lt_even0
-                || is_midpoint_gt_even0) {
+                *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_UNDERFLOW_EXCEPTION);
+            } else if is_inexact_lt_midpoint0  || is_inexact_gt_midpoint0
+                   || is_midpoint_lt_even0     || is_midpoint_gt_even0 {
                 // set the inexact flag and the underflow flag
-                *pfpsf |= BID_INEXACT_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
             }
-            #[cfg(!DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
+            #[cfg(not(feature = DECIMAL_TINY_DETECTION_AFTER_ROUNDING))]
             // correction needed for tininess detection before rounding
-            if (((res1 & 0x7fffffffffffffffu64) == 1000000000000000u64) &&
+            if ((res1 & 0x7fffffffffffffffu64) == 1000000000000000u64) &&
                 // 10^15*10^-398
-                (((rnd_mode == BID_ROUNDING_TO_NEAREST || rnd_mode == BID_ROUNDING_TIES_AWAY) &&
-                    (is_midpoint_lt_even || is_inexact_gt_midpoint)) ||
-                    ((((rnd_mode == BID_ROUNDING_UP) && !(res1 & MASK_SIGN)) ||
-                        ((rnd_mode == BID_ROUNDING_DOWN) && (res1 & MASK_SIGN)))
-                        && (is_midpoint_lt_even    || is_midpoint_gt_even
-                        || is_inexact_lt_midpoint || is_inexact_gt_midpoint)))) {
-                *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                (((rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
+                || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY)
+               && (is_midpoint_lt_even || is_inexact_gt_midpoint))
+              || ((((rnd_mode == RoundingMode::BID_ROUNDING_UP) && (res1 & MASK_SIGN) == 0)
+                || ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && (res1 & MASK_SIGN) != 0))
+                 && (is_midpoint_lt_even    || is_midpoint_gt_even
+                  || is_inexact_lt_midpoint || is_inexact_gt_midpoint))) {
+                *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
         } // else the result is NaN
 
@@ -4061,20 +4061,20 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     // (or less if exact), and it is zero or finite non-zero canonical [sub]normal
     sign   = res.w[BID_HIGH_128W] & MASK_SIGN;  // 0 for positive, MASK_SIGN for negative
     exp    = res.w[BID_HIGH_128W] & MASK_EXP;   // biased and shifted left 49 bits
-    unbexp = (exp >> 49) - 6176;
+    unbexp = ((exp >> 49) - 6176) as i32;
     C.w[1] = res.w[BID_HIGH_128W] & MASK_COEFF;
     C.w[0] = res.w[BID_LOW_128W];
 
-    if ((C.w[1] == 0x0 && C.w[0] == 0x0) ||     // result is zero
-        (unbexp <= (-398 - 35)) || (unbexp >= (369 + 16))) {
+    if (C.w[1] == 0x0 && C.w[0] == 0x0) ||     // result is zero
+        (unbexp <= (-398 - 35)) || (unbexp >= (369 + 16)) {
         // clear under/overflow
-        res1    = bid128_to_bid64(res, rnd_mode, pfpsf);
+        res1    = bid128_to_bid64(&res, rnd_mode, pfpsf);
         *pfpsf |= save_fpsf;
         return res1;
     } // else continue
 
     // -398 - 34 <= unbexp <= 369 + 15
-    if rnd_mode == BID_ROUNDING_TIES_AWAY {
+    if rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY {
         // apply correction, if needed, to make the result rounded to nearest-even
         if is_midpoint_gt_even {
             // res = res - 1
@@ -4084,29 +4084,32 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     // at this point the result is finite, non-zero canonical normal or subnormal,
     // and in most cases overflow or underflow will not occur
 
-    // determine the number of digits q in the result
-    // q = nr. of decimal digits in x
-    // determine first the nr. of bits in x
-    if C.w[1] == 0 {
-        if C.w[0] >= 0x0020000000000000u64 {  // x >= 2^53
-            // split the 64-bit value in two 32-bit halves to avoid rounding errors
-            tmp.d   = (C.w[0] >> 32) as f64;    // exact conversion
-            nr_bits = 33 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
-        } else { // if x < 2^53
-            tmp.d   = C.w[0] as f64;            // exact conversion
-            nr_bits = 1 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
+    unsafe {
+        // determine the number of digits q in the result
+        // q = nr. of decimal digits in x
+        // determine first the nr. of bits in x
+        if C.w[1] == 0 {
+            if C.w[0] >= 0x0020000000000000u64 {  // x >= 2^53
+                // split the 64-bit value in two 32-bit halves to avoid rounding errors
+                tmp.d   = (C.w[0] >> 32) as f64;    // exact conversion
+                nr_bits = (33 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+            } else { // if x < 2^53
+                tmp.d   = C.w[0] as f64;            // exact conversion
+                nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+            }
+        } else { // C.w[1] != 0 => nr. bits = 64 + nr_bits (C.w[1])
+            tmp.d   = C.w[1] as f64;              // exact conversion
+            nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
-    } else { // C.w[1] != 0 => nr. bits = 64 + nr_bits (C.w[1])
-        tmp.d   = C.w[1] as f64;              // exact conversion
-        nr_bits = 65 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
     }
     q = bid_nr_digits[nr_bits - 1].digits;
     if q == 0 {
         q = bid_nr_digits[nr_bits - 1].digits1;
         if C.w[1]  > bid_nr_digits[nr_bits - 1].threshold_hi
-            || (C.w[1] == bid_nr_digits[nr_bits - 1].threshold_hi
-            && C.w[0] >= bid_nr_digits[nr_bits - 1].threshold_lo)
-        q++;
+       || (C.w[1] == bid_nr_digits[nr_bits - 1].threshold_hi
+        && C.w[0] >= bid_nr_digits[nr_bits - 1].threshold_lo) {
+            q += 1;
+        }
     }
     // if q > 16, round to nearest even to 16 digits (but for underflow it may
     // have to be truncated even more)
@@ -4179,7 +4182,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     // check for overflow
     if q + unbexp > P16 + expmax16 {
         res1    = sign | 0x7800000000000000u64;
-        *pfpsf |= (BID_INEXACT_EXCEPTION | BID_OVERFLOW_EXCEPTION);
+        *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
         *pfpsf |= save_fpsf;
         return res1
     } else if unbexp > expmax16 { // q + unbexp <= P16 + expmax16
@@ -4224,7 +4227,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                 if res1 < bid_midpoint64[q - 1] {           // < 1/2 ulp
                     lt_half_ulp            = true;
                     is_inexact_lt_midpoint = true;
-                } else if (res1 == bid_midpoint64[q - 1]) { // = 1/2 ulp
+                } else if res1 == bid_midpoint64[q - 1] {   // = 1/2 ulp
                     eq_half_ulp            = true;
                     is_midpoint_gt_even    = true;
                 } else { // > 1/2 ulp
@@ -4243,7 +4246,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                 // the second rounding is for 0.0...d(0)d(1)...d(q-1) * 10^emin
                 res1                   = 0x0000000000000000u64;
                 unbexp                 = expmin16;
-                is_inexact_lt_midpoint = 1;
+                is_inexact_lt_midpoint = true;
             }
             // avoid a double rounding error
             if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
@@ -4286,19 +4289,19 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
 
         // check for inexact result
         if is_inexact_lt_midpoint  || is_inexact_gt_midpoint
-            || is_midpoint_lt_even     || is_midpoint_gt_even
-            || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0
-            || is_midpoint_lt_even0    || is_midpoint_gt_even0 {
+        || is_midpoint_lt_even     || is_midpoint_gt_even
+        || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0
+        || is_midpoint_lt_even0    || is_midpoint_gt_even0 {
             // set the inexact flag and the underflow flag
-            *pfpsf |= (BID_INEXACT_EXCEPTION | BID_UNDERFLOW_EXCEPTION);
+            *pfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_UNDERFLOW_EXCEPTION);
         }
-    } else if (is_inexact_lt_midpoint || is_inexact_gt_midpoint
-        || is_midpoint_lt_even    || is_midpoint_gt_even) {
-        *pfpsf |= BID_INEXACT_EXCEPTION;
+    } else if is_inexact_lt_midpoint || is_inexact_gt_midpoint
+           || is_midpoint_lt_even    || is_midpoint_gt_even {
+        *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
     }
     // this is the result rounded correctly to nearest, with bounded exponent
 
-    if rnd_mode == BID_ROUNDING_TIES_AWAY && is_midpoint_gt_even { // correction
+    if rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY && is_midpoint_gt_even { // correction
         // res = res + 1
         res1 += 1; // res1 is now odd
     } // else the result is already correct
@@ -4309,19 +4312,18 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     } else { // res1 >= 2^53
         sign | MASK_STEERING_BITS | (((unbexp + 398) as BID_UINT64) << 51) | (res1 & MASK_BINARY_SIG2)
     };
-    #[cfg(!DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
+    #[cfg(not(feature = DECIMAL_TINY_DETECTION_AFTER_ROUNDING))]
     // correction needed for tininess detection before rounding
-    if (((res1 & 0x7fffffffffffffffu64) == 1000000000000000u64) &&
+    if ((res1 & 0x7fffffffffffffffu64) == 1000000000000000u64) &&
         // 10^15*10^-398
-        (((rnd_mode == BID_ROUNDING_TO_NEAREST || rnd_mode == BID_ROUNDING_TIES_AWAY) &&
+        (((rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) &&
             (is_midpoint_lt_even || is_inexact_gt_midpoint)) ||
-            ((((rnd_mode == BID_ROUNDING_UP) && (res1 & MASK_SIGN) == 0) ||
-                ((rnd_mode == BID_ROUNDING_DOWN) && (res1 & MASK_SIGN) == MASK_SIGN))
+            ((((rnd_mode == RoundingMode::BID_ROUNDING_UP) && (res1 & MASK_SIGN) == 0) ||
+                ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && (res1 & MASK_SIGN) == MASK_SIGN))
                 && (is_midpoint_lt_even    || is_midpoint_gt_even ||
-                is_inexact_lt_midpoint || is_inexact_gt_midpoint)))) {
-        *pfpsf |= BID_UNDERFLOW_EXCEPTION;
+                is_inexact_lt_midpoint || is_inexact_gt_midpoint))) {
+        *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
     }
     *pfpsf |= save_fpsf;
     return res1;
 }
-*/

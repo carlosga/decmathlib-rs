@@ -21,6 +21,11 @@ pub (crate) const BID_HIGH_128W: usize = 1;
 #[cfg(target_endian = "little")]
 pub (crate) const BID_LOW_128W: usize = 0;
 
+pub (crate) const P7: i32  = 7;
+pub (crate) const P16: i32 = 16;
+pub (crate) const P34: i32 = 34;
+
+
 pub (crate) const MASK_STEERING_BITS: u64         = 0x6000000000000000u64;
 pub (crate) const MASK_BINARY_EXPONENT1: u64      = 0x7fe0000000000000u64;
 pub (crate) const MASK_BINARY_SIG1: u64           = 0x001fffffffffffffu64;

@@ -10,6 +10,8 @@
 #![allow(unused)]
 #![allow(dead_code)]
 
+use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
+
 /// the first entry of bid_nr_digits[i - 1] (where 1 <= i <= 113), indicates
 /// the number of decimal digits needed to represent a binary number with i bits;
 /// however, if a binary number of i bits may require either k or k + 1 decimal
@@ -134,8 +136,6 @@ pub (crate) const bid_nr_digits: [DEC_DIGITS; 113] = [ // only the first entry i
     //{ 35, 0x0013426172c74d82u64, 0x2b878fe800000000u64, 35 }  // 114-bit n < 10^35
 ];
 
-
-use crate::d128::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 
 /// bid_midpoint64[i - 1] = 1/2 * 10^i = 5 * 10^(i-1), 1 <= i <= 19
 pub (crate) const bid_midpoint64: [BID_UINT64; 19] = [

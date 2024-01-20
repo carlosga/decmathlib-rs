@@ -10,8 +10,8 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-use crate::d128::constants::*;
 use crate::d128::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table};
+use crate::d128::constants::*;
 use crate::d128::core::{RoundingMode, StatusFlags};
 use crate::d128::dec128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT64};
 
