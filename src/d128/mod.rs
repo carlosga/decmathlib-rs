@@ -11,6 +11,7 @@ mod bid128_noncomp;
 mod bid_conf;
 mod bid_decimal_data;
 mod bid_internal;
+mod bid_round;
 mod constants;
 mod convert;
 pub mod core;
