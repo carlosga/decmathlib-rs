@@ -425,8 +425,8 @@ pub (crate) fn __sub_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 
 pub (crate) fn __add_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT128 {
     let mut Q128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
-    Q128.w[1] = A128.w[1] + B128.w[1];
-    Q128.w[0] = B128.w[0] + A128.w[0];
+    (Q128.w[1], _) = A128.w[1].overflowing_add(B128.w[1]);
+    (Q128.w[0], _) = B128.w[0].overflowing_add(A128.w[0]);
     if Q128.w[0] < B128.w[0] {
         Q128.w[1] += 1;
     }

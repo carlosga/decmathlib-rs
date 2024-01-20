@@ -128,7 +128,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
             bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
             extra_digits = bid_estimate_decimal_digits[bin_expon_cx as usize] - 16;
             // scale = 38-estimate_decimal_digits[bin_expon_cx];
-            D = (CX.w[1] - bid_power10_index_binexp_128[bin_expon_cx as usize].w[1]) as BID_SINT64;
+            D = (CX.w[1] as BID_SINT64) - (bid_power10_index_binexp_128[bin_expon_cx as usize].w[1]as BID_SINT64);
             if D > 0 || (D == 0 && CX.w[0] >= bid_power10_index_binexp_128[bin_expon_cx as usize].w[0]) {
                 extra_digits += 1;
             }
@@ -137,7 +137,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
         exponent_x += extra_digits;
 
         rmode = rnd_mode;
-        if sign_x != 0 && ((rmode - 1) as u32) < 2 {
+        if sign_x != 0 && ((rmode as i32 - 1) as u32) < 2 {
             rmode = 3 - rmode;
         }
 
