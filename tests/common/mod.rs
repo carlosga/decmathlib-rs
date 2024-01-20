@@ -7,7 +7,7 @@
 
 #[macro_export]
 macro_rules! dec_test {
-    ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr) => {
+    ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::dec128::_IDEC_flags = 0;
@@ -15,6 +15,7 @@ macro_rules! dec_test {
             let expected = decmathlib_rs::d128::dec128::BID_UINT128::from($exp);
 
             assert_eq!(expected, res1);
+            assert_eq!($exp_status, status);
         }
     };
 
