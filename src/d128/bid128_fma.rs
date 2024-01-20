@@ -9,14 +9,15 @@
 use crate::d128::bid_conf::BID_SWAP128;
 
 use crate::d128::bid128::*;
+use crate::d128::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_128};
 use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::d128::core::{RoundingMode, StatusFlags};
 use crate::d128::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
-// ********************************************************************************************************************
+//////////////////////////////////////////////
 // BID128 fma   x * y + z
-// ********************************************************************************************************************
+//////////////////////////////////////////////
 
 pub(crate) fn bid_rounding_correction(
     rnd_mode: u32,
@@ -27,6 +28,7 @@ pub(crate) fn bid_rounding_correction(
     unbexp: i32,
     ptrres: &mut BID_UINT128,
     ptrfpsf: &mut _IDEC_flags) {
+
     // unbiased true exponent unbexp may be larger than emax
 
     let mut res: BID_UINT128 = *ptrres; // expected to have the correct sign and coefficient
@@ -119,9 +121,11 @@ pub(crate) fn bid_rounding_correction(
     *ptrres = res;
 }
 
-pub(crate) fn bid_add256(x: &mut BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
+pub(crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x + yl assume the sum fits in 256 bits
-    let mut z = BID_UINT256::default();
+    let mut x: BID_UINT256 = *x;
+    let mut y: BID_UINT256 = *y;
+    let mut z: BID_UINT256 = BID_UINT256::default();
     z.w[0] = x.w[0] + y.w[0];
     if z.w[0] < x.w[0] {
         x.w[1] += 1;
@@ -147,8 +151,10 @@ pub(crate) fn bid_add256(x: &mut BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     z
 }
 
-pub(crate) fn bid_sub256(x: &mut BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
+pub(crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x - y; assume x >= y
+    let mut x: BID_UINT256 = *x;
+    let mut y: BID_UINT256 = *y;
     let mut z: BID_UINT256 = BID_UINT256::default();
     z.w[0] = x.w[0] - y.w[0];
     if z.w[0] > x.w[0] {
@@ -175,8 +181,8 @@ pub(crate) fn bid_sub256(x: &mut BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     z
 }
 
-pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> usize {
-    let ind: usize;
+pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> i32 {
+    let ind: i32;
 
     // determine the number of decimal digits in r256
     if r256.w[3] == 0x0 && r256.w[2] == 0x0 && r256.w[1] == 0x0 {
@@ -190,9 +196,9 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> usize {
         }
         // ind digits
     } else if r256.w[3]  == 0x0 && r256.w[2] == 0x0
-        &&  (r256.w[1]  < bid_ten2k128[0].w[1]
-        || (r256.w[1] == bid_ten2k128[0].w[1]
-        && r256.w[0]  < bid_ten2k128[0].w[0])) {
+           && (r256.w[1]  < bid_ten2k128[0].w[1]
+           || (r256.w[1] == bid_ten2k128[0].w[1]
+            && r256.w[0]  < bid_ten2k128[0].w[0])) {
         // 20 digits
         ind = 20;
     } else if r256.w[3] == 0x0 && r256.w[2] == 0x0 {
@@ -200,7 +206,7 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> usize {
         ind = 1;
         while ind <= 18 {
             if r256.w[1]   < bid_ten2k128[ind].w[1]
-                || (r256.w[1] == bid_ten2k128[ind].w[1] && r256.w[0] < bid_ten2k128[ind].w[0]) {
+            || (r256.w[1] == bid_ten2k128[ind].w[1] && r256.w[0] < bid_ten2k128[ind].w[0]) {
                 break;
             }
             ind += 1;
@@ -208,12 +214,12 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> usize {
         // ind + 20 digits
         ind = ind + 20;
     } else if r256.w[3]  == 0x0 &&
-        (r256.w[2]   < bid_ten2k256[0].w[2] ||
-            (r256.w[2] == bid_ten2k256[0].w[2] &&
-                r256.w[1]  < bid_ten2k256[0].w[1]) ||
-            (r256.w[2] == bid_ten2k256[0].w[2] &&
-                r256.w[1] == bid_ten2k256[0].w[1] &&
-                r256.w[0]  < bid_ten2k256[0].w[0])) {
+             (r256.w[2]   < bid_ten2k256[0].w[2] ||
+              (r256.w[2] == bid_ten2k256[0].w[2] &&
+               r256.w[1]  < bid_ten2k256[0].w[1]) ||
+              (r256.w[2] == bid_ten2k256[0].w[2] &&
+               r256.w[1] == bid_ten2k256[0].w[1] &&
+               r256.w[0]  < bid_ten2k256[0].w[0])) {
         // 39 digits
         ind = 39;
     } else {
@@ -221,15 +227,15 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> usize {
         ind = 1;
         while ind <= 29 {
             if r256.w[3]  < bid_ten2k256[ind].w[3] ||
-                (r256.w[3] == bid_ten2k256[ind].w[3] &&
-                    r256.w[2]  < bid_ten2k256[ind].w[2]) ||
-                (r256.w[3] == bid_ten2k256[ind].w[3] &&
-                    r256.w[2] == bid_ten2k256[ind].w[2] &&
-                    r256.w[1]  < bid_ten2k256[ind].w[1]) ||
-                (r256.w[3] == bid_ten2k256[ind].w[3] &&
-                    r256.w[2] == bid_ten2k256[ind].w[2] &&
-                    r256.w[1] == bid_ten2k256[ind].w[1] &&
-                    r256.w[0]  < bid_ten2k256[ind].w[0]) {
+              (r256.w[3] == bid_ten2k256[ind].w[3] &&
+               r256.w[2]  < bid_ten2k256[ind].w[2]) ||
+              (r256.w[3] == bid_ten2k256[ind].w[3] &&
+               r256.w[2] == bid_ten2k256[ind].w[2] &&
+               r256.w[1]  < bid_ten2k256[ind].w[1]) ||
+              (r256.w[3] == bid_ten2k256[ind].w[3] &&
+               r256.w[2] == bid_ten2k256[ind].w[2] &&
+               r256.w[1] == bid_ten2k256[ind].w[1] &&
+               r256.w[0]  < bid_ten2k256[ind].w[0]) {
                 break;
             }
             ind += 1;
@@ -258,32 +264,34 @@ pub (crate) fn bid_add_and_round(
     ptr_is_midpoint_gt_even: &mut bool,
     ptr_is_inexact_lt_midpoint: &mut bool,
     ptr_is_inexact_gt_midpoint: &mut bool,
-    ptrfpsf: &mut _IDEC_flags,
-    ptrres: &mut BID_UINT128) {
+    ptrfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 
+    let mut ptrres: BID_UINT128 = BID_UINT128::default();
     let scale: i32;
     let x0: i32;
     let ind: i32;
-    let R64: BID_UINT64;
-    let P128: BID_UINT128 = BID_UINT128::default();
-    let R128: BID_UINT128 = BID_UINT128::default();
-    let P192: BID_UINT192 = BID_UINT192::default();
+    let R64: BID_UINT64 = 0;
+    let mut P128: BID_UINT128 = BID_UINT128::default();
+    let mut R128: BID_UINT128 = BID_UINT128::default();
+    let mut P192: BID_UINT192 = BID_UINT192::default();
     let R192: BID_UINT192 = BID_UINT192::default();
-    let R256: BID_UINT256 = BID_UINT256::default();
-    let is_midpoint_lt_even: bool = false;
-    let is_midpoint_gt_even: bool = false;
-    let is_inexact_lt_midpoint: bool = false;
-    let is_inexact_gt_midpoint: bool = false;
-    let is_midpoint_lt_even0: bool = false;
-    let is_midpoint_gt_even0: bool = false;
-    let is_inexact_lt_midpoint0: bool = false;
-    let is_inexact_gt_midpoint0: bool = false;
+    let mut R256: BID_UINT256 = BID_UINT256::default();
+    let mut is_midpoint_lt_even: bool = false;
+    let mut is_midpoint_gt_even: bool = false;
+    let mut is_inexact_lt_midpoint: bool = false;
+    let mut is_inexact_gt_midpoint: bool = false;
+    let mut is_midpoint_lt_even0: bool = false;
+    let mut is_midpoint_gt_even0: bool = false;
+    let mut is_inexact_lt_midpoint0: bool = false;
+    let mut is_inexact_gt_midpoint0: bool = false;
     let incr_exp: bool = false;
-    let is_tiny: bool = false;
-    let lt_half_ulp: bool = false;
-    let eq_half_ulp: bool = false;
-    let // int gt_half_ulp = 0;
+    let mut is_tiny: bool = false;
+    let mut lt_half_ulp: bool = false;
+    let mut eq_half_ulp: bool = false;
+    // let gt_half_ulp: bool = false;
     let mut res: BID_UINT128 = *ptrres;
+    let mut p_sign: BID_UINT64 = p_sign;
+    let mut e4: i32 = e4;
 
     // scale C3 up by 10^(q4-delta-q3), 0 <= q4-delta-q3 <= 2*P34-2 = 66
     scale = q4 - delta - q3; // 0 <= scale <= 66 (or 0 <= scale <= 68 if this
@@ -296,12 +304,12 @@ pub (crate) fn bid_add_and_round(
         R256.w[2] = 0x0u64;
         R256.w[1] = C3.w[1];
         R256.w[0] = C3.w[0];
-    } else if (scale <= 19) { // 10^scale fits in 64 bits
+    } else if scale <= 19 { // 10^scale fits in 64 bits
         P128.w[1] = 0;
         P128.w[0] = bid_ten2k64[scale];
-        __mul_128x128_to_256(R256, P128, C3);
+        R256 = __mul_128x128_to_256(&P128, &C3);
     } else if scale <= 38 { // 10^scale fits in 128 bits
-        __mul_128x128_to_256(R256, bid_ten2k128[scale - 20], C3);
+        R256 = __mul_128x128_to_256(&bid_ten2k128[scale - 20], &C3);
     } else if scale <= 57 { // 39 <= scale <= 57
         // 10^scale fits in 192 bits but C3 * 10^scale fits in 223 or 230 bits
         // (10^67 has 223 bits; 10^69 has 230 bits);
@@ -309,9 +317,9 @@ pub (crate) fn bid_add_and_round(
         // 10^scale * C3 = 10*38 * 10^(scale-38) * C3 where 10^38 takes 127
         // bits and so 10^(scale-38) * C3 fits in 128 bits with certainty
         // Note that 1 <= scale - 38 <= 19 => 10^(scale-38) fits in 64 bits
-        __mul_64x128_to_128(R128, bid_ten2k64[scale - 38], C3);
+        R128 = __mul_64x128_to_128(bid_ten2k64[scale - 38], &C3);
         // now multiply R128 by 10^38
-        __mul_128x128_to_256(R256, R128, bid_ten2k128[18]);
+        R256 = __mul_128x128_to_256(&R128, &bid_ten2k128[18]);
     } else { // 58 <= scale <= 66
         // 10^scale takes between 193 and 220 bits,
         // and C3 * 10^scale fits in 223 bits (10^67/10^69 has 223/230 bits)
@@ -321,9 +329,9 @@ pub (crate) fn bid_add_and_round(
         // Note that 20 <= scale - 38 <= 30 => 10^(scale-38) fits in 128 bits
         // Calculate first 10^(scale-38) * C3, which fits in 128 bits; because
         // 10^(scale-38) takes more than 64 bits, C3 will take less than 64
-        __mul_64x128_to_128(R128, C3.w[0], bid_ten2k128[scale - 58]);
+        R128 = __mul_64x128_to_128(C3.w[0], &bid_ten2k128[scale - 58]);
         // now calculate 10*38 * 10^(scale-38) * C3
-        __mul_128x128_to_256(R256, R128, bid_ten2k128[18]);
+        R256 = __mul_128x128_to_256(&R128, &bid_ten2k128[18]);
     }
     // C3 * 10^scale is now in R256
 
@@ -334,31 +342,31 @@ pub (crate) fn bid_add_and_round(
     if p_sign == z_sign { // R256 = C4 + R256
         // calculate R256 = C4 + C3 * 10^scale = C4 + R256 which is exact,
         // but may require rounding
-        bid_add256(C4, R256, &R256);
+        R256 = bid_add256(&C4, &R256);
     } else { // if (p_sign != z_sign) { // R256 = C4 - R256
         // calculate R256 = C4 - C3 * 10^scale = C4 - R256 or
         // R256 = C3 * 10^scale - C4 = R256 - C4 which is exact,
         // but may require rounding
 
         // compare first R256 = C3 * 10^scale and C4
-        if (R256.w[3] > C4.w[3] || (R256.w[3] == C4.w[3] && R256.w[2] > C4.w[2])
-            || (R256.w[3] == C4.w[3] && R256.w[2] == C4.w[2] && R256.w[1] > C4.w[1])
-            || (R256.w[3] == C4.w[3] && R256.w[2] == C4.w[2] && R256.w[1] == C4.w[1]
-            && R256.w[0] >= C4.w[0])) { // C3 * 10^scale >= C4
+        if R256.w[3]  > C4.w[3] || (R256.w[3] == C4.w[3] && R256.w[2]  > C4.w[2])
+       || (R256.w[3] == C4.w[3] &&  R256.w[2] == C4.w[2] && R256.w[1]  > C4.w[1])
+       || (R256.w[3] == C4.w[3] &&  R256.w[2] == C4.w[2] && R256.w[1] == C4.w[1]
+        && R256.w[0] >= C4.w[0]) { // C3 * 10^scale >= C4
             // calculate R256 = C3 * 10^scale - C4 = R256 - C4, which is exact,
             // but may require rounding
-            bid_sub256(R256, C4, &R256);
+            R256 = bid_sub256(&C4, &R256);
             // flip p_sign too, because the result has the sign of z
             p_sign = z_sign;
         } else { // if C4 > C3 * 10^scale
             // calculate R256 = C4 - C3 * 10^scale = C4 - R256, which is exact,
             // but may require rounding
-            bid_sub256(C4, R256, &R256);
+            R256 = bid_sub256(&C4, &R256);
         }
         // if the result is pure zero, the sign depends on the rounding mode
         // (x*y and z had opposite signs)
         if R256.w[3] == 0x0u64 && R256.w[2] == 0x0u64
-            && R256.w[1] == 0x0u64 && R256.w[0] == 0x0u64 {
+        && R256.w[1] == 0x0u64 && R256.w[0] == 0x0u64 {
             p_sign = if rnd_mode != RoundingMode::BID_ROUNDING_DOWN {
                 0x0000000000000000u64
             } else {
@@ -372,12 +380,12 @@ pub (crate) fn bid_add_and_round(
             res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49);
             res.w[0] = 0x0;
             *ptrres  = res;
-            return;
+            return ptrres;
         }
     }
 
     // determine the number of decimal digits in R256
-    ind = bid_bid_nr_digits256(R256);
+    ind = bid_bid_nr_digits256(&R256);
 
     // the exact result is (-1)^p_sign * R256 * 10^e4 where q (R256) = ind;
     // round to the destination precision, with unbounded exponent
@@ -386,7 +394,7 @@ pub (crate) fn bid_add_and_round(
         // result rounded to the destination precision with unbounded exponent
         // is exact
         if ind + e4 < p34 + expmin {
-            is_tiny = 1; // applies to all rounding modes
+            is_tiny = true; // applies to all rounding modes
             // (regardless of the tininess detection method)
         }
         res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49) | R256.w[1];
@@ -427,7 +435,7 @@ pub (crate) fn bid_add_and_round(
             R128.w[1] = R256.w[1];
             R128.w[0] = R256.w[0];
         }
-        #[cfg(!DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
+        #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
         if e4 + x0 < expmin { // for all rounding modes
             is_tiny = true;
         }
@@ -435,7 +443,7 @@ pub (crate) fn bid_add_and_round(
         // the rounded result has p34 = 34 digits
         e4 = e4 + x0 + incr_exp;
         if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST {
-            #[cfg(DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
+            #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
             if e4 < expmin {
                 is_tiny = 1; // for other rounding modes apply correction
             }
@@ -450,17 +458,17 @@ pub (crate) fn bid_add_and_round(
                 is_inexact_lt_midpoint,
                 is_inexact_gt_midpoint,
                 is_midpoint_lt_even,
-                is_midpoint_gt_even, 0, &P128, ptrfpsf);
+                is_midpoint_gt_even, 0, &mut P128, ptrfpsf);
 
-            scale = ((P128.w[1] & MASK_EXP) >> 49) - 6176; // -1, 0, or +1
+            scale = (((P128.w[1] & MASK_EXP) >> 49) - 6176) as i32; // -1, 0, or +1
             // the number of digits in the significand is p34 = 34
-            #[cfg(DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
+            #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
             if e4 + scale < expmin {
                 is_tiny = true;
             }
         }
         ind      = p34; // the number of decimal digits in the signifcand of res
-        res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49) | R128.w[1]; // RN
+        res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | R128.w[1]; // RN
         res.w[0] = R128.w[0];
         // Note: res is correct only if expmin <= e4 <= expmax
         // set the inexact flag after rounding with bounded exponent, if any
@@ -477,7 +485,7 @@ pub (crate) fn bid_add_and_round(
         res.w[0]  = 0x0000000000000000u64;
         *ptrres   = res;
         *ptrfpsf |= (StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION);
-        return; // BID_RETURN (res)
+        return ptrres; // BID_RETURN (res)
     } // else not overflow or not RN, so continue
 
     // if (e4 >= expmin) we have the result rounded with bounded exponent
@@ -498,7 +506,7 @@ pub (crate) fn bid_add_and_round(
 
         if x0 > ind {
             // nothing is left of res when moving the decimal point left x0 digits
-            is_inexact_lt_midpoint = 1;
+            is_inexact_lt_midpoint = true;
             res.w[1]               = p_sign | 0x0000000000000000u64;
             res.w[0]               = 0x0000000000000000u64;
             e4                     = expmin;
@@ -575,9 +583,9 @@ pub (crate) fn bid_add_and_round(
                 // 64 x 128 -> 128
                 P128.w[1] = res.w[1] & MASK_COEFF;
                 P128.w[0] = res.w[0];
-                __mul_64x128_to_128(res, bid_ten2k64[1], P128);
+                res       = __mul_64x128_to_128(bid_ten2k64[1], &P128);
             }
-            res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49) | (res.w[1] & MASK_COEFF);
+            res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
             // avoid a double rounding error
             if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
                 // res = res - 1
@@ -589,12 +597,12 @@ pub (crate) fn bid_add_and_round(
                 // the result after the first rounding would have to be 99...95
                 // (35 digits in all), possibly followed by a number of zeros; this
                 // is not possible in Cases (2)-(6) or (15)-(17) which may get here
-                is_midpoint_lt_even    = 0;
-                is_inexact_lt_midpoint = 1;
+                is_midpoint_lt_even    = false;
+                is_inexact_lt_midpoint = true;
             } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
                 // res = res + 1
                 res.w[0] += 1;
-                if (res.w[0] == 0) {
+                if res.w[0] == 0 {
                     res.w[1] += 1;
                 }
                 is_midpoint_gt_even    = false;
@@ -606,7 +614,7 @@ pub (crate) fn bid_add_and_round(
                     is_inexact_gt_midpoint = true;
                 }
                 if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
-                    is_inexact_lt_midpoint = 1;
+                    is_inexact_lt_midpoint = true;
                 }
             } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
                 // pu64ed up to a midpoint
@@ -617,7 +625,7 @@ pub (crate) fn bid_add_and_round(
             } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
                 // pu64ed down to a midpoint
                 is_inexact_lt_midpoint = true;
-                is_inexact_gt_midpoint = 1;
+                is_inexact_gt_midpoint = true;
                 is_midpoint_lt_even    = false;
                 is_midpoint_gt_even    = false;
             } else {
@@ -634,12 +642,12 @@ pub (crate) fn bid_add_and_round(
             is_inexact_gt_midpoint,
             is_midpoint_lt_even,
             is_midpoint_gt_even,
-            e4, &res, ptrfpsf);
+            e4, &mut res, ptrfpsf);
     }
-    if (is_midpoint_lt_even || is_midpoint_gt_even || is_inexact_lt_midpoint || is_inexact_gt_midpoint) {
+    if is_midpoint_lt_even || is_midpoint_gt_even || is_inexact_lt_midpoint || is_inexact_gt_midpoint {
         // set the inexact flag
         *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-        if (is_tiny) {
+        if is_tiny {
             *ptrfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
         }
     }
@@ -649,6 +657,8 @@ pub (crate) fn bid_add_and_round(
     *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
     *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
     *ptrres = res;
+
+    ptrres
 }
 
 pub (crate) fn bid128_ext_fma (
@@ -3780,10 +3790,10 @@ pub (crate) fn bid128_ext_fma (
 }
 
 pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut is_midpoint_lt_even: i32;
-    let mut is_midpoint_gt_even: i32;
-    let mut is_inexact_lt_midpoint: i32;
-    let mut is_inexact_gt_midpoint: i32;
+    let mut is_midpoint_lt_even: bool = false;
+    let mut is_midpoint_gt_even: bool = false;
+    let mut is_inexact_lt_midpoint: bool = false;
+    let mut is_inexact_gt_midpoint: bool = false;
 
     let res = bid128_ext_fma(
         &mut is_midpoint_lt_even,
@@ -3797,10 +3807,10 @@ pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd
 }
 
 pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even: bool    = false;
-    let is_midpoint_gt_even: bool    = false;
-    let is_inexact_lt_midpoint: bool = false;
-    let is_inexact_gt_midpoint: bool = false;
+    let mut is_midpoint_lt_even: bool    = false;
+    let mut is_midpoint_gt_even: bool    = false;
+    let mut is_inexact_lt_midpoint: bool = false;
+    let mut is_inexact_gt_midpoint: bool = false;
 
     let x1  = bid64_to_bid128(x, pfpsf);
     let y1  = bid64_to_bid128(y, pfpsf);
@@ -3817,10 +3827,10 @@ pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mo
 }
 
 pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even    = false,
-    let is_midpoint_gt_even    = false;
-    let is_inexact_lt_midpoint = false;
-    let is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even    = false;
+    let mut is_midpoint_gt_even    = false;
+    let mut is_inexact_lt_midpoint = false;
+    let mut is_inexact_gt_midpoint = false;
 
     let x1  = bid64_to_bid128(x, pfpsf);
     let y1  = bid64_to_bid128(y, pfpsf);
@@ -3836,10 +3846,10 @@ pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_
 }
 
 pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even    = false;
-    let is_midpoint_gt_even    = false;
-    let is_inexact_lt_midpoint = false;
-    let is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even    = false;
+    let mut is_midpoint_gt_even    = false;
+    let mut is_inexact_lt_midpoint = false;
+    let mut is_inexact_gt_midpoint = false;
 
     let x1  = bid64_to_bid128(x, pfpsf);
     let z1  = bid64_to_bid128(z, pfpsf);
@@ -3855,10 +3865,10 @@ pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_
 }
 
 pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even    = false;
-    let is_midpoint_gt_even    = false;
-    let is_inexact_lt_midpoint = false;
-    let is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even    = false;
+    let mut is_midpoint_gt_even    = false;
+    let mut is_inexact_lt_midpoint = false;
+    let mut is_inexact_gt_midpoint = false;
 
     let x1  = bid64_to_bid128(x, pfpsf);
     let res = bid128_ext_fma(
@@ -3873,10 +3883,10 @@ pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rn
 }
 
 pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even    = false;
-    let is_midpoint_gt_even    = false;
-    let is_inexact_lt_midpoint = false;
-    let is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even    = false;
+    let mut is_midpoint_gt_even    = false;
+    let mut is_inexact_lt_midpoint = false;
+    let mut is_inexact_gt_midpoint = false;
 
     let y1  = bid64_to_bid128(y, pfpsf);
     let z1  = bid64_to_bid128(z, pfpsf);
@@ -3892,10 +3902,10 @@ pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_
 }
 
 pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let is_midpoint_lt_even    = false;
-    let is_midpoint_gt_even    = false;
-    let is_inexact_lt_midpoint = false;
-    let is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even    = false;
+    let mut is_midpoint_gt_even    = false;
+    let mut is_inexact_lt_midpoint = false;
+    let mut is_inexact_gt_midpoint = false;
 
     let y1  = bid64_to_bid128(y, pfpsf);
     let res = bid128_ext_fma(
@@ -3932,22 +3942,22 @@ pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rn
 // Note: bid64ddd_fma is represented by bid64_fma
 
 pub (crate) fn bid64ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1   = bid64_to_bid128(x);
-    let y1   = bid64_to_bid128(y);
+    let x1   = bid64_to_bid128(x, pfpsf);
+    let y1   = bid64_to_bid128(y, pfpsf);
     let res1 = bid64qqq_fma(&x1, &y1, z, rnd_mode, pfpsf);
 
     res1
 }
 
 pub (crate) fn bid64dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1   = bid64_to_bid128(x);
-    let z1   = bid64_to_bid128(z);
+    let x1   = bid64_to_bid128(x, pfpsf);
+    let z1   = bid64_to_bid128(z, pfpsf);
     let res1 = bid64qqq_fma(&x1, y, &z1, rnd_mode, pfpsf);
 
-    res1;
+    res1
 }
 
-pub (crate) fn BID_UINT64 bid64dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1   = bid64_to_bid128(x, pfpsf);
     let res1 = bid64qqq_fma(&x1, y, z, rnd_mode, pfpsf);
 
@@ -3962,7 +3972,7 @@ pub (crate) fn bid64qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_m
     res1
 }
 
-pub (crate) fn bid64qdq_fma(BID_UINT128 x, BID_UINT64 y, BID_UINT128 z, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1   = bid64_to_bid128(y, pfpsf);
     let res1 = bid64qqq_fma(x, &y1, z, rnd_mode, pfpsf);
 
@@ -3971,7 +3981,7 @@ pub (crate) fn bid64qdq_fma(BID_UINT128 x, BID_UINT64 y, BID_UINT128 z, rnd_mode
 
 pub (crate) fn bid64qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let z1   = bid64_to_bid128(z, pfpsf);
-    let res1 = bid64qqq_fma(x, y, z1, rnd_mode, pfpsf);
+    let res1 = bid64qqq_fma(x, y, &z1, rnd_mode, pfpsf);
 
     res1
 }
@@ -4317,11 +4327,11 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     if ((res1 & 0x7fffffffffffffffu64) == 1000000000000000u64) &&
         // 10^15*10^-398
         (((rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) &&
-            (is_midpoint_lt_even || is_inexact_gt_midpoint)) ||
-            ((((rnd_mode == RoundingMode::BID_ROUNDING_UP) && (res1 & MASK_SIGN) == 0) ||
-                ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && (res1 & MASK_SIGN) == MASK_SIGN))
-                && (is_midpoint_lt_even    || is_midpoint_gt_even ||
-                is_inexact_lt_midpoint || is_inexact_gt_midpoint))) {
+          (is_midpoint_lt_even || is_inexact_gt_midpoint)) ||
+        ((((rnd_mode == RoundingMode::BID_ROUNDING_UP) && (res1 & MASK_SIGN) == 0) ||
+          ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && (res1 & MASK_SIGN) == MASK_SIGN))
+        && (is_midpoint_lt_even    || is_midpoint_gt_even ||
+            is_inexact_lt_midpoint || is_inexact_gt_midpoint))) {
         *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
     }
     *pfpsf |= save_fpsf;
