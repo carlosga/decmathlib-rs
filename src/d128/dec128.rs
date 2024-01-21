@@ -9,7 +9,6 @@
 #![allow(dead_code)]
 
 use std::ops::{Mul, Neg};
-use std::os::linux::raw::stat;
 use crate::d128::bid128_mul::bid128_mul;
 
 use crate::d128::bid128_noncomp::*;
