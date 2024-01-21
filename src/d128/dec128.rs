@@ -16,8 +16,6 @@ use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::d128::core::{ClassTypes, DEFAULT_ROUNDING_MODE, RoundingMode};
 
-pub (crate) type _IDEC_round = u32;
-
 pub type _IDEC_flags = u32;       // could be a struct with diagnostic info
 
 #[derive(Debug, Copy, Clone, Default)]
