@@ -725,7 +725,7 @@ pub (crate) fn bid128_ext_fma(
     let mut is_inexact_lt_midpoint0: bool;
     let mut is_inexact_gt_midpoint0: bool;
     let mut incr_exp: bool = false;
-    let mut lsb: bool;
+    let lsb: bool;
     let mut lt_half_ulp: bool = false;
     let mut eq_half_ulp: bool = false;
     let mut gt_half_ulp: bool = false;
@@ -740,7 +740,7 @@ pub (crate) fn bid128_ext_fma(
     let mut x: BID_UINT128 = *x;
     let mut y: BID_UINT128 = *y;
     let mut z: BID_UINT128 = *z;
-    let mut C4gt5toq4m1: bool;
+    let C4gt5toq4m1: bool;
 
     // the following are based on the table of special cases for fma; the NaN
     // behavior is similar to that of the IA-64 Architecture fma
@@ -4106,8 +4106,8 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
     let mut incr_exp: bool = false;
-    let mut res: BID_UINT128;
-    let mut res128: BID_UINT128;
+    let res: BID_UINT128;
+    let res128: BID_UINT128;
     let mut res1: BID_UINT64 = 0xbaddbaddbaddbaddu64;
     let save_fpsf: u32; // needed because of the call to bid128_ext_fma
     let sign: BID_UINT64;

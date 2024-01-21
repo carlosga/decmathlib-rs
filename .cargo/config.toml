@@ -1,0 +1,2 @@
+[build]
+rustflags=["--cfg", "default_rounding=\"UP\""]

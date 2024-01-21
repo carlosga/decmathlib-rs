@@ -8,12 +8,13 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use std::ops::Neg;
+use std::ops::{Mul, Neg};
+use crate::d128::bid128_mul::bid128_mul;
 
 use crate::d128::bid128_noncomp::*;
 use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
-use crate::d128::core::{ClassTypes, RoundingMode};
+use crate::d128::core::{ClassTypes, DEFAULT_ROUNDING_MODE, RoundingMode};
 
 pub (crate) type _IDEC_round = u32;
 
@@ -170,6 +171,10 @@ impl BID_UINT128 {
     pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> BID_UINT64 {
         bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
+
+    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+    }
 }
 
 impl Eq for BID_UINT128 {}
@@ -177,22 +182,6 @@ impl Eq for BID_UINT128 {}
 impl PartialEq for BID_UINT128 {
     fn eq(&self, other: &Self) -> bool {
         self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
-    }
-}
-
-impl Neg for BID_UINT128 {
-    type Output = Self;
-
-    fn neg(self) -> Self::Output {
-        bid128_negate(&self)
-    }
-}
-
-impl Neg for &BID_UINT128 {
-    type Output = BID_UINT128;
-
-    fn neg(self) -> Self::Output {
-        bid128_negate(self)
     }
 }
 
@@ -233,5 +222,39 @@ impl From<i128> for BID_UINT128 {
 impl From<u128> for BID_UINT128 {
     fn from(value: u128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
+    }
+}
+
+impl Neg for BID_UINT128 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        bid128_negate(&self)
+    }
+}
+
+impl Neg for &BID_UINT128 {
+    type Output = BID_UINT128;
+
+    fn neg(self) -> Self::Output {
+        bid128_negate(self)
+    }
+}
+
+impl Mul for BID_UINT128 {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_mul(&self, &rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+impl Mul for &BID_UINT128 {
+    type Output = BID_UINT128;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_mul(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
     }
 }
