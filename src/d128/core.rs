@@ -32,13 +32,13 @@ pub struct RoundingMode;
 
 impl RoundingMode {
     // rounding modes
-    pub (crate) const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
-    pub (crate) const BID_ROUNDING_DOWN: u32        = 0x00001;
-    pub (crate) const BID_ROUNDING_UP: u32          = 0x00002;
-    pub (crate) const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
-    pub (crate) const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
+    pub const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
+    pub const BID_ROUNDING_DOWN: u32        = 0x00001;
+    pub const BID_ROUNDING_UP: u32          = 0x00002;
+    pub const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
+    pub const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
 
-    pub (crate) const BID_RMODE_MASK: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST
+    pub const BID_RMODE_MASK: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST
         | RoundingMode::BID_ROUNDING_DOWN
         | RoundingMode::BID_ROUNDING_UP
         | RoundingMode::BID_ROUNDING_TO_ZERO
