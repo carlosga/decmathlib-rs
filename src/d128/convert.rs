@@ -64,8 +64,8 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
     let Tmp1: BID_UINT128;
     let mut CX1: BID_UINT128   = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
-    let mut carry: BID_UINT64  = 0;
-    let mut cy: BID_UINT64     = 0;
+    let mut carry: BID_UINT64;
+    let cy: BID_UINT64;
     let res: BID_UINT64;
     let D: BID_SINT64;
     let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();

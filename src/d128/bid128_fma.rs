@@ -276,20 +276,20 @@ pub (crate) fn bid_add_and_round(
     let mut scale: i32;
     let mut x0: i32;
     let mut ind: i32;
-    let mut R64: BID_UINT64 = 0;
+    let R64: BID_UINT64;
     let mut P128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
     let mut P192: BID_UINT192 = BID_UINT192::default();
-    let mut R192: BID_UINT192 = BID_UINT192::default();
+    let R192: BID_UINT192;
     let mut R256: BID_UINT256 = BID_UINT256::default();
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
-    let mut is_midpoint_lt_even0: bool = false;
-    let mut is_midpoint_gt_even0: bool = false;
-    let mut is_inexact_lt_midpoint0: bool = false;
-    let mut is_inexact_gt_midpoint0: bool = false;
+    let is_midpoint_lt_even0: bool;
+    let is_midpoint_gt_even0: bool;
+    let is_inexact_lt_midpoint0: bool;
+    let is_inexact_gt_midpoint0: bool;
     let mut incr_exp: bool = false;
     let mut is_tiny: bool = false;
     let mut lt_half_ulp: bool = false;
@@ -474,7 +474,7 @@ pub (crate) fn bid_add_and_round(
             scale = (((P128.w[1] & MASK_EXP) >> 49) - 6176) as i32; // -1, 0, or +1
             // the number of digits in the significand is p34 = 34
             #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
-            if e4 + scale < expmin {
+            if (e4 + scale) < expmin {
                 is_tiny = true;
             }
         }
@@ -684,11 +684,11 @@ pub (crate) fn bid128_ext_fma(
     pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
-    let mut x_sign: BID_UINT64;
-    let mut y_sign: BID_UINT64;
+    let x_sign: BID_UINT64;
+    let y_sign: BID_UINT64;
     let mut z_sign: BID_UINT64;
     let mut p_sign: BID_UINT64;
-    let mut tmp_sign: BID_UINT64;
+    let tmp_sign: BID_UINT64;
     let mut x_exp: BID_UINT64 = 0;
     let mut y_exp: BID_UINT64 = 0;
     let mut z_exp: BID_UINT64 = 0;
@@ -702,8 +702,8 @@ pub (crate) fn bid128_ext_fma(
     let mut q2: i32 = 0;
     let mut q3: i32 = 0;
     let mut q4: i32;
-    let mut e1: i32;
-    let mut e2: i32;
+    let e1: i32;
+    let e2: i32;
     let mut e3: i32;
     let mut e4: i32;
     let mut scale: i32;
@@ -712,20 +712,20 @@ pub (crate) fn bid128_ext_fma(
     let mut x0: i32;
     let p34: i32 = P34; // used to modify the limit on the number of digits
     let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut x_nr_bits: i32;
-    let mut y_nr_bits: i32;
-    let mut z_nr_bits: i32;
+    let x_nr_bits: i32;
+    let y_nr_bits: i32;
+    let z_nr_bits: i32;
     let save_fpsf: u32;
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
-    let mut is_midpoint_lt_even0: bool = false;
-    let mut is_midpoint_gt_even0: bool = false;
-    let mut is_inexact_lt_midpoint0: bool = false;
-    let mut is_inexact_gt_midpoint0: bool = false;
+    let mut is_midpoint_lt_even0: bool;
+    let mut is_midpoint_gt_even0: bool;
+    let mut is_inexact_lt_midpoint0: bool;
+    let mut is_inexact_gt_midpoint0: bool;
     let mut incr_exp: bool = false;
-    let mut lsb: bool = false;
+    let mut lsb: bool;
     let mut lt_half_ulp: bool = false;
     let mut eq_half_ulp: bool = false;
     let mut gt_half_ulp: bool = false;
@@ -735,12 +735,12 @@ pub (crate) fn bid128_ext_fma(
     let mut P128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
     let mut P192: BID_UINT192 = BID_UINT192::default();
-    let mut R192: BID_UINT192 = BID_UINT192::default();
+    let mut R192: BID_UINT192;
     let mut R256: BID_UINT256 = BID_UINT256::default();
     let mut x: BID_UINT128 = *x;
     let mut y: BID_UINT128 = *y;
     let mut z: BID_UINT128 = *z;
-    let mut C4gt5toq4m1: bool  = false;
+    let mut C4gt5toq4m1: bool;
 
     // the following are based on the table of special cases for fma; the NaN
     // behavior is similar to that of the IA-64 Architecture fma
@@ -2842,7 +2842,7 @@ pub (crate) fn bid128_ext_fma(
                 && res.w[1] == 0x0000314dc6448d93u64
                 && res.w[0] == 0x38c15b0a00000000u64))
                 && x0 >= 1 {
-                    x0 = x0 - 1;
+                    x0                     = x0 - 1;
                     // first restore e3, otherwise it will be too small
                     e3                     = e3 + scale;
                     scale                  = scale + 1;
@@ -4106,8 +4106,8 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
     let mut incr_exp: bool = false;
-    let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
-    let mut res128: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
+    let mut res: BID_UINT128;
+    let mut res128: BID_UINT128;
     let mut res1: BID_UINT64 = 0xbaddbaddbaddbaddu64;
     let save_fpsf: u32; // needed because of the call to bid128_ext_fma
     let sign: BID_UINT64;
@@ -4118,7 +4118,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     let nr_bits: i32;
     let mut q: i32;
     let mut x0: i32;
-    let mut scale: i32;
+    let scale: i32;
     let mut lt_half_ulp:bool = false;
     let mut eq_half_ulp:bool = false;
 
