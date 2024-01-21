@@ -1,9 +1,9 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
-/* --------------------------------------------------------------------- */
-/* Original C source code Copyright (c) 2018, Intel Corp.                */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
