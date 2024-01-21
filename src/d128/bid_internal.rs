@@ -401,7 +401,7 @@ pub (crate) fn __shl_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 pub (crate) fn __add_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 {
     let mut R64H: BID_UINT64  = A128.w[1];
     let mut R128: BID_UINT128 = BID_UINT128::default();
-    R128.w[0] = BID_UINT64::overflowing_add(B64, A128.w[0]).0;
+    R128.w[0] = BID_UINT64::wrapping_add(B64, A128.w[0]);
     if R128.w[0] < B64 {
         R64H += 1;
     }
@@ -425,8 +425,8 @@ pub (crate) fn __sub_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 
 pub (crate) fn __add_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT128 {
     let mut Q128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
-    (Q128.w[1], _) = A128.w[1].overflowing_add(B128.w[1]);
-    (Q128.w[0], _) = B128.w[0].overflowing_add(A128.w[0]);
+    Q128.w[1] = A128.w[1].wrapping_add(B128.w[1]);
+    Q128.w[0] = B128.w[0].wrapping_add(A128.w[0]);
     if Q128.w[0] < B128.w[0] {
         Q128.w[1] += 1;
     }
@@ -452,7 +452,7 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
 
 /// Returns (sum, carry)
 pub (crate) fn __add_carry_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
-    let S         = BID_UINT64::overflowing_add(X, Y).0;
+    let S         = BID_UINT64::wrapping_add(X, Y);
     let CY  = if S < X { 1 } else { 0 };
     (S, CY)
 }
@@ -460,7 +460,7 @@ pub (crate) fn __add_carry_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID
 /// Returns (sum, carry)
 pub (crate) fn __add_carry_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
     let X1: BID_UINT64 = X + CI;
-    let S: BID_UINT64  = BID_UINT64::overflowing_add(X1, Y).0;
+    let S: BID_UINT64  = BID_UINT64::wrapping_add(X1, Y);
     let CY: BID_UINT64 = if S < X1 || X1 < CI { 1u64 } else { 0 };
     (S, CY)
 }

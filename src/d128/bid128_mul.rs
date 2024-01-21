@@ -230,7 +230,7 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         p_exp = if true_p_exp < -6176 {
             0u64                                    // cannot be less than EXP_MIN
         } else if true_p_exp > 6111 {
-            ((6111 + 6176) as BID_UINT64) << 4	    // cannot be more than EXP_MAX
+            ((6111 + 6176) as BID_UINT64) << 49	    // cannot be more than EXP_MAX
         } else {
             ((true_p_exp + 6176) as BID_UINT64) << 49
         };
