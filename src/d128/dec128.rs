@@ -20,12 +20,6 @@ pub (crate) type _IDEC_round = u32;
 
 pub type _IDEC_flags = u32;       // could be a struct with diagnostic info
 
-pub (crate) type BID_UINT32 = u32;
-
-pub (crate) type BID_SINT64 = i64;
-
-pub (crate) type BID_UINT64 = u64;
-
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct DEC_DIGITS {
     pub (crate) digits: u32,
@@ -73,33 +67,39 @@ pub (crate) struct BID_UINT256 {
 }
 
 #[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UINT384
-{
+pub (crate) struct BID_UINT384 {
     pub (crate) w: [BID_UINT64; 6]
 }
 
 #[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UINT512
-{
+pub (crate) struct BID_UINT512 {
     pub (crate) w: [BID_UINT64; 8]
 }
+
+pub (crate) type BID_UINT32 = u32;
+
+pub (crate) type BID_SINT64 = i64;
+
+pub (crate) type BID_UINT64 = u64;
+
+pub type decimal64 = BID_UINT64;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct BID_UINT128 {
     pub (crate) w: [BID_UINT64; 2]
 }
 
-impl BID_UINT128 {
-    pub fn new(l: u64, h: u64) -> Self {
+pub type decimal128 = BID_UINT128;
+
+impl decimal128 {
+    pub (crate) fn new(l: u64, h: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [l, h] };
 
         #[cfg(target_endian = "little")]
         return Self { w: [h, l] };
     }
-}
 
-impl BID_UINT128 {
     pub fn class(&self) -> ClassTypes {
         bid128_class(self)
     }
@@ -192,25 +192,25 @@ impl BID_UINT128 {
         bid64_to_bid128(bid, status)
     }
 
-    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> BID_UINT64 {
+    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> decimal64 {
         bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
 
-    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> BID_UINT128 {
+    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
 }
 
-impl Eq for BID_UINT128 {}
+impl Eq for decimal128 {}
 
-impl PartialEq for BID_UINT128 {
+impl PartialEq for decimal128 {
     fn eq(&self, other: &Self) -> bool {
         self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
     }
 }
 
 /// Tries to convert decimal128 to decimal64
-impl TryInto<BID_UINT64> for BID_UINT128 {
+impl TryInto<decimal64> for decimal128 {
     type Error = _IDEC_flags;
 
     fn try_into(self) -> Result<BID_UINT64, Self::Error> {
@@ -225,7 +225,7 @@ impl TryInto<BID_UINT64> for BID_UINT128 {
 }
 
 /// Converts decimal64 to decimal128
-impl From<BID_UINT64> for BID_UINT128 {
+impl From<decimal64> for decimal128 {
     fn from(value: BID_UINT64) -> Self {
         let mut status: _IDEC_flags = 0;
         bid64_to_bid128(value, &mut status)
@@ -233,20 +233,20 @@ impl From<BID_UINT64> for BID_UINT128 {
 }
 
 /// Converts an i128 encoded decimal
-impl From<i128> for BID_UINT128 {
+impl From<i128> for decimal128 {
     fn from(value: i128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
 /// Converts an i128 encoded decimal
-impl From<u128> for BID_UINT128 {
+impl From<u128> for decimal128 {
     fn from(value: u128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
-impl Neg for BID_UINT128 {
+impl Neg for decimal128 {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -254,15 +254,15 @@ impl Neg for BID_UINT128 {
     }
 }
 
-impl Neg for &BID_UINT128 {
-    type Output = BID_UINT128;
+impl Neg for &decimal128 {
+    type Output = decimal128;
 
     fn neg(self) -> Self::Output {
         bid128_negate(self)
     }
 }
 
-impl Mul for BID_UINT128 {
+impl Mul for decimal128 {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -271,8 +271,8 @@ impl Mul for BID_UINT128 {
     }
 }
 
-impl Mul for &BID_UINT128 {
-    type Output = BID_UINT128;
+impl Mul for &decimal128 {
+    type Output = decimal128;
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut status: _IDEC_flags = 0;

@@ -7,9 +7,6 @@
 
 mod common;
 
-dec_test!(bid128_total_order_mag_012, bid128_total_order_mag, 0x003fbc5db19556c47f5c8cd6a1b1f29fu128,  0x007c01b21f5380be1a0a082210006c07u128, true);
-
-/*
 dec_test!(bid128_total_order_mag_001, bid128_total_order_mag, 0x0000000000000000ffffffffffffffffu128,  0x0000000000000000ffffffffffffffffu128, true);
 dec_test!(bid128_total_order_mag_002, bid128_total_order_mag, 0x0001ed09bead87c0378d8e62ffffffffu128,  0x0001ed09bead87c0378d8e62ffffffffu128, true);
 dec_test!(bid128_total_order_mag_003, bid128_total_order_mag, 0x0001ed09bead87c0378d8e62ffffffffu128,  0x0001ed09bead87c0378d8e64ffffffffu128, false);
@@ -19,7 +16,7 @@ dec_test!(bid128_total_order_mag_006, bid128_total_order_mag, 0x0001ed09bead87c0
 dec_test!(bid128_total_order_mag_007, bid128_total_order_mag, 0x0001ed09bead87c0378d8e64ffffffffu128,  0x0001ed09bead87c0378d8e64ffffffffu128, true);
 dec_test!(bid128_total_order_mag_008, bid128_total_order_mag, 0x0001ed09bead87c0378d8e64ffffffffu128,  0x7c003fffffffffff38c15b08ffffffffu128, true);
 dec_test!(bid128_total_order_mag_009, bid128_total_order_mag, 0x0001ed09bead87c0378d8e64ffffffffu128,  0x7c003fffffffffff38c15b0affffffffu128, true);
-dec_test!(bid128_total_order_mag_010, bid128_total_order_mag, 0u64                                  , -0i64                                  , true);
+// dec_test!(bid128_total_order_mag_010, bid128_total_order_mag, 0u64                                  , -0i64                                  , true);
 dec_test!(bid128_total_order_mag_011, bid128_total_order_mag, 0x0028314020110011e6ac6b687fdf8799u128,  0x0000508709422280cffbffd796feef77u128, false);
 dec_test!(bid128_total_order_mag_012, bid128_total_order_mag, 0x003fbc5db19556c47f5c8cd6a1b1f29fu128,  0x007c01b21f5380be1a0a082210006c07u128, true);
 dec_test!(bid128_total_order_mag_013, bid128_total_order_mag, 0x0210a24480458100581bf32f8507f4cbu128,  0x9dce33bbbd6a92f1302ddfeacd6c884eu128, true);
@@ -67,4 +64,3 @@ dec_test!(bid128_total_order_mag_050, bid128_total_order_mag, 0xffffffffffffffff
 // dec_test!(bid128_total_order_mag_055, bid128_total_order_mag, SNaN 0 0);
 // dec_test!(bid128_total_order_mag_056, bid128_total_order_mag, SNaN -2.3565784324E0 0);
 // dec_test!(bid128_total_order_mag_057, bid128_total_order_mag, SNaN -Infinity 0);
-*/
