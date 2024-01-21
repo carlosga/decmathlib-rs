@@ -82,6 +82,7 @@ pub (crate) type BID_UINT64 = u64;
 
 pub type decimal64 = BID_UINT64;
 
+/// The 128-bit decimal type.
 #[derive(Copy, Clone, Debug, Default)]
 pub struct BID_UINT128 {
     pub (crate) w: [BID_UINT64; 2]
@@ -186,7 +187,7 @@ impl decimal128 {
         res
     }
 
-    pub fn from_decimal64(bid: BID_UINT64, status: &mut _IDEC_flags) -> Self {
+    pub fn from_decimal64(bid: decimal64, status: &mut _IDEC_flags) -> Self {
         bid64_to_bid128(bid, status)
     }
 
@@ -208,12 +209,19 @@ impl PartialEq for decimal128 {
 }
 
 /// Tries to convert decimal128 to decimal64
+/// # Examples
+///
+/// ```
+/// use decmathlib_rs::d128::dec128::{_IDEC_flags, decimal128, decimal64};
+/// let res: decimal128 = decmathlib_rs::d128::dec128::decimal128::from(0x2cffed09bead87c0378d8e63ffffffffu128);
+/// let dec64: Result<decimal64, _IDEC_flags> = res.try_into();
+/// ```
 impl TryInto<decimal64> for decimal128 {
     type Error = _IDEC_flags;
 
     fn try_into(self) -> Result<BID_UINT64, Self::Error> {
          let mut status: _IDEC_flags = 0;
-         let dec64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
+         let dec64: BID_UINT64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
 
          match status {
             0 => Ok(dec64),
@@ -222,7 +230,13 @@ impl TryInto<decimal64> for decimal128 {
     }
 }
 
-/// Converts decimal64 to decimal128
+/// Converts decimal64 to decimal128.
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x002462d53c8abac0u64);
+/// ```
 impl From<decimal64> for decimal128 {
     fn from(value: BID_UINT64) -> Self {
         let mut status: _IDEC_flags = 0;
@@ -230,20 +244,38 @@ impl From<decimal64> for decimal128 {
     }
 }
 
-/// Converts an i128 encoded decimal
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// ```
 impl From<i128> for decimal128 {
     fn from(value: i128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
-/// Converts an i128 encoded decimal
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// ```
 impl From<u128> for decimal128 {
     fn from(value: u128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
+/// Performs the unary - operation
+/// # Examples
+///
+/// ```
+/// use std::ops::Neg;
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let neg  = dec1.neg();
+/// ```
 impl Neg for decimal128 {
     type Output = Self;
 
@@ -252,6 +284,14 @@ impl Neg for decimal128 {
     }
 }
 
+/// Performs the unary - operation
+/// # Examples
+///
+/// ```
+/// use std::ops::Neg;
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let neg  = dec1.neg();
+/// ```
 impl Neg for &decimal128 {
     type Output = decimal128;
 

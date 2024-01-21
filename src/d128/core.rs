@@ -27,7 +27,7 @@ pub enum ClassTypes {
     positiveInfinity
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RoundingMode;
 
 impl RoundingMode {
@@ -60,10 +60,7 @@ pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_ZERO;
 #[cfg(default_rounding = "TIES_AWAY")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TIES_AWAY;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct DecStatus;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StatusFlags;
 
 impl StatusFlags {

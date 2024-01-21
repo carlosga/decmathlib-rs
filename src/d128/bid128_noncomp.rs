@@ -923,7 +923,7 @@ pub (crate) fn bid128_inf() -> BID_UINT128 {
     return res;
 }
 
-// TODO
+// TODO: bid128_from_string
 /*
 pub (crate) bid128_nan(tagp: string) -> BID_UINT128 {
     let res: BID_UINT128 = BID_UINT128::default();
