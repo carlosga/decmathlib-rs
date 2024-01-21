@@ -15,7 +15,7 @@ use crate::d128::bid_conf::BID_SWAP128;
 
 use crate::d128::bid128::*;
 use crate::d128::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_128};
-use crate::d128::bid_round::{bid_round128_19_38, bid_round64_2_18};
+use crate::d128::bid_round::*;
 use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::d128::core::{RoundingMode, StatusFlags};
@@ -98,7 +98,7 @@ pub(crate) fn bid_rounding_correction(
             }
         }
     } else {
-        ; // the result is already correct
+        // the result is already correct
     }
     if unbexp > expmax { // 6111
         *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION;
@@ -280,7 +280,7 @@ pub (crate) fn bid_add_and_round(
     let mut P128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
     let mut P192: BID_UINT192 = BID_UINT192::default();
-    let R192: BID_UINT192 = BID_UINT192::default();
+    let mut R192: BID_UINT192 = BID_UINT192::default();
     let mut R256: BID_UINT256 = BID_UINT256::default();
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;
@@ -383,7 +383,7 @@ pub (crate) fn bid_add_and_round(
                 e4 = expmin;
             }
             // assemble result
-            res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49);
+            res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49);
             res.w[0] = 0x0;
             *ptrres  = res;
             return ptrres;
@@ -403,7 +403,7 @@ pub (crate) fn bid_add_and_round(
             is_tiny = true; // applies to all rounding modes
             // (regardless of the tininess detection method)
         }
-        res.w[1] = p_sign | ((e4 + 6176) as BID_UINT64 << 49) | R256.w[1];
+        res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | R256.w[1];
         res.w[0] = R256.w[0];
         // Note: res is correct only if expmin <= e4 <= expmax
     } else { // if (ind > p34)
@@ -414,7 +414,8 @@ pub (crate) fn bid_add_and_round(
             P128.w[1] = R256.w[1];
             P128.w[0] = R256.w[0];
             R128 = bid_round128_19_38(
-                ind, x0, &P128, &mut incr_exp,
+                ind, x0, &P128,
+                &mut incr_exp,
                 &mut is_midpoint_lt_even,
                 &mut is_midpoint_gt_even,
                 &mut is_inexact_lt_midpoint,
@@ -423,8 +424,9 @@ pub (crate) fn bid_add_and_round(
             P192.w[2] = R256.w[2];
             P192.w[1] = R256.w[1];
             P192.w[0] = R256.w[0];
-            bid_round192_39_57(
-                ind, x0, P192, &R192, &incr_exp,
+            R192 = bid_round192_39_57(
+                ind, x0, &P192,
+                &mut incr_exp,
                 &mut is_midpoint_lt_even,
                 &mut is_midpoint_gt_even,
                 &mut is_inexact_lt_midpoint,
@@ -432,8 +434,9 @@ pub (crate) fn bid_add_and_round(
             R128.w[1] = R192.w[1];
             R128.w[0] = R192.w[0];
         } else { // if (ind <= 68)
-            bid_round256_58_76(
-                ind, x0, R256, &R256, &incr_exp,
+            R256 = bid_round256_58_76(
+                ind, x0, &R256,
+                &mut incr_exp,
                 &mut is_midpoint_lt_even,
                 &mut is_midpoint_gt_even,
                 &mut is_inexact_lt_midpoint,
@@ -668,7 +671,7 @@ pub (crate) fn bid_add_and_round(
     ptrres
 }
 
-pub (crate) fn bid128_ext_fma (
+pub (crate) fn bid128_ext_fma(
     ptr_is_midpoint_lt_even: &mut bool,
     ptr_is_midpoint_gt_even: &mut bool,
     ptr_is_inexact_lt_midpoint: &mut bool,
@@ -678,39 +681,39 @@ pub (crate) fn bid128_ext_fma (
     z: &BID_UINT128,
     rnd_mode: u32,
     pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
     let x_sign: BID_UINT64;
     let y_sign: BID_UINT64;
     let z_sign: BID_UINT64;
     let p_sign: BID_UINT64;
     let tmp_sign: BID_UINT64;
-    let x_exp: BID_UINT64 = 0;
+    let mut x_exp: BID_UINT64 = 0;
     let y_exp: BID_UINT64 = 0;
     let z_exp: BID_UINT64 = 0;
     let p_exp: BID_UINT64;
     let true_p_exp: i32;
-    let C1: BID_UINT128 = BID_UINT128::default();
-    let C2: BID_UINT128 = BID_UINT128::default();
-    let C3: BID_UINT128 = BID_UINT128::default();
-    let C4: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = BID_UINT128::default();
+    let mut C2: BID_UINT128 = BID_UINT128::default();
+    let mut C3: BID_UINT128 = BID_UINT128::default();
+    let mut C4: BID_UINT256 = BID_UINT256::default();
     let q1: i32 = 0;
-    let q2: i32 = 0,
-    let q3: i32 = 0,
+    let q2: i32 = 0;
+    let q3: i32 = 0;
     let q4: i32;
     let e1: i32;
     let e2: i32;
     let e3: i32;
     let e4: i32;
-    let int: i3;
     let scale: i32;
     let ind: i32;
     let delta: i32;
     let x0: i32;
     let p34: i32 = P34; // used to modify the limit on the number of digits
     let tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let x_nr_bits: int;
-    let y_nr_bits: int;
-    let z_nr_bits: int;
+    let x_nr_bits: i32;
+    let y_nr_bits: i32;
+    let z_nr_bits: i32;
     let save_fpsf: u32;
     let is_midpoint_lt_even: bool = false;
     let is_midpoint_gt_even: bool = false;
@@ -733,9 +736,12 @@ pub (crate) fn bid128_ext_fma (
     let P192: BID_UINT192 = BID_UINT192::default();
     let R192: BID_UINT192 = BID_UINT192::default();
     let R256: BID_UINT256 = BID_UINT256::default();
+    let mut x: BID_UINT128 = *x;
+    let mut y: BID_UINT128 = *y;
+    let mut z: BID_UINT128 = *z;
 
     #[cfg(DECIMAL_TINY_DETECTION_AFTER_ROUNDING)]
-        let C4gt5toq4m1: u32;
+    let C4gt5toq4m1: u32;
 
     // the following are based on the table of special cases for fma; the NaN
     // behavior is similar to that of the IA-64 Architecture fma
@@ -763,14 +769,15 @@ pub (crate) fn bid128_ext_fma (
     if (y.w[1] & MASK_NAN) == MASK_NAN { // y is NAN
         // if x = {0, f, inf, NaN}, y = NaN, z = {0, f, inf, NaN} then res = Q (y)
         // check first for non-canonical NaN payload
-        if ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64) ||
-            (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64) && (y.w[0] > 0x38c15b09ffffffffu64)) {
+        if ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+        || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
+          && (y.w[0] > 0x38c15b09ffffffffu64)) {
             y.w[1] = y.w[1] & 0xffffc00000000000u64;
             y.w[0] = 0x0u64;
         }
         if (y.w[1] & MASK_SNAN) == MASK_SNAN { // y is SNAN
             // set invalid flag
-            *pfpsf |= BID_INVALID_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             // return quiet (y)
             res.w[1] = y.w[1] & 0xfc003fffffffffffu64; // clear out also G[6]-G[16]
             res.w[0] = y.w[0];
@@ -779,12 +786,12 @@ pub (crate) fn bid128_ext_fma (
             res.w[1] = y.w[1] & 0xfc003fffffffffffu64; // clear out G[6]-G[16]
             res.w[0] = y.w[0];
             // if z = SNaN or x = SNaN signal invalid exception
-            if ((z.w[1] & MASK_SNAN) == MASK_SNAN ||
-                (x.w[1] & MASK_SNAN) == MASK_SNAN) {
+            if (z.w[1] & MASK_SNAN) == MASK_SNAN || (x.w[1] & MASK_SNAN) == MASK_SNAN {
                 // set invalid flag
-                *pfpsf |= BID_INVALID_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             }
         }
+
         *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
         *ptr_is_midpoint_gt_even    = is_midpoint_gt_even;
         *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
@@ -797,15 +804,15 @@ pub (crate) fn bid128_ext_fma (
     } else if (z.w[1] & MASK_NAN) == MASK_NAN { // z is NAN
         // if x = {0, f, inf, NaN}, y = {0, f, inf}, z = NaN then res = Q (z)
         // check first for non-canonical NaN payload
-        if (((z.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64) ||
-            (((z.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64) &&
-                (z.w[0] > 0x38c15b09ffffffffu64))) {
+        if ((z.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+        || (((z.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
+          && (z.w[0] > 0x38c15b09ffffffffu64)) {
             z.w[1] = z.w[1] & 0xffffc00000000000u64;
             z.w[0] = 0x0u64;
         }
         if (z.w[1] & MASK_SNAN) == MASK_SNAN { // z is SNAN
             // set invalid flag
-            *pfpsf |= BID_INVALID_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             // return quiet (z)
             res.w[1] = z.w[1] & 0xfc003fffffffffffu64; // clear out also G[6]-G[16]
             res.w[0] = z.w[0];
@@ -816,7 +823,7 @@ pub (crate) fn bid128_ext_fma (
             // if x = SNaN signal invalid exception
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {
                 // set invalid flag
-                *pfpsf |= BID_INVALID_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             }
         }
         *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
@@ -831,15 +838,15 @@ pub (crate) fn bid128_ext_fma (
     } else if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
         // if x = NaN, y = {0, f, inf}, z = {0, f, inf} then res = Q (x)
         // check first for non-canonical NaN payload
-        if (((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64) ||
-            (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64) &&
-                (x.w[0] > 0x38c15b09ffffffffu64))) {
+        if ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+        || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
+          && (x.w[0] > 0x38c15b09ffffffffu64)) {
             x.w[1] = x.w[1] & 0xffffc00000000000u64;
             x.w[0] = 0x0u64;
         }
         if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
             // set invalid flag
-            *pfpsf |= BID_INVALID_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             // return quiet (x)
             res.w[1] = x.w[1] & 0xfc003fffffffffffu64; // clear out also G[6]-G[16]
             res.w[0] = x.w[0];
@@ -946,7 +953,7 @@ pub (crate) fn bid128_ext_fma (
                     res.w[1] = 0x7c00000000000000u64;
                     res.w[0] = 0x0000000000000000u64;
                     // set invalid flag
-                    *pfpsf |= BID_INVALID_EXCEPTION;
+                    *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
                 }
             } else { // z = 0 or z = f
                 res.w[1] = p_sign | MASK_INF;
@@ -962,7 +969,7 @@ pub (crate) fn bid128_ext_fma (
                     res.w[1] = 0x7c00000000000000u64;
                     res.w[0] = 0x0000000000000000u64;
                     // set invalid flag
-                    *pfpsf |= BID_INVALID_EXCEPTION;
+                    *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
                 }
             } else { // z = 0 or z = f
                 res.w[1] = p_sign | MASK_INF;
@@ -973,7 +980,7 @@ pub (crate) fn bid128_ext_fma (
             res.w[1] = 0x7c00000000000000u64;
             res.w[0] = 0x0000000000000000u64;
             // set invalid flag
-            *pfpsf |= BID_INVALID_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         }
         *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
         *ptr_is_midpoint_gt_even    = is_midpoint_gt_even;
@@ -992,7 +999,7 @@ pub (crate) fn bid128_ext_fma (
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
                 // set invalid flag
-                *pfpsf |= BID_INVALID_EXCEPTION;
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             } else {
                 res.w[1] = z_sign | MASK_INF;
                 res.w[0] = 0x0;
@@ -1003,7 +1010,7 @@ pub (crate) fn bid128_ext_fma (
             res.w[1] = 0x7c00000000000000u64;
             res.w[0] = 0x0000000000000000u64;
             // set invalid flag
-            *pfpsf |= BID_INVALID_EXCEPTION;
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         } else {
             // x = f and z = 0, f, necessarily
             res.w[1] = p_sign | MASK_INF;
@@ -3932,7 +3939,7 @@ pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rn
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let z1  = bid64_to_bid128(z);
+    let z1  = bid64_to_bid128(z, pfpsf);
     let res = bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,

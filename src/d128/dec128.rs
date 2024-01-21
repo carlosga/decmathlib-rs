@@ -61,11 +61,6 @@ impl Default for BID_UI64DOUBLE {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default)]
-pub struct BID_UINT128 {
-    pub (crate)  w: [BID_UINT64; 2]
-}
-
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct BID_UINT192 {
     pub (crate) w: [BID_UINT64; 3]
@@ -74,6 +69,23 @@ pub (crate) struct BID_UINT192 {
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct BID_UINT256 {
     pub (crate) w: [BID_UINT64; 4]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT384
+{
+    pub (crate) w: [BID_UINT64; 6]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT512
+{
+    pub (crate) w: [BID_UINT64; 8]
+}
+
+#[derive(Copy, Clone, Debug, Default)]
+pub struct BID_UINT128 {
+    pub (crate) w: [BID_UINT64; 2]
 }
 
 impl BID_UINT128 {

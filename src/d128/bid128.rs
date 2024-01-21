@@ -184,7 +184,7 @@ pub (crate) const bid_midpoint128: [BID_UINT128; 19] = [	         // the 64-bit 
 ];
 
 /// bid_midpoint192[i - 39] = 1/2 * 10^i = 5 * 10^(i-1), 39 <= i <= 58
-pub (crate) const id_midpoint192: [BID_UINT192; 20] = [ // the 64-bit word order is L, M, H
+pub (crate) const bid_midpoint192: [BID_UINT192; 20] = [ // the 64-bit word order is L, M, H
     BID_UINT192 { w: [0x2fb2ab4000000000u64, 0x78287f49c4a1d662u64, 0x0000000000000001u64 ] },  // 1/2 * 10^39 = 5 * 10^38
     BID_UINT192 { w: [0xdcfab08000000000u64, 0xb194f8e1ae525fd5u64, 0x000000000000000eu64 ] },  // 1/2 * 10^40 = 5 * 10^39
     BID_UINT192 { w: [0xa1cae50000000000u64, 0xefd1b8d0cf37be5au64, 0x0000000000000092u64 ] },  // 1/2 * 10^41 = 5 * 10^40
