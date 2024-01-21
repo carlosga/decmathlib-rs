@@ -25,7 +25,6 @@ pub (crate) const P7: i32  = 7;
 pub (crate) const P16: i32 = 16;
 pub (crate) const P34: i32 = 34;
 
-
 pub (crate) const MASK_STEERING_BITS: u64         = 0x6000000000000000u64;
 pub (crate) const MASK_BINARY_EXPONENT1: u64      = 0x7fe0000000000000u64;
 pub (crate) const MASK_BINARY_SIG1: u64           = 0x001fffffffffffffu64;
@@ -57,22 +56,22 @@ pub (crate) const expmax16: i32                   = 369; // max unbiased exponen
 pub (crate) const expmin7: i32                    = -101; // min unbiased exponent
 pub (crate) const expmax7: i32                    = 90;  // max unbiased exponent
 
-pub (crate) const MASK_INF32: u32                  = 0x78000000;
-pub (crate) const MASK_ANY_INF32: u32              = 0x7c000000;
-pub (crate) const MASK_SIGN32: u32                 = 0x80000000;
-pub (crate) const MASK_NAN32: u32                  = 0x7c000000;
-pub (crate) const MASK_SNAN32: u32                 = 0x7e000000;
-pub (crate) const SIGNMASK32: u32                  = 0x80000000;
-pub (crate) const BID32_SIG_MAX: u32               = 0x0098967f;
-pub (crate) const BID64_SIG_MAX: u64               = 0x002386F26FC0FFFFu64;
-pub (crate) const SIGNMASK64: u64                  = 0x8000000000000000u64;
-pub (crate) const MASK_STEERING_BITS32: u32        = 0x60000000;
-pub (crate) const MASK_BINARY_EXPONENT1_32: u32    = 0x7f800000;
-pub (crate) const MASK_BINARY_SIG1_32: u32         = 0x007fffff;
-pub (crate) const MASK_BINARY_EXPONENT2_32: u32    = 0x1fe00000; //used to take G[2:w+3] (sec 3.3)
-pub (crate) const MASK_BINARY_SIG2_32: u32         = 0x001fffff; //used to mask out G4:T0 (sec 3.3)
-pub (crate) const MASK_BINARY_OR2_32: u32          = 0x00800000;
-pub (crate) const MASK_SPECIAL32: u32              = 0x78000000;
+pub (crate) const MASK_INF32: u32                 = 0x78000000;
+pub (crate) const MASK_ANY_INF32: u32             = 0x7c000000;
+pub (crate) const MASK_SIGN32: u32                = 0x80000000;
+pub (crate) const MASK_NAN32: u32                 = 0x7c000000;
+pub (crate) const MASK_SNAN32: u32                = 0x7e000000;
+pub (crate) const SIGNMASK32: u32                 = 0x80000000;
+pub (crate) const BID32_SIG_MAX: u32              = 0x0098967f;
+pub (crate) const BID64_SIG_MAX: u64              = 0x002386F26FC0FFFFu64;
+pub (crate) const SIGNMASK64: u64                 = 0x8000000000000000u64;
+pub (crate) const MASK_STEERING_BITS32: u32       = 0x60000000;
+pub (crate) const MASK_BINARY_EXPONENT1_32: u32   = 0x7f800000;
+pub (crate) const MASK_BINARY_SIG1_32: u32        = 0x007fffff;
+pub (crate) const MASK_BINARY_EXPONENT2_32: u32   = 0x1fe00000; //used to take G[2:w+3] (sec 3.3)
+pub (crate) const MASK_BINARY_SIG2_32: u32        = 0x001fffff; //used to mask out G4:T0 (sec 3.3)
+pub (crate) const MASK_BINARY_OR2_32: u32         = 0x00800000;
+pub (crate) const MASK_SPECIAL32: u32             = 0x78000000;
 
 // TYPE parameters
 pub (crate) const BID128_MAXDIGITS: u32 = 34;
@@ -91,8 +90,6 @@ pub (crate) const DEC_FE_DIVBYZERO:u32  = 0x04;
 pub (crate) const DEC_FE_OVERFLOW:u32   = 0x08;
 pub (crate) const DEC_FE_UNDERFLOW:u32  = 0x10;
 pub (crate) const DEC_FE_INEXACT:u32    = 0x20;
-
-////////////////////////////////////////////////////////
 
 pub (crate) const BID_MODE_MASK:u32        = 0x00001f80;
 pub (crate) const BID_INEXACT_MODE:u32     = 0x00001000;

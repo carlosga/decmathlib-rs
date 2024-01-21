@@ -754,12 +754,7 @@ pub (crate) fn __mul_64x64_to_128HIGH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
     P64
 }
 
-pub (crate) fn copy<T: Copy>(v: &T) -> T {
-    *v
-}
-
-pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256
-{
+pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256 {
     let mut lC: BID_UINT64;
 	let mut lP: BID_UINT256 = BID_UINT256::default();
 	let lP0: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[0]);
