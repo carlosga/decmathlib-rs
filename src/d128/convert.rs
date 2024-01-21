@@ -145,16 +145,16 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
             uf_check = 1;
             if -extra_digits + exponent_x - DECIMAL_EXPONENT_BIAS_128 + DECIMAL_EXPONENT_BIAS + 35 >= 0 {
                 if exponent_x == DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS - 1 {
-                    T128 = bid_round_const_table_128[rmode as usize][extra_digits as usize];
-                    __add_carry_out(&mut CX1.w[0], &mut carry, T128.w[0], CX.w[0]);
-                    CX1.w[1] = CX.w[1] + T128.w[1] + carry;
+                    T128              = bid_round_const_table_128[rmode as usize][extra_digits as usize];
+                    (CX1.w[0], carry) = __add_carry_out(T128.w[0], CX.w[0]);
+                    CX1.w[1]          = CX.w[1] + T128.w[1] + carry;
                     #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
                     if __unsigned_compare_ge_128(CX1, bid_power10_table_128[extra_digits + 16]) {
                         uf_check = 0;
                     }
                 }
                 extra_digits = extra_digits + DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS - exponent_x;
-                exponent_x = DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS;
+                exponent_x   = DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS;
                 //uf_check = 2;
             } else {
                 rmode = RoundingMode::BID_ROUNDING_TO_ZERO;
@@ -162,9 +162,9 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
         }
 
         T128 = bid_round_const_table_128[rmode as usize][extra_digits as usize];
-        let cxy = CX.w[0];
-        __add_carry_out(&mut CX.w[0], &mut carry, T128.w[0], cxy);
-        CX.w[1] = CX.w[1] + T128.w[1] + carry;
+        let cxy: BID_UINT64 = CX.w[0];
+        (CX.w[0], carry)    = __add_carry_out(T128.w[0], cxy);
+        CX.w[1]             = CX.w[1] + T128.w[1] + carry;
 
         TP128    = bid_reciprocals10_128[extra_digits as usize];
         (Qh, Ql) = __mul_128x128_full(&CX, &TP128);
@@ -217,13 +217,13 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                 },
                 _ => {
                     // round up
-                    __add_carry_out(&mut Stemp.w[0], &mut cy, Ql.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
-                    __add_carry_in_out(&mut Stemp.w[1], &mut carry, Ql.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], cy);
-                    Qh = __shr_128_long(&Qh1, 128 - amount);
-                    Tmp.w[0] = 1;
-                    Tmp.w[1] = 0;
-                    Tmp1 = __shl_128_long(&Tmp, amount);
-                    Qh.w[0] += carry;
+                    (Stemp.w[0], cy)    = __add_carry_out(Ql.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
+                    (Stemp.w[1], carry) = __add_carry_in_out(Ql.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], cy);
+                    Qh                  = __shr_128_long(&Qh1, 128 - amount);
+                    Tmp.w[0]            = 1;
+                    Tmp.w[1]            = 0;
+                    Tmp1                = __shl_128_long(&Tmp, amount);
+                    Qh.w[0]            += carry;
                     if Qh.w[0] < carry {
                         Qh.w[1] += 1;
                     }

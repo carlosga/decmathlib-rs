@@ -246,8 +246,8 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                             }
                         },
                         _ => { // round up
-                            __add_carry_out(&mut Stemp.w[0], &mut CY, Q_low.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
-                            __add_carry_in_out(&mut Stemp.w[1], &mut carry, Q_low.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY);
+                            (Stemp.w[0], CY) = __add_carry_out(Q_low.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
+                            (Stemp.w[1], carry) = __add_carry_in_out(Q_low.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY);
                             if (remainder_h >> (64 - amount)) + carry >= ((1u64) << amount) {
                                 status = BID_EXACT_STATUS;
                             }
@@ -450,16 +450,19 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
     R128
 }
 
-pub (crate) fn __add_carry_out(S: &mut BID_UINT64, CY: &mut BID_UINT64, X: BID_UINT64, Y: BID_UINT64) {
-    let X1: BID_UINT64 = X;
-    *S  = BID_UINT64::overflowing_add(X, Y).0;
-    *CY = if *S < X1 { 1 } else { 0 };
+/// Returns (sum, carry)
+pub (crate) fn __add_carry_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
+    let S         = BID_UINT64::overflowing_add(X, Y).0;
+    let CY  = if S < X { 1 } else { 0 };
+    (S, CY)
 }
 
-pub (crate) fn __add_carry_in_out(S: &mut BID_UINT64, CY: &mut BID_UINT64, X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) {
-    let X1:BID_UINT64 = X + CI;
-    *S  = BID_UINT64::overflowing_add(X1, Y).0;
-    *CY = if *S < X1 || X1 < CI { 1 } else { 0 };
+/// Returns (sum, carry)
+pub (crate) fn __add_carry_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
+    let X1: BID_UINT64 = X + CI;
+    let S: BID_UINT64  = BID_UINT64::overflowing_add(X1, Y).0;
+    let CY: BID_UINT64 = if S < X1 || X1 < CI { 1u64 } else { 0 };
+    (S, CY)
 }
 
 //////////////////////////////////////////////
@@ -690,8 +693,8 @@ pub (crate) fn __mul_128x128_to_256(A: &BID_UINT128, B: &BID_UINT128) -> BID_UIN
     let mut P256: BID_UINT256 = BID_UINT256::default();
 
     P256.w[0] = Qll.w[0];
-    __add_carry_out(&mut P256.w[1], &mut CY1, Qlh.w[0], Qll.w[1]);
-    __add_carry_in_out(&mut P256.w[2], &mut CY2, Qlh.w[1], Phl, CY1);
+    (P256.w[1], CY1) = __add_carry_out(Qlh.w[0], Qll.w[1]);
+    (P256.w[2], CY2) = __add_carry_in_out(Qlh.w[1], Phl, CY1);
     P256.w[3] = Phh + CY2;
 
     P256
@@ -751,6 +754,10 @@ pub (crate) fn __mul_64x64_to_128HIGH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
     P64
 }
 
+pub (crate) fn copy<T: Copy>(v: &T) -> T {
+    *v
+}
+
 pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256
 {
     let mut lC: BID_UINT64 = 0;
@@ -759,8 +766,8 @@ pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT
 	let lP1: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[1]);
 	let lP2: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[2]);
 	lP.w[0] = lP0.w[0];
-	__add_carry_out(&mut lP.w[1], &mut lC,lP1.w[0],lP0.w[1]);
-	__add_carry_in_out(&mut lP.w[2], &mut lC,lP2.w[0],lP1.w[1], lC);
+	(lP.w[1], lC) = __add_carry_out(lP1.w[0], lP0.w[1]);
+	(lP.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
 	lP.w[3] = lP2.w[1] + lC;
 
 	lP
@@ -793,9 +800,9 @@ pub (crate) fn __mul_64x256_to_320(A: BID_UINT64, B: &BID_UINT256) -> BID_UINT51
 	let lP2: BID_UINT128 = __mul_64x64_to_128(A, B.w[2]);
 	let lP3: BID_UINT128 = __mul_64x64_to_128(A, B.w[3]);
 	P.w[0] = lP0.w[0];
-	__add_carry_out(&mut P.w[1], &mut lC,lP1.w[0],lP0.w[1]);
-	__add_carry_in_out(&mut P.w[2], &mut lC,lP2.w[0],lP1.w[1], lC);
-	__add_carry_in_out(&mut P.w[3], &mut lC,lP3.w[0],lP2.w[1], lC);
+	(P.w[1], lC) = __add_carry_out(lP1.w[0],lP0.w[1]);
+	(P.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
+	(P.w[3], lC) = __add_carry_in_out(lP3.w[0],lP2.w[1], lC);
 	P.w[4] = lP3.w[1] + lC;
 
 	P
@@ -809,13 +816,13 @@ pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UIN
 	let P1: BID_UINT256 = __mul_64x192_to_256(A.w[1], &B);
 	let P2: BID_UINT256 = __mul_64x192_to_256(A.w[2], &B);
 	P.w[0] = P0.w[0];
-	__add_carry_out(&mut P.w[1], &mut CY, P1.w[0], P0.w[1]);
-	__add_carry_in_out(&mut P.w[2], &mut CY, P1.w[1], P0.w[2], CY);
-	__add_carry_in_out(&mut P.w[3], &mut CY, P1.w[2], P0.w[3], CY);
+	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
+	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
+	(P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
 	P.w[4] = P1.w[3] + CY;
-	__add_carry_out(&mut P.w[2], &mut CY, P2.w[0], P.w[2]);
-	__add_carry_in_out(&mut P.w[3], &mut CY, P2.w[1], P.w[3],CY);
-	__add_carry_in_out(&mut P.w[4], &mut CY, P2.w[2], P.w[4],CY);
+	(P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
+	(P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3],CY);
+	(P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4],CY);
 	P.w[5] = P2.w[3] + CY;
 
 	P
@@ -830,20 +837,20 @@ pub (crate) fn __mul_256x256_to_512(A: &BID_UINT256, B: &BID_UINT256) -> BID_UIN
 	let P2: BID_UINT512 = __mul_64x256_to_320(A.w[2], &B);
 	let P3: BID_UINT512 = __mul_64x256_to_320(A.w[3], &B);
 	P.w[0] = P0.w[0];
-	__add_carry_out(&mut P.w[1], &mut CY, P1.w[0], P0.w[1]);
-	__add_carry_in_out(&mut P.w[2], &mut CY, P1.w[1], P0.w[2], CY);
-	__add_carry_in_out(&mut P.w[3], &mut CY, P1.w[2], P0.w[3], CY);
-	__add_carry_in_out(&mut P.w[4], &mut CY, P1.w[3], P0.w[4], CY);
+	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
+	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
+	(P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
+	(P.w[4], CY) = __add_carry_in_out(P1.w[3], P0.w[4], CY);
 	P.w[5] = P1.w[4] + CY;
-	__add_carry_out(&mut P.w[2], &mut CY, P2.w[0], P.w[2]);
-	__add_carry_in_out(&mut P.w[3], &mut CY, P2.w[1], P.w[3], CY);
-	__add_carry_in_out(&mut P.w[4], &mut CY, P2.w[2], P.w[4], CY);
-	__add_carry_in_out(&mut P.w[5], &mut CY, P2.w[3], P.w[5], CY);
+	(P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
+	(P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3], CY);
+	(P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4], CY);
+	(P.w[5], CY) = __add_carry_in_out(P2.w[3], P.w[5], CY);
 	P.w[6] = P2.w[4] + CY;
-	__add_carry_out(&mut P.w[3], &mut CY, P3.w[0], P.w[3]);
-	__add_carry_in_out(&mut P.w[4], &mut CY, P3.w[1], P.w[4], CY);
-	__add_carry_in_out(&mut P.w[5], &mut CY, P3.w[2], P.w[5], CY);
-	__add_carry_in_out(&mut P.w[6], &mut CY, P3.w[3], P.w[6], CY);
+	(P.w[3], CY) = __add_carry_out(P3.w[0], P.w[3]);
+	(P.w[4], CY) = __add_carry_in_out(P3.w[1], P.w[4], CY);
+	(P.w[5], CY) = __add_carry_in_out(P3.w[2], P.w[5], CY);
+	(P.w[6], CY) = __add_carry_in_out(P3.w[3], P.w[6], CY);
 	P.w[7] = P3.w[4] + CY;
 
 	P
