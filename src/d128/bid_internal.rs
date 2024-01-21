@@ -766,7 +766,7 @@ pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT
 	lP
 }
 
-pub (crate) fn __mul_128x64_to_128(A64: BID_UINT64, B128: BID_UINT128) -> BID_UINT128 {
+pub (crate) fn __mul_128x64_to_128(A64: BID_UINT64, B128: &BID_UINT128) -> BID_UINT128 {
     let ALBH_L: BID_UINT64    = A64 * B128.w[1];
     let mut Q128: BID_UINT128 = __mul_64x64_to_128MACH(A64, B128.w[0]);
     Q128.w[1] += ALBH_L;
