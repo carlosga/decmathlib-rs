@@ -209,7 +209,7 @@ pub (crate) fn bid128_isZero(x: &BID_UINT128) -> bool {
         (sig_x.w[1] == 0 && sig_x.w[0] == 0) {	                                            // significand is 0
         return true;
     }
-    return false
+    false
 }
 
 pub (crate) fn bid128_isInf(x: &BID_UINT128) -> bool {
@@ -251,13 +251,13 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
     sig_x.w[0] = x.w[0];
     // a canonical number has a coefficient < 10^34
     //    (0x0001ed09_bead87c0_378d8e64_00000000)
-    return if (sig_x.w[1] > 0x0001ed09bead87c0u64) ||	// significand is non-canonical
+    if (sig_x.w[1] > 0x0001ed09bead87c0u64) ||	// significand is non-canonical
         ((sig_x.w[1] == 0x0001ed09bead87c0u64) && (sig_x.w[0] > 0x378d8e63ffffffffu64)) ||	// significand is non-canonical
         ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
         false
     } else {
         true
-    };
+    }
 }
 
 pub (crate) fn bid128_isNaN(x: &BID_UINT128) -> bool {
@@ -351,7 +351,7 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
         }
     }
     // otherwise, normal number, determine the sign
-    return if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeNormal } else { ClassTypes::positiveNormal };
+    if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeNormal } else { ClassTypes::positiveNormal }
 }
 
 /// true if the exponents of x and y are the same, false otherwise.
@@ -392,7 +392,7 @@ pub (crate) fn bid128_sameQuantum(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     } else {	// G0_G1 != 11
         y_exp = y.w[1] & MASK_EXP;	// biased and shifted left 49 bits
     }
-    return x_exp == y_exp;
+    x_exp == y_exp
 }
 
 pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
@@ -546,7 +546,7 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     // If the value exceeds that, it is interpreted as 0.
     if (((sig_x.w[1] > 0x0001ed09bead87c0u64) ||
         ((sig_x.w[1] == 0x0001ed09bead87c0u64) &&
-            (sig_x.w[0] > 0x378d8e63ffffffffu64))) &&
+         (sig_x.w[0] > 0x378d8e63ffffffffu64))) &&
         ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64)) ||
         ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) ||
         ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
@@ -566,9 +566,9 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_y.w[1] > 0x0001ed09bead87c0u64) ||
+    if (((sig_y.w[1]  > 0x0001ed09bead87c0u64) ||
         ((sig_y.w[1] == 0x0001ed09bead87c0u64) &&
-            (sig_y.w[0] > 0x378d8e63ffffffffu64))) &&
+         (sig_y.w[0]  > 0x378d8e63ffffffffu64))) &&
         ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64)) ||
         ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) ||
         ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
@@ -641,9 +641,9 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
             return (exp_x <= exp_y) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
         }
         return ((sig_n_prime192.w[2] == 0)
-            & & ((sig_n_prime192.w[1] < sig_y.w[1])
+            && ((sig_n_prime192.w[1] < sig_y.w[1])
             || (sig_n_prime192.w[1] == sig_y.w[1]
-            && sig_n_prime192.w[0] < sig_y.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+            && sig_n_prime192.w[0]   < sig_y.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
     }
     // if exp_x is 33 less than exp_y, it is definitely smaller,
     // no need for compensation
@@ -677,12 +677,11 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
         && (sig_n_prime192.w[0] == sig_x.w[0]) {
         return (exp_x <= exp_y) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
     }
-    return ((sig_n_prime192.w[2] != 0) ||
-        // if upper128 bits of compensated y are non-zero, y is bigger
-        (sig_n_prime192.w[1] > sig_x.w[1]) ||
-        // if compensated y is bigger, y is bigger
-        (sig_n_prime192.w[1] == sig_x.w[1]
-            && sig_n_prime192.w[0] > sig_x.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+    ((sig_n_prime192.w[2] != 0)
+     // if upper128 bits of compensated y are non-zero, y is bigger
+  || (sig_n_prime192.w[1] > sig_x.w[1])
+     // if compensated y is bigger, y is bigger
+  || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN)
 }
 
 pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
@@ -904,11 +903,11 @@ pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     if (sig_n_prime192.w[2] == 0) && (sig_n_prime192.w[1] == sig_x.w[1]) && (sig_n_prime192.w[0] == sig_x.w[0]) {
         return true; // res = (exp_x <= exp_y); but 0 <= exp_y - exp_x <= 19 in this case
     }
-    return (sig_n_prime192.w[2] != 0) ||
-        // if upper128 bits of compensated y are non-zero, y is bigger
-        (sig_n_prime192.w[1] > sig_x.w[1]) ||
-        // if compensated y is bigger, y is bigger
-        (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0]);
+    (sig_n_prime192.w[2] != 0)
+    // if upper128 bits of compensated y are non-zero, y is bigger
+ || (sig_n_prime192.w[1] > sig_x.w[1])
+    // if compensated y is bigger, y is bigger
+ || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0])
 }
 
 pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {

@@ -313,9 +313,9 @@ pub (crate) fn bid_add_and_round(
     } else if scale <= 19 { // 10^scale fits in 64 bits
         P128.w[1] = 0;
         P128.w[0] = bid_ten2k64[scale as usize];
-        R256 = __mul_128x128_to_256(&P128, &C3);
+        R256 = __mul_128x128_to_256(&P128, C3);
     } else if scale <= 38 { // 10^scale fits in 128 bits
-        R256 = __mul_128x128_to_256(&bid_ten2k128[(scale - 20) as usize], &C3);
+        R256 = __mul_128x128_to_256(&bid_ten2k128[(scale - 20) as usize], C3);
     } else if scale <= 57 { // 39 <= scale <= 57
         // 10^scale fits in 192 bits but C3 * 10^scale fits in 223 or 230 bits
         // (10^67 has 223 bits; 10^69 has 230 bits);
@@ -323,7 +323,7 @@ pub (crate) fn bid_add_and_round(
         // 10^scale * C3 = 10*38 * 10^(scale-38) * C3 where 10^38 takes 127
         // bits and so 10^(scale-38) * C3 fits in 128 bits with certainty
         // Note that 1 <= scale - 38 <= 19 => 10^(scale-38) fits in 64 bits
-        R128 = __mul_64x128_to_128(bid_ten2k64[(scale - 38) as usize], &C3);
+        R128 = __mul_64x128_to_128(bid_ten2k64[(scale - 38) as usize], C3);
         // now multiply R128 by 10^38
         R256 = __mul_128x128_to_256(&R128, &bid_ten2k128[18]);
     } else { // 58 <= scale <= 66
@@ -348,7 +348,7 @@ pub (crate) fn bid_add_and_round(
     if p_sign == z_sign { // R256 = C4 + R256
         // calculate R256 = C4 + C3 * 10^scale = C4 + R256 which is exact,
         // but may require rounding
-        R256 = bid_add256(&C4, &R256);
+        R256 = bid_add256(C4, &R256);
     } else { // if (p_sign != z_sign) { // R256 = C4 - R256
         // calculate R256 = C4 - C3 * 10^scale = C4 - R256 or
         // R256 = C3 * 10^scale - C4 = R256 - C4 which is exact,
@@ -361,13 +361,13 @@ pub (crate) fn bid_add_and_round(
         && R256.w[0] >= C4.w[0]) { // C3 * 10^scale >= C4
             // calculate R256 = C3 * 10^scale - C4 = R256 - C4, which is exact,
             // but may require rounding
-            R256 = bid_sub256(&C4, &R256);
+            R256 = bid_sub256(C4, &R256);
             // flip p_sign too, because the result has the sign of z
             p_sign = z_sign;
         } else { // if C4 > C3 * 10^scale
             // calculate R256 = C4 - C3 * 10^scale = C4 - R256, which is exact,
             // but may require rounding
-            R256 = bid_sub256(&C4, &R256);
+            R256 = bid_sub256(C4, &R256);
         }
         // if the result is pure zero, the sign depends on the rounding mode
         // (x*y and z had opposite signs)
@@ -1781,7 +1781,7 @@ pub (crate) fn bid128_ext_fma(
 // TODO: Try to ge around C goto
 // delta_ge_zero:
     if delta >= 0 {
-        if p34 <= delta - 1 	                   // Case (1')
+        if  p34 <= delta - 1 	                    // Case (1')
         || (p34 == delta && e3 + 6176 < p34 - q3) { // Case (1''A)
             // check for overflow, which can occur only in Case (1')
             if (q3 + e3) > (p34 + expmax) && p34 <= delta - 1 {
@@ -4144,7 +4144,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
         // determine the unbiased exponent of the result
         unbexp = (((res1 >> 53) & 0x3ff) - 398) as i32;
 
-        if !((res1 & MASK_NAN) == MASK_NAN) { // res1 not NaN
+        if (res1 & MASK_NAN) != MASK_NAN { // res1 not NaN
             // if subnormal, res1  must have exp = -398
             // if tiny and inexact set underflow and inexact status flags
             if (unbexp == -398)
@@ -4445,5 +4445,5 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
         *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
     }
     *pfpsf |= save_fpsf;
-    return res1;
+    res1
 }

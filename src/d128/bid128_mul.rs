@@ -110,7 +110,7 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
         }// else continue
     }
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
-    bid64qqq_fma(&y, &x, &z, rnd_mode, pfpsf)
+    bid64qqq_fma(y, x, &z, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -140,14 +140,14 @@ pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: u32, pfpsf
 
 pub (crate) fn bid128dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1  = bid64_to_bid128(*x, pfpsf);
-    let res = bid128_mul(&x1, &y, rnd_mode, pfpsf);
+    let res = bid128_mul(&x1, y, rnd_mode, pfpsf);
 
     res
 }
 
 pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
   let y1  = bid64_to_bid128(*y, pfpsf);
-  let res = bid128_mul(&x, &y1, rnd_mode, pfpsf);
+  let res = bid128_mul(x, &y1, rnd_mode, pfpsf);
 
   res
 }

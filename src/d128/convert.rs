@@ -244,5 +244,5 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
 
     res = get_BID64(sign_x, exponent_x - DECIMAL_EXPONENT_BIAS_128 + DECIMAL_EXPONENT_BIAS, CX.w[0], rnd_mode, pfpsf);
 
-    return res;
+    res
 }

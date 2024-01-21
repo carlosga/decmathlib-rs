@@ -52,7 +52,7 @@ pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pco
     // coefficient
     *pcoefficient_x = x & LARGE_COEFF_MASK32;
 
-    return *pcoefficient_x;
+    *pcoefficient_x
 }
 
 ///  BID64 unpack, input pased by reference
@@ -94,7 +94,7 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
     // coefficient
     *pcoefficient_x = x & SMALL_COEFF_MASK64;
 
-    return *pcoefficient_x;
+    *pcoefficient_x
 }
 
 ///  BID128 unpack, input pased by reference
@@ -147,7 +147,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
     ex           = (px.w[1]) >> 49;
     *pexponent_x = (ex as i32) & EXPONENT_MASK128;
 
-    return coeff.w[0] | coeff.w[1];
+    coeff.w[0] | coeff.w[1]
 }
 
 /// BID64 pack macro (general form)
@@ -207,11 +207,11 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                     // check whether fractional part of initial_P/10^extra_digits is exactly .5
 
                     // get remainder
-                    amount2 = 64 - amount;
-                    remainder_h = 0;
-                    (remainder_h, _) = remainder_h.overflowing_sub(1);
+                    amount2       = 64 - amount;
+                    remainder_h   = 0;
+                    remainder_h   = remainder_h.wrapping_sub(1);
                     remainder_h >>= amount2;
-                    remainder_h = remainder_h & QH;
+                    remainder_h   = remainder_h & QH;
 
                     if remainder_h == 0
                         && (Q_low.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
@@ -321,7 +321,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
     coeff &= mask;
     r     |= coeff;
 
-    return r;
+    r
 }
 
 /// No overflow/underflow checks
@@ -334,7 +334,7 @@ pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64,
     tmp     <<= 49;
     pres.w[1] = sgn | tmp | coeff.w[1];
 
-    return *pres;
+    *pres
 }
 
 //////////////////////////////////////////////
@@ -688,8 +688,8 @@ pub (crate) fn __mul_64x128_to192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT192
 pub (crate) fn __mul_128x128_to_256(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT256 {
     let CY1: BID_UINT64;
     let CY2: BID_UINT64;
-    let (Phl, Qll) = __mul_64x128_full(A.w[0], &B);
-    let (Phh, Qlh) = __mul_64x128_full(A.w[1], &B);
+    let (Phl, Qll) = __mul_64x128_full(A.w[0], B);
+    let (Phh, Qlh) = __mul_64x128_full(A.w[1], B);
     let mut P256: BID_UINT256 = BID_UINT256::default();
 
     P256.w[0] = Qll.w[0];
@@ -812,9 +812,9 @@ pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UIN
 {
     let mut CY: BID_UINT64;
 	let mut P: BID_UINT384  = BID_UINT384::default();
-	let P0: BID_UINT256 = __mul_64x192_to_256(A.w[0], &B);
-	let P1: BID_UINT256 = __mul_64x192_to_256(A.w[1], &B);
-	let P2: BID_UINT256 = __mul_64x192_to_256(A.w[2], &B);
+	let P0: BID_UINT256 = __mul_64x192_to_256(A.w[0], B);
+	let P1: BID_UINT256 = __mul_64x192_to_256(A.w[1], B);
+	let P2: BID_UINT256 = __mul_64x192_to_256(A.w[2], B);
 	P.w[0] = P0.w[0];
 	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
 	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
@@ -832,10 +832,10 @@ pub (crate) fn __mul_256x256_to_512(A: &BID_UINT256, B: &BID_UINT256) -> BID_UIN
 {
     let mut CY: BID_UINT64;
     let mut P: BID_UINT512 = BID_UINT512::default();
-	let P0: BID_UINT512 = __mul_64x256_to_320(A.w[0], &B);
-	let P1: BID_UINT512 = __mul_64x256_to_320(A.w[1], &B);
-	let P2: BID_UINT512 = __mul_64x256_to_320(A.w[2], &B);
-	let P3: BID_UINT512 = __mul_64x256_to_320(A.w[3], &B);
+	let P0: BID_UINT512 = __mul_64x256_to_320(A.w[0], B);
+	let P1: BID_UINT512 = __mul_64x256_to_320(A.w[1], B);
+	let P2: BID_UINT512 = __mul_64x256_to_320(A.w[2], B);
+	let P3: BID_UINT512 = __mul_64x256_to_320(A.w[3], B);
 	P.w[0] = P0.w[0];
 	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
 	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
@@ -873,5 +873,5 @@ pub (crate) fn __unsigned_compare_ge_128(A: BID_UINT128, B: BID_UINT128) -> bool
 }
 
 pub (crate) fn __test_equal_128(A: BID_UINT128, B: BID_UINT128) -> bool {
-    (A.w[1] == B.w[1]) & & (A.w[0] == B.w[0])
+    (A.w[1] == B.w[1]) && (A.w[0] == B.w[0])
 }
