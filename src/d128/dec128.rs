@@ -9,6 +9,7 @@
 #![allow(dead_code)]
 
 use std::ops::{Mul, Neg};
+use std::os::linux::raw::stat;
 use crate::d128::bid128_mul::bid128_mul;
 
 use crate::d128::bid128_noncomp::*;
@@ -164,6 +165,30 @@ impl BID_UINT128 {
         bid128_totalOrderMag(x, y)
     }
 
+    pub fn from_i64(value: i64) -> Self {
+        let mut res = Self::default();
+
+        // if integer is negative, use the absolute value
+        if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
+            res.w[BID_HIGH_128W] = 0xb040000000000000u64;
+            res.w[BID_LOW_128W]  = (!value + 1) as BID_UINT64;	// 2's complement of x
+        } else {
+            res.w[BID_HIGH_128W] = 0x3040000000000000u64;
+            res.w[BID_LOW_128W]  = value as u64;
+        }
+
+        res
+    }
+
+    pub fn from_u64(value: u64) -> Self {
+        let mut res = Self::default();
+
+        res.w[BID_HIGH_128W] = 0x3040000000000000u64;
+        res.w[BID_LOW_128W]  = value;
+
+        res
+    }
+
     pub fn from_decimal64(bid: BID_UINT64, status: &mut _IDEC_flags) -> Self {
         bid64_to_bid128(bid, status)
     }
@@ -185,40 +210,37 @@ impl PartialEq for BID_UINT128 {
     }
 }
 
-impl From<i64> for BID_UINT128 {
-    fn from(value: i64) -> Self {
-        let mut res = Self::default();
+/// Tries to convert decimal128 to decimal64
+impl TryInto<BID_UINT64> for BID_UINT128 {
+    type Error = _IDEC_flags;
 
-        // if integer is negative, use the absolute value
-        if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
-            res.w[BID_HIGH_128W] = 0xb040000000000000u64;
-            res.w[BID_LOW_128W]  = (!value + 1) as BID_UINT64;	// 2's complement of x
-        } else {
-            res.w[BID_HIGH_128W] = 0x3040000000000000u64;
-            res.w[BID_LOW_128W]  = value as u64;
-        }
+    fn try_into(self) -> Result<BID_UINT64, Self::Error> {
+         let mut status: _IDEC_flags = 0;
+         let dec64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
 
-        res
+         match status {
+            0 => Ok(dec64),
+            _ => Err(status)
+         }
     }
 }
 
-impl From<u64> for BID_UINT128 {
-    fn from(value: u64) -> Self {
-        let mut res = Self::default();
-
-        res.w[BID_HIGH_128W] = 0x3040000000000000u64;
-        res.w[BID_LOW_128W]  = value;
-
-        res
+/// Converts decimal64 to decimal128
+impl From<BID_UINT64> for BID_UINT128 {
+    fn from(value: BID_UINT64) -> Self {
+        let mut status: _IDEC_flags = 0;
+        bid64_to_bid128(value, &mut status)
     }
 }
 
+/// Converts an i128 encoded decimal
 impl From<i128> for BID_UINT128 {
     fn from(value: i128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
+/// Converts an i128 encoded decimal
 impl From<u128> for BID_UINT128 {
     fn from(value: u128) -> Self {
         Self::new((value >> 64) as u64, value as u64)

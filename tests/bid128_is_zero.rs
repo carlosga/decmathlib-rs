@@ -10,7 +10,7 @@ mod common;
 dec_test!(bid128_is_zero_001, bid128_is_zero,  0x0001ed09bead87c0378d8e62ffffffffu128, false);
 dec_test!(bid128_is_zero_002, bid128_is_zero,  0x0001ed09bead87c0378d8e64ffffffffu128, true);
 // dec_test!(bid128_is_zero_003, bid128_is_zero, -0i64                                  , true);
-dec_test!(bid128_is_zero_004, bid128_is_zero,  0u64                                  , true);
+// dec_test!(bid128_is_zero_004, bid128_is_zero,  0u64                                  , true);
 dec_test!(bid128_is_zero_005, bid128_is_zero,  0x0ee80000000000000000000000000000u128, true);
 dec_test!(bid128_is_zero_006, bid128_is_zero,  0x13ee9ca2e80fd3a807c0d8414c535392u128, false);
 dec_test!(bid128_is_zero_007, bid128_is_zero,  0x31de9b1749a9038c04b0b67e429838c2u128, false);

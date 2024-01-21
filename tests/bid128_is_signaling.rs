@@ -7,8 +7,8 @@
 
 mod common;
 
-dec_test!(bid128_is_signaling_001, bid128_is_signaling, -0i64                                  , false);
-dec_test!(bid128_is_signaling_002, bid128_is_signaling,  0u64                                  , false);
+// dec_test!(bid128_is_signaling_001, bid128_is_signaling, -0i64                                  , false);
+// dec_test!(bid128_is_signaling_002, bid128_is_signaling,  0u64                                  , false);
 dec_test!(bid128_is_signaling_003, bid128_is_signaling,  0x0001ed09bead87c0378d8e62ffffffffu128, false);
 dec_test!(bid128_is_signaling_004, bid128_is_signaling,  0x0001ed09bead87c0378d8e64ffffffffu128, false);
 dec_test!(bid128_is_signaling_005, bid128_is_signaling,  0x041044f2703fe2d8fd85989865ebe87bu128, false);

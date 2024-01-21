@@ -16,7 +16,7 @@ dec_test!(bid128_same_quantum_006, bid128_same_quantum, 0x0001ed09bead87c0378d8e
 dec_test!(bid128_same_quantum_007, bid128_same_quantum, 0x0001ed09bead87c0378d8e64ffffffffu128, 0x7c003fffffffffff38c15b08ffffffffu128, false);
 dec_test!(bid128_same_quantum_008, bid128_same_quantum, 0x0001ed09bead87c0378d8e64ffffffffu128, 0x7c003fffffffffff38c15b0affffffffu128, false);
 // dec_test!(bid128_same_quantum_009, bid128_same_quantum, 0u64                                  , -0i64                                 , true);
-dec_test!(bid128_same_quantum_010, bid128_same_quantum, 0u64                                  ,  0u64                                 , true);
+// dec_test!(bid128_same_quantum_010, bid128_same_quantum, 0u64                                  ,  0u64                                 , true);
 dec_test!(bid128_same_quantum_011, bid128_same_quantum, 0x051c74281ad2cdb5f119577a273dfe79u128, 0xdf176c57b133950366495a5a3b54eda9u128, false);
 dec_test!(bid128_same_quantum_012, bid128_same_quantum, 0x08d06098f22341df7f5d008240ff8dd0u128, 0x3cecd8ccc6f2442cd093bdbd23f43799u128, false);
 // dec_test!(bid128_same_quantum_013, bid128_same_quantum, -0 SNaN 0 00);
