@@ -5,6 +5,11 @@
 /* Original C source code Copyright (c) 2018, Intel Corp.                */
 /* --------------------------------------------------------------------- */
 
+#![allow(non_camel_case_types)]
+#![allow(non_upper_case_globals)]
+#![allow(non_snake_case)]
+#![allow(dead_code)]
+
 #[cfg(target_endian = "big")]
 use crate::d128::bid_conf::BID_SWAP128;
 
@@ -16,13 +21,13 @@ use crate::d128::dec128::{_IDEC_flags, BID_UINT128, BID_UINT64};
 pub (crate) fn bid64dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(*x, pfpsf);
 
-    return bid64qq_mul(&x1, y, rnd_mode, pfpsf);
+    bid64qq_mul(&x1, y, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(*y, pfpsf);
 
-    return bid64qq_mul(x, &y1, rnd_mode, pfpsf);
+    bid64qq_mul(x, &y1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
@@ -105,7 +110,7 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
         }// else continue
     }
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
-    return bid64qqq_fma(&y, &x, &z, rnd_mode, pfpsf);
+    bid64qqq_fma(&y, &x, &z, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -130,20 +135,21 @@ pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: u32, pfpsf
     let y1  = bid64_to_bid128(*y, pfpsf);
     let res = bid128_mul(&x1, &y1, rnd_mode, pfpsf);
 
-    return res;
+    res
 }
 
 pub (crate) fn bid128dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1  = bid64_to_bid128(*x, pfpsf);
     let res = bid128_mul(&x1, &y, rnd_mode, pfpsf);
 
-    return res;
+    res
 }
 
 pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
   let y1  = bid64_to_bid128(*y, pfpsf);
   let res = bid128_mul(&x, &y1, rnd_mode, pfpsf);
-  return res;
+
+  res
 }
 
 /// bid128_mul stands for bid128qq_mul
@@ -249,5 +255,5 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     BID_SWAP128(&mut z);
 
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
-    return bid128_fma(y, x, &z, rnd_mode, pfpsf);
+    bid128_fma(y, x, &z, rnd_mode, pfpsf)
 }
