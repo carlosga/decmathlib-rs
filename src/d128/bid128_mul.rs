@@ -31,7 +31,7 @@ pub (crate) fn bid64qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfpsf
 }
 
 pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let mut z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
+    let z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
     let x_sign: BID_UINT64;
     let y_sign: BID_UINT64;
     let p_sign: BID_UINT64;
@@ -114,10 +114,10 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
 }
 
 pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut is_midpoint_lt_even: bool;
-    let mut is_midpoint_gt_even: bool;
-    let mut is_inexact_lt_midpoint: bool;
-    let mut is_inexact_gt_midpoint: bool;
+    let mut is_midpoint_lt_even: bool = false;
+    let mut is_midpoint_gt_even: bool = false;
+    let mut is_inexact_lt_midpoint: bool = false;
+    let mut is_inexact_gt_midpoint: bool = false;
 
     let res = bid128_ext_fma(
         &mut is_midpoint_lt_even,
@@ -154,14 +154,14 @@ pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfps
 
 /// bid128_mul stands for bid128qq_mul
 pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
-    let mut x_sign: BID_UINT64;
-    let mut y_sign: BID_UINT64;
-    let mut p_sign: BID_UINT64;
-    let mut x_exp: BID_UINT64;
-    let mut y_exp: BID_UINT64;
-    let mut p_exp: BID_UINT64;
-    let mut true_p_exp: i32;
+    let z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
+    let x_sign: BID_UINT64;
+    let y_sign: BID_UINT64;
+    let p_sign: BID_UINT64;
+    let x_exp: BID_UINT64;
+    let y_exp: BID_UINT64;
+    let p_exp: BID_UINT64;
+    let true_p_exp: i32;
     let mut C1: BID_UINT128 = BID_UINT128::default();
     let mut C2: BID_UINT128 = BID_UINT128::default();
 
