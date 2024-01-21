@@ -19,7 +19,7 @@ use crate::d128::bid_round::*;
 use crate::d128::constants::*;
 use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::d128::core::{RoundingMode, StatusFlags};
-use crate::d128::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::d128::dec128::{_IDEC_flags, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
 //////////////////////////////////////////////
 // BID128 fma   x * y + z
@@ -1035,7 +1035,7 @@ pub (crate) fn bid128_ext_fma(
         return res;
     }
 
-    true_p_exp = ((x_exp >> 49) - 6176 + (y_exp >> 49) - 6176) as i32;
+    true_p_exp = (((x_exp >> 49) as BID_SINT64) - 6176 + ((y_exp >> 49) as BID_SINT64) - 6176) as i32;
     p_exp = if true_p_exp < -6176 {
         0 // cannot be less than EXP_MIN
     } else {
@@ -1209,9 +1209,9 @@ pub (crate) fn bid128_ext_fma(
         // continue with x = f, y = f, z = 0 or x = f, y = f, z = f
     }
 
-    e1 = ((x_exp >> 49) - 6176) as i32; // unbiased exponent of x
-    e2 = ((y_exp >> 49) - 6176) as i32; // unbiased exponent of y
-    e3 = ((z_exp >> 49) - 6176) as i32; // unbiased exponent of z
+    e1 = (((x_exp >> 49) as BID_SINT64) - 6176) as i32; // unbiased exponent of x
+    e2 = (((y_exp >> 49) as BID_SINT64) - 6176) as i32; // unbiased exponent of y
+    e3 = (((z_exp >> 49) as BID_SINT64) - 6176) as i32; // unbiased exponent of z
     e4 = e1 + e2;              // unbiased exponent of the exact x * y
 
     // calculate C1 * C2 and its number of decimal digits, q4
