@@ -1,35 +1,22 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
-/* --------------------------------------------------------------------- */
-/* Original C source code Copyright (c) 2018, Intel Corp.                */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use std::ops::{Mul, MulAssign, Neg};
+use crate::d128::bid128_mul::bid128_mul;
+
 use crate::d128::bid128_noncomp::*;
 use crate::d128::constants::*;
-use crate::d128::data::bid_power10_table_128;
-use crate::d128::bid_internal::{__mul_64x64_to_128, bid_get_BID128_very_fast, unpack_BID64};
+use crate::d128::convert::{bid128_to_bid64, bid64_to_bid128};
+use crate::d128::core::{ClassTypes, DEFAULT_ROUNDING_MODE, RoundingMode};
 
-#[derive(Debug, Copy, Clone)]
-pub enum ClassTypes {
-    signalingNaN,
-    quietNaN,
-    negativeInfinity,
-    negativeNormal,
-    negativeSubnormal,
-    negativeZero,
-    positiveZero,
-    positiveSubnormal,
-    positiveNormal,
-    positiveInfinity
-}
-
-pub (crate) type BID_UINT32 = u32;
-
-pub (crate) type BID_UINT64 = u64;
+pub type _IDEC_flags = u32;       // could be a struct with diagnostic info
 
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct DEC_DIGITS {
@@ -67,11 +54,6 @@ impl Default for BID_UI64DOUBLE {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default)]
-pub struct BID_UINT128 {
-    pub (crate)  w: [BID_UINT64; 2]
-}
-
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct BID_UINT192 {
     pub (crate) w: [BID_UINT64; 3]
@@ -82,16 +64,41 @@ pub (crate) struct BID_UINT256 {
     pub (crate) w: [BID_UINT64; 4]
 }
 
-impl BID_UINT128 {
-    pub fn new(l: u64, h: u64) -> Self {
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT384 {
+    pub (crate) w: [BID_UINT64; 6]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub (crate) struct BID_UINT512 {
+    pub (crate) w: [BID_UINT64; 8]
+}
+
+pub (crate) type BID_UINT32 = u32;
+
+pub (crate) type BID_SINT64 = i64;
+
+pub (crate) type BID_UINT64 = u64;
+
+pub type decimal64 = BID_UINT64;
+
+/// The 128-bit decimal type.
+#[derive(Copy, Clone, Debug, Default)]
+pub struct BID_UINT128 {
+    pub (crate) w: [BID_UINT64; 2]
+}
+
+pub type decimal128 = BID_UINT128;
+
+impl decimal128 {
+    pub (crate) fn new(l: u64, h: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [l, h] };
+
         #[cfg(target_endian = "little")]
         return Self { w: [h, l] };
     }
-}
 
-impl BID_UINT128 {
     pub fn class(&self) -> ClassTypes {
         bid128_class(self)
     }
@@ -140,6 +147,10 @@ impl BID_UINT128 {
         bid128_isZero(self)
     }
 
+    pub fn negate(x: &Self) -> Self {
+        bid128_negate(x)
+    }
+
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
         bid128_sameQuantum(x, y)
     }
@@ -151,24 +162,14 @@ impl BID_UINT128 {
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
         bid128_totalOrderMag(x, y)
     }
-}
 
-impl Eq for BID_UINT128 {}
-
-impl PartialEq for BID_UINT128 {
-    fn eq(&self, other: &Self) -> bool {
-        self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
-    }
-}
-
-impl From<i64> for BID_UINT128 {
-    fn from(value: i64) -> Self {
+    pub fn from_i64(value: i64) -> Self {
         let mut res = Self::default();
 
         // if integer is negative, use the absolute value
         if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
             res.w[BID_HIGH_128W] = 0xb040000000000000u64;
-            res.w[BID_LOW_128W]  = (!value) as u64 + 1;	// 2's complement of x
+            res.w[BID_LOW_128W]  = (!value + 1) as BID_UINT64;	// 2's complement of x
         } else {
             res.w[BID_HIGH_128W] = 0x3040000000000000u64;
             res.w[BID_LOW_128W]  = value as u64;
@@ -176,10 +177,8 @@ impl From<i64> for BID_UINT128 {
 
         res
     }
-}
 
-impl From<u64> for BID_UINT128 {
-    fn from(value: u64) -> Self {
+    pub fn from_u64(value: u64) -> Self {
         let mut res = Self::default();
 
         res.w[BID_HIGH_128W] = 0x3040000000000000u64;
@@ -187,49 +186,169 @@ impl From<u64> for BID_UINT128 {
 
         res
     }
+
+    pub fn from_decimal64(bid: decimal64, status: &mut _IDEC_flags) -> Self {
+        bid64_to_bid128(bid, status)
+    }
+
+    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> decimal64 {
+        bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+    }
+
+    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+        bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+    }
 }
 
-impl From<i128> for BID_UINT128 {
+impl Eq for decimal128 {}
+
+impl PartialEq for decimal128 {
+    fn eq(&self, other: &Self) -> bool {
+        self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
+    }
+}
+
+/// Tries to convert decimal128 to decimal64
+/// # Examples
+///
+/// ```
+/// use decmathlib_rs::d128::dec128::{_IDEC_flags, decimal128, decimal64};
+/// let res: decimal128 = decmathlib_rs::d128::dec128::decimal128::from(0x2cffed09bead87c0378d8e63ffffffffu128);
+/// let dec64: Result<decimal64, _IDEC_flags> = res.try_into();
+/// ```
+impl TryInto<decimal64> for decimal128 {
+    type Error = _IDEC_flags;
+
+    fn try_into(self) -> Result<BID_UINT64, Self::Error> {
+         let mut status: _IDEC_flags = 0;
+         let dec64: BID_UINT64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
+
+         match status {
+            0 => Ok(dec64),
+            _ => Err(status)
+         }
+    }
+}
+
+/// Converts decimal64 to decimal128.
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x002462d53c8abac0u64);
+/// ```
+impl From<decimal64> for decimal128 {
+    fn from(value: BID_UINT64) -> Self {
+        let mut status: _IDEC_flags = 0;
+        bid64_to_bid128(value, &mut status)
+    }
+}
+
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// ```
+impl From<i128> for decimal128 {
     fn from(value: i128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
-impl From<u128> for BID_UINT128 {
+/// Converts an i128 encoded decimal.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// ```
+impl From<u128> for decimal128 {
     fn from(value: u128) -> Self {
         Self::new((value >> 64) as u64, value as u64)
     }
 }
 
-/// Takes a BID64 as input and converts it to a BID128 and returns it.
-pub fn bid64_to_bid128(x: BID_UINT64) -> BID_UINT128 {
-    let mut new_coeff: BID_UINT128    = BID_UINT128::default();
-    let mut res: BID_UINT128          = BID_UINT128::default();
-    let mut sign_x: BID_UINT64        = 0;
-    let mut exponent_x: i32           = 0;
-    let mut coefficient_x: BID_UINT64 = 0;
+/// Performs the unary - operation
+/// # Examples
+///
+/// ```
+/// use std::ops::Neg;
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let neg  = dec1.neg();
+/// ```
+impl Neg for decimal128 {
+    type Output = Self;
 
-    if unpack_BID64(&mut sign_x, &mut exponent_x, &mut coefficient_x, x) == 0 {
-        if ((x) << 1) >= 0xf000000000000000u64 {
-            #[cfg(BID_SET_STATUS_FLAGS)]
-            if (((x) & SNAN_MASK64) == SNAN_MASK64) {   // sNaN
-                __set_status_flags(pfpsf, BID_INVALID_EXCEPTION);
-            }
-            res.w[0] = coefficient_x & 0x0003ffffffffffffu64;
-            let cx = res.w[0];
-            __mul_64x64_to_128(&mut res, cx, bid_power10_table_128[18].w[0]);
-            res.w[1] |= (coefficient_x) & 0xfc00000000000000u64;
-            return res;
-        }
+    fn neg(self) -> Self::Output {
+        bid128_negate(&self)
     }
+}
 
-    new_coeff.w[0] = coefficient_x;
-    new_coeff.w[1] = 0;
+/// Performs the unary - operation
+/// # Examples
+///
+/// ```
+/// use std::ops::Neg;
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let neg  = dec1.neg();
+/// ```
+impl Neg for &decimal128 {
+    type Output = decimal128;
 
-    bid_get_BID128_very_fast(
-        &mut res, sign_x,
-        exponent_x + DECIMAL_EXPONENT_BIAS_128 as i32 - DECIMAL_EXPONENT_BIAS as i32,
-        &new_coeff);
+    fn neg(self) -> Self::Output {
+        bid128_negate(self)
+    }
+}
 
-    res
-} // convert_bid64_to_bid128
+/// Performs the * operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::d128::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = dec1 * dec2;
+/// ```
+impl Mul for decimal128 {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_mul(&self, &rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the * operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::d128::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = dec1 * dec2;
+/// ```
+impl Mul for &decimal128 {
+    type Output = decimal128;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_mul(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the *= operation.
+/// # Examples
+///
+/// ```
+/// use decmathlib_rs::d128::core::RoundingMode;
+/// let mut dec1 = decmathlib_rs::d128::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2     = decmathlib_rs::d128::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// dec1        *= dec2;
+/// ```
+impl MulAssign for decimal128 {
+    fn mul_assign(&mut self, rhs: Self) {
+        let mut status: _IDEC_flags = 0;
+        let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+
+        self.w[0] = dec.w[0];
+        self.w[1] = dec.w[1];
+    }
+}

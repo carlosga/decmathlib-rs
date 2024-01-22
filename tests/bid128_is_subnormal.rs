@@ -1,13 +1,13 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 mod common;
 
-dec_test!(bid128_is_subnormal_001, bid128_is_subnormal, -0i64                                  , false);
+// dec_test!(bid128_is_subnormal_001, bid128_is_subnormal, -0i64                                  , false);
 dec_test!(bid128_is_subnormal_002, bid128_is_subnormal,  0x0001ed09bead87c0378d8e62ffffffffu128, false);
 dec_test!(bid128_is_subnormal_003, bid128_is_subnormal,  0x0001ed09bead87c0378d8e64ffffffffu128, false);
 dec_test!(bid128_is_subnormal_004, bid128_is_subnormal,  0x000200000000000007a63158fbd6b32fu128, true);

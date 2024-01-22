@@ -1,9 +1,9 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez         */
-/* --------------------------------------------------------------------- */
-/* Original C source code Copyright (c) 2018, Intel Corp.                */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 #![allow(unused)]
 #![allow(dead_code)]
@@ -11,12 +11,19 @@
 
 #[cfg(target_endian = "big")]
 pub (crate) const BID_HIGH_128W: usize = 0;
+
 #[cfg(target_endian = "big")]
 pub (crate) const BID_LOW_128W: usize = 1;
+
 #[cfg(target_endian = "little")]
 pub (crate) const BID_HIGH_128W: usize = 1;
+
 #[cfg(target_endian = "little")]
 pub (crate) const BID_LOW_128W: usize = 0;
+
+pub (crate) const P7: i32  = 7;
+pub (crate) const P16: i32 = 16;
+pub (crate) const P34: i32 = 34;
 
 pub (crate) const MASK_STEERING_BITS: u64         = 0x6000000000000000u64;
 pub (crate) const MASK_BINARY_EXPONENT1: u64      = 0x7fe0000000000000u64;
@@ -49,40 +56,27 @@ pub (crate) const expmax16: i32                   = 369; // max unbiased exponen
 pub (crate) const expmin7: i32                    = -101; // min unbiased exponent
 pub (crate) const expmax7: i32                    = 90;  // max unbiased exponent
 
-pub (crate) const MASK_INF32: u32                  = 0x78000000;
-pub (crate) const MASK_ANY_INF32: u32              = 0x7c000000;
-pub (crate) const MASK_SIGN32: u32                 = 0x80000000;
-pub (crate) const MASK_NAN32: u32                  = 0x7c000000;
-pub (crate) const MASK_SNAN32: u32                 = 0x7e000000;
-pub (crate) const SIGNMASK32: u32                  = 0x80000000;
-pub (crate) const BID32_SIG_MAX: u32               = 0x0098967f;
-pub (crate) const BID64_SIG_MAX: u64               = 0x002386F26FC0ffffu64;
-pub (crate) const SIGNMASK64: u64                  = 0x8000000000000000u64;
-pub (crate) const MASK_STEERING_BITS32: u32        = 0x60000000;
-pub (crate) const MASK_BINARY_EXPONENT1_32: u32    = 0x7f800000;
-pub (crate) const MASK_BINARY_SIG1_32: u32         = 0x007fffff;
-pub (crate) const MASK_BINARY_EXPONENT2_32: u32    = 0x1fe00000; //used to take G[2:w+3] (sec 3.3)
-pub (crate) const MASK_BINARY_SIG2_32: u32         = 0x001fffff; //used to mask out G4:T0 (sec 3.3)
-pub (crate) const MASK_BINARY_OR2_32: u32          = 0x00800000;
-pub (crate) const MASK_SPECIAL32: u32              = 0x78000000;
+pub (crate) const MASK_INF32: u32                 = 0x78000000;
+pub (crate) const MASK_ANY_INF32: u32             = 0x7c000000;
+pub (crate) const MASK_SIGN32: u32                = 0x80000000;
+pub (crate) const MASK_NAN32: u32                 = 0x7c000000;
+pub (crate) const MASK_SNAN32: u32                = 0x7e000000;
+pub (crate) const SIGNMASK32: u32                 = 0x80000000;
+pub (crate) const BID32_SIG_MAX: u32              = 0x0098967f;
+pub (crate) const BID64_SIG_MAX: u64              = 0x002386F26FC0FFFFu64;
+pub (crate) const SIGNMASK64: u64                 = 0x8000000000000000u64;
+pub (crate) const MASK_STEERING_BITS32: u32       = 0x60000000;
+pub (crate) const MASK_BINARY_EXPONENT1_32: u32   = 0x7f800000;
+pub (crate) const MASK_BINARY_SIG1_32: u32        = 0x007fffff;
+pub (crate) const MASK_BINARY_EXPONENT2_32: u32   = 0x1fe00000; //used to take G[2:w+3] (sec 3.3)
+pub (crate) const MASK_BINARY_SIG2_32: u32        = 0x001fffff; //used to mask out G4:T0 (sec 3.3)
+pub (crate) const MASK_BINARY_OR2_32: u32         = 0x00800000;
+pub (crate) const MASK_SPECIAL32: u32             = 0x78000000;
 
 // TYPE parameters
 pub (crate) const BID128_MAXDIGITS: u32 = 34;
 pub (crate) const BID64_MAXDIGITS: u32  = 16;
 pub (crate) const BID32_MAXDIGITS: u32  = 7;
-
-// rounding modes
-pub (crate) const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
-pub (crate) const BID_ROUNDING_DOWN: u32        = 0x00001;
-pub (crate) const BID_ROUNDING_UP: u32          = 0x00002;
-pub (crate) const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
-pub (crate) const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
-
-pub (crate) const BID_RMODE_MASK: u32  = BID_ROUNDING_TO_NEAREST
-                                       | BID_ROUNDING_DOWN
-                                       | BID_ROUNDING_UP
-                                       | BID_ROUNDING_TO_ZERO
-                                       | BID_ROUNDING_TIES_AWAY;
 
 // status
 pub (crate) const BID_FLAG_MASK: u32     = 0x0000003f;
@@ -97,17 +91,6 @@ pub (crate) const DEC_FE_OVERFLOW:u32   = 0x08;
 pub (crate) const DEC_FE_UNDERFLOW:u32  = 0x10;
 pub (crate) const DEC_FE_INEXACT:u32    = 0x20;
 
-////////////////////////////////////////////////////////
-
-pub (crate) const BID_INEXACT_EXCEPTION: u32            = DEC_FE_INEXACT;
-pub (crate) const BID_UNDERFLOW_EXCEPTION: u32          = DEC_FE_UNDERFLOW;
-pub (crate) const BID_OVERFLOW_EXCEPTION: u32           = DEC_FE_OVERFLOW;
-pub (crate) const BID_ZERO_DIVIDE_EXCEPTION: u32        = DEC_FE_DIVBYZERO;
-pub (crate) const BID_DENORMAL_EXCEPTION: u32           = DEC_FE_UNNORMAL;
-pub (crate) const BID_INVALID_EXCEPTION: u32            = DEC_FE_INVALID;
-pub (crate) const BID_UNDERFLOW_INEXACT_EXCEPTION: u32  = DEC_FE_UNDERFLOW | DEC_FE_INEXACT;
-pub (crate) const BID_OVERFLOW_INEXACT_EXCEPTION: u32   = DEC_FE_OVERFLOW | DEC_FE_INEXACT;
-
 pub (crate) const BID_MODE_MASK:u32        = 0x00001f80;
 pub (crate) const BID_INEXACT_MODE:u32     = 0x00001000;
 pub (crate) const BID_UNDERFLOW_MODE:u32   = 0x00000800;
@@ -116,29 +99,31 @@ pub (crate) const BID_ZERO_DIVIDE_MODE:u32 = 0x00000200;
 pub (crate) const BID_DENORMAL_MODE:u32    = 0x00000100;
 pub (crate) const BID_INVALID_MODE:u32     = 0x00000080;
 
-/*********************************************************************
- *
- *      BID Pack/Unpack Macros
- *
- *********************************************************************/
+//////////////////////////////////////////////
+//      BID Pack/Unpack Macros
+//////////////////////////////////////////////
+
 /////////////////////////////////////////
 // BID64 definitions
 ////////////////////////////////////////
-pub (crate) const DECIMAL_MAX_EXPON_64: u32  = 767;
-pub (crate) const DECIMAL_EXPONENT_BIAS: u32 = 398;
+pub (crate) const DECIMAL_MAX_EXPON_64: i32  = 767;
+pub (crate) const DECIMAL_EXPONENT_BIAS: i32 = 398;
 pub (crate) const MAX_FORMAT_DIGITS: u32     = 16;
+
 /////////////////////////////////////////
 // BID128 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_128: u32     = 12287;
-pub (crate) const DECIMAL_EXPONENT_BIAS_128: u32 = 6176;
+pub (crate) const DECIMAL_EXPONENT_BIAS_128: i32 = 6176;
 pub (crate) const MAX_FORMAT_DIGITS_128: u32     = 34;
+
 /////////////////////////////////////////
 // BID32 definitions
 ////////////////////////////////////////
 pub (crate) const DECIMAL_MAX_EXPON_32: u32     = 191;
 pub (crate) const DECIMAL_EXPONENT_BIAS_32: u32 = 101;
 pub (crate) const MAX_FORMAT_DIGITS_32: u32     = 7;
+
 ////////////////////////////////////////
 // Constant Definitions
 ///////////////////////////////////////

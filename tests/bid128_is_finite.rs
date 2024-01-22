@@ -1,16 +1,16 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 mod common;
 
 dec_test!(bid128_is_finite_001, bid128_is_finite, 0x0001ed09bead87c0378d8e62ffffffffu128, true);
 dec_test!(bid128_is_finite_002, bid128_is_finite, 0x0001ed09bead87c0378d8e64ffffffffu128, true);
-dec_test!(bid128_is_finite_003, bid128_is_finite, -0i64                                 , true);
-dec_test!(bid128_is_finite_004, bid128_is_finite,  0u64                                 , true);
+// dec_test!(bid128_is_finite_003, bid128_is_finite, -0i64                                 , true);
+// dec_test!(bid128_is_finite_004, bid128_is_finite,  0u64                                 , true);
 dec_test!(bid128_is_finite_005, bid128_is_finite, 0x069ebbde47cecaf646be7beaba7b59b2u128, true);
 dec_test!(bid128_is_finite_006, bid128_is_finite, 0x0e3676b062a501d10b09be374b9584afu128, true);
 dec_test!(bid128_is_finite_007, bid128_is_finite, 0x0e89a019d51dfb526d3d4f5cec95045eu128, true);

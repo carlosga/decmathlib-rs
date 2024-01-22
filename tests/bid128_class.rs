@@ -1,14 +1,15 @@
-/* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
-/* --------------------------------------------------------------------- */
-/* decmathlib-rs                                                         */
-/* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */
-/* --------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
+/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
+/* ----------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
+/* ----------------------------------------------------------------------------- */
 
 #![allow(unused_variables)]
 
-use decmathlib_rs::d128::dec128::ClassTypes;
 use std::convert::From;
+
+use decmathlib_rs::d128::core::ClassTypes;
 
 mod common;
 
