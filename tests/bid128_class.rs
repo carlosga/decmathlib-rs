@@ -9,7 +9,7 @@
 
 use std::convert::From;
 
-use decmathlib_rs::d128::core::ClassTypes;
+use decmathlib_rs::core::ClassTypes;
 
 mod common;
 

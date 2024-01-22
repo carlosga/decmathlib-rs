@@ -9,18 +9,6 @@
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
 
-#[cfg(target_endian = "big")]
-pub (crate) const BID_HIGH_128W: usize = 0;
-
-#[cfg(target_endian = "big")]
-pub (crate) const BID_LOW_128W: usize = 1;
-
-#[cfg(target_endian = "little")]
-pub (crate) const BID_HIGH_128W: usize = 1;
-
-#[cfg(target_endian = "little")]
-pub (crate) const BID_LOW_128W: usize = 0;
-
 pub (crate) const P7: i32  = 7;
 pub (crate) const P16: i32 = 16;
 pub (crate) const P34: i32 = 34;

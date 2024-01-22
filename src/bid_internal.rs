@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-use crate::d128::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table};
-use crate::d128::constants::*;
-use crate::d128::core::{RoundingMode, StatusFlags};
-use crate::d128::dec128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table};
+use crate::constants::*;
+use crate::core::{RoundingMode, StatusFlags};
+use crate::dec128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
 
 ///  BID32 unpack, input pased by reference
 pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {

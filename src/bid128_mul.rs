@@ -11,12 +11,13 @@
 #![allow(dead_code)]
 
 #[cfg(target_endian = "big")]
-use crate::d128::bid_conf::BID_SWAP128;
+use crate::bid_conf::BID_SWAP128;
 
-use crate::d128::bid128_fma::{bid128_ext_fma, bid64qqq_fma};
-use crate::d128::constants::*;
-use crate::d128::convert::bid64_to_bid128;
-use crate::d128::dec128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT64};
+use crate::bid128_fma::{bid128_ext_fma, bid64qqq_fma};
+use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
+use crate::constants::*;
+use crate::convert::bid64_to_bid128;
+use crate::dec128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT64};
 
 pub (crate) fn bid64dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(*x, pfpsf);

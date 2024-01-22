@@ -33,13 +33,14 @@
 #![allow(dead_code)]
 
 #[cfg(target_endian = "big")]
-use crate::d128::bid_conf::BID_SWAP128;
+use crate::bid_conf::BID_SWAP128;
 
-use crate::d128::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
-use crate::d128::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
-use crate::d128::constants::*;
-use crate::d128::core::ClassTypes;
-use crate::d128::dec128::{BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
+use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
+use crate::constants::*;
+use crate::core::ClassTypes;
+use crate::dec128::{BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
 pub (crate) fn bid128_isSigned(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_SIGN) == MASK_SIGN
