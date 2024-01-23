@@ -19,7 +19,6 @@
 // #include "bid128_2_str_macros.h"
 
 use std::ops::BitAnd;
-use log::info;
 use crate::bid128::{bid_char_table2, bid_char_table3};
 use crate::bid128_2_str_macros::*;
 use crate::bid128_2_str_tables::mod10_18_tbl;
