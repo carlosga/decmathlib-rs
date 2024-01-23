@@ -8,7 +8,8 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use std::ops::{Mul, MulAssign, Neg};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
@@ -92,7 +93,7 @@ pub struct BID_UINT128 {
 pub type decimal128 = BID_UINT128;
 
 impl decimal128 {
-    pub (crate) fn new(l: u64, h: u64) -> Self {
+    pub (crate) fn new(h: u64, l: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [h, l] };
 
@@ -199,6 +200,14 @@ impl decimal128 {
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
+
+    pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+        bid128_add(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+    }
+
+    pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+        bid128_sub(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+    }
 }
 
 impl Eq for decimal128 {}
@@ -253,7 +262,7 @@ impl From<decimal64> for decimal128 {
 /// ```
 impl From<i128> for decimal128 {
     fn from(value: i128) -> Self {
-        Self::new(value as u64, (value >> 64) as u64, )
+        Self::new((value >> 64) as u64, value as u64)
     }
 }
 
@@ -265,7 +274,7 @@ impl From<i128> for decimal128 {
 /// ```
 impl From<u128> for decimal128 {
     fn from(value: u128) -> Self {
-        Self::new(value as u64, (value >> 64) as u64)
+        Self::new((value >> 64) as u64, value as u64, )
     }
 }
 
@@ -291,13 +300,66 @@ impl Neg for decimal128 {
 /// ```
 /// use std::ops::Neg;
 /// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-/// let neg  = dec1.neg();
+/// let neg  = &dec1.neg();
 /// ```
 impl Neg for &decimal128 {
     type Output = decimal128;
 
     fn neg(self) -> Self::Output {
         bid128_negate(self)
+    }
+}
+
+/// Performs the + operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = dec1 + dec2;
+/// ```
+impl Add for decimal128 {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_add(&self, &rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the + operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = &dec1 + &dec2;
+/// ```
+impl Add for &decimal128 {
+    type Output = decimal128;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_add(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the += operation.
+/// # Examples
+///
+/// ```
+/// use decmathlib_rs::core::RoundingMode;
+/// let mut dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2     = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// dec1        += dec2;
+/// ```
+impl AddAssign for decimal128 {
+    fn add_assign(&mut self, rhs: Self) {
+        let mut status: _IDEC_flags = 0;
+        let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+
+        self.w[0] = dec.w[0];
+        self.w[1] = dec.w[1];
     }
 }
 
@@ -324,7 +386,7 @@ impl Mul for decimal128 {
 /// ```
 /// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
 /// let dec2 = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-/// let res  = dec1 * dec2;
+/// let res  = &dec1 * &dec2;
 /// ```
 impl Mul for &decimal128 {
     type Output = decimal128;
@@ -348,6 +410,59 @@ impl MulAssign for decimal128 {
     fn mul_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
         let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+
+        self.w[0] = dec.w[0];
+        self.w[1] = dec.w[1];
+    }
+}
+
+/// Performs the - operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = dec1 - dec2;
+/// ```
+impl Sub for decimal128 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_sub(&self, &rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the - operation.
+/// # Examples
+///
+/// ```
+/// let dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2 = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// let res  = &dec1 - &dec2;
+/// ```
+impl Sub for &decimal128 {
+    type Output = decimal128;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_sub(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+/// Performs the *= operation.
+/// # Examples
+///
+/// ```
+/// use decmathlib_rs::core::RoundingMode;
+/// let mut dec1 = decmathlib_rs::dec128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+/// let dec2     = decmathlib_rs::dec128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+/// dec1        += dec2;
+/// ```
+impl SubAssign for decimal128 {
+    fn sub_assign(&mut self, rhs: Self) {
+        let mut status: _IDEC_flags = 0;
+        let dec = bid128_sub(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];

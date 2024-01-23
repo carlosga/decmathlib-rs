@@ -252,9 +252,9 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
     sig_x.w[0] = x.w[0];
     // a canonical number has a coefficient < 10^34
     //    (0x0001ed09_bead87c0_378d8e64_00000000)
-    if (sig_x.w[1] > 0x0001ed09bead87c0u64) ||	// significand is non-canonical
-        ((sig_x.w[1] == 0x0001ed09bead87c0u64) && (sig_x.w[0] > 0x378d8e63ffffffffu64)) ||	// significand is non-canonical
-        ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+    if (sig_x.w[1]  > 0x0001ed09bead87c0u64) ||	// significand is non-canonical
+      ((sig_x.w[1] == 0x0001ed09bead87c0u64) && (sig_x.w[0] > 0x378d8e63ffffffffu64)) ||	// significand is non-canonical
+      ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
         false
     } else {
         true

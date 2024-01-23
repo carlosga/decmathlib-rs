@@ -1,3 +1,4 @@
 [build]
-rustflags=["--cfg", "default_rounding=\"UP\""]
-rustdocflags=["--cfg", "default_rounding=\"UP\""]
+#DECIMAL_TINY_DETECTION_AFTER_ROUNDING
+rustflags=["--cfg", "default_rounding=\"TO_NEAREST\""]
+rustdocflags=["--cfg", "default_rounding=\"TO_NEAREST\""]

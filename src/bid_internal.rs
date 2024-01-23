@@ -234,7 +234,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                             && (Q_low.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
                             || (Q_low.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
                              && Q_low.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                                status = BID_EXACT_STATUS;
+                                status = StatusFlags::BID_EXACT_STATUS;
                             }
                         },
                         RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => { // test whether fractional part is 0
@@ -242,19 +242,19 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                             && (Q_low.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
                             || (Q_low.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
                              && Q_low.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                                status = BID_EXACT_STATUS;
+                                status = StatusFlags::BID_EXACT_STATUS;
                             }
                         },
                         _ => { // round up
                             (Stemp.w[0], CY) = __add_carry_out(Q_low.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
                             (Stemp.w[1], carry) = __add_carry_in_out(Q_low.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY);
                             if (remainder_h >> (64 - amount)) + carry >= ((1u64) << amount) {
-                                status = BID_EXACT_STATUS;
+                                status = StatusFlags::BID_EXACT_STATUS;
                             }
                         }
                     };
 
-                    if status != BID_EXACT_STATUS {
+                    if status != StatusFlags::BID_EXACT_STATUS {
                         __set_status_flags(fpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | status);
                     }
                 }
