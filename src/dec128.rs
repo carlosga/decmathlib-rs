@@ -8,11 +8,13 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
+use crate::bid128_string::bid128_to_string;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
@@ -197,6 +199,10 @@ impl decimal128 {
         bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
 
+    pub fn to_string(&self, status: &mut _IDEC_flags) -> String {
+        bid128_to_string(self, status)
+    }
+
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
@@ -215,6 +221,14 @@ impl Eq for decimal128 {}
 impl PartialEq for decimal128 {
     fn eq(&self, other: &Self) -> bool {
         self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
+    }
+}
+
+impl Display for decimal128 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut status: _IDEC_flags = 0;
+
+        write!(f, "{}", bid128_to_string(self, &mut status))
     }
 }
 

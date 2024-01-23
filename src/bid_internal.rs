@@ -339,7 +339,7 @@ pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64,
 
 //////////////////////////////////////////////
 //  Status Flag Handling
-/////////////////////////////////////////////
+//////////////////////////////////////////////
 #[inline(always)]
 pub (crate) fn __set_status_flags(fpsc: &mut _IDEC_flags, status: _IDEC_flags) {
     *fpsc |= status;
@@ -503,9 +503,9 @@ pub (crate) fn __mul_64x64_to_64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT64 {
 //     Ph = QM2.w[1];
 // }
 
-/*****************************************************
- *      Unsigned Multiply Macros
- *****************************************************/
+//////////////////////////////////////////////
+//      Unsigned Multiply Macros
+//////////////////////////////////////////////
 
 /// get fu64 64x64bit product
 pub (crate) fn __mul_64x64_to_128(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128 {
