@@ -7,4 +7,3 @@ edition = "2021"
 [dependencies]
 
 [features]
-DECIMAL_TINY_DETECTION_AFTER_ROUNDING=[]

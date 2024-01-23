@@ -70,7 +70,6 @@ pub (crate) const BID32_MAXDIGITS: u32  = 7;
 pub (crate) const BID_FLAG_MASK: u32     = 0x0000003f;
 pub (crate) const DEC_FE_ALL_EXCEPT: u32 = 0x0000003f;
 pub (crate) const BID_IEEE_FLAGS: u32    = 0x0000003d;
-pub (crate) const BID_EXACT_STATUS:u32   = 0x00000000;
 
 pub (crate) const DEC_FE_INVALID:u32    = 0x01;
 pub (crate) const DEC_FE_UNNORMAL:u32   = 0x02;

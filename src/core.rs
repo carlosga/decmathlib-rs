@@ -72,4 +72,5 @@ impl StatusFlags {
     pub const BID_INVALID_EXCEPTION: _IDEC_flags            = DEC_FE_INVALID;
     pub const BID_UNDERFLOW_INEXACT_EXCEPTION: _IDEC_flags  = DEC_FE_UNDERFLOW | DEC_FE_INEXACT;
     pub const BID_OVERFLOW_INEXACT_EXCEPTION: _IDEC_flags   = DEC_FE_OVERFLOW | DEC_FE_INEXACT;
+    pub const BID_EXACT_STATUS:_IDEC_flags                  = 0x00000000;
 }

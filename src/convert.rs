@@ -204,7 +204,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                     && (Ql.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
                     || (Ql.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
                      && Ql.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                        status = BID_EXACT_STATUS;
+                        status = StatusFlags::BID_EXACT_STATUS;
                     }
                 },
                 RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => {
@@ -212,7 +212,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                     && (Ql.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
                     || (Ql.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
                      && Ql.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                        status = BID_EXACT_STATUS;
+                        status = StatusFlags::BID_EXACT_STATUS;
                     }
                 },
                 _ => {
@@ -228,12 +228,12 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                         Qh.w[1] += 1;
                     }
                     if __unsigned_compare_ge_128(Qh, Tmp1) {
-                        status = BID_EXACT_STATUS;
+                        status = StatusFlags::BID_EXACT_STATUS;
                     }
                 }
             }
 
-            if status != BID_EXACT_STATUS {
+            if status != StatusFlags::BID_EXACT_STATUS {
                 if uf_check != 0 {
                     status |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
                 }
