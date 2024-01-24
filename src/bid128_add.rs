@@ -19,7 +19,7 @@ use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64
 use crate::constants::*;
 use crate::convert::bid64_to_bid128;
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
 
 /////////////////////////////////////
 /// BID64/BID128 add

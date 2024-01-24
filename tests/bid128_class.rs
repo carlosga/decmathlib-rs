@@ -32,5 +32,5 @@ dec_test!(bid128class_016, bid128_class, 0xfc000000000000000000000000000000u128,
 dec_test!(bid128class_017, bid128_class, 0xfc000000000000000000000000000001u128, ClassTypes::quietNaN);
 dec_test!(bid128class_018, bid128_class, 0xfe000000000000000000000000000000u128, ClassTypes::signalingNaN);
 dec_test!(bid128class_019, bid128_class, 0xfe000000000000000000000000000001u128, ClassTypes::signalingNaN);
-// dec_test!(bid128class_001, bid128_class, -Infinity negativeInfinity 00
-// dec_test!(bid128class_001, bid128_class, Infinity positiveInfinity 00
+dec_test!(bid128class_020, bid128_class, "-Infinity"                           , ClassTypes::negativeInfinity);
+dec_test!(bid128class_021, bid128_class,  "Infinity"                           , ClassTypes::positiveInfinity);

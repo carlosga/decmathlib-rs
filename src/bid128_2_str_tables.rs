@@ -7,7 +7,7 @@
 
 #![allow(non_upper_case_globals)]
 
-use crate::dec128::{BID_UINT32, BID_UINT64};
+use crate::d128::{BID_UINT32, BID_UINT64};
 
 pub (crate) const bid_Twoto60_m_10to18: BID_UINT64 = 152921504606846976u64;
 pub (crate) const bid_Twoto60: BID_UINT64          = 0x1000000000000000u64;

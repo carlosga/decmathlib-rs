@@ -7,7 +7,7 @@
 
 #![allow(non_upper_case_globals)]
 
-use crate::dec128::BID_UINT128;
+use crate::d128::BID_UINT128;
 
 pub (crate) const bid_round_const_table: [[u64; 19]; 5] = [
     [	// RN

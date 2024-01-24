@@ -20,7 +20,7 @@ use crate::bid128_2_str_tables::mod10_18_tbl;
 use crate::bid_internal::{__mul_64x64_to_128_fast, __set_status_flags, bid_get_BID128};
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
 
 const MAX_FORMAT_DIGITS_128: usize = 34;
 const MAX_STRING_DIGITS_128: usize = 100;
@@ -515,8 +515,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         } else {
             coeff_high = buffer[0] as u64 - '0' as u64;
             while i < (ndigits_total - 17) {
-                coeff2     = coeff_high + coeff_high;
-                coeff_high = (coeff2 << 2) + coeff2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
+                coeff2     = coeff_high.wrapping_add(coeff_high);
+                coeff_high = (coeff2 << 2).wrapping_add(coeff2).wrapping_add((buffer[i] as BID_UINT64).wrapping_sub('0' as BID_UINT64));
             }
             coeff_low = (buffer[i] as i32 - '0' as i32) as BID_UINT64;
             i        += 1;

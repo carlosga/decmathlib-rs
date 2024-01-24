@@ -22,7 +22,7 @@ use crate::bid_round::*;
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
 //////////////////////////////////////////////
 // BID128 fma   x * y + z

@@ -11,7 +11,7 @@
 #![allow(dead_code)]
 
 use crate::constants::{DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL};
-use crate::dec128::_IDEC_flags;
+use crate::d128::_IDEC_flags;
 
 #[derive(Debug, Copy, Clone)]
 pub enum ClassTypes {

@@ -13,7 +13,7 @@
 #![allow(unused_mut)]
 
 use crate::bid128_2_str_tables::*;
-use crate::dec128::{BID_UINT32, BID_UINT64};
+use crate::d128::{BID_UINT32, BID_UINT64};
 pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
     let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + bid_Twoto60_m_10to18;
     if (L0_tmp & bid_Twoto60) == bid_Twoto60 {

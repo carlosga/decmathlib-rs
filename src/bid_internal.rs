@@ -13,7 +13,7 @@
 use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table, bid_round_const_table_128};
 use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
 
 ///  BID32 unpack, input pased by reference
 pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {
@@ -366,7 +366,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 as i32 {
                 coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
                 tmp2       = coeff.w[0] << 3;
-                coeff.w[0] = (coeff.w[0] << 1) + tmp2;
+                coeff.w[0] = (coeff.w[0] << 1).wrapping_add(tmp2);
                 if coeff.w[0] < tmp2 {
                     coeff.w[1] += 1;
                 }

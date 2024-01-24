@@ -20,4 +20,4 @@ mod bid_round;
 mod constants;
 mod convert;
 pub mod core;
-pub mod dec128;
+pub mod d128;
