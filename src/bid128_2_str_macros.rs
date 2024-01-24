@@ -30,7 +30,7 @@ pub (crate) fn __L0_Normalize_10to9(X_hi: &mut BID_UINT32, X_lo: &mut BID_UINT32
     }
 }
 
-pub (crate) fn __L0_Split_MiDi_2(X: BID_UINT32, str: &mut String) {
+pub (crate) fn __L0_Split_MiDi_2(X: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
     let mut L0_head: BID_UINT32 = X >> 10;
     let mut L0_tail: BID_UINT32 = (X & (0x03FF)) + (L0_head << 5) - (L0_head << 3);
     let L0_tmp: BID_UINT32      = L0_tail >> 10;
@@ -42,11 +42,11 @@ pub (crate) fn __L0_Split_MiDi_2(X: BID_UINT32, str: &mut String) {
         L0_head += 1;
     }
 
-    str.push_str(&L0_head.to_string());
-    str.push_str(&L0_tail.to_string());
+    vec.push(L0_head);
+    vec.push(L0_tail);
 }
 
-pub (crate) fn __L0_Split_MiDi_3(X: BID_UINT32, str: &mut String) {
+pub (crate) fn __L0_Split_MiDi_3(X: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
     let mut L0_X: BID_UINT32    = X as BID_UINT32;
     let mut L0_head: BID_UINT32 = ((L0_X >> 17) * 34359) >> 18;
     L0_X                       -= L0_head * 1000000;
@@ -67,17 +67,12 @@ pub (crate) fn __L0_Split_MiDi_3(X: BID_UINT32, str: &mut String) {
         L0_mid  += 1;
     }
 
-    // TODO: Fix
-    // str.push_str(&L0_head.to_string());
-    // str.push_str(&L0_mid.to_string()));
-    // str.push_str(&L0_tail.to_string()));
-
-    str.push_str(&L0_head.to_string());
-    str.push_str(&format!("{:0>3}", L0_mid.to_string()));
-    str.push_str(&format!("{:0>3}", L0_tail.to_string()));
+    vec.push(L0_head);
+    vec.push(L0_mid);
+    vec.push(L0_tail);
 }
 
-pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, str: &mut String) {
+pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
     let mut  L1_Xhi_64: BID_UINT64 = ((X >> 28) * (bid_Inv_Tento9 as BID_UINT64)) >> 33;
     let mut  L1_Xlo_64: BID_UINT64 = X as BID_UINT64 - L1_Xhi_64 * (bid_Tento9 as BID_UINT64);
 
@@ -89,11 +84,11 @@ pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, str: &mut String) {
     let L1_X_hi: BID_UINT32 = L1_Xhi_64 as BID_UINT32;
     let L1_X_lo: BID_UINT32 = L1_Xlo_64 as BID_UINT32;
 
-    __L0_Split_MiDi_3(L1_X_hi, str);
-    __L0_Split_MiDi_3(L1_X_lo, str);
+    __L0_Split_MiDi_3(L1_X_hi, vec);
+    __L0_Split_MiDi_3(L1_X_lo, vec);
 }
 
-pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, str: &mut String) {
+pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
     let mut L1_X_hi: BID_UINT32;
     let mut L1_X_lo: BID_UINT32;
     let mut L1_Xhi_64: BID_UINT64;
@@ -112,54 +107,37 @@ pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, str: &mut String) {
         L1_X_lo = L1_Xlo_64 as BID_UINT32;
 
         if L1_X_hi >= bid_Tento6 {
-            __L0_Split_MiDi_3(L1_X_hi, str);
-            __L0_Split_MiDi_3(L1_X_lo, str);
+            __L0_Split_MiDi_3(L1_X_hi, vec);
+            __L0_Split_MiDi_3(L1_X_lo, vec);
         } else if L1_X_hi >= bid_Tento3 {
-            __L0_Split_MiDi_2(L1_X_hi, str);
-            __L0_Split_MiDi_3(L1_X_lo, str);
+            __L0_Split_MiDi_2(L1_X_hi, vec);
+            __L0_Split_MiDi_3(L1_X_lo, vec);
         } else {
-            str.push_str(&L1_X_hi.to_string());
-            __L0_Split_MiDi_3(L1_X_lo, str);
+            vec.push(L1_X_hi);
+            __L0_Split_MiDi_3(L1_X_lo, vec);
         }
     } else {
         L1_X_lo = X as BID_UINT32;
         if L1_X_lo >= bid_Tento6 {
-            __L0_Split_MiDi_3(L1_X_lo, str);
+            __L0_Split_MiDi_3(L1_X_lo, vec);
         } else if L1_X_lo >= bid_Tento3 {
-            __L0_Split_MiDi_2(L1_X_lo, str);
+            __L0_Split_MiDi_2(L1_X_lo, vec);
         } else {
-            str.push_str(&L1_X_lo.to_string());
+            vec.push(L1_X_lo);
         }
     }
 }
 
 pub (crate) fn __L0_MiDi2Str(X: BID_UINT32, str: &mut String) {
-    let mut  i = X as usize;
-    str.push_str(bid_midi_tbl[i]);
-    i += 1;
-    str.push_str(bid_midi_tbl[i]);
-    i += 1;
-    str.push_str(bid_midi_tbl[i]);
+    str.push_str(&bid_midi_tbl[X as usize]);
 }
 
 pub (crate) fn __L0_MiDi2Str_Lead(X: BID_UINT32, str: &mut String) {
-    let mut  i = X as usize;
     if X >= 100 {
-        str.push_str(bid_midi_tbl[i]);
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
+        str.push_str(&bid_midi_tbl[X as usize]);
     } else if X >= 10 {
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
+        str.push_str(&bid_midi_tbl[X as usize][1..]);
     } else {
-        i += 1;
-        i += 1;
-        str.push_str(bid_midi_tbl[i]);
+        str.push_str(&bid_midi_tbl[X as usize][2..]);
     }
 }

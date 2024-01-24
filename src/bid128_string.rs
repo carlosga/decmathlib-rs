@@ -7,18 +7,13 @@
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-#![allow(unused)]
+// #![allow(unused)]
 #![allow(dead_code)]
 
 //////////////////////////////////////////////
 //    BID128_to_string
 //////////////////////////////////////////////
 
-// #define BID_128RES
-// #include "bid128_2_str.h"
-// #include "bid128_2_str_macros.h"
-
-use std::ops::BitAnd;
 use crate::bid128::{bid_char_table2, bid_char_table3};
 use crate::bid128_2_str_macros::*;
 use crate::bid128_2_str_tables::mod10_18_tbl;
@@ -29,27 +24,22 @@ const MAX_FORMAT_DIGITS_128: u32 = 34u32;
 const MAX_STRING_DIGITS_128: u32 = 100u32;
 const MAX_SEARCH: u32            = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
 
-pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> String {
+pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
     let x_sign: BID_UINT64;
     let mut x_exp: BID_UINT64;
     let mut exp: i32;   // unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let ind: i32;
     let mut  C1: BID_UINT128 = BID_UINT128::default();
-    let k: u32 = 0; // pointer in the string
     let d0: u32;
     let d123: u32;
     let mut HI_18Dig: BID_UINT64;
     let mut LO_18Dig: BID_UINT64;
     let mut Tmp: BID_UINT64;
-    let mut MiDi: String = String::new();
+    let mut MiDi: Vec<BID_UINT32> = vec!();
     let mut midi_ind: i32;
-    let mut k_lcv: i32;
-    let len: i32;
-    let save_fpsf: _IDEC_flags;
+    let mut k_lcv: usize;
     let mut str = String::new();
-
-    save_fpsf = *pfpsf; // dummy
 
     #[cfg(target_endian = "big")]
     let mut x = *x;
@@ -72,9 +62,6 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Str
             if (x.w[1] & MASK_SIGN) == 0x0u64 { String::from("+Inf") } else { String::from("-Inf") }
         };
     } else if ((x.w[1] & MASK_COEFF) == 0x0u64) && (x.w[0] == 0x0u64) {
-        // x is 0
-        len = 0;
-
         //determine if +/-
         str.push(if (x.w[1] & MASK_SIGN) == MASK_SIGN { '-' } else { '+' });
         str.push('0');
@@ -103,7 +90,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Str
 
         C1.w[1] = x.w[1] & MASK_COEFF;
         C1.w[0] = x.w[0];
-        exp     = ((x_exp >> 49).wrapping_sub(6176)) as i32;
+        exp     = (x_exp >> 49).wrapping_sub(6176) as i32;
 
         // determine sign's representation as a char
         str.push(if x_sign != 0 { '-' /* negative number */ } else { '+' /* positive number */ });
@@ -143,7 +130,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Str
 
             Tmp      = C1.w[0] >> 59;
             LO_18Dig = (C1.w[0] << 5) >> 5;
-            Tmp     += (C1.w[1] << 5);
+            Tmp     += C1.w[1] << 5;
             HI_18Dig = 0;
             k_lcv    = 0;
 
@@ -160,24 +147,18 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Str
                 __L0_Normalize_10to18(&mut HI_18Dig, &mut LO_18Dig);
             }
 
-            if (HI_18Dig == 0u64) {
-                __L1_Split_MiDi_6_Lead(LO_18Dig, &mut str);
+            if HI_18Dig == 0u64 {
+                __L1_Split_MiDi_6_Lead(LO_18Dig, &mut MiDi);
             } else {
-                __L1_Split_MiDi_6_Lead(HI_18Dig, &mut str);
-                __L1_Split_MiDi_6(LO_18Dig, &mut str);
+                __L1_Split_MiDi_6_Lead(HI_18Dig, &mut MiDi);
+                __L1_Split_MiDi_6(LO_18Dig, &mut MiDi);
             }
 
-            // TODO: Port
-            // len = ptr - MiDi;
-            // c_ptr_start = &(str[k]);
-            // c_ptr = c_ptr_start;
-            //
-            // /* now convert the MiDi into character strings */
-            // __L0_MiDi2Str_Lead (MiDi[0], c_ptr);
-            // for (k_lcv = 1; k_lcv < len; k_lcv++) {
-            //     __L0_MiDi2Str (MiDi[k_lcv], c_ptr);
-            // }
-            // k = k + (c_ptr - c_ptr_start);
+            /* now convert the MiDi into character strings */
+            __L0_MiDi2Str_Lead(MiDi[0], &mut str);
+            for k_lcv in 1..MiDi.len() {
+                __L0_MiDi2Str(MiDi[k_lcv], &mut str);
+            }
         }
 
         // print E and sign of exponent
@@ -207,7 +188,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Str
             if d123 < 10 {
                 // 0 <= exp <= 9 => 1 digit to return
                 str.push(char::from_digit(d123, 10).unwrap()); // ASCII
-            } else if (d123 < 100) {
+            } else if d123 < 100 {
                 // 10 <= exp <= 99 => 2 digits to return
                 ind = (2 * (d123 - 10)) as i32;
                 str.push(bid_char_table2[ind as usize]);

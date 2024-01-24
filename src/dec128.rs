@@ -199,10 +199,6 @@ impl decimal128 {
         bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
 
-    pub fn to_string(&self, status: &mut _IDEC_flags) -> String {
-        bid128_to_string(self, status)
-    }
-
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
@@ -228,7 +224,7 @@ impl Display for decimal128 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut status: _IDEC_flags = 0;
 
-        write!(f, "{}", bid128_to_string(self, &mut status))
+        write!(f, "{}", bid128_to_string(self))
     }
 }
 
