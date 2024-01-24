@@ -17,16 +17,16 @@ use crate::d128::{BID_UINT32, BID_UINT64};
 pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
     let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + bid_Twoto60_m_10to18;
     if (L0_tmp & bid_Twoto60) == bid_Twoto60 {
-        *X_hi = *X_hi + 1 ;
-        *X_lo = (L0_tmp << 4) >> 4;
+        *X_hi += 1 ;
+        *X_lo  = (L0_tmp << 4) >> 4;
     }
 }
 
 pub (crate) fn __L0_Normalize_10to9(X_hi: &mut BID_UINT32, X_lo: &mut BID_UINT32) {
     let L0_tmp: BID_UINT32 = *X_lo + bid_Twoto30_m_10to9;
     if (L0_tmp & 0x40000000) == 0x40000000 {
-        *X_hi = *X_hi + 1;
-        *X_lo = (L0_tmp << 2) >> 2;
+        *X_hi += 1;
+        *X_lo  = (L0_tmp << 2) >> 2;
     }
 }
 
@@ -129,12 +129,12 @@ pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) 
 }
 
 pub (crate) fn __L0_MiDi2Str(X: BID_UINT32, str: &mut String) {
-    str.push_str(&bid_midi_tbl[X as usize]);
+    str.push_str(bid_midi_tbl[X as usize]);
 }
 
 pub (crate) fn __L0_MiDi2Str_Lead(X: BID_UINT32, str: &mut String) {
     if X >= 100 {
-        str.push_str(&bid_midi_tbl[X as usize]);
+        str.push_str(bid_midi_tbl[X as usize]);
     } else if X >= 10 {
         str.push_str(&bid_midi_tbl[X as usize][1..]);
     } else {

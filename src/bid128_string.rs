@@ -156,8 +156,8 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
 
             /* now convert the MiDi into character strings */
             __L0_MiDi2Str_Lead(MiDi[0], &mut str);
-            for k_lcv in 1..MiDi.len() {
-                __L0_MiDi2Str(MiDi[k_lcv], &mut str);
+            for midi in MiDi[1..].iter() {
+                __L0_MiDi2Str(*midi, &mut str);
             }
         }
 
@@ -250,7 +250,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
     // if c is nu64 or not equal to a (radix point, negative sign,
     // positive sign, or number) it might be SNaN, sNaN, Infinity
-    if c == None || (c != Some('.') && c != Some('-') && c != Some('+') && ((c.unwrap() as i32 - '0' as i32) > 9)) {
+    if c.is_none() || (c != Some('.') && c != Some('-') && c != Some('+') && ((c.unwrap() as i32 - '0' as i32) > 9)) {
         res.w[0] = 0;
         let range = &str[ps..];
         res.w[1] = if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
@@ -301,7 +301,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     c = str.chars().nth(ps);
 
     // if c isn't a decimal point or a decimal digit, return NaN
-    if c != None && c != Some('.') && ((c.unwrap() as i32 - '0' as i32) > 9) {
+    if c.is_some() && c != Some('.') && ((c.unwrap() as i32 - '0' as i32) > 9) {
         res.w[1] = 0x7c00000000000000u64 | sign_x;
         res.w[0] = 0;
         return res;
@@ -337,7 +337,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                       res.w[0] = 0;
                       return res;
                     }
-                    ps = ps + 1;
+                    ps += 1;
                 } else {
                     // if 2 radix points, return NaN
                     res.w[1] = 0x7c00000000000000u64 | sign_x;
@@ -366,7 +366,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
     if rdx_pt_enc == 0 {
         // investigate string (before radix point)
-        while c != None && char::is_digit(c.unwrap(), 10) {
+        while c.is_some() && char::is_digit(c.unwrap(), 10) {
             if ndigits_before < MAX_FORMAT_DIGITS_128 {
                 buffer[ndigits_before] = c.unwrap();
             } else if ndigits_before < MAX_STRING_DIGITS_128 {
@@ -386,9 +386,9 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         if c == Some('.') {
             ps += 1;
             c   = str.chars().nth(ps);
-            if c != None {
+            if c.is_some() {
                 // investigate string (after radix point)
-                while c != None && (char::is_digit(c.unwrap(), 10)) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+                while c.is_some() && (char::is_digit(c.unwrap(), 10)) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
                     if ndigits_total < MAX_FORMAT_DIGITS_128 {
                         buffer[ndigits_total] = c.unwrap();
                     } else if ndigits_total < MAX_STRING_DIGITS_128 {
@@ -413,7 +413,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         ndigits_total = 0;
 
         // investigate string (after radix point)
-        while c != None && char::is_digit(c.unwrap(), 10) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+        while c.is_some() && char::is_digit(c.unwrap(), 10) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
             if ndigits_total < MAX_FORMAT_DIGITS_128 {
                 buffer[ndigits_total] = c.unwrap();
             }
@@ -436,7 +436,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     dec_expon = 0;
     /*if (ndigits_total < MAX_STRING_DIGITS_128)*/
     {
-        if c != None {
+        if c.is_some() {
             if c != Some('e') && c != Some('E') {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
@@ -446,7 +446,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             ps += 1;
             c   = str.chars().nth(ps);
 
-            if c != None && !char::is_digit(c.unwrap(), 10)
+            if c.is_some() && !char::is_digit(c.unwrap(), 10)
                          && ((c != Some('+') && c != Some('-'))
                          || !char::is_digit(str.chars().nth(1).unwrap(), 10)) {
                 // return NaN
@@ -474,17 +474,17 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                 }
             }
 
-            if str.chars().nth(ps) != None {
+            if str.chars().nth(ps).is_some() {
                 c = char::from_digit(str.chars().nth(ps).unwrap() as u32 - '0' as u32, 10);
 
-                while c != None && (char::to_digit(c.unwrap(), 10).unwrap() <= 9 && i < 7) {
+                while c.is_some() && (char::to_digit(c.unwrap(), 10).unwrap() <= 9 && i < 7) {
                     d2        = dec_expon + dec_expon;
                     dec_expon = (d2 << 2) + d2 + char::to_digit(c.unwrap(), 10).unwrap() as i32;
                     ps       += 1;
 
                     c = str.chars().nth(ps);
 
-                    if c != None {
+                    if c.is_some() {
                         c  = char::from_digit(c.unwrap() as u32 - '0' as u32, 10);
                         i += 1;
                         continue;
@@ -575,7 +575,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
         match rnd_mode {
             RoundingMode::BID_ROUNDING_TO_NEAREST => {
-                carry = ('4' as i32 - buffer[i] as i32 >> 31) as BID_UINT64;
+                carry = (('4' as i32 - buffer[i] as i32) >> 31) as BID_UINT64;
                 if (buffer[i] == '5' && (coeff_low & 1) != 1) || dec_expon < 0 {
                     if dec_expon >= 0 {
                         carry = 0;
@@ -659,5 +659,5 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
     res = bid_get_BID128(sign_x, dec_expon, &CX, rnd_mode, pfpsf);
 
-    return res;
+    res
 }

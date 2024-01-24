@@ -238,12 +238,9 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
         sig_x.w[1] = x.w[1] & 0x00003fffffffffffu64;	// 46 bits
         sig_x.w[0] = x.w[0];	// 64 bits
         // payload must be < 10^33 = 0x0000314dc6448d93_38c15b0a00000000
-        return if sig_x.w[1] < 0x0000314dc6448d93u64
-              || (sig_x.w[1] == 0x0000314dc6448d93u64 && sig_x.w[0] < 0x38c15b0a00000000u64) {
-            true
-        } else {
-            false
-        }
+        return sig_x.w[1]  < 0x0000314dc6448d93u64
+           || (sig_x.w[1] == 0x0000314dc6448d93u64
+            && sig_x.w[0] < 0x38c15b0a00000000u64)
     } else if (x.w[1] & MASK_INF) == MASK_INF {	// infinity
         return if (x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0 { false } else { true };
     }
@@ -456,12 +453,7 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                     // it comes down to the payload.  we want to return true if x has a
                     // larger payload, or if the payloads are equal (canonical forms
                     // are bitwise identical)
-                    if (pyld_x.w[1] > pyld_y.w[1]) ||
-                        ((pyld_x.w[1] == pyld_y.w[1]) && (pyld_x.w[0] >= pyld_y.w[0])) {
-                        true
-                    } else {
-                        false
-                    }
+                    (pyld_x.w[1] > pyld_y.w[1]) || ((pyld_x.w[1] == pyld_y.w[1]) && (pyld_x.w[0] >= pyld_y.w[0]))
                 } else {
                     // either x = -SNaN and y = -QNaN or x = -QNaN and y = -SNaN
                     (y.w[1] & MASK_SNAN) == MASK_SNAN
@@ -921,7 +913,7 @@ pub (crate) fn bid128_inf() -> BID_UINT128 {
     let mut res = BID_UINT128::default();
     res.w[BID_HIGH_128W] = 0x7800000000000000u64; // +inf
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
-    return res;
+    res
 }
 
 // TODO: bid128_from_string
