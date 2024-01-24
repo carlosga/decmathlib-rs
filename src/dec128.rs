@@ -222,8 +222,6 @@ impl PartialEq for decimal128 {
 
 impl Display for decimal128 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut status: _IDEC_flags = 0;
-
         write!(f, "{}", bid128_to_string(self))
     }
 }

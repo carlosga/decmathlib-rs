@@ -7,7 +7,7 @@
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-// #![allow(unused)]
+#![allow(unused)]
 #![allow(dead_code)]
 
 //////////////////////////////////////////////
@@ -140,9 +140,9 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
                 midi_ind   = Tmp as i32 & 0x000000000000003fi32;
                 midi_ind <<= 1;
                 Tmp      >>= 6;
-                HI_18Dig  += mod10_18_tbl[k_lcv as usize][midi_ind as usize];
+                HI_18Dig  += mod10_18_tbl[k_lcv][midi_ind as usize];
                 midi_ind  += 1;
-                LO_18Dig  += mod10_18_tbl[k_lcv as usize][midi_ind as usize];
+                LO_18Dig  += mod10_18_tbl[k_lcv][midi_ind as usize];
                 k_lcv     += 1;
                 __L0_Normalize_10to18(&mut HI_18Dig, &mut LO_18Dig);
             }
