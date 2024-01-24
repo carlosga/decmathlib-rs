@@ -183,6 +183,10 @@ impl decimal128 {
         res
     }
 
+    pub fn from_string(value: &str, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_from_string(value, rnd_mode, pfpsf)
+    }
+
     pub fn from_u64(value: u64) -> Self {
         let mut res = Self::default();
 

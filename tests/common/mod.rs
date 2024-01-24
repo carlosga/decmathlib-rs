@@ -77,6 +77,17 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_from_string, $rounding_mode:expr, $input1:expr, $expected:expr, $status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::dec128::_IDEC_flags = 0;
+            let dec = decmathlib_rs::dec128::decimal128::from_string($input1, $rounding_mode, &mut status);
+
+            assert_eq!($status, status);
+            assert_eq!($expected, dec.to_string());
+        }
+    };
+
     ($name:ident, bid128_from_uint64, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
