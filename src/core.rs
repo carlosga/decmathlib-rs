@@ -45,19 +45,19 @@ impl RoundingMode {
         | RoundingMode::BID_ROUNDING_TIES_AWAY;
 }
 
-#[cfg(default_rounding = "TO_NEAREST")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TO_NEAREST")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST;
 
-#[cfg(default_rounding = "DOWN")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "DOWN")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_DOWN;
 
-#[cfg(default_rounding = "UP")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "UP")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_UP;
 
-#[cfg(default_rounding = "TO_ZERO")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TO_ZERO")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_ZERO;
 
-#[cfg(default_rounding = "TIES_AWAY")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TIES_AWAY")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TIES_AWAY;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

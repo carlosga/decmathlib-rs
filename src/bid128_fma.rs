@@ -1979,7 +1979,7 @@ pub (crate) fn bid128_ext_fma(
                         res.w[1] = z_sign | (((e3 + 6176) as BID_UINT64) << 49) | res.w[1];
                     }
                     if e3 == expmin {
-                        if cfg!(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING") {
+                        if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
                             if R64 < 5 || (R64 == 5 && !is_inexact_lt_midpoint) {
                                 // result not tiny (in round-to-nearest mode)
                                 // rounds to 10^33 * 10^emin
@@ -2027,7 +2027,7 @@ pub (crate) fn bid128_ext_fma(
             //      endif
             //    endif
 
-            if cfg!(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING") {
+            if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
                 // determine if C4 > 5 * 10^(q4-1)
                 if q4 <= 19 {
                     C4gt5toq4m1 = C4.w[0] > bid_midpoint64[(q4 - 1) as usize];
