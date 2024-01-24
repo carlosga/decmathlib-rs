@@ -21,9 +21,8 @@ dec_test!(bid128_total_order_mag_011, bid128_total_order_mag, 0x0028314020110011
 dec_test!(bid128_total_order_mag_012, bid128_total_order_mag, 0x003fbc5db19556c47f5c8cd6a1b1f29fu128,  0x007c01b21f5380be1a0a082210006c07u128, true);
 dec_test!(bid128_total_order_mag_013, bid128_total_order_mag, 0x0210a24480458100581bf32f8507f4cbu128,  0x9dce33bbbd6a92f1302ddfeacd6c884eu128, true);
 dec_test!(bid128_total_order_mag_014, bid128_total_order_mag, 0x088dda260a6cc577fffeffffffeffffdu128,  0x0002000003814020fffbdb57fabe5e73u128, false);
-// TODO: Review
-// dec_test!(bid128_total_order_mag_015, bid128_total_order_mag, "1.0"                                 ,    "1"                                 , true);
-// dec_test!(bid128_total_order_mag_016, bid128_total_order_mag, "1"                                   ,  "1.0"                                 , false);
+dec_test!(bid128_total_order_mag_015, bid128_total_order_mag, "1.0"                                 ,    "1"                                 , true);
+dec_test!(bid128_total_order_mag_016, bid128_total_order_mag,   "1"                                 ,  "1.0"                                 , false);
 dec_test!(bid128_total_order_mag_017, bid128_total_order_mag, 0x276a0000000000000000000000000000u128,  0xbe5753c0543a6cf9c8d5b1e8301dadecu128, true);
 dec_test!(bid128_total_order_mag_018, bid128_total_order_mag, 0x2a129da1c2c8ab57c05bf2f3a3dd6c79u128,  0x24b76ab1cf5b1ccf7bdb02f454ec5262u128, false);
 dec_test!(bid128_total_order_mag_019, bid128_total_order_mag, 0x35500000000000000000000000000000u128,  0xd47d8d9d12923a2fdf4548763768b5c4u128, true);

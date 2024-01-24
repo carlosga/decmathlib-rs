@@ -20,11 +20,10 @@ dec_test!(bid128_total_order_010, bid128_total_order, 0x0001ed09bead87c0378d8e64
 dec_test!(bid128_total_order_011, bid128_total_order, 0x000400002013004825fa092c1e1ee6c8u128, 0x00004000000000000cd15632d0300103u128, true);
 dec_test!(bid128_total_order_012, bid128_total_order, 0x004a580447021010018f6f3bbd0d2b88u128, 0x0084008281a14083fb7dfdffff77ffffu128, true);
 dec_test!(bid128_total_order_013, bid128_total_order, 0x0d000c1446001003fff5ffffffffffffu128, 0x08002e000209441478f0040000120004u128, false);
-dec_test!(bid128_total_order_014, bid128_total_order, "0"                                   , "-Infinity"                           , false);
-dec_test!(bid128_total_order_015, bid128_total_order, "0"                                   ,      "QNaN"                           , true);
-// TODO: Review
-// dec_test!(bid128_total_order_016, bid128_total_order, "1.0"                                 ,         "1"                           , true);
-// dec_test!(bid128_total_order_017, bid128_total_order,   "1"                                 ,       "1.0"                           , false);
+dec_test!(bid128_total_order_014, bid128_total_order,   "0"                                 , "-Infinity"                           , false);
+dec_test!(bid128_total_order_015, bid128_total_order,   "0"                                 ,      "QNaN"                           , true);
+dec_test!(bid128_total_order_016, bid128_total_order, "1.0"                                 ,         "1"                           , true);
+dec_test!(bid128_total_order_017, bid128_total_order,   "1"                                 ,       "1.0"                           , false);
 dec_test!(bid128_total_order_018, bid128_total_order, 0x133a0000000000000000000000000000u128, 0x2ade0000000000000000000000000000u128, true);
 dec_test!(bid128_total_order_019, bid128_total_order, 0x14802824191014a1779d8daf351dfbeeu128, 0x144d08441c682a028020066102104124u128, false);
 dec_test!(bid128_total_order_020, bid128_total_order, 0x185f5fa24d678c66b29a0597043e64fcu128, 0x64002002000000002fffddfefff3e34eu128, false);

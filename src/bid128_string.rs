@@ -222,7 +222,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     let mut ndigits_total: usize;
     let mut dec_expon: i32;
     let mut sgn_exp: i32;
-    let mut i: usize = 0;
+    let mut i: usize;
     let mut d2: i32;
     let mut rdx_pt_enc: i32;
     let mut set_inexact: bool = false;
@@ -366,7 +366,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
     if rdx_pt_enc == 0 {
         // investigate string (before radix point)
-        while c != None && (c.unwrap() as i32 - '0' as i32) <= 9 {
+        while c != None && char::is_digit(c.unwrap(), 10) {
             if ndigits_before < MAX_FORMAT_DIGITS_128 {
                 buffer[ndigits_before] = c.unwrap();
             } else if ndigits_before < MAX_STRING_DIGITS_128 {
@@ -385,9 +385,10 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         ndigits_total = ndigits_before;
         if c == Some('.') {
             ps += 1;
-            if c == str.chars().nth(ps) {
+            c   = str.chars().nth(ps);
+            if c != None {
                 // investigate string (after radix point)
-                while c != None && ((c.unwrap() as i32 - '0' as i32) as u32 <= 9) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+                while c != None && (char::is_digit(c.unwrap(), 10)) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
                     if ndigits_total < MAX_FORMAT_DIGITS_128 {
                         buffer[ndigits_total] = c.unwrap();
                     } else if ndigits_total < MAX_STRING_DIGITS_128 {
@@ -412,7 +413,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         ndigits_total = 0;
 
         // investigate string (after radix point)
-        while c != None && (c.unwrap() as i32 - '0' as i32) <= 9 /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+        while c != None && char::is_digit(c.unwrap(), 10) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
             if ndigits_total < MAX_FORMAT_DIGITS_128 {
                 buffer[ndigits_total] = c.unwrap();
             }
@@ -445,9 +446,9 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             ps += 1;
             c   = str.chars().nth(ps);
 
-            if c != None && (((c.unwrap() as i32 - '0' as i32) > 9)
-                          && ((c != Some('+') && c != Some('-'))
-                          || ((str.chars().nth(1).unwrap() as i32 - '0' as i32) as u32) > 9)) {
+            if c != None && !char::is_digit(c.unwrap(), 10)
+                         && ((c != Some('+') && c != Some('-'))
+                         || !char::is_digit(str.chars().nth(1).unwrap(), 10)) {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
@@ -505,6 +506,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             CX.w[1] = 0;
         } else if ndigits_total <= 19 {
             coeff_high = buffer[0] as u64 - '0' as u64;
+            i          = 1;
             while i < ndigits_total {
                 coeff2     = coeff_high + coeff_high;
                 coeff_high = (coeff2 << 2) + coeff2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
@@ -514,6 +516,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             CX.w[1] = 0;
         } else {
             coeff_high = buffer[0] as u64 - '0' as u64;
+            i          = 1;
             while i < (ndigits_total - 17) {
                 coeff2     = coeff_high.wrapping_add(coeff_high);
                 coeff_high = (coeff2 << 2).wrapping_add(coeff2).wrapping_add((buffer[i] as BID_UINT64).wrapping_sub('0' as BID_UINT64));
