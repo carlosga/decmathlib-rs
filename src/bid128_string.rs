@@ -479,7 +479,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
                 while c.is_some() && (char::to_digit(c.unwrap(), 10).unwrap() <= 9 && i < 7) {
                     d2        = dec_expon + dec_expon;
-                    dec_expon = (d2 << 2) + d2 + char::to_digit(c.unwrap(), 10).unwrap() as i32;
+                    dec_expon = (d2 << 2) + d2 + (char::to_digit(c.unwrap(), 10).unwrap() as i32);
                     ps       += 1;
 
                     c = str.chars().nth(ps);
@@ -529,7 +529,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             i        += 1;
             while i < ndigits_total {
                 coeff_l2  = coeff_low + coeff_low;
-                coeff_low = (coeff_l2 << 2) + coeff_l2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
+                coeff_low = (coeff_l2 << 2) + coeff_l2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
                 i        += 1;
             }
             // now form the coefficient as coeff_high*10^19+coeff_low+carry
