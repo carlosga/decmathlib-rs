@@ -62,6 +62,5 @@ dec_test!(bid128_total_order_mag_052, bid128_total_order_mag,     "QNaN"        
 dec_test!(bid128_total_order_mag_053, bid128_total_order_mag,     "QNaN"                            , "-Infinity"                            , false);
 dec_test!(bid128_total_order_mag_054, bid128_total_order_mag,     "SNaN"                            , "-0"                                   , false);
 dec_test!(bid128_total_order_mag_055, bid128_total_order_mag,     "SNaN"                            ,  "0"                                   , false);
-// TODO: Review
-// dec_test!(bid128_total_order_mag_056, bid128_total_order_mag,     "SNaN"                            , "-2.3565784324E0"                      , false);
+dec_test!(bid128_total_order_mag_056, bid128_total_order_mag,     "SNaN"                            , "-2.3565784324E0"                      , false);
 dec_test!(bid128_total_order_mag_057, bid128_total_order_mag,     "SNaN"                            , "-Infinity"                            , false);

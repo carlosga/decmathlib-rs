@@ -10,9 +10,8 @@ mod common;
 dec_test!(bid128_to_bid64_001, bid128_to_bid64, 0, 0x00000000000000000080100000800080u128, 0x0000000000000000u64, 0x30);
 dec_test!(bid128_to_bid64_002, bid128_to_bid64, 0, 0x0001ed09bead87c0378d8e62ffffffffu128, 0x0000000000000000u64, 0x30);
 dec_test!(bid128_to_bid64_003, bid128_to_bid64, 0, 0x0001ed09bead87c0378d8e64ffffffffu128, 0x0000000000000000u64, 0x00);
-// TODO: Review
-// dec_test!(bid128_to_bid64_004, bid128_to_bid64, 0, "1.234567890123456E-397"              , 0x000000000000000cu64, 0x30);
-// dec_test!(bid128_to_bid64_005, bid128_to_bid64, 0, "1.234567890123456E-398"              , 0x0000000000000001u64, 0x30);
+dec_test!(bid128_to_bid64_004, bid128_to_bid64, 0, "1.234567890123456E-397"              , 0x000000000000000cu64, 0x30);
+dec_test!(bid128_to_bid64_005, bid128_to_bid64, 0, "1.234567890123456E-398"              , 0x0000000000000001u64, 0x30);
 dec_test!(bid128_to_bid64_006, bid128_to_bid64, 0, 0x2ce1230b00900000002a008000c20080u128, 0x0000000000000001u64, 0x30);
 dec_test!(bid128_to_bid64_007, bid128_to_bid64, 0, 0x2cffed09bead87c0378d8e63ffffffffu128, 0x00038d7ea4c68000u64, 0x30); // underflow_before_only
 dec_test!(bid128_to_bid64_008, bid128_to_bid64, 0, 0x2d1e0000000000000de0b6b3a763ffa1u128, 0x00038d7ea4c68000u64, 0x30);

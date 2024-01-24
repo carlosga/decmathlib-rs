@@ -16,8 +16,7 @@ dec_test!(bid128_is_finite_006, bid128_is_finite, 0x0e3676b062a501d10b09be374b95
 dec_test!(bid128_is_finite_007, bid128_is_finite, 0x0e89a019d51dfb526d3d4f5cec95045eu128, true);
 dec_test!(bid128_is_finite_008, bid128_is_finite, 0x2fc2e6f5db986999e05bf17d978fe530u128, true);
 dec_test!(bid128_is_finite_009, bid128_is_finite, 0x38f8c0be302ea60357e8f20e5933296fu128, true);
-// TODO: Review
-// dec_test!(bid128_is_finite_010, bid128_is_finite, "+5296735256349.E0"                   , true);
+dec_test!(bid128_is_finite_010, bid128_is_finite, "+5296735256349.E0"                   , true);
 dec_test!(bid128_is_finite_011, bid128_is_finite, 0x587840394b1e40281e9750988e309c82u128, true);
 dec_test!(bid128_is_finite_012, bid128_is_finite, 0x7c0013fea80d776e4da30049fb4205a6u128, false);
 dec_test!(bid128_is_finite_013, bid128_is_finite, 0x7c003fffffffffff38c15b08ffffffffu128, false);

@@ -473,21 +473,24 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     ps += 1;
                 }
             }
-            c = char::from_digit(str.chars().nth(ps).unwrap() as u32 - '0' as u32, 10);
 
-            while c != None && (char::to_digit(c.unwrap(), 10).unwrap() <= 9 && i < 7) {
-                d2        = dec_expon + dec_expon;
-                dec_expon = (d2 << 2) + d2 + char::to_digit(c.unwrap(), 10).unwrap() as i32;
-                ps       += 1;
+            if str.chars().nth(ps) != None {
+                c = char::from_digit(str.chars().nth(ps).unwrap() as u32 - '0' as u32, 10);
 
-                c = str.chars().nth(ps);
+                while c != None && (char::to_digit(c.unwrap(), 10).unwrap() <= 9 && i < 7) {
+                    d2        = dec_expon + dec_expon;
+                    dec_expon = (d2 << 2) + d2 + char::to_digit(c.unwrap(), 10).unwrap() as i32;
+                    ps       += 1;
 
-                if c != None {
-                    c  = char::from_digit(c.unwrap() as u32 - '0' as u32, 10);
-                    i += 1;
-                    continue;
-                } else {
-                    i += 1;
+                    c = str.chars().nth(ps);
+
+                    if c != None {
+                        c  = char::from_digit(c.unwrap() as u32 - '0' as u32, 10);
+                        i += 1;
+                        continue;
+                    } else {
+                        i += 1;
+                    }
                 }
             }
         }
