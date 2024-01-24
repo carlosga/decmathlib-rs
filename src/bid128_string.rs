@@ -251,8 +251,9 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     // if c is nu64 or not equal to a (radix point, negative sign,
     // positive sign, or number) it might be SNaN, sNaN, Infinity
     if c.is_none() || (c != Some('.') && c != Some('-') && c != Some('+') && ((c.unwrap() as i32 - '0' as i32) > 9)) {
-        res.w[0] = 0;
         let range = &str[ps..];
+
+        res.w[0] = 0;
         res.w[1] = if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
             // Infinity
             0x7800000000000000u64
@@ -330,9 +331,9 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             if str.chars().nth(ps) == Some('.') {
                 if rdx_pt_enc == 0 {
                     rdx_pt_enc = 1;
-                    // if this is the first radix point, and the next character is Nu64,
+                    // if this is the first radix point, and the next character is NULL,
                     // we have a zero
-                    if (ps + 1) > str.len() {
+                    if str.chars().nth(ps + 1).is_none() {
                       res.w[1] = (0x3040000000000000u64 - (right_radix_leading_zeros << 49)) | sign_x;
                       res.w[0] = 0;
                       return res;
@@ -344,7 +345,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     res.w[0] = 0;
                     return res;
                 }
-            } else if ps > str.len() {
+            } else if str.chars().nth(ps).is_none() {
                 if right_radix_leading_zeros > 6176 {
                     right_radix_leading_zeros = 6176;
                 }
