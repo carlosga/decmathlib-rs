@@ -9,8 +9,8 @@ mod common;
 
 dec_test!(bid128_is_canonical_001, bid128_is_canonical, 0x0001ed09bead87c0378d8e62ffffffffu128, true);
 dec_test!(bid128_is_canonical_002, bid128_is_canonical, 0x0001ed09bead87c0378d8e64ffffffffu128, false);
-// dec_test!(bid128_is_canonical_003, bid128_is_canonical, -0i64                                 , true);
-// dec_test!(bid128_is_canonical_004, bid128_is_canonical,  0u64                                 , true);
+dec_test!(bid128_is_canonical_003, bid128_is_canonical, "-0"                                  , true);
+dec_test!(bid128_is_canonical_004, bid128_is_canonical,  "0"                                  , true);
 dec_test!(bid128_is_canonical_005, bid128_is_canonical, 0x171dc93a3a721a43b58542fdde27b555u128, true);
 dec_test!(bid128_is_canonical_006, bid128_is_canonical, 0x23155fa1ce3b63e7054decfe550b4e45u128, true);
 dec_test!(bid128_is_canonical_007, bid128_is_canonical, 0x3a2e024cc9d0b53e05182193ee969dbdu128, true);
@@ -33,7 +33,7 @@ dec_test!(bid128_is_canonical_023, bid128_is_canonical, 0xf810000000000000000000
 dec_test!(bid128_is_canonical_024, bid128_is_canonical, 0xfa79d291c68723e9bf36ffd4dbefc63fu128, false);
 dec_test!(bid128_is_canonical_025, bid128_is_canonical, 0xfe00381d0020a920ff6f3fff9ff3cd7eu128, false);
 dec_test!(bid128_is_canonical_026, bid128_is_canonical, 0xffffffffffffffff1000000000000000u128, false);
-// dec_test!(bid128_isCanonical, -Infinity 1);
-// dec_test!(bid128_isCanonical, Infinity 1);
-// dec_test!(bid128_isCanonical, QNaN 1);
-// dec_test!(bid128_isCanonical, SNaN 1);
+dec_test!(bid128_is_canonical_027, bid128_is_canonical, "-Infinity"                           , true);
+dec_test!(bid128_is_canonical_028, bid128_is_canonical,  "Infinity"                           , true);
+dec_test!(bid128_is_canonical_029, bid128_is_canonical,      "QNaN"                           , true);
+dec_test!(bid128_is_canonical_030, bid128_is_canonical,      "SNaN"                           , true);

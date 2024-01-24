@@ -1,4 +1,5 @@
 /* ----------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- */
 /* decimal128 type from Intel decimal math library port to Rust.                 */
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
@@ -7,7 +8,7 @@
 
 mod common;
 
-// dec_test!(bid128_is_signed_001, bid128_is_signed, 0u64                                  , false);
+dec_test!(bid128_is_signed_001, bid128_is_signed, "0"                                   , false);
 dec_test!(bid128_is_signed_002, bid128_is_signed, 0x0d1b4a11dd2b2c2d4d69c430aae5a351u128, false);
 dec_test!(bid128_is_signed_003, bid128_is_signed, 0x1010080201c404080200000808020000u128, false);
 dec_test!(bid128_is_signed_004, bid128_is_signed, 0x1da7727000019412043034285964b3e5u128, false);
@@ -19,6 +20,6 @@ dec_test!(bid128_is_signed_009, bid128_is_signed, 0x5d037a9f76ec79f3169e495eb870
 dec_test!(bid128_is_signed_010, bid128_is_signed, 0x78000000000000000000000000000000u128, false);
 dec_test!(bid128_is_signed_011, bid128_is_signed, 0xd4aa0000000000000000000000000000u128, true);
 dec_test!(bid128_is_signed_012, bid128_is_signed, 0xdabc266156593af84fd97dc923bc7064u128, true);
-// dec_test!(bid128_is_signed_013, bid128_is_signed, Infinity 0 00);
-// dec_test!(bid128_is_signed_014, bid128_is_signed, -Infinity 1 00);
-// dec_test!(bid128_is_signed_015, bid128_is_signed, QNaN 0 00);
+dec_test!(bid128_is_signed_013, bid128_is_signed,  "Infinity"                           , false);
+dec_test!(bid128_is_signed_014, bid128_is_signed, "-Infinity"                           , true);
+dec_test!(bid128_is_signed_015, bid128_is_signed,      "QNaN"                           , false);
