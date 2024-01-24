@@ -5,9 +5,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-#![allow(unused)]
+#![allow(non_upper_case_globals)]
+#![allow(non_snake_case)]
 #![allow(dead_code)]
 
 //////////////////////////////////////////////
@@ -19,7 +19,7 @@ use crate::bid128_2_str_macros::*;
 use crate::bid128_2_str_tables::mod10_18_tbl;
 use crate::bid_internal::{__mul_64x64_to_128_fast, __set_status_flags, bid_get_BID128};
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
-use crate::core::StatusFlags;
+use crate::core::{RoundingMode, StatusFlags};
 use crate::dec128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
 
 const MAX_FORMAT_DIGITS_128: usize = 34;
@@ -211,7 +211,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
 pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128  = BID_UINT128::default();
     let mut res: BID_UINT128 = BID_UINT128::default();
-    let mut sign_x: BID_UINT64;
+    let sign_x: BID_UINT64;
     let mut coeff_high: BID_UINT64;
     let mut coeff_low: BID_UINT64;
     let mut coeff2: BID_UINT64;
@@ -228,18 +228,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     let mut d2: i32;
     let mut rdx_pt_enc: i32;
     let mut set_inexact: bool = false;
-    let mut c: String;
-    let mut buffer: [char; MAX_STRING_DIGITS_128]= [' '; MAX_STRING_DIGITS_128];
-    let mut save_rnd_mode: u32;
-    let mut save_fpsf: u32;
-    let mut c: char;
+    let mut c: Option<char>;
+    let mut buffer: [char; MAX_STRING_DIGITS_128] = [' '; MAX_STRING_DIGITS_128];
+    let save_rnd_mode: u32;
+    let save_fpsf: u32;
     let mut ps: usize = 0;
-
-// #if DECIMAL_CALL_BY_REFERENCE
-// #if !DECIMAL_GLOBAL_ROUNDING
-//   _IDEC_round rnd_mode = *prnd_mode;
-// #endif
-// #endif
 
     save_rnd_mode             = rnd_mode; // dummy
     save_fpsf                 = *pfpsf; // dummy
@@ -247,7 +240,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     rdx_pt_enc                = 0;
 
     // if nu64 string, return NaN
-    if ps.is_empty() {
+    if str.is_empty() {
         res.w[1] = 0x7c00000000000000u64;
         res.w[0] = 0;
         return res;
@@ -261,14 +254,14 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     // c gets first character
-    c = chars.nth(ps).unwrap();
+    c = chars.nth(ps);
 
     // if c is nu64 or not equal to a (radix point, negative sign,
     // positive sign, or number) it might be SNaN, sNaN, Infinity
-    if (!c || (c != '.' && c != '-' && c != '+' && ((c as i32 - '0' as i32) > 9))) {
+    if c == None || (c != Some('.') && c != Some('-') && c != Some('+') && ((c.unwrap() as i32 - '0' as i32) > 9)) {
         res.w[0] = 0;
         let range = &str[ps..];
-        res.w[1] = if (range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity")) {
+        res.w[1] = if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
             // Infinity
             0x7800000000000000u64
         } else if range.eq_ignore_ascii_case("snan") { // return sNaN
@@ -283,11 +276,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     let range = &str[ps + 1..];
 
     // if +Inf, -Inf, +Infinity, or -Infinity (case insensitive check for inf)
-    if (range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity")) {
+    if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
         res.w[0] = 0;
-        res.w[1] = if c == '+' {
+        res.w[1] = if c == Some('+') {
             0x7800000000000000u64
-        } else if (c == '-') {
+        } else if c == Some('-') {
             0xf800000000000000u64
         } else {
             0x7c00000000000000u64
@@ -295,34 +288,34 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         return res;
     }
     // if +sNaN, +SNaN, -sNaN, or -SNaN
-    if (range.eq_ignore_ascii_case("snan")) {
+    if range.eq_ignore_ascii_case("snan") {
         res.w[0] = 0;
-        res.w[1] = if (c == '-') {
+        res.w[1] = if c == Some('-') {
             0xfe00000000000000u64
         } else {
             0x7e00000000000000u64
         };
-        return res;;
+        return res;
     }
 
     // set up sign_x to be OR'ed with the upper word later
-    sign_x = if c == '-' { 0x8000000000000000u64 } else { 0 };
+    sign_x = if c == Some('-') { 0x8000000000000000u64 } else { 0 };
 
     // go to next character if leading sign
-    if (c == '-' || c == '+') {
+    if c == Some('-') || c == Some('+') {
         ps += 1;
     }
 
-    c = chars.nth(ps).unwrap();
+    c = chars.nth(ps);
 
     // if c isn't a decimal point or a decimal digit, return NaN
-    if c != '.' && ((c as i32 - '0' as i32) > 9) {
+    if c != None && c != Some('.') && ((c.unwrap() as i32 - '0' as i32) > 9) {
         res.w[1] = 0x7c00000000000000u64 | sign_x;
         res.w[0] = 0;
         return res;
     }
 
-    if c == '.' {
+    if c == Some('.') {
         rdx_pt_enc = 1;
         ps        += 1;
     }
@@ -336,7 +329,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
             // for numbers such as 0.0000000000000000000000000000000000001001,
             // we want to count the leading zeros
-            if rdx_pt_enc {
+            if rdx_pt_enc != 0 {
               right_radix_leading_zeros += 1;
             }
 
@@ -370,7 +363,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         }
     }
 
-    c = chars.nth(ps).unwrap();
+    c = chars.nth(ps);
 
     // initialize local variables
     ndigits_before = 0;
@@ -379,42 +372,42 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     sgn_exp        = 0;
     // pstart_coefficient = ps;
 
-    if !rdx_pt_enc {
+    if rdx_pt_enc == 0 {
         // investigate string (before radix point)
-        while ((c as i32 - '0' as i32) <= 9 /*&& ndigits_before < MAX_STRING_DIGITS_128*/) {
-            if (ndigits_before < MAX_FORMAT_DIGITS_128) {
-                buffer[ndigits_before] = c;
-            } else if (ndigits_before < MAX_STRING_DIGITS_128) {
-                buffer[ndigits_before] = c;
-                if c > '0' {
+        while c != None && (c.unwrap() as i32 - '0' as i32) <= 9 {
+            if ndigits_before < MAX_FORMAT_DIGITS_128 {
+                buffer[ndigits_before] = c.unwrap();
+            } else if ndigits_before < MAX_STRING_DIGITS_128 {
+                buffer[ndigits_before] = c.unwrap();
+                if c > Some('0') {
                     set_inexact = true;
                 }
-            } else if c > '0' {
+            } else if c > Some('0') {
                 set_inexact = true;
             }
             ps             += 1;
-            c               = chars.nth(ps).unwrap();
+            c               = chars.nth(ps);
             ndigits_before += 1;
         }
 
         ndigits_total = ndigits_before;
-        if c == '.' {
+        if c == Some('.') {
             ps += 1;
-            if ((c = chars.nth(ps).unwrap())) {
+            if c == chars.nth(ps) {
                 // investigate string (after radix point)
-                while (c as i32 - '0' as i32) as u32 <= 9 /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+                while c != None && ((c.unwrap() as i32 - '0' as i32) as u32 <= 9) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
                     if ndigits_total < MAX_FORMAT_DIGITS_128 {
-                        buffer[ndigits_total] = c;
+                        buffer[ndigits_total] = c.unwrap();
                     } else if ndigits_total < MAX_STRING_DIGITS_128 {
-                        buffer[ndigits_total] = c;
-                        if c > '0' {
+                        buffer[ndigits_total] = c.unwrap();
+                        if c.unwrap() as i32 > '0' as i32 {
                             set_inexact = true;
                         }
-                    } else if c > '0' {
+                    } else if c.unwrap() as i32 > '0' as i32 {
                         set_inexact = true;
                     }
                     ps            += 1;
-                    c              = chars.nth(ps).unwrap();
+                    c              = chars.nth(ps);
                     ndigits_total += 1;
                 }
                 ndigits_after = ndigits_total - ndigits_before;
@@ -423,24 +416,24 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     } else {
         // we encountered a radix point while detecting zeros
         //if (c = *ps){
-        c             = chars.nth(ps).unwrap();
+        c             = chars.nth(ps);
         ndigits_total = 0;
 
         // investigate string (after radix point)
-        while (c as i32 - '0' as i32) <= 9 /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
+        while c != None && (c.unwrap() as i32 - '0' as i32) <= 9 /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
             if ndigits_total < MAX_FORMAT_DIGITS_128 {
-                buffer[ndigits_total] = c;
+                buffer[ndigits_total] = c.unwrap();
             }
-            else if (ndigits_total < MAX_STRING_DIGITS_128)  {
-                buffer[ndigits_total] = c;
-                if c > '0' {
+            else if ndigits_total < MAX_STRING_DIGITS_128  {
+                buffer[ndigits_total] = c.unwrap();
+                if c.unwrap() as i32 > '0' as i32 {
                     set_inexact = true;
                 }
-            } else if c > '0' {
+            } else if c.unwrap() as i32 > '0' as i32 {
                 set_inexact = true;
             }
             ps            += 1;
-            c              = chars.nth(ps).unwrap();
+            c              = chars.nth(ps);
             ndigits_total += 1;
         }
         ndigits_after = ndigits_total - ndigits_before;
@@ -450,48 +443,50 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     dec_expon = 0;
     /*if (ndigits_total < MAX_STRING_DIGITS_128)*/
     {
-        if (c) {
-            if c != 'e' && c != 'E' {
+        if c != None {
+            if c != Some('e') && c != Some('E') {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
                 return res;
             }
             ps += 1;
-            c   = chars.nth(ps).unwrap();
+            c   = chars.nth(ps);
 
-            if (((c as i32 - '0' as i32) > 9) && ((c != '+' && c != '-') || ((ps[1] - '0') as u32) > 9)) {
+            if c != None && (((c.unwrap() as i32 - '0' as i32) > 9)
+                          && ((c != Some('+') && c != Some('-'))
+                          || ((chars.nth(1).unwrap() as i32 - '0' as i32) as u32) > 9)) {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
                 return res;
             }
 
-            if c == '-' {
+            if c == Some('-') {
                 sgn_exp = -1;
                 ps     += 1;
-                c       = chars.nth(ps).unwrap();
-            } else if c == '+' {
+                c       = chars.nth(ps);
+            } else if c == Some('+') {
                 ps += 1;
-                c   = chars.nth(ps).unwrap();
+                c   = chars.nth(ps);
             }
 
-            dec_expon = c as i32 - '0' as i32;
+            dec_expon = c.unwrap() as i32 - '0' as i32;
             i         = 1;
             ps       += 1;
 
-            if !dec_expon {
+            if dec_expon == 0 {
                 while chars.nth(ps) == Some('0') {
                     ps += 1;
                 }
             }
-            c = char::from_digit((chars.nth(ps).unwrap() as u32 - '0' as u32), 10).unwrap();
+            c = char::from_digit(chars.nth(ps).unwrap() as u32 - '0' as u32, 10);
 
-            while ((c as u32)) <= 9 && i < 7 {
+            while c != None && ((c.unwrap() as u32) <= 9 && i < 7) {
                 d2        = dec_expon + dec_expon;
-                dec_expon = (d2 << 2) + d2 + c;
+                dec_expon = (d2 << 2) + d2 + c.unwrap() as i32;
                 ps       += 1;
-                c         = char::from_digit((chars.nth(ps).unwrap() as u32 - '0' as u32), 10).unwrap();
+                c         = char::from_digit(chars.nth(ps).unwrap() as u32 - '0' as u32, 10);
                 i        += 1;
             }
         }
@@ -500,7 +495,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     if ndigits_total <= MAX_FORMAT_DIGITS_128 {
-        dec_expon += DECIMAL_EXPONENT_BIAS_128 - ndigits_after - right_radix_leading_zeros;
+        dec_expon += DECIMAL_EXPONENT_BIAS_128 - ndigits_after as i32 - right_radix_leading_zeros as i32;
         if dec_expon < 0 {
             res.w[1] = 0 | sign_x;
             res.w[0] = 0;
@@ -512,7 +507,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             coeff_high = buffer[0] as u64 - '0' as u64;
             while i < ndigits_total {
                 coeff2     = coeff_high + coeff_high;
-                coeff_high = (coeff2 << 2) + coeff2 + buffer[i] - '0';
+                coeff_high = (coeff2 << 2) + coeff2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
                 i         += 1;
             }
             CX.w[0] = coeff_high;
@@ -521,13 +516,13 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             coeff_high = buffer[0] as u64 - '0' as u64;
             while i < (ndigits_total - 17) {
                 coeff2     = coeff_high + coeff_high;
-                coeff_high = (coeff2 << 2) + coeff2 + buffer[i] - '0';
+                coeff_high = (coeff2 << 2) + coeff2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
             }
             coeff_low = (buffer[i] as i32 - '0' as i32) as BID_UINT64;
             i        += 1;
             while i < ndigits_total {
                 coeff_l2  = coeff_low + coeff_low;
-                coeff_low = (coeff_l2 << 2) + coeff_l2 + buffer[i] - '0';
+                coeff_low = (coeff_l2 << 2) + coeff_l2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
                 i        += 1;
             }
             // now form the coefficient as coeff_high*10^19+coeff_low+carry
@@ -535,7 +530,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             CX = __mul_64x64_to_128_fast(coeff_high, scale_high);
 
             CX.w[0] += coeff_low;
-            if (CX.w[0] < coeff_low) {
+            if CX.w[0] < coeff_low {
                 CX.w[1] += 1;
             }
         }
@@ -544,9 +539,12 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     } else {
         // simply round using the digits that were read
 
-        dec_expon += ndigits_before + DECIMAL_EXPONENT_BIAS_128 - MAX_FORMAT_DIGITS_128 - right_radix_leading_zeros;
+        dec_expon += ndigits_before as i32
+                   + DECIMAL_EXPONENT_BIAS_128
+                   - MAX_FORMAT_DIGITS_128 as i32
+                   - right_radix_leading_zeros as i32;
 
-        if (dec_expon < 0) {
+        if dec_expon < 0 {
             res.w[1] = 0 | sign_x;
             res.w[0] = 0;
         }
@@ -556,7 +554,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         i = 1;
         while i < MAX_FORMAT_DIGITS_128 - 17 {
             coeff2     = coeff_high + coeff_high;
-            coeff_high = (coeff2 << 2) + coeff2 + buffer[i] - '0';
+            coeff_high = (coeff2 << 2) + coeff2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
             i         += 1;
         }
         coeff_low = (buffer[i] as i32 - '0' as i32) as BID_UINT64;
@@ -564,15 +562,15 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         i += 1;
         while i < MAX_FORMAT_DIGITS_128 {
             coeff_l2  = coeff_low + coeff_low;
-            coeff_low = (coeff_l2 << 2) + coeff_l2 + buffer[i] - '0';
+            coeff_low = (coeff_l2 << 2) + coeff_l2 + buffer[i] as BID_UINT64 - '0' as BID_UINT64;
             i        += 1;
         }
 
         match rnd_mode {
-            BID_ROUNDING_TO_NEAREST => {
-                carry = ((('4' as i32 - buffer[i] as i32)) >> 31) as BID_UINT64;
+            RoundingMode::BID_ROUNDING_TO_NEAREST => {
+                carry = ('4' as i32 - buffer[i] as i32 >> 31) as BID_UINT64;
                 if (buffer[i] == '5' && (coeff_low & 1) != 1) || dec_expon < 0 {
-                    if (dec_expon >= 0) {
+                    if dec_expon >= 0 {
                         carry = 0;
                         i    += 1;
                     }
@@ -585,8 +583,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     }
                 }
             },
-            BID_ROUNDING_DOWN => {
-                if sign_x {
+            RoundingMode::BID_ROUNDING_DOWN => {
+                if sign_x != 0 {
                     while i < ndigits_total {
                         if buffer[i] > '0' {
                             carry = 1;
@@ -596,8 +594,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     }
                 }
             },
-            BID_ROUNDING_UP => {
-                if !sign_x {
+            RoundingMode::BID_ROUNDING_UP => {
+                if sign_x == 0 {
                     while i < ndigits_total {
                         if buffer[i] > '0' {
                             carry = 1;
@@ -607,11 +605,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     }
                 }
             },
-            BID_ROUNDING_TO_ZERO => {
+            RoundingMode::BID_ROUNDING_TO_ZERO => {
                 carry = 0;
             },
-            BID_ROUNDING_TIES_AWAY => {
-                carry = ((('4' as i32 - buffer[i] as i32)) >> 31) as BID_UINT64;
+            RoundingMode::BID_ROUNDING_TIES_AWAY => {
+                carry = ('4' as i32 - buffer[i] as i32 >> 31) as BID_UINT64;
                 if dec_expon < 0 {
                     while i < ndigits_total {
                         if buffer[i] > '0' {
@@ -622,6 +620,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                     }
                 }
             },
+            _ => panic!("bid128_from_string::Unknown rounding mode")
         }
     }
 

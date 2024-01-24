@@ -339,9 +339,9 @@ pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64,
 
 /// General BID128 pack macro
 pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut  T: BID_UINT128 = BID_UINT128::default();
-    let tmp: BID_UINT64;
-    let tmp2: BID_UINT64;
+    let T: BID_UINT128;
+    let mut tmp: BID_UINT64;
+    let mut tmp2: BID_UINT64;
     let mut expon: i32 = expon;
     let mut coeff: BID_UINT128 = *coeff;
     let mut pres: BID_UINT128 = BID_UINT128::default();
@@ -361,11 +361,11 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             return handle_UF_128(sgn, expon, &coeff, rnd_mode, pfpsc);
         }
 
-        if expon - MAX_FORMAT_DIGITS_128 <= (DECIMAL_MAX_EXPON_128 as i32) {
-            T = bid_power10_table_128[MAX_FORMAT_DIGITS_128 - 1];
+        if expon - (MAX_FORMAT_DIGITS_128 as i32) <= (DECIMAL_MAX_EXPON_128 as i32) {
+            T = bid_power10_table_128[(MAX_FORMAT_DIGITS_128 - 1) as usize];
             while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 as i32 {
                 coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
-                tmp2 = coeff.w[0] << 3;
+                tmp2       = coeff.w[0] << 3;
                 coeff.w[0] = (coeff.w[0] << 1) + tmp2;
                 if coeff.w[0] < tmp2 {
                     coeff.w[1] += 1;
@@ -374,7 +374,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             }
         }
         if expon > DECIMAL_MAX_EXPON_128 as i32 {
-            if !(coeff.w[1] | coeff.w[0]) {
+            if (coeff.w[1] | coeff.w[0]) == 0 {
                 pres.w[1] = sgn | ((DECIMAL_MAX_EXPON_128 as BID_UINT64) << 49);
                 pres.w[0] = 0;
                 return pres;
@@ -413,36 +413,36 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
 
 /// Macro for handling BID128 underflow
 pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128{
-    let mut T128: BID_UINT128;
-    let mut TP128: BID_UINT128 = BID_UINT128::default();
-    let mut Qh: BID_UINT128 = BID_UINT128::default();
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
-    let mut Qh1: BID_UINT128 = BID_UINT128::default();
+    let T128: BID_UINT128;
+    let TP128: BID_UINT128;
+    let mut Qh: BID_UINT128;
+    let Ql: BID_UINT128;
+    let Qh1: BID_UINT128;
     let mut Stemp: BID_UINT128 = BID_UINT128::default();
     let mut Tmp: BID_UINT128 = BID_UINT128::default();
-    let mut Tmp1: BID_UINT128 = BID_UINT128::default();
+    let Tmp1: BID_UINT128;
     let mut carry: BID_UINT64;
-    let mut CY: BID_UINT64;
-    let mut ed2: i32;
-    let mut amount: i32;
-    let mut rmode: u32;
-    let mut status: _IDEC_flags;
+    let CY: BID_UINT64;
+    let ed2: i32;
+    let amount: i32;
+    let rmode: u32 = rnd_mode;
+    let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
     let mut pres: BID_UINT128 = BID_UINT128::default();
     let mut CQ: BID_UINT128 = *CQ;
 
     // UF occurs
-    if expon + MAX_FORMAT_DIGITS_128 < 0 {
+    if expon + (MAX_FORMAT_DIGITS_128 as i32) < 0 {
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
-        if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
-            if cfg!(IEEE_ROUND_NEAREST == "1") {
-                if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
-                || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
-                    pres.w[0] = 1u64;
-                }
-            }
-        }
+        // if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
+        //     if cfg!(IEEE_ROUND_NEAREST == "1") {
+        //         if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
+        //         || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+        //             pres.w[0] = 1u64;
+        //         }
+        //     }
+        // }
         return pres;
     }
 
@@ -462,12 +462,12 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
     //       rmode = 0;
     // }
 
-    T128             = bid_round_const_table_128[rmode][ed2];
+    T128             = bid_round_const_table_128[rmode as usize][ed2 as usize];
     (CQ.w[0], carry) = __add_carry_out(T128.w[0], CQ.w[0]);
     CQ.w[1]          = CQ.w[1] + T128.w[1] + carry;
-    TP128            = bid_reciprocals10_128[ed2];
+    TP128            = bid_reciprocals10_128[ed2 as usize];
     (Qh, Ql)         = __mul_128x128_full(&CQ, &TP128);
-    amount           = bid_recip_scale[ed2];
+    amount           = bid_recip_scale[ed2 as usize];
 
     if amount >= 64 {
         CQ.w[0] = Qh.w[1] >> (amount - 64);
@@ -509,24 +509,24 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
                 // test whether fractional part is 0
                 if  Qh1.w[1] == 0x8000000000000000u64
                 && (Qh1.w[0] == 0)
-                && (Ql.w[1]  < bid_reciprocals10_128[ed2].w[1]
-                || (Ql.w[1] == bid_reciprocals10_128[ed2].w[1]
-                 && Ql.w[0]  < bid_reciprocals10_128[ed2].w[0])) {
+                && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+                || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+                 && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },
             RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO=> {
                 if (Qh1.w[1] == 0) && (Qh1.w[0] == 0)
-                && (Ql.w[1]  < bid_reciprocals10_128[ed2].w[1]
-                || (Ql.w[1] == bid_reciprocals10_128[ed2].w[1]
-                 && Ql.w[0]  < bid_reciprocals10_128[ed2].w[0])) {
+                && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+                || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+                 && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },
             _ =>  {
                 // round up
-                (Stemp.w[0], CY)    = __add_carry_out(Ql.w[0], bid_reciprocals10_128[ed2].w[0]);
-                (Stemp.w[1], carry) = __add_carry_in_out(Ql.w[1],bid_reciprocals10_128[ed2].w[1], CY);
+                (Stemp.w[0], CY)    = __add_carry_out(Ql.w[0], bid_reciprocals10_128[ed2 as usize].w[0]);
+                (Stemp.w[1], carry) = __add_carry_in_out(Ql.w[1],bid_reciprocals10_128[ed2 as usize].w[1], CY);
                 Qh                  = __shr_128_long(&Qh1, 128 - amount);
                 Tmp.w[0]            = 1;
                 Tmp.w[1]            = 0;

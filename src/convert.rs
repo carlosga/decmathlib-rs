@@ -227,7 +227,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                     if Qh.w[0] < carry {
                         Qh.w[1] += 1;
                     }
-                    if __unsigned_compare_ge_128(Qh, Tmp1) {
+                    if __unsigned_compare_ge_128(&Qh, &Tmp1) {
                         status = StatusFlags::BID_EXACT_STATUS;
                     }
                 }
