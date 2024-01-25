@@ -449,7 +449,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
             if c.is_some() && !char::is_digit(c.unwrap(), 10)
                          && ((c != Some('+') && c != Some('-'))
-                         || !char::is_digit(str.chars().nth(1).unwrap(), 10)) {
+                         || !char::is_digit(str.chars().nth(ps + 1).unwrap(), 10)) {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
