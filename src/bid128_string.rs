@@ -576,7 +576,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
         match rnd_mode {
             RoundingMode::BID_ROUNDING_TO_NEAREST => {
-                carry = (('4' as i32 - buffer[i] as i32) >> 31) as BID_UINT64;
+                carry = ((('4' as i32 - buffer[i] as i32) as u32) >> 31) as BID_UINT64;
                 if (buffer[i] == '5' && (coeff_low & 1) != 1) || dec_expon < 0 {
                     if dec_expon >= 0 {
                         carry = 0;
