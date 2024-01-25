@@ -164,8 +164,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let tmp_signif_lo: BID_UINT64;
     // Note: C1.w[1], C1.w[0] represent C1_hi, C1_lo (all BID_UINT64)
     // Note: C2.w[1], C2.w[0] represent C2_hi, C2_lo (all BID_UINT64)
-    let tmp64: BID_UINT64;
-    let tmp64A: BID_UINT64;
+    let mut tmp64: BID_UINT64;
+    let mut tmp64A: BID_UINT64;
     let mut tmp64B: BID_UINT64;
     let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
     let mut tmp2: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
@@ -176,11 +176,11 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let delta: i32;
     let mut scale: i32;
     let mut x1: i32;
-    let ind: i32;
-    let shift: i32;
+    let mut ind: i32;
+    let mut shift: i32;
     let mut tmp_inexact: bool = false;
     let halfulp64: BID_UINT64;
-    let mut halfulp128: BID_UINT128;
+    let mut halfulp128: &BID_UINT128;
     let mut C1: BID_UINT128 = BID_UINT128::default();
     let mut C2: BID_UINT128 = BID_UINT128::default();
     let mut ten2m1: BID_UINT128 = BID_UINT128::default();
@@ -941,8 +941,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         }
                     } else { // if q2 >= 20 then 5*10^(q2-1) and C2 (the latter in
                         // most cases) fit only in more than 64 bits
-                        // TODO: halfulp128 as reference ??
-                        halfulp128 = bid_midpoint128[(q2 - 20) as usize]; // 5 * 10^(q2-1)
+                        halfulp128 = &bid_midpoint128[(q2 - 20) as usize]; // 5 * 10^(q2-1)
                         if (C2_hi < halfulp128.w[1]) || (C2_hi == halfulp128.w[1] && C2_lo < halfulp128.w[0]) {
                             // n2 < 1/2 ulp (n1)
                             // the result is the operand with the larger magnitude,
@@ -1768,456 +1767,459 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     x1 = delta + q2 - P34; // 1 <= x1 <= P34-1
                 // TODO: goto roundC2
                 // roundC2:
-                    // Calculate C1 * 10^(e1-e2-x1) where 0 <= e1-e2-x1 <= P34 - 1
-                    // scale = (int)(e1 >> 49) - (int)(e2 >> 49) - x1; 0 <= scale <= P34-1
-                    scale = delta - q1 + q2 - x1; // scale = e1 - e2 - x1 = P34 - q1
-                    // either C1 or 10^(e1-e2-x1) may not fit is 64 bits,
-                    // but their product fits with certainty in 128 bits (actually in 113)
-                    if scale >= 20 { // 10^(e1-e2-x1) doesn't fit in 64 bits, but C1 does
-                        C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
-                    } else if scale >= 1 {
-                        // if 1 <= scale <= 19 then 10^(e1-e2-x1) fits in 64 bits
-                        C1 = if q1 <= 19 { // C1 fits in 64 bits
-                            __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
-                        } else { // q1 >= 20
+                    'roundC2: loop {
+                        // Calculate C1 * 10^(e1-e2-x1) where 0 <= e1-e2-x1 <= P34 - 1
+                        // scale = (int)(e1 >> 49) - (int)(e2 >> 49) - x1; 0 <= scale <= P34-1
+                        scale = delta - q1 + q2 - x1; // scale = e1 - e2 - x1 = P34 - q1
+                        // either C1 or 10^(e1-e2-x1) may not fit is 64 bits,
+                        // but their product fits with certainty in 128 bits (actually in 113)
+                        if scale >= 20 { // 10^(e1-e2-x1) doesn't fit in 64 bits, but C1 does
+                            C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
+                        } else if scale >= 1 {
+                            // if 1 <= scale <= 19 then 10^(e1-e2-x1) fits in 64 bits
+                            C1 = if q1 <= 19 { // C1 fits in 64 bits
+                                __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                            } else { // q1 >= 20
+                                C1.w[1] = C1_hi;
+                                C1.w[0] = C1_lo;
+                                __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                            };
+                        } else { // if (scale == 0) C1 is unchanged
                             C1.w[1] = C1_hi;
                             C1.w[0] = C1_lo;
-                            __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
-                        };
-                    } else { // if (scale == 0) C1 is unchanged
-                        C1.w[1] = C1_hi;
-                        C1.w[0] = C1_lo;
-                    }
-                    tmp64 = C1.w[0]; // C1.w[1], C1.w[0] contains C1 * 10^(e1-e2-x1)
+                        }
+                        tmp64 = C1.w[0]; // C1.w[1], C1.w[0] contains C1 * 10^(e1-e2-x1)
 
-                    // now round C2 to q2-x1 decimal digits, where 1<=x1<=q2-1<=P34-1
-                    // (but if we got here a second time after x1 = x1 - 1, then
-                    // x1 >= 0; note that for x1 = 0 C2 is unchanged)
-                    // C2' = C2 + 1/2 * 10^x1 = C2 + 5 * 10^(x1-1)
-                    ind = x1 - 1; // 0 <= ind <= q2-2<=P34-2=32; but note that if x1 = 0
-                    // during a second pass, then ind = -1
-                    if ind >= 0 { // if (x1 >= 1)
-                        C2.w[0] = C2_lo;
-                        C2.w[1] = C2_hi;
-                        if ind <= 18 {
-                            C2.w[0] = C2.w[0].wrapping_add(bid_midpoint64[ind as usize]);
-                            if C2.w[0] < C2_lo {
-                                C2.w[1] += 1;
-                            }
-                        } else { // 19 <= ind <= 32
-                            C2.w[0] = C2.w[0].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[0]);
-                            C2.w[1] = C2.w[1].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[1]);
-                            if C2.w[0] < C2_lo {
-                                C2.w[1] += 1;
-                            }
-                        }
-                        // the approximation of 10^(-x1) was rounded up to 118 bits
-                        R256 = __mul_128x128_to_256(&C2, &bid_ten2mk128[ind as usize]); // R256 = C2*, f2*
-                        // calculate C2* and f2*
-                        // C2* is actually floor(C2*) in this case
-                        // C2* and f2* need shifting and masking, as shown by
-                        // bid_shiftright128[] and bid_maskhigh128[]
-                        // the top Ex bits of 10^(-x1) are T* = bid_ten2mk128trunc[(ind) as usize], e.g.
-                        // if x1=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
-                        // if (0 < f2* < 10^(-x1)) then
-                        //   if floor(C1+C2*) is even then C2* = floor(C2*) - logical right
-                        //       shift; C2* has p decimal digits, correct by Prop. 1)
-                        //   else if floor(C1+C2*) is odd C2* = floor(C2*)-1 (logical right
-                        //       shift; C2* has p decimal digits, correct by Pr. 1)
-                        // else
-                        //   C2* = floor(C2*) (logical right shift; C has p decimal digits,
-                        //       correct by Property 1)
-                        // n = C2* * 10^(e2+x1)
-
-                        if ind <= 2 {
-                            highf2star.w[1] = 0x0;
-                            highf2star.w[0] = 0x0; // low f2* ok
-                        } else if ind <= 21 {
-                            highf2star.w[1] = 0x0;
-                            highf2star.w[0] = R256.w[2] & bid_maskhigh128[ind as usize]; // low f2* ok
-                        } else {
-                            highf2star.w[1] = R256.w[3] & bid_maskhigh128[ind as usize];
-                            highf2star.w[0] = R256.w[2]; // low f2* is ok
-                        }
-                        // shift right C2* by Ex-128 = bid_shiftright128[(ind) as usize]
-                        if ind >= 3 {
-                            shift = bid_shiftright128[ind as usize];
-                            if shift < 64 { // 3 <= shift <= 63
-                                R256.w[2] = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
-                                R256.w[3] = R256.w[3] >> shift;
-                            } else { // 66 <= shift <= 102
-                                R256.w[2] = R256.w[3] >> (shift - 64);
-                                R256.w[3] = 0x0u64;
-                            }
-                        }
-                        if second_pass {
-                            is_inexact_lt_midpoint = false;
-                            is_inexact_gt_midpoint = false;
-                            is_midpoint_lt_even    = false;
-                            is_midpoint_gt_even    = false;
-                        }
-                        // determine inexactness of the rounding of C2* (this may be
-                        // followed by a second rounding only if we get P34+1
-                        // decimal digits)
-                        // if (0 < f2* - 1/2 < 10^(-x1)) then
-                        //   the result is exact
-                        // else (if f2* - 1/2 > T* then)
-                        //   the result of is inexact
-                        if ind <= 2 {
-                            if  R256.w[1]  > 0x8000000000000000u64
-                            || (R256.w[1] == 0x8000000000000000u64
-                             && R256.w[0]  > 0x0u64) {
-                                // f2* > 1/2 and the result may be exact
-                                tmp64A = R256.w[1] - 0x8000000000000000u64; // f* - 1/2
-                                if  tmp64A      > bid_ten2mk128trunc[ind as usize].w[1]
-                                 || (tmp64A    == bid_ten2mk128trunc[ind as usize].w[1]
-                                  && R256.w[0] >= bid_ten2mk128trunc[ind as usize].w[0]) {
-                                    // set the inexact flag
-                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                    tmp_inexact = true; // may be set again during a second pass
-                                    // this rounding is applied to C2 only!
-                                    if x_sign == y_sign {
-                                        is_inexact_lt_midpoint = true;
-                                    } else { // if (x_sign != y_sign)
-                                        is_inexact_gt_midpoint = true;
-                                    }
-                                }    // else the result is exact
-                                     // rounding down, unless a midpoint in [ODD, EVEN]
-                            } else { // the result is inexact; f2* <= 1/2
-                                // set the inexact flag
-                                // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                tmp_inexact = true; // just in case we will round a second time
-                                // rounding up, unless a midpoint in [EVEN, ODD]
-                                // this rounding is applied to C2 only!
-                                if x_sign == y_sign {
-                                    is_inexact_gt_midpoint = true;
-                                } else { // if (x_sign != y_sign)
-                                    is_inexact_lt_midpoint = true;
+                        // now round C2 to q2-x1 decimal digits, where 1<=x1<=q2-1<=P34-1
+                        // (but if we got here a second time after x1 = x1 - 1, then
+                        // x1 >= 0; note that for x1 = 0 C2 is unchanged)
+                        // C2' = C2 + 1/2 * 10^x1 = C2 + 5 * 10^(x1-1)
+                        ind = x1 - 1; // 0 <= ind <= q2-2<=P34-2=32; but note that if x1 = 0
+                        // during a second pass, then ind = -1
+                        if ind >= 0 { // if (x1 >= 1)
+                            C2.w[0] = C2_lo;
+                            C2.w[1] = C2_hi;
+                            if ind <= 18 {
+                                C2.w[0] = C2.w[0].wrapping_add(bid_midpoint64[ind as usize]);
+                                if C2.w[0] < C2_lo {
+                                    C2.w[1] += 1;
+                                }
+                            } else { // 19 <= ind <= 32
+                                C2.w[0] = C2.w[0].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[0]);
+                                C2.w[1] = C2.w[1].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[1]);
+                                if C2.w[0] < C2_lo {
+                                    C2.w[1] += 1;
                                 }
                             }
-                        } else if ind <= 21 { // if 3 <= ind <= 21
-                            if  highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > bid_onehalf128[ind as usize])
-                            || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == bid_onehalf128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
-                                // f2* > 1/2 and the result may be exact
-                                // Calculate f2* - 1/2
-                                tmp64A = highf2star.w[0] - bid_onehalf128[ind as usize];
-                                tmp64B = highf2star.w[1];
-                                if tmp64A > highf2star.w[0] {
-                                    tmp64B -= 1;
-                                }
-                                if  tmp64B != 0 || tmp64A!= 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
-                                || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                 && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
-                                    // set the inexact flag
-                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                    tmp_inexact = true; // may be set again during a second pass
-                                    // this rounding is applied to C2 only!
-                                    if x_sign == y_sign {
-                                        is_inexact_lt_midpoint = true;
-                                    } else { // if (x_sign != y_sign)
-                                        is_inexact_gt_midpoint = true;
-                                    }
-                                }    // else the result is exact
-                            } else { // the result is inexact; f2* <= 1/2
-                                // set the inexact flag
-                                // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                tmp_inexact = true; // may be set again during a second pass
-                                // rounding up, unless a midpoint in [EVEN, ODD]
-                                // this rounding is applied to C2 only!
-                                if x_sign == y_sign {
-                                    is_inexact_gt_midpoint = true;
-                                } else { // if (x_sign != y_sign)
-                                    is_inexact_lt_midpoint = true;
-                                }
-                            }
-                        } else { // if 22 <= ind <= 33
-                            if  highf2star.w[1]  > bid_onehalf128[ind as usize]
-                            || (highf2star.w[1] == bid_onehalf128[ind as usize]
-                            && (highf2star.w[0] != 0 || R256.w[1] != 0 || R256.w[0] != 0)) {
-                                // f2* > 1/2 and the result may be exact
-                                // Calculate f2* - 1/2
-                                // tmp64A = highf2star.w[0];
-                                tmp64B = highf2star.w[1] - bid_onehalf128[ind as usize];
-                                if tmp64B != 0 || highf2star.w[0] != 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
-                                || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                 && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
-                                    // set the inexact flag
-                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                    tmp_inexact = true; // may be set again during a second pass
-                                    // this rounding is applied to C2 only!
-                                    if x_sign == y_sign {
-                                        is_inexact_lt_midpoint = true;
-                                    } else { // if (x_sign != y_sign)
-                                        is_inexact_gt_midpoint = true;
-                                    }
-                                }    // else the result is exact
-                            } else { // the result is inexact; f2* <= 1/2
-                                // set the inexact flag
-                                // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                tmp_inexact = true; // may be set again during a second pass
-                                // rounding up, unless a midpoint in [EVEN, ODD]
-                                // this rounding is applied to C2 only!
-                                if x_sign == y_sign {
-                                    is_inexact_gt_midpoint = true;
-                                } else { // if (x_sign != y_sign)
-                                    is_inexact_lt_midpoint = true;
-                                }
-                            }
-                        }
-                        // check for midpoints
-                        if (R256.w[1] != 0 || R256.w[0] != 0)
-                        && (highf2star.w[1] == 0)
-                        && (highf2star.w[0] == 0)
-                        && (R256.w[1]  < bid_ten2mk128trunc[ind as usize].w[1]
-                        || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                         && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
-                            // the result is a midpoint
-                            if ((tmp64.wrapping_add(R256.w[2])) & 0x01) == 0x01 { // MP in [EVEN, ODD]
-                                // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
-                                R256.w[2] -= 1;
-                                if R256.w[2] == 0xffffffffffffffffu64 {
-                                    R256.w[3] -= 1;
-                                }
-                                // this rounding is applied to C2 only!
-                                if x_sign == y_sign {
-                                    is_midpoint_gt_even = true;
-                                } else { // if (x_sign != y_sign)
-                                    is_midpoint_lt_even = true;
-                                }
-                                is_inexact_lt_midpoint = false;
-                                is_inexact_gt_midpoint = false;
-                            } else {
-                                // else MP in [ODD, EVEN]
-                                // this rounding is applied to C2 only!
-                                if x_sign == y_sign {
-                                    is_midpoint_lt_even = true;
-                                } else { // if (x_sign != y_sign)
-                                    is_midpoint_gt_even = true;
-                                }
-                                is_inexact_lt_midpoint = false;
-                                is_inexact_gt_midpoint = false;
-                            }
-                        }
-                        // end if (ind >= 0)
-                    } else { // if (ind == -1); only during a 2nd pass, and when x1 = 0
-                        R256.w[2] = C2_lo;
-                        R256.w[3] = C2_hi;
-                        tmp_inexact = false;
-                        // to correct a possible setting to 1 from 1st pass
-                        if second_pass {
-                            is_midpoint_lt_even    = false;
-                            is_midpoint_gt_even    = false;
-                            is_inexact_lt_midpoint = false;
-                            is_inexact_gt_midpoint = false;
-                        }
-                    }
-                    // and now add/subtract C1 * 10^(e1-e2-x1) +/- (C2 * 10^(-x1))rnd,P34
-                    if x_sign == y_sign { // addition; could overflow
-                        // no second pass is possible this way (only for x_sign != y_sign)
-                        C1.w[0] = C1.w[0].wrapping_add(R256.w[2]);
-                        C1.w[1] = C1.w[1].wrapping_add(R256.w[3]);
-                        if C1.w[0] < tmp64 {
-                            C1.w[1] += 1; // carry
-                        }
-                        // if the sum has P34+1 digits, i.e. C1>=10^34 redo the calculation
-                        // with x1=x1+1
-                        if C1.w[1]   > 0x0001ed09bead87c0u64
-                        || (C1.w[1] == 0x0001ed09bead87c0u64
-                         && C1.w[0] >= 0x378d8e6400000000u64) { // C1 >= 10^34
-                            // chop off one more digit from the sum, but make sure there is
-                            // no double-rounding error (see table - double rounding logic)
-                            // now round C1 from P34+1 to P34 decimal digits
-                            // C1' = C1 + 1/2 * 10 = C1 + 5
-                            if C1.w[0] >= 0xfffffffffffffffbu64 { // low half add has carry
-                                C1.w[0] = C1.w[0] + 5;
-                                C1.w[1] = C1.w[1] + 1;
-                            } else {
-                                C1.w[0] = C1.w[0] + 5;
-                            }
-                            // the approximation of 10^(-1) was rounded up to 118 bits
-                            Q256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[0]); // Q256 = C1*, f1*
-                            // C1* is actually floor(C1*) in this case
-                            // the top 128 bits of 10^(-1) are
-                            // T* = bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
-                            // if (0 < f1* < 10^(-1)) then
-                            //   if floor(C1*) is even then C1* = floor(C1*) - logical right
-                            //       shift; C1* has p decimal digits, correct by Prop. 1)
-                            //   else if floor(C1*) is odd C1* = floor(C1*) - 1 (logical right
-                            //       shift; C1* has p decimal digits, correct by Pr. 1)
+                            // the approximation of 10^(-x1) was rounded up to 118 bits
+                            R256 = __mul_128x128_to_256(&C2, &bid_ten2mk128[ind as usize]); // R256 = C2*, f2*
+                            // calculate C2* and f2*
+                            // C2* is actually floor(C2*) in this case
+                            // C2* and f2* need shifting and masking, as shown by
+                            // bid_shiftright128[] and bid_maskhigh128[]
+                            // the top Ex bits of 10^(-x1) are T* = bid_ten2mk128trunc[(ind) as usize], e.g.
+                            // if x1=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                            // if (0 < f2* < 10^(-x1)) then
+                            //   if floor(C1+C2*) is even then C2* = floor(C2*) - logical right
+                            //       shift; C2* has p decimal digits, correct by Prop. 1)
+                            //   else if floor(C1+C2*) is odd C2* = floor(C2*)-1 (logical right
+                            //       shift; C2* has p decimal digits, correct by Pr. 1)
                             // else
-                            //   C1* = floor(C1*) (logical right shift; C has p decimal digits
+                            //   C2* = floor(C2*) (logical right shift; C has p decimal digits,
                             //       correct by Property 1)
-                            // n = C1* * 10^(e2+x1+1)
-                            if (Q256.w[1] != 0 || Q256.w[0] != 0)
-                            && (Q256.w[1]  < bid_ten2mk128trunc[0].w[1]
-                            || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
-                             && Q256.w[0] <= bid_ten2mk128trunc[0].w[0])) {
-                                // the result is a midpoint
-                                if is_inexact_lt_midpoint { // for the 1st rounding
-                                    is_inexact_gt_midpoint = true;
-                                    is_inexact_lt_midpoint = false;
-                                    is_midpoint_gt_even    = false;
-                                    is_midpoint_lt_even    = false;
-                                } else if is_inexact_gt_midpoint { // for the 1st rounding
-                                    Q256.w[2] -= 1;
-                                    if Q256.w[2] == 0xffffffffffffffffu64 {
-                                        Q256.w[3] -= 1;
+                            // n = C2* * 10^(e2+x1)
+
+                            if ind <= 2 {
+                                highf2star.w[1] = 0x0;
+                                highf2star.w[0] = 0x0; // low f2* ok
+                            } else if ind <= 21 {
+                                highf2star.w[1] = 0x0;
+                                highf2star.w[0] = R256.w[2] & bid_maskhigh128[ind as usize]; // low f2* ok
+                            } else {
+                                highf2star.w[1] = R256.w[3] & bid_maskhigh128[ind as usize];
+                                highf2star.w[0] = R256.w[2]; // low f2* is ok
+                            }
+                            // shift right C2* by Ex-128 = bid_shiftright128[(ind) as usize]
+                            if ind >= 3 {
+                                shift = bid_shiftright128[ind as usize];
+                                if shift < 64 { // 3 <= shift <= 63
+                                    R256.w[2] = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
+                                    R256.w[3] = R256.w[3] >> shift;
+                                } else { // 66 <= shift <= 102
+                                    R256.w[2] = R256.w[3] >> (shift - 64);
+                                    R256.w[3] = 0x0u64;
+                                }
+                            }
+                            if second_pass {
+                                is_inexact_lt_midpoint = false;
+                                is_inexact_gt_midpoint = false;
+                                is_midpoint_lt_even    = false;
+                                is_midpoint_gt_even    = false;
+                            }
+                            // determine inexactness of the rounding of C2* (this may be
+                            // followed by a second rounding only if we get P34+1
+                            // decimal digits)
+                            // if (0 < f2* - 1/2 < 10^(-x1)) then
+                            //   the result is exact
+                            // else (if f2* - 1/2 > T* then)
+                            //   the result of is inexact
+                            if ind <= 2 {
+                                if  R256.w[1]  > 0x8000000000000000u64
+                                || (R256.w[1] == 0x8000000000000000u64
+                                 && R256.w[0]  > 0x0u64) {
+                                    // f2* > 1/2 and the result may be exact
+                                    tmp64A = R256.w[1] - 0x8000000000000000u64; // f* - 1/2
+                                    if  tmp64A      > bid_ten2mk128trunc[ind as usize].w[1]
+                                     || (tmp64A    == bid_ten2mk128trunc[ind as usize].w[1]
+                                      && R256.w[0] >= bid_ten2mk128trunc[ind as usize].w[0]) {
+                                        // set the inexact flag
+                                        // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                        tmp_inexact = true; // may be set again during a second pass
+                                        // this rounding is applied to C2 only!
+                                        if x_sign == y_sign {
+                                            is_inexact_lt_midpoint = true;
+                                        } else { // if (x_sign != y_sign)
+                                            is_inexact_gt_midpoint = true;
+                                        }
+                                    }    // else the result is exact
+                                         // rounding down, unless a midpoint in [ODD, EVEN]
+                                } else { // the result is inexact; f2* <= 1/2
+                                    // set the inexact flag
+                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                    tmp_inexact = true; // just in case we will round a second time
+                                    // rounding up, unless a midpoint in [EVEN, ODD]
+                                    // this rounding is applied to C2 only!
+                                    if x_sign == y_sign {
+                                        is_inexact_gt_midpoint = true;
+                                    } else { // if (x_sign != y_sign)
+                                        is_inexact_lt_midpoint = true;
                                     }
+                                }
+                            } else if ind <= 21 { // if 3 <= ind <= 21
+                                if  highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > bid_onehalf128[ind as usize])
+                                || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == bid_onehalf128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
+                                    // f2* > 1/2 and the result may be exact
+                                    // Calculate f2* - 1/2
+                                    tmp64A = highf2star.w[0] - bid_onehalf128[ind as usize];
+                                    tmp64B = highf2star.w[1];
+                                    if tmp64A > highf2star.w[0] {
+                                        tmp64B -= 1;
+                                    }
+                                    if  tmp64B != 0 || tmp64A!= 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
+                                    || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
+                                     && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                        // set the inexact flag
+                                        // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                        tmp_inexact = true; // may be set again during a second pass
+                                        // this rounding is applied to C2 only!
+                                        if x_sign == y_sign {
+                                            is_inexact_lt_midpoint = true;
+                                        } else { // if (x_sign != y_sign)
+                                            is_inexact_gt_midpoint = true;
+                                        }
+                                    }    // else the result is exact
+                                } else { // the result is inexact; f2* <= 1/2
+                                    // set the inexact flag
+                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                    tmp_inexact = true; // may be set again during a second pass
+                                    // rounding up, unless a midpoint in [EVEN, ODD]
+                                    // this rounding is applied to C2 only!
+                                    if x_sign == y_sign {
+                                        is_inexact_gt_midpoint = true;
+                                    } else { // if (x_sign != y_sign)
+                                        is_inexact_lt_midpoint = true;
+                                    }
+                                }
+                            } else { // if 22 <= ind <= 33
+                                if  highf2star.w[1]  > bid_onehalf128[ind as usize]
+                                || (highf2star.w[1] == bid_onehalf128[ind as usize]
+                                && (highf2star.w[0] != 0 || R256.w[1] != 0 || R256.w[0] != 0)) {
+                                    // f2* > 1/2 and the result may be exact
+                                    // Calculate f2* - 1/2
+                                    // tmp64A = highf2star.w[0];
+                                    tmp64B = highf2star.w[1] - bid_onehalf128[ind as usize];
+                                    if tmp64B != 0 || highf2star.w[0] != 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
+                                    || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
+                                     && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                        // set the inexact flag
+                                        // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                        tmp_inexact = true; // may be set again during a second pass
+                                        // this rounding is applied to C2 only!
+                                        if x_sign == y_sign {
+                                            is_inexact_lt_midpoint = true;
+                                        } else { // if (x_sign != y_sign)
+                                            is_inexact_gt_midpoint = true;
+                                        }
+                                    }    // else the result is exact
+                                } else { // the result is inexact; f2* <= 1/2
+                                    // set the inexact flag
+                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                    tmp_inexact = true; // may be set again during a second pass
+                                    // rounding up, unless a midpoint in [EVEN, ODD]
+                                    // this rounding is applied to C2 only!
+                                    if x_sign == y_sign {
+                                        is_inexact_gt_midpoint = true;
+                                    } else { // if (x_sign != y_sign)
+                                        is_inexact_lt_midpoint = true;
+                                    }
+                                }
+                            }
+                            // check for midpoints
+                            if (R256.w[1] != 0 || R256.w[0] != 0)
+                            && (highf2star.w[1] == 0)
+                            && (highf2star.w[0] == 0)
+                            && (R256.w[1]  < bid_ten2mk128trunc[ind as usize].w[1]
+                            || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
+                             && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
+                                // the result is a midpoint
+                                if ((tmp64.wrapping_add(R256.w[2])) & 0x01) == 0x01 { // MP in [EVEN, ODD]
+                                    // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
+                                    R256.w[2] -= 1;
+                                    if R256.w[2] == 0xffffffffffffffffu64 {
+                                        R256.w[3] -= 1;
+                                    }
+                                    // this rounding is applied to C2 only!
+                                    if x_sign == y_sign {
+                                        is_midpoint_gt_even = true;
+                                    } else { // if (x_sign != y_sign)
+                                        is_midpoint_lt_even = true;
+                                    }
+                                    is_inexact_lt_midpoint = false;
                                     is_inexact_gt_midpoint = false;
-                                    is_inexact_lt_midpoint = true;
-                                    is_midpoint_gt_even    = false;
-                                    is_midpoint_lt_even    = false;
-                                } else if is_midpoint_gt_even { // for the 1st rounding
-                                    // Note: cannot have is_midpoint_lt_even
+                                } else {
+                                    // else MP in [ODD, EVEN]
+                                    // this rounding is applied to C2 only!
+                                    if x_sign == y_sign {
+                                        is_midpoint_lt_even = true;
+                                    } else { // if (x_sign != y_sign)
+                                        is_midpoint_gt_even = true;
+                                    }
+                                    is_inexact_lt_midpoint = false;
                                     is_inexact_gt_midpoint = false;
-                                    is_inexact_lt_midpoint = true;
-                                    is_midpoint_gt_even    = false;
-                                    is_midpoint_lt_even    = false;
-                                } else {                    // the first rounding must have been exact
-                                    if (Q256.w[2] & 0x01) == 0x01 { // MP in [EVEN, ODD]
-                                        // the truncated result is correct
+                                }
+                            }
+                            // end if (ind >= 0)
+                        } else { // if (ind == -1); only during a 2nd pass, and when x1 = 0
+                            R256.w[2] = C2_lo;
+                            R256.w[3] = C2_hi;
+                            tmp_inexact = false;
+                            // to correct a possible setting to 1 from 1st pass
+                            if second_pass {
+                                is_midpoint_lt_even    = false;
+                                is_midpoint_gt_even    = false;
+                                is_inexact_lt_midpoint = false;
+                                is_inexact_gt_midpoint = false;
+                            }
+                        }
+                        // and now add/subtract C1 * 10^(e1-e2-x1) +/- (C2 * 10^(-x1))rnd,P34
+                        if x_sign == y_sign { // addition; could overflow
+                            // no second pass is possible this way (only for x_sign != y_sign)
+                            C1.w[0] = C1.w[0].wrapping_add(R256.w[2]);
+                            C1.w[1] = C1.w[1].wrapping_add(R256.w[3]);
+                            if C1.w[0] < tmp64 {
+                                C1.w[1] += 1; // carry
+                            }
+                            // if the sum has P34+1 digits, i.e. C1>=10^34 redo the calculation
+                            // with x1=x1+1
+                            if C1.w[1]   > 0x0001ed09bead87c0u64
+                            || (C1.w[1] == 0x0001ed09bead87c0u64
+                             && C1.w[0] >= 0x378d8e6400000000u64) { // C1 >= 10^34
+                                // chop off one more digit from the sum, but make sure there is
+                                // no double-rounding error (see table - double rounding logic)
+                                // now round C1 from P34+1 to P34 decimal digits
+                                // C1' = C1 + 1/2 * 10 = C1 + 5
+                                if C1.w[0] >= 0xfffffffffffffffbu64 { // low half add has carry
+                                    C1.w[0] = C1.w[0] + 5;
+                                    C1.w[1] = C1.w[1] + 1;
+                                } else {
+                                    C1.w[0] = C1.w[0] + 5;
+                                }
+                                // the approximation of 10^(-1) was rounded up to 118 bits
+                                Q256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[0]); // Q256 = C1*, f1*
+                                // C1* is actually floor(C1*) in this case
+                                // the top 128 bits of 10^(-1) are
+                                // T* = bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                                // if (0 < f1* < 10^(-1)) then
+                                //   if floor(C1*) is even then C1* = floor(C1*) - logical right
+                                //       shift; C1* has p decimal digits, correct by Prop. 1)
+                                //   else if floor(C1*) is odd C1* = floor(C1*) - 1 (logical right
+                                //       shift; C1* has p decimal digits, correct by Pr. 1)
+                                // else
+                                //   C1* = floor(C1*) (logical right shift; C has p decimal digits
+                                //       correct by Property 1)
+                                // n = C1* * 10^(e2+x1+1)
+                                if (Q256.w[1] != 0 || Q256.w[0] != 0)
+                                && (Q256.w[1]  < bid_ten2mk128trunc[0].w[1]
+                                || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
+                                 && Q256.w[0] <= bid_ten2mk128trunc[0].w[0])) {
+                                    // the result is a midpoint
+                                    if is_inexact_lt_midpoint { // for the 1st rounding
+                                        is_inexact_gt_midpoint = true;
+                                        is_inexact_lt_midpoint = false;
+                                        is_midpoint_gt_even    = false;
+                                        is_midpoint_lt_even    = false;
+                                    } else if is_inexact_gt_midpoint { // for the 1st rounding
                                         Q256.w[2] -= 1;
                                         if Q256.w[2] == 0xffffffffffffffffu64 {
                                             Q256.w[3] -= 1;
                                         }
                                         is_inexact_gt_midpoint = false;
-                                        is_inexact_lt_midpoint = false;
-                                        is_midpoint_gt_even    = true;
-                                        is_midpoint_lt_even    = false;
-                                    } else { // MP in [ODD, EVEN]
-                                        is_inexact_gt_midpoint = false;
-                                        is_inexact_lt_midpoint = false;
+                                        is_inexact_lt_midpoint = true;
                                         is_midpoint_gt_even    = false;
-                                        is_midpoint_lt_even    = true;
-                                    }
-                                }
-                                tmp_inexact = true; // in all cases
-                            } else {             // the result is not a midpoint
-                                // determine inexactness of the rounding of C1 (the sum C1+C2*)
-                                // if (0 < f1* - 1/2 < 10^(-1)) then
-                                //   the result is exact
-                                // else (if f1* - 1/2 > T* then)
-                                //   the result of is inexact
-                                // ind = 0
-                                if Q256.w[1] > 0x8000000000000000u64 || (Q256.w[1] == 0x8000000000000000u64 && Q256.w[0] > 0x0u64) {
-                                    // f1* > 1/2 and the result may be exact
-                                    Q256.w[1] = Q256.w[1] - 0x8000000000000000u64; // f1* - 1/2
-                                    if  Q256.w[1]  > bid_ten2mk128trunc[0].w[1]
-                                    || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
-                                     && Q256.w[0]  > bid_ten2mk128trunc[0].w[0]) {
+                                        is_midpoint_lt_even    = false;
+                                    } else if is_midpoint_gt_even { // for the 1st rounding
+                                        // Note: cannot have is_midpoint_lt_even
                                         is_inexact_gt_midpoint = false;
                                         is_inexact_lt_midpoint = true;
                                         is_midpoint_gt_even    = false;
                                         is_midpoint_lt_even    = false;
-                                        // set the inexact flag
-                                        tmp_inexact = true;
-                                        // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                    } else {               // else the result is exact for the 2nd rounding
-                                        if tmp_inexact { // if the previous rounding was inexact
-                                            if is_midpoint_lt_even {
-                                                is_inexact_gt_midpoint = true;
-                                                is_midpoint_lt_even    = false;
-                                            } else if is_midpoint_gt_even {
-                                                is_inexact_lt_midpoint = true;
-                                                is_midpoint_gt_even    = false;
-                                            } else {
-                                                // no change
+                                    } else {                    // the first rounding must have been exact
+                                        if (Q256.w[2] & 0x01) == 0x01 { // MP in [EVEN, ODD]
+                                            // the truncated result is correct
+                                            Q256.w[2] -= 1;
+                                            if Q256.w[2] == 0xffffffffffffffffu64 {
+                                                Q256.w[3] -= 1;
                                             }
+                                            is_inexact_gt_midpoint = false;
+                                            is_inexact_lt_midpoint = false;
+                                            is_midpoint_gt_even    = true;
+                                            is_midpoint_lt_even    = false;
+                                        } else { // MP in [ODD, EVEN]
+                                            is_inexact_gt_midpoint = false;
+                                            is_inexact_lt_midpoint = false;
+                                            is_midpoint_gt_even    = false;
+                                            is_midpoint_lt_even    = true;
                                         }
                                     }
-                                    // rounding down, unless a midpoint in [ODD, EVEN]
-                                } else { // the result is inexact; f1* <= 1/2
-                                    is_inexact_gt_midpoint = true;
-                                    is_inexact_lt_midpoint = false;
-                                    is_midpoint_gt_even    = false;
-                                    is_midpoint_lt_even    = false;
-                                    // set the inexact flag
-                                    tmp_inexact            = true;
-                                    // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                    tmp_inexact = true; // in all cases
+                                } else {             // the result is not a midpoint
+                                    // determine inexactness of the rounding of C1 (the sum C1+C2*)
+                                    // if (0 < f1* - 1/2 < 10^(-1)) then
+                                    //   the result is exact
+                                    // else (if f1* - 1/2 > T* then)
+                                    //   the result of is inexact
+                                    // ind = 0
+                                    if Q256.w[1] > 0x8000000000000000u64 || (Q256.w[1] == 0x8000000000000000u64 && Q256.w[0] > 0x0u64) {
+                                        // f1* > 1/2 and the result may be exact
+                                        Q256.w[1] = Q256.w[1] - 0x8000000000000000u64; // f1* - 1/2
+                                        if  Q256.w[1]  > bid_ten2mk128trunc[0].w[1]
+                                        || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
+                                         && Q256.w[0]  > bid_ten2mk128trunc[0].w[0]) {
+                                            is_inexact_gt_midpoint = false;
+                                            is_inexact_lt_midpoint = true;
+                                            is_midpoint_gt_even    = false;
+                                            is_midpoint_lt_even    = false;
+                                            // set the inexact flag
+                                            tmp_inexact = true;
+                                            // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                        } else {               // else the result is exact for the 2nd rounding
+                                            if tmp_inexact { // if the previous rounding was inexact
+                                                if is_midpoint_lt_even {
+                                                    is_inexact_gt_midpoint = true;
+                                                    is_midpoint_lt_even    = false;
+                                                } else if is_midpoint_gt_even {
+                                                    is_inexact_lt_midpoint = true;
+                                                    is_midpoint_gt_even    = false;
+                                                } else {
+                                                    // no change
+                                                }
+                                            }
+                                        }
+                                        // rounding down, unless a midpoint in [ODD, EVEN]
+                                    } else { // the result is inexact; f1* <= 1/2
+                                        is_inexact_gt_midpoint = true;
+                                        is_inexact_lt_midpoint = false;
+                                        is_midpoint_gt_even    = false;
+                                        is_midpoint_lt_even    = false;
+                                        // set the inexact flag
+                                        tmp_inexact            = true;
+                                        // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                    }
+                                } // end 'the result is not a midpoint'
+                                // n = C1 * 10^(e2+x1)
+                                C1.w[1] = Q256.w[3];
+                                C1.w[0] = Q256.w[2];
+                                y_exp   = y_exp + (((x1 + 1) as BID_UINT64) << 49);
+                            } else { // C1 < 10^34
+                                // C1.w[1] and C1.w[0] already set
+                                // n = C1 * 10^(e2+x1)
+                                y_exp = y_exp + ((x1 as BID_UINT64) << 49);
+                            }
+                            // check for overflow
+                            if y_exp == EXP_MAX_P1 && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
+                                                     || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) {
+                                res.w[1] = 0x7800000000000000u64 | x_sign; // +/-inf
+                                res.w[0] = 0x0u64;
+                                // set the inexact flag
+                                *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                // set the overflow flag
+                                *pfpsf |= StatusFlags::BID_OVERFLOW_EXCEPTION;
+
+                                #[cfg(target_endian = "big")]
+                                BID_SWAP128(&mut res);
+
+                                return res;
+                            }    // else no overflow
+                        } else { // if x_sign != y_sign the result of this subtract. is exact
+                            C1.w[0] = C1.w[0].wrapping_sub(R256.w[2]);
+                            C1.w[1] = C1.w[1].wrapping_sub(R256.w[3]);
+                            if C1.w[0] > tmp64 {
+                                C1.w[1] -= 1;                       // borrow
+                            }
+                            if C1.w[1] >= 0x8000000000000000u64 { // negative coefficient!
+                                C1.w[0]  = !C1.w[0];
+                                C1.w[0] += 1;
+                                C1.w[1]  = !C1.w[1];
+                                if C1.w[0] == 0x0 {
+                                    C1.w[1] += 1;
                                 }
-                            } // end 'the result is not a midpoint'
-                            // n = C1 * 10^(e2+x1)
-                            C1.w[1] = Q256.w[3];
-                            C1.w[0] = Q256.w[2];
-                            y_exp   = y_exp + (((x1 + 1) as BID_UINT64) << 49);
-                        } else { // C1 < 10^34
-                            // C1.w[1] and C1.w[0] already set
-                            // n = C1 * 10^(e2+x1)
-                            y_exp = y_exp + ((x1 as BID_UINT64) << 49);
-                        }
-                        // check for overflow
-                        if y_exp == EXP_MAX_P1 && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
-                                                 || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) {
-                            res.w[1] = 0x7800000000000000u64 | x_sign; // +/-inf
-                            res.w[0] = 0x0u64;
-                            // set the inexact flag
-                            *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
-                            // set the overflow flag
-                            *pfpsf |= StatusFlags::BID_OVERFLOW_EXCEPTION;
-
-                            #[cfg(target_endian = "big")]
-                            BID_SWAP128(&mut res);
-
-                            return res;
-                        }    // else no overflow
-                    } else { // if x_sign != y_sign the result of this subtract. is exact
-                        C1.w[0] = C1.w[0].wrapping_sub(R256.w[2]);
-                        C1.w[1] = C1.w[1].wrapping_sub(R256.w[3]);
-                        if C1.w[0] > tmp64 {
-                            C1.w[1] -= 1;                       // borrow
-                        }
-                        if C1.w[1] >= 0x8000000000000000u64 { // negative coefficient!
-                            C1.w[0]  = !C1.w[0];
-                            C1.w[0] += 1;
-                            C1.w[1]  = !C1.w[1];
-                            if C1.w[0] == 0x0 {
-                                C1.w[1] += 1;
+                                tmp_sign = y_sign;
+                                // the result will have the sign of y if last rnd
+                            } else {
+                                tmp_sign = x_sign;
                             }
-                            tmp_sign = y_sign;
-                            // the result will have the sign of y if last rnd
-                        } else {
-                            tmp_sign = x_sign;
-                        }
-                        // if the difference has P34-1 digits or less, i.e. C1 < 10^33 then
-                        //   redo the calculation with x1=x1-1;
-                        // redo the calculation also if C1 = 10^33 and
-                        //   (is_inexact_gt_midpoint or is_midpoint_lt_even);
-                        //   (the last part should have really been
-                        //   (is_inexact_lt_midpoint or is_midpoint_gt_even) from
-                        //    the rounding of C2, but the position flags have been reversed)
-                        // 10^33 = 0x0000314dc6448d93 0x38c15b0a00000000
-                        if (C1.w[1]  < 0x0000314dc6448d93u64
-                        || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0]  < 0x38c15b0a00000000u64))
-                        || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0] == 0x38c15b0a00000000u64
-                        && (is_inexact_gt_midpoint || is_midpoint_lt_even)) { // C1=10^33
-                            x1 = x1 - 1;                                        // x1 >= 0
-                            if x1 >= 0 {
-                                // clear position flags and tmp_inexact
-                                is_midpoint_lt_even    = false;
-                                is_midpoint_gt_even    = false;
-                                is_inexact_lt_midpoint = false;
-                                is_inexact_gt_midpoint = false;
-                                tmp_inexact            = false;
-                                second_pass            = true;
-                                // TODO: goto roundC2
-                                // goto roundC2; // else result has less than P34 digits
-                                panic!("goto roundC2");
+                            // if the difference has P34-1 digits or less, i.e. C1 < 10^33 then
+                            //   redo the calculation with x1=x1-1;
+                            // redo the calculation also if C1 = 10^33 and
+                            //   (is_inexact_gt_midpoint or is_midpoint_lt_even);
+                            //   (the last part should have really been
+                            //   (is_inexact_lt_midpoint or is_midpoint_gt_even) from
+                            //    the rounding of C2, but the position flags have been reversed)
+                            // 10^33 = 0x0000314dc6448d93 0x38c15b0a00000000
+                            if (C1.w[1]  < 0x0000314dc6448d93u64
+                            || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0]  < 0x38c15b0a00000000u64))
+                            || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0] == 0x38c15b0a00000000u64
+                            && (is_inexact_gt_midpoint || is_midpoint_lt_even)) { // C1=10^33
+                                x1 = x1 - 1;                                        // x1 >= 0
+                                if x1 >= 0 {
+                                    // clear position flags and tmp_inexact
+                                    is_midpoint_lt_even    = false;
+                                    is_midpoint_gt_even    = false;
+                                    is_inexact_lt_midpoint = false;
+                                    is_inexact_gt_midpoint = false;
+                                    tmp_inexact            = false;
+                                    second_pass            = true;
+                                    // TODO: goto roundC2
+                                    // goto roundC2; // else result has less than P34 digits
+                                    continue 'roundC2;
+                                }
                             }
+                            // if the coefficient of the result is 10^34 it means that this
+                            // must be the second pass, and we are done
+                            if C1.w[1] == 0x0001ed09bead87c0u64 && C1.w[0] == 0x378d8e6400000000u64 { // if  C1 = 10^34
+                                C1.w[1] = 0x0000314dc6448d93u64;                                      // C1 = 10^33
+                                C1.w[0] = 0x38c15b0a00000000u64;
+                                y_exp = y_exp + ((1 as BID_UINT64) << 49);
+                            }
+                            x_sign = tmp_sign;
+                            if x1 >= 1 {
+                                y_exp = y_exp + ((x1 as BID_UINT64) << 49);
+                            }
+                            // x1 = -1 is possible at the end of a second pass when the
+                            // first pass started with x1 = 1
                         }
-                        // if the coefficient of the result is 10^34 it means that this
-                        // must be the second pass, and we are done
-                        if C1.w[1] == 0x0001ed09bead87c0u64 && C1.w[0] == 0x378d8e6400000000u64 { // if  C1 = 10^34
-                            C1.w[1] = 0x0000314dc6448d93u64;                                      // C1 = 10^33
-                            C1.w[0] = 0x38c15b0a00000000u64;
-                            y_exp = y_exp + ((1 as BID_UINT64) << 49);
-                        }
-                        x_sign = tmp_sign;
-                        if x1 >= 1 {
-                            y_exp = y_exp + ((x1 as BID_UINT64) << 49);
-                        }
-                        // x1 = -1 is possible at the end of a second pass when the
-                        // first pass started with x1 = 1
-                    }
+                        break 'roundC2;
+                    } // loop
                     C1_hi = C1.w[1];
                     C1_lo = C1.w[0];
                     // general correction from RN to RA, RM, RP, RZ; result uses y_exp
