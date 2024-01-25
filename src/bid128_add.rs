@@ -1504,10 +1504,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C1_hi += 1;
                         }
                     } else { // if x_sign != y_sign
-                        C1_lo = C1_lo - C2_lo;
-                        C1_hi = C1_hi - C2_hi;
+                        C1_lo = C1_lo.wrapping_sub(C2_lo);
+                        C1_hi = C1_hi.wrapping_sub(C2_hi);
                         if C1_lo > C1.w[0] {
-                            C1_hi -= 1;
+                            C1_hi = C1_hi.wrapping_sub(1);
                         }
                         // the result can be zero, but it cannot overflow
                         if C1_lo == 0 && C1_hi == 0 {
