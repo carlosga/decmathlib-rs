@@ -29,7 +29,7 @@ dec_test!(bid128_sub_018, bid128_sub, 0, "0"                                    
 dec_test!(bid128_sub_019, bid128_sub, 0, "-0"                                        , "QNaN"                                           , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_sub_020, bid128_sub, 0, "0"                                         , "SNaN"                                           , 0x7c000000000000000000000000000000u128, 0x01);
 dec_test!(bid128_sub_021, bid128_sub, 0, "+100000000000000000100000000.01000E6130"   , "+5965845635432.92E6144"                         , 0x7c000000000000000000000000000000u128, 0x01);
-// TODO: bid128_sub_004, panics due to not having the goto implemented
+// TODO: bid128_sub_022, panics due to not having the goto implemented
 // dec_test!(bid128_sub_022, bid128_sub, 0, "-10000000.0E6137"                          , "-59978867886579969868787588.6699E6113"          , 0xdffded08fce02c70eca8ce1d508461c2u128, 0x20);
 dec_test!(bid128_sub_023, bid128_sub, 0, "+1000000010000010.0100000E-6192"           , "+8998898888898999998899999999.988888889E-6026"  , 0x8121bbae128738e463d45adcde9f1499u128, 0x00);
 dec_test!(bid128_sub_024, bid128_sub, 0, "-100110101100100001100.0001011011000E6132" , "-99999.8889889989E6131"                         , 0xf8000000000000000000000000000000u128, 0x00);
