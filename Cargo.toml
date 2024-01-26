@@ -3,7 +3,18 @@ name = "decmathlib-rs"
 version = "0.1.0"
 edition = "2021"
 
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+[profile.dev]
+overflow-checks = false     # Disable integer overflow checks.
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 
 [dependencies]
+
+[dev-dependencies]
+criterion = { version = "0.4.0", features = ["html_reports"] }
+
+[[bench]]
+name = "decmathlib"
+harness = false
