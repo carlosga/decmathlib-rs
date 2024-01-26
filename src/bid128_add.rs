@@ -27,13 +27,13 @@ use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UIN
 
 pub (crate) fn bid64dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
-    let res: BID_UINT64 = bid64qq_add(&x1, &y, rnd_mode, pfpsf);
+    let res: BID_UINT64 = bid64qq_add(&x1, y, rnd_mode, pfpsf);
     res
 }
 
 pub (crate) fn bid64qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT64 = bid64qq_add(&x, &y1, rnd_mode, pfpsf);
+    let res: BID_UINT64 = bid64qq_add(x, &y1, rnd_mode, pfpsf);
     res
 }
 
@@ -41,7 +41,7 @@ pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
     let one: BID_UINT128 = BID_UINT128::new(0x0000000000000001u64, 0x3040000000000000u64);
     // Swapped on ::new
     // BID_SWAP128(one);
-    let res: BID_UINT64 = bid64qqq_fma(&one, &x, &y, rnd_mode, pfpsf);
+    let res: BID_UINT64 = bid64qqq_fma(&one, x, y, rnd_mode, pfpsf);
     res
 }
 
@@ -54,13 +54,13 @@ pub (crate) fn bid128dd_add(x: BID_UINT64, y: BID_UINT64, rnd_mode: u32, pfpsf: 
 
 pub (crate) fn bid128dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
-    let res: BID_UINT128 = bid128_add(&x1, &y, rnd_mode, pfpsf);
+    let res: BID_UINT128 = bid128_add(&x1, y, rnd_mode, pfpsf);
     res
 }
 
 pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT128 = bid128_add(&x, &y1, rnd_mode, pfpsf);
+    let res: BID_UINT128 = bid128_add(x, &y1, rnd_mode, pfpsf);
     res
 }
 
@@ -78,7 +78,7 @@ pub (crate) fn bid64dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf:
 
 pub (crate) fn bid64qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT64 = bid64qq_sub(&x, &y1, rnd_mode, pfpsf);
+    let res: BID_UINT64 = bid64qq_sub(x, &y1, rnd_mode, pfpsf);
     res
 }
 
@@ -97,7 +97,7 @@ pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
             y.w[BID_HIGH_128W] | 0x8000000000000000u64
         };
     }
-    let res = bid64qqq_fma(&one, &x, &y, rnd_mode, pfpsf);
+    let res = bid64qqq_fma(&one, x, &y, rnd_mode, pfpsf);
     res
 }
 
@@ -116,7 +116,7 @@ pub (crate) fn bid128dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
 pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let y1  = bid64_to_bid128(y, pfpsf);
-    let res = bid128_sub(&x, &y1, rnd_mode, pfpsf);
+    let res = bid128_sub(x, &y1, rnd_mode, pfpsf);
     res
 }
 
@@ -429,7 +429,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         #[cfg(target_endian = "big")]
         BID_SWAP128(&mut res);
 
-        return res;
+        res
     } else if (C2_hi == 0x0u64) && (C2_lo == 0x0u64) {
         // y is 0 and x is not special, and not zero
         // for x + 0 return x, with the preferred exponent

@@ -408,7 +408,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
     tmp     <<= 49;
     pres.w[1] = sgn | tmp | coeff.w[1];
 
-    return pres;
+    pres
 }
 
 /// Macro for handling BID128 underflow
@@ -549,7 +549,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
     pres.w[1] = sgn | CQ.w[1];
     pres.w[0] = CQ.w[0];
 
-    return pres;
+    pres
 }
 
 //////////////////////////////////////////////
