@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table};
+use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table, bid_round_const_table_128};
 use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
 
 ///  BID32 unpack, input pased by reference
 pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {
@@ -122,7 +122,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
         coeff.w[1]          = (px.w[1]) & LARGE_COEFF_MASK128;
         pcoefficient_x.w[0] = px.w[0];
         pcoefficient_x.w[1] = px.w[1];
-        if __unsigned_compare_ge_128(coeff, T33) { // non-canonical
+        if __unsigned_compare_ge_128(&coeff, &T33) { // non-canonical
             pcoefficient_x.w[1] &= !LARGE_COEFF_MASK128;
             pcoefficient_x.w[0] = 0;
         }
@@ -136,7 +136,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
     // 10^34
     T34 = bid_power10_table_128[34];
     // check for non-canonical values
-    if __unsigned_compare_ge_128 (coeff, T34) {
+    if __unsigned_compare_ge_128 (&coeff, &T34) {
         coeff.w[0] = 0;
         coeff.w[1] = 0;
     }
@@ -151,7 +151,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
 }
 
 /// BID64 pack macro (general form)
-pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: u32, fpsc: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
     let mut Stemp: BID_UINT128 = BID_UINT128::default();
     let Q_low: BID_UINT128;
     let QH: BID_UINT64;
@@ -175,7 +175,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
         if expon < 0 {
             // underflow
             if expon + (MAX_FORMAT_DIGITS as i32) < 0 {
-                __set_status_flags(fpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
+                __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
 
                 if rmode == RoundingMode::BID_ROUNDING_DOWN && sgn != 0 {
                     return 0x8000000000000001u64;
@@ -221,8 +221,8 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                     }
                 }
 
-                if is_inexact(*fpsc) {
-                    __set_status_flags(fpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
+                if is_inexact(*pfpsc) {
+                    __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
                 } else {
                     status = StatusFlags::BID_INEXACT_EXCEPTION;
                     // get remainder
@@ -255,7 +255,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                     };
 
                     if status != StatusFlags::BID_EXACT_STATUS {
-                        __set_status_flags(fpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | status);
+                        __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | status);
                     }
                 }
 
@@ -272,7 +272,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
             coeff = (coeff << 3) + (coeff << 1);
         }
         if expon > DECIMAL_MAX_EXPON_64 {
-            __set_status_flags(fpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
+            __set_status_flags(pfpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
             // overflow
             r = sgn | INFINITY_MASK64;
             match rmode {
@@ -337,9 +337,224 @@ pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64,
     *pres
 }
 
+/// General BID128 pack macro
+pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
+    let T: BID_UINT128;
+    let mut tmp: BID_UINT64;
+    let mut tmp2: BID_UINT64;
+    let mut expon: i32 = expon;
+    let mut coeff: BID_UINT128 = *coeff;
+    let mut pres: BID_UINT128 = BID_UINT128::default();
+
+    // coeff==10^34?
+    if coeff.w[1] == 0x0001ed09bead87c0u64 && coeff.w[0] == 0x378d8e6400000000u64 {
+        expon += 1;
+        // set coefficient to 10^33
+        coeff.w[1] = 0x0000314dc6448d93u64;
+        coeff.w[0] = 0x38c15b0a00000000u64;
+    }
+
+    // check OF, UF
+    if expon < 0 || expon > DECIMAL_MAX_EXPON_128 as i32 {
+        // check UF
+        if expon < 0 {
+            return handle_UF_128(sgn, expon, &coeff, rnd_mode, pfpsc);
+        }
+
+        if expon - (MAX_FORMAT_DIGITS_128 as i32) <= (DECIMAL_MAX_EXPON_128 as i32) {
+            T = bid_power10_table_128[(MAX_FORMAT_DIGITS_128 - 1) as usize];
+            while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 as i32 {
+                coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
+                tmp2       = coeff.w[0] << 3;
+                coeff.w[0] = (coeff.w[0] << 1).wrapping_add(tmp2);
+                if coeff.w[0] < tmp2 {
+                    coeff.w[1] += 1;
+                }
+                expon -= 1;
+            }
+        }
+        if expon > DECIMAL_MAX_EXPON_128 as i32 {
+            if (coeff.w[1] | coeff.w[0]) == 0 {
+                pres.w[1] = sgn | ((DECIMAL_MAX_EXPON_128 as BID_UINT64) << 49);
+                pres.w[0] = 0;
+                return pres;
+            }
+            // OF
+            __set_status_flags (pfpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
+  // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
+  // #ifndef IEEE_ROUND_NEAREST
+  //       if *prounding_mode == BID_ROUNDING_TO_ZERO
+  //       || (sgn && *prounding_mode == BID_ROUNDING_UP) || (!sgn
+  //                              &&
+  //                              *prounding_mode
+  //                              ==
+  //                              BID_ROUNDING_DOWN)
+  //       {
+  //     pres->w[1] = sgn | LARGEST_BID128_HIGH;
+  //     pres->w[0] = LARGEST_BID128_LOW;
+  //       } else
+  // #endif
+  // #endif
+            {
+                pres.w[1] = sgn | INFINITY_MASK64;
+                pres.w[0] = 0;
+            }
+            return pres;
+        }
+    }
+
+    pres.w[0] = coeff.w[0];
+    tmp       = expon as BID_UINT64;
+    tmp     <<= 49;
+    pres.w[1] = sgn | tmp | coeff.w[1];
+
+    pres
+}
+
+/// Macro for handling BID128 underflow
+pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128{
+    let T128: BID_UINT128;
+    let TP128: BID_UINT128;
+    let mut Qh: BID_UINT128;
+    let Ql: BID_UINT128;
+    let Qh1: BID_UINT128;
+    let mut Stemp: BID_UINT128 = BID_UINT128::default();
+    let mut Tmp: BID_UINT128 = BID_UINT128::default();
+    let Tmp1: BID_UINT128;
+    let mut carry: BID_UINT64;
+    let CY: BID_UINT64;
+    let ed2: i32;
+    let amount: i32;
+    let rmode: u32 = rnd_mode;
+    let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+    let mut pres: BID_UINT128 = BID_UINT128::default();
+    let mut CQ: BID_UINT128 = *CQ;
+
+    // UF occurs
+    if expon + (MAX_FORMAT_DIGITS_128 as i32) < 0 {
+        __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
+        pres.w[1] = sgn;
+        pres.w[0] = 0;
+        // if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
+        //     if cfg!(IEEE_ROUND_NEAREST == "1") {
+        //         if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
+        //         || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+        //             pres.w[0] = 1u64;
+        //         }
+        //     }
+        // }
+        return pres;
+    }
+
+    ed2 = 0 - expon;
+
+    // add rounding constant to CQ
+    // if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
+    //     if cfg!(IEEE_ROUND_NEAREST == "1") {
+    //         rmode = rnd_mode;
+    //         if sgn != 0 && ((rmode - 1) as u32) < 2 {
+    //         rmode = 3 - rmode;
+    //         }
+    //     } else {
+    //         rmode = 0;
+    //     }
+    // } else {
+    //       rmode = 0;
+    // }
+
+    T128             = bid_round_const_table_128[rmode as usize][ed2 as usize];
+    (CQ.w[0], carry) = __add_carry_out(T128.w[0], CQ.w[0]);
+    CQ.w[1]          = CQ.w[1] + T128.w[1] + carry;
+    TP128            = bid_reciprocals10_128[ed2 as usize];
+    (Qh, Ql)         = __mul_128x128_full(&CQ, &TP128);
+    amount           = bid_recip_scale[ed2 as usize];
+
+    if amount >= 64 {
+        CQ.w[0] = Qh.w[1] >> (amount - 64);
+        CQ.w[1] = 0;
+    } else {
+        CQ = __shr_128(&Qh, amount);
+    }
+
+    expon = 0;
+
+    // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
+    // #ifndef IEEE_ROUND_NEAREST
+    //   if (!(*prounding_mode))
+    // #endif
+    //     if (CQ.w[0] & 1) {
+    //       // check whether fractional part of initial_P/10^ed1 is exactly .5
+    //
+    //       // get remainder
+    //       __shl_128_long (Qh1, Qh, (128 - amount));
+    //
+    //       if (!Qh1.w[1] && !Qh1.w[0]
+    // 	  && (Ql.w[1] < bid_reciprocals10_128[ed2].w[1]
+    // 	      || (Ql.w[1] == bid_reciprocals10_128[ed2].w[1]
+    // 		  && Ql.w[0] < bid_reciprocals10_128[ed2].w[0]))) {
+    // 	CQ.w[0]--;
+    //       }
+    //     }
+    // #endif
+
+    if is_inexact(*pfpsc) {
+        __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
+    } else {
+        status = StatusFlags::BID_INEXACT_EXCEPTION;
+        // get remainder
+        Qh1 = __shl_128_long(&Qh, 128 - amount);
+
+        match rmode {
+            RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+                // test whether fractional part is 0
+                if  Qh1.w[1] == 0x8000000000000000u64
+                && (Qh1.w[0] == 0)
+                && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+                || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+                 && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
+                    status = StatusFlags::BID_EXACT_STATUS;
+                }
+            },
+            RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO=> {
+                if (Qh1.w[1] == 0) && (Qh1.w[0] == 0)
+                && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+                || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+                 && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
+                    status = StatusFlags::BID_EXACT_STATUS;
+                }
+            },
+            _ =>  {
+                // round up
+                (Stemp.w[0], CY)    = __add_carry_out(Ql.w[0], bid_reciprocals10_128[ed2 as usize].w[0]);
+                (Stemp.w[1], carry) = __add_carry_in_out(Ql.w[1],bid_reciprocals10_128[ed2 as usize].w[1], CY);
+                Qh                  = __shr_128_long(&Qh1, 128 - amount);
+                Tmp.w[0]            = 1;
+                Tmp.w[1]            = 0;
+                Tmp1                = __shl_128_long(&Tmp, amount);
+                Qh.w[0]            += carry;
+                if Qh.w[0] < carry {
+                    Qh.w[1] += 1;
+                }
+                if __unsigned_compare_ge_128(&Qh, &Tmp1) {
+                    status = StatusFlags::BID_EXACT_STATUS;
+                }
+            }
+        }
+    }
+
+    if status != StatusFlags::BID_EXACT_STATUS {
+        __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | status);
+    }
+
+    pres.w[1] = sgn | CQ.w[1];
+    pres.w[0] = CQ.w[0];
+
+    pres
+}
+
 //////////////////////////////////////////////
 //  Status Flag Handling
-/////////////////////////////////////////////
+//////////////////////////////////////////////
 #[inline(always)]
 pub (crate) fn __set_status_flags(fpsc: &mut _IDEC_flags, status: _IDEC_flags) {
     *fpsc |= status;
@@ -503,9 +718,9 @@ pub (crate) fn __mul_64x64_to_64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT64 {
 //     Ph = QM2.w[1];
 // }
 
-/*****************************************************
- *      Unsigned Multiply Macros
- *****************************************************/
+//////////////////////////////////////////////
+//      Unsigned Multiply Macros
+//////////////////////////////////////////////
 
 /// get fu64 64x64bit product
 pub (crate) fn __mul_64x64_to_128(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128 {
@@ -609,19 +824,34 @@ pub (crate) fn __mul_128x128_high(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT1
 }
 
 pub (crate) fn __mul_128x128_full(A: &BID_UINT128, B: &BID_UINT128) -> (BID_UINT128, BID_UINT128) {
-	let ALBH: BID_UINT128   = __mul_64x64_to_128(A.w[0], B.w[1]);
-	let AHBL: BID_UINT128   = __mul_64x64_to_128(B.w[0], A.w[1]);
-	let ALBL: BID_UINT128   = __mul_64x64_to_128(A.w[0], B.w[0]);
-	let AHBH: BID_UINT128   = __mul_64x64_to_128(A.w[1], B.w[1]);
-    let QM: BID_UINT128     = __add_128_128(&ALBH, &AHBL);
-    let mut Ql: BID_UINT128 = __add_128_128(&ALBH, &AHBL);
-	Ql.w[0] = ALBL.w[0];
-    let QM2: BID_UINT128    = __add_128_64(&QM, ALBL.w[1]);
-    let Qh: BID_UINT128     = __add_128_64(&AHBH, QM2.w[1]);
-	Ql.w[1] = QM2.w[0];
+    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let ALBH: BID_UINT128 = __mul_64x64_to_128(A.w[0], B.w[1]);
+    let AHBL: BID_UINT128 = __mul_64x64_to_128(B.w[0], A.w[1]);
+    let ALBL: BID_UINT128 = __mul_64x64_to_128(A.w[0], B.w[0]);
+    let AHBH: BID_UINT128 = __mul_64x64_to_128(A.w[1], B.w[1]);
+    let QM: BID_UINT128   = __add_128_128(&ALBH, &AHBL);
+    Ql.w[0] = ALBL.w[0];
+    let QM2: BID_UINT128  = __add_128_64(&QM, ALBL.w[1]);
+    let Qh: BID_UINT128   = __add_128_64(&AHBH, QM2.w[1]);
+    Ql.w[1] = QM2.w[0];
 
     (Qh, Ql)
 }
+
+// pub (crate) fn __mul_128x128_full(A: &BID_UINT128, B: &BID_UINT128) -> (BID_UINT128, BID_UINT128) {
+// 	let ALBH: BID_UINT128   = __mul_64x64_to_128(A.w[0], B.w[1]);
+// 	let AHBL: BID_UINT128   = __mul_64x64_to_128(B.w[0], A.w[1]);
+// 	let ALBL: BID_UINT128   = __mul_64x64_to_128(A.w[0], B.w[0]);
+// 	let AHBH: BID_UINT128   = __mul_64x64_to_128(A.w[1], B.w[1]);
+//     let QM: BID_UINT128     = __add_128_128(&ALBH, &AHBL);
+//     let mut Ql: BID_UINT128 = __add_128_128(&ALBH, &AHBL);
+// 	Ql.w[0] = ALBL.w[0];
+//     let QM2: BID_UINT128    = __add_128_64(&QM, ALBL.w[1]);
+//     let Qh: BID_UINT128     = __add_128_64(&AHBH, QM2.w[1]);
+// 	Ql.w[1] = QM2.w[0];
+//
+//     (Qh, Ql)
+// }
 
 pub (crate) fn __mul_128x128_low(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT128 {
     let mut Ql: BID_UINT128 = BID_UINT128::default();
@@ -756,16 +986,16 @@ pub (crate) fn __mul_64x64_to_128HIGH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
 
 pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256 {
     let mut lC: BID_UINT64;
-	let mut lP: BID_UINT256 = BID_UINT256::default();
-	let lP0: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[0]);
-	let lP1: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[1]);
-	let lP2: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[2]);
-	lP.w[0] = lP0.w[0];
-	(lP.w[1], lC) = __add_carry_out(lP1.w[0], lP0.w[1]);
-	(lP.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
-	lP.w[3] = lP2.w[1] + lC;
+    let mut lP: BID_UINT256 = BID_UINT256::default();
+    let lP0: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[0]);
+    let lP1: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[1]);
+    let lP2: BID_UINT128 = __mul_64x64_to_128(lA, lB.w[2]);
+    lP.w[0] = lP0.w[0];
+    (lP.w[1], lC) = __add_carry_out(lP1.w[0], lP0.w[1]);
+    (lP.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
+    lP.w[3] = lP2.w[1] + lC;
 
-	lP
+    lP
 }
 
 pub (crate) fn __mul_128x64_to_128(A64: BID_UINT64, B128: &BID_UINT128) -> BID_UINT128 {
@@ -790,65 +1020,65 @@ pub (crate) fn __mul_64x128_to_128(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT12
 pub (crate) fn __mul_64x256_to_320(A: BID_UINT64, B: &BID_UINT256) -> BID_UINT512 {
     let mut lC: BID_UINT64;
     let mut P: BID_UINT512 = BID_UINT512::default();
-	let lP0: BID_UINT128 = __mul_64x64_to_128(A, B.w[0]);
-	let lP1: BID_UINT128 = __mul_64x64_to_128(A, B.w[1]);
-	let lP2: BID_UINT128 = __mul_64x64_to_128(A, B.w[2]);
-	let lP3: BID_UINT128 = __mul_64x64_to_128(A, B.w[3]);
-	P.w[0] = lP0.w[0];
-	(P.w[1], lC) = __add_carry_out(lP1.w[0],lP0.w[1]);
-	(P.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
-	(P.w[3], lC) = __add_carry_in_out(lP3.w[0],lP2.w[1], lC);
-	P.w[4] = lP3.w[1] + lC;
+    let lP0: BID_UINT128 = __mul_64x64_to_128(A, B.w[0]);
+    let lP1: BID_UINT128 = __mul_64x64_to_128(A, B.w[1]);
+    let lP2: BID_UINT128 = __mul_64x64_to_128(A, B.w[2]);
+    let lP3: BID_UINT128 = __mul_64x64_to_128(A, B.w[3]);
+    P.w[0] = lP0.w[0];
+    (P.w[1], lC) = __add_carry_out(lP1.w[0],lP0.w[1]);
+    (P.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
+    (P.w[3], lC) = __add_carry_in_out(lP3.w[0],lP2.w[1], lC);
+    P.w[4] = lP3.w[1] + lC;
 
-	P
+    P
 }
 
 pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UINT384
 {
     let mut CY: BID_UINT64;
-	let mut P: BID_UINT384  = BID_UINT384::default();
-	let P0: BID_UINT256 = __mul_64x192_to_256(A.w[0], B);
-	let P1: BID_UINT256 = __mul_64x192_to_256(A.w[1], B);
-	let P2: BID_UINT256 = __mul_64x192_to_256(A.w[2], B);
-	P.w[0] = P0.w[0];
-	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
-	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
-	(P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
-	P.w[4] = P1.w[3] + CY;
-	(P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
-	(P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3],CY);
-	(P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4],CY);
-	P.w[5] = P2.w[3] + CY;
+    let mut P: BID_UINT384  = BID_UINT384::default();
+    let P0: BID_UINT256 = __mul_64x192_to_256(A.w[0], B);
+    let P1: BID_UINT256 = __mul_64x192_to_256(A.w[1], B);
+    let P2: BID_UINT256 = __mul_64x192_to_256(A.w[2], B);
+    P.w[0] = P0.w[0];
+    (P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
+    (P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
+    (P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
+    P.w[4] = P1.w[3] + CY;
+    (P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
+    (P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3],CY);
+    (P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4],CY);
+    P.w[5] = P2.w[3] + CY;
 
-	P
+    P
 }
 
 pub (crate) fn __mul_256x256_to_512(A: &BID_UINT256, B: &BID_UINT256) -> BID_UINT512
 {
     let mut CY: BID_UINT64;
     let mut P: BID_UINT512 = BID_UINT512::default();
-	let P0: BID_UINT512 = __mul_64x256_to_320(A.w[0], B);
-	let P1: BID_UINT512 = __mul_64x256_to_320(A.w[1], B);
-	let P2: BID_UINT512 = __mul_64x256_to_320(A.w[2], B);
-	let P3: BID_UINT512 = __mul_64x256_to_320(A.w[3], B);
-	P.w[0] = P0.w[0];
-	(P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
-	(P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
-	(P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
-	(P.w[4], CY) = __add_carry_in_out(P1.w[3], P0.w[4], CY);
-	P.w[5] = P1.w[4] + CY;
-	(P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
-	(P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3], CY);
-	(P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4], CY);
-	(P.w[5], CY) = __add_carry_in_out(P2.w[3], P.w[5], CY);
-	P.w[6] = P2.w[4] + CY;
-	(P.w[3], CY) = __add_carry_out(P3.w[0], P.w[3]);
-	(P.w[4], CY) = __add_carry_in_out(P3.w[1], P.w[4], CY);
-	(P.w[5], CY) = __add_carry_in_out(P3.w[2], P.w[5], CY);
-	(P.w[6], CY) = __add_carry_in_out(P3.w[3], P.w[6], CY);
-	P.w[7] = P3.w[4] + CY;
+    let P0: BID_UINT512 = __mul_64x256_to_320(A.w[0], B);
+    let P1: BID_UINT512 = __mul_64x256_to_320(A.w[1], B);
+    let P2: BID_UINT512 = __mul_64x256_to_320(A.w[2], B);
+    let P3: BID_UINT512 = __mul_64x256_to_320(A.w[3], B);
+    P.w[0] = P0.w[0];
+    (P.w[1], CY) = __add_carry_out(P1.w[0], P0.w[1]);
+    (P.w[2], CY) = __add_carry_in_out(P1.w[1], P0.w[2], CY);
+    (P.w[3], CY) = __add_carry_in_out(P1.w[2], P0.w[3], CY);
+    (P.w[4], CY) = __add_carry_in_out(P1.w[3], P0.w[4], CY);
+    P.w[5] = P1.w[4] + CY;
+    (P.w[2], CY) = __add_carry_out(P2.w[0], P.w[2]);
+    (P.w[3], CY) = __add_carry_in_out(P2.w[1], P.w[3], CY);
+    (P.w[4], CY) = __add_carry_in_out(P2.w[2], P.w[4], CY);
+    (P.w[5], CY) = __add_carry_in_out(P2.w[3], P.w[5], CY);
+    P.w[6] = P2.w[4] + CY;
+    (P.w[3], CY) = __add_carry_out(P3.w[0], P.w[3]);
+    (P.w[4], CY) = __add_carry_in_out(P3.w[1], P.w[4], CY);
+    (P.w[5], CY) = __add_carry_in_out(P3.w[2], P.w[5], CY);
+    (P.w[6], CY) = __add_carry_in_out(P3.w[3], P.w[6], CY);
+    P.w[7] = P3.w[4] + CY;
 
-	P
+    P
 }
 
 //////////////////////////////////////////////
@@ -858,15 +1088,15 @@ pub (crate) fn __mul_256x256_to_512(A: &BID_UINT256, B: &BID_UINT256) -> BID_UIN
 /// greater than
 ///  return 0 if A<=B
 ///  non-zero if A>B
-pub (crate) fn __unsigned_compare_gt_128(A: BID_UINT128, B: BID_UINT128) -> bool  {
+pub (crate) fn __unsigned_compare_gt_128(A: &BID_UINT128, B: &BID_UINT128) -> bool  {
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
 }
 
 /// greater-or-equal
-pub (crate) fn __unsigned_compare_ge_128(A: BID_UINT128, B: BID_UINT128) -> bool {
+pub (crate) fn __unsigned_compare_ge_128(A: &BID_UINT128, B: &BID_UINT128) -> bool {
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] >= B.w[0]))
 }
 
-pub (crate) fn __test_equal_128(A: BID_UINT128, B: BID_UINT128) -> bool {
+pub (crate) fn __test_equal_128(A: &BID_UINT128, B: &BID_UINT128) -> bool {
     (A.w[1] == B.w[1]) && (A.w[0] == B.w[0])
 }

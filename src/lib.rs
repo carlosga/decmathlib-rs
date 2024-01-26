@@ -6,10 +6,13 @@
 /* --------------------------------------------------------------------- */
 
 mod bid128;
+mod bid128_2_str_tables;
+mod bid128_2_str_macros;
 mod bid128_add;
 mod bid128_fma;
 mod bid128_mul;
 mod bid128_noncomp;
+mod bid128_string;
 mod bid_conf;
 mod bid_decimal_data;
 mod bid_internal;
@@ -17,4 +20,4 @@ mod bid_round;
 mod constants;
 mod convert;
 pub mod core;
-pub mod dec128;
+pub mod d128;

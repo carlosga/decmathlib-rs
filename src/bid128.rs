@@ -10,7 +10,7 @@
 #![allow(unused)]
 #![allow(dead_code)]
 
-use crate::dec128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
+use crate::d128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 
 /// the first entry of bid_nr_digits[i - 1] (where 1 <= i <= 113), indicates
 /// the number of decimal digits needed to represent a binary number with i bits;

@@ -6,7 +6,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #[cfg(target_endian = "big")]
-use crate::dec128::{BID_UINT128, BID_UINT64};
+use crate::d128::{BID_UINT128, BID_UINT64};
 
 #[cfg(target_endian = "big")]
 pub (crate) const BID_HIGH_128W: usize = 0;

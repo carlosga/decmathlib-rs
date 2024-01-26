@@ -11,7 +11,7 @@
 #![allow(dead_code)]
 
 use crate::constants::{DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL};
-use crate::dec128::_IDEC_flags;
+use crate::d128::_IDEC_flags;
 
 #[derive(Debug, Copy, Clone)]
 pub enum ClassTypes {
@@ -45,19 +45,19 @@ impl RoundingMode {
         | RoundingMode::BID_ROUNDING_TIES_AWAY;
 }
 
-#[cfg(default_rounding = "TO_NEAREST")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TO_NEAREST")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST;
 
-#[cfg(default_rounding = "DOWN")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "DOWN")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_DOWN;
 
-#[cfg(default_rounding = "UP")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "UP")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_UP;
 
-#[cfg(default_rounding = "TO_ZERO")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TO_ZERO")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_ZERO;
 
-#[cfg(default_rounding = "TIES_AWAY")]
+#[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TIES_AWAY")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TIES_AWAY;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

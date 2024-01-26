@@ -17,7 +17,7 @@ use crate::bid_decimal_data::*;
 use crate::bid_internal::*;
 use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
-use crate::dec128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
 
 /// Takes a BID64 as input and converts it to a BID128 and returns it.
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -227,7 +227,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
                     if Qh.w[0] < carry {
                         Qh.w[1] += 1;
                     }
-                    if __unsigned_compare_ge_128(Qh, Tmp1) {
+                    if __unsigned_compare_ge_128(&Qh, &Tmp1) {
                         status = StatusFlags::BID_EXACT_STATUS;
                     }
                 }

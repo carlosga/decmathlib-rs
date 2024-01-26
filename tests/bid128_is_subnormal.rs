@@ -7,7 +7,7 @@
 
 mod common;
 
-// dec_test!(bid128_is_subnormal_001, bid128_is_subnormal, -0i64                                  , false);
+dec_test!(bid128_is_subnormal_001, bid128_is_subnormal,  "-0"                                  , false);
 dec_test!(bid128_is_subnormal_002, bid128_is_subnormal,  0x0001ed09bead87c0378d8e62ffffffffu128, false);
 dec_test!(bid128_is_subnormal_003, bid128_is_subnormal,  0x0001ed09bead87c0378d8e64ffffffffu128, false);
 dec_test!(bid128_is_subnormal_004, bid128_is_subnormal,  0x000200000000000007a63158fbd6b32fu128, true);
@@ -30,7 +30,7 @@ dec_test!(bid128_is_subnormal_020, bid128_is_subnormal,  0xbefbefbfaf5bdfddaddfe
 dec_test!(bid128_is_subnormal_021, bid128_is_subnormal,  0xd754ce3bc22f555f79c8815335535001u128, false);
 dec_test!(bid128_is_subnormal_022, bid128_is_subnormal,  0xd9000000000000000000000000000000u128, false);
 dec_test!(bid128_is_subnormal_023, bid128_is_subnormal,  0xfdfdf7ff7ffdf7bfffffefffffffffafu128, false);
-// dec_test!(bid128_is_subnormal_024, bid128_is_subnormal, -Infinity 0 00);
-// dec_test!(bid128_is_subnormal_025, bid128_is_subnormal, Infinity 0 00);
-// dec_test!(bid128_is_subnormal_026, bid128_is_subnormal, QNaN 0 00);
-// dec_test!(bid128_is_subnormal_027, bid128_is_subnormal, SNaN 0 00);
+dec_test!(bid128_is_subnormal_024, bid128_is_subnormal, "-Infinity"                            , false);
+dec_test!(bid128_is_subnormal_025, bid128_is_subnormal,  "Infinity"                            , false);
+dec_test!(bid128_is_subnormal_026, bid128_is_subnormal,      "QNaN"                            , false);
+dec_test!(bid128_is_subnormal_027, bid128_is_subnormal,      "SNaN"                            , false);
