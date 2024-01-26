@@ -5,6 +5,8 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
+#![allow(unused)]
+
 use std::convert::From;
 use decmathlib_rs::core::ClassTypes;
 

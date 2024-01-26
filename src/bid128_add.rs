@@ -126,13 +126,12 @@ pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf
 ///  BID128 sub
 /////////////////////////////////////
 
-// DFP_WRAPFN_DFP_DFP(128, bid128_sub, 128, 128)
 pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut y: BID_UINT128 = *y;
     if (y.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN {
         // y is not NAN
         // change its sign
-        let y_sign = y.w[BID_HIGH_128W] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative
+        let y_sign: BID_UINT64 = y.w[BID_HIGH_128W] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative
         y.w[BID_HIGH_128W] = if y_sign != 0 {
             y.w[BID_HIGH_128W] & 0x7fffffffffffffffu64
         } else {
@@ -147,7 +146,6 @@ pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 /// BID128 add
 /////////////////////////////////////
 
-// DFP_WRAPFN_DFP_DFP(128, bid128_add, 128, 128)
 pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
     let mut x_sign: BID_UINT64;
@@ -194,8 +192,6 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
     let mut second_pass: bool = false;
-    let mut x = *x;
-    let mut y = *y;
 
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
@@ -208,6 +204,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
     // check for NaN or Infinity
     if ((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL) || ((y.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
+        let mut x: BID_UINT128 = *x;
+        let mut y: BID_UINT128 = *y;
+
         // x is special or y is special
         if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
             // check first for non-canonical NaN payload
