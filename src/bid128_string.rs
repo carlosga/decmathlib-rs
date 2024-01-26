@@ -90,7 +90,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
 
         C1.w[1] = x.w[1] & MASK_COEFF;
         C1.w[0] = x.w[0];
-        exp     = (x_exp >> 49).wrapping_sub(6176) as i32;
+        exp     = ((x_exp >> 49) - 6176) as i32;
 
         // determine sign's representation as a char
         str.push(if x_sign != 0 { '-' /* negative number */ } else { '+' /* positive number */ });
@@ -522,8 +522,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             coeff_high = ((buffer[0] as i32) - ('0' as i32)) as BID_UINT64;
             i          = 1;
             while i < (ndigits_total - 17) {
-                coeff2     = coeff_high.wrapping_add(coeff_high);
-                coeff_high = (coeff2 << 2).wrapping_add(coeff2).wrapping_add((buffer[i] as BID_UINT64).wrapping_sub('0' as BID_UINT64));
+                coeff2     = coeff_high + coeff_high;
+                coeff_high = (coeff2 << 2) + coeff2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
                 i         += 1;
             }
             coeff_low = ((buffer[i] as i32) - ('0' as i32)) as BID_UINT64;
@@ -647,11 +647,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     CX        = __mul_64x64_to_128_fast(coeff_high, scale_high);
-    coeff_low = coeff_low.wrapping_add(carry);
-    CX.w[0]   = CX.w[0].wrapping_add(coeff_low);
+    coeff_low = coeff_low + carry;
+    CX.w[0]   = CX.w[0] + coeff_low;
 
     if CX.w[0] < coeff_low {
-        CX.w[1] = CX.w[1].wrapping_add(1);
+        CX.w[1] = CX.w[1] + 1;
     }
 
     if set_inexact {

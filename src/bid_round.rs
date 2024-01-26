@@ -738,7 +738,7 @@ pub (crate) fn bid_round256_58_76(
         }
     } else if ind <= 37 {	// if 19 <= ind <= 37
         tmp64  = C.w[0];
-        C.w[0] = C.w[0].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[0]);
+        C.w[0] = C.w[0] + bid_midpoint128[(ind - 19) as usize].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0 {
@@ -749,7 +749,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64  = C.w[1];
-        C.w[1] = C.w[1].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[1]);
+        C.w[1] = C.w[1] + bid_midpoint128[(ind - 19) as usize].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -758,7 +758,7 @@ pub (crate) fn bid_round256_58_76(
         }
     } else if ind <= 57 {	// if 38 <= ind <= 57
         tmp64  = C.w[0];
-        C.w[0] = C.w[0].wrapping_add(bid_midpoint192[(ind - 38) as usize].w[0]);
+        C.w[0] = C.w[0] + bid_midpoint192[(ind - 38) as usize].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0u64 {
@@ -769,7 +769,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64  = C.w[1];
-        C.w[1] = C.w[1].wrapping_add(bid_midpoint192[(ind - 38) as usize].w[1]);
+        C.w[1] = C.w[1] + bid_midpoint192[(ind - 38) as usize].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -777,13 +777,13 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64  = C.w[2];
-        C.w[2] = C.w[2].wrapping_add(bid_midpoint192[(ind - 38) as usize].w[2]);
+        C.w[2] = C.w[2] + bid_midpoint192[(ind - 38) as usize].w[2];
         if C.w[2] < tmp64 {
             C.w[3] += 1;
         }
     } else {	// if 58 <= ind <= 76 (actually 58 <= ind <= 74)
         tmp64 = C.w[0];
-        C.w[0] = C.w[0].wrapping_add(bid_midpoint256[(ind - 58) as usize].w[0]);
+        C.w[0] = C.w[0] + bid_midpoint256[(ind - 58) as usize].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0u64 {
@@ -794,7 +794,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64  = C.w[1];
-        C.w[1] = C.w[1].wrapping_add(bid_midpoint256[(ind - 58) as usize].w[1]);
+        C.w[1] = C.w[1] + bid_midpoint256[(ind - 58) as usize].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -802,11 +802,11 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64 = C.w[2];
-        C.w[2] = C.w[2].wrapping_add(bid_midpoint256[(ind - 58) as usize].w[2]);
+        C.w[2] = C.w[2] + bid_midpoint256[(ind - 58) as usize].w[2];
         if C.w[2] < tmp64 {
             C.w[3] += 1;
         }
-        C.w[3] = C.w[3].wrapping_add(bid_midpoint256[(ind - 58) as usize].w[3]);
+        C.w[3] = C.w[3] + bid_midpoint256[(ind - 58) as usize].w[3];
     }
     // kx ~= 10^(-x), kx = bid_Kx256[ind as usize] * 2^(-Ex), 0 <= ind <= 74
     // P512 = (C + 1/2 * 10^x) * kx * 2^Ex = (C + 1/2 * 10^x) * Kx

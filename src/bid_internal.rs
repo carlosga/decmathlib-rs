@@ -13,7 +13,7 @@
 use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table, bid_round_const_table_128};
 use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
-use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
 
 pub (crate) fn SWAP<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {
     *T = *A;
@@ -215,7 +215,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                     // get remainder
                     amount2       = 64 - amount;
                     remainder_h   = 0;
-                    remainder_h   = remainder_h.wrapping_sub(1);
+                    remainder_h   = ((remainder_h as BID_SINT64) - 1) as BID_UINT64;
                     remainder_h >>= amount2;
                     remainder_h   = remainder_h & QH;
 
@@ -372,7 +372,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 as i32 {
                 coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
                 tmp2       = coeff.w[0] << 3;
-                coeff.w[0] = (coeff.w[0] << 1).wrapping_add(tmp2);
+                coeff.w[0] = (coeff.w[0] << 1) + tmp2;
                 if coeff.w[0] < tmp2 {
                     coeff.w[1] += 1;
                 }
@@ -622,7 +622,7 @@ pub (crate) fn __shl_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 pub (crate) fn __add_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 {
     let mut R64H: BID_UINT64  = A128.w[1];
     let mut R128: BID_UINT128 = BID_UINT128::default();
-    R128.w[0] = BID_UINT64::wrapping_add(B64, A128.w[0]);
+    R128.w[0] = B64 + A128.w[0];
     if R128.w[0] < B64 {
         R64H += 1;
     }
@@ -646,8 +646,8 @@ pub (crate) fn __sub_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 
 pub (crate) fn __add_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT128 {
     let mut Q128: BID_UINT128 = BID_UINT128::default();
     let mut R128: BID_UINT128 = BID_UINT128::default();
-    Q128.w[1] = A128.w[1].wrapping_add(B128.w[1]);
-    Q128.w[0] = B128.w[0].wrapping_add(A128.w[0]);
+    Q128.w[1] = A128.w[1] + B128.w[1];
+    Q128.w[0] = B128.w[0] + A128.w[0];
     if Q128.w[0] < B128.w[0] {
         Q128.w[1] += 1;
     }
@@ -673,15 +673,15 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
 
 /// Returns (sum, carry)
 pub (crate) fn __add_carry_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
-    let S         = BID_UINT64::wrapping_add(X, Y);
-    let CY  = if S < X { 1 } else { 0 };
+    let S: BID_UINT64  = X + Y;
+    let CY: BID_UINT64 = if S < X { 1 } else { 0 };
     (S, CY)
 }
 
 /// Returns (sum, carry)
 pub (crate) fn __add_carry_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
     let X1: BID_UINT64 = X + CI;
-    let S: BID_UINT64  = BID_UINT64::wrapping_add(X1, Y);
+    let S: BID_UINT64  = X1 + Y;
     let CY: BID_UINT64 = if S < X1 || X1 < CI { 1u64 } else { 0 };
     (S, CY)
 }

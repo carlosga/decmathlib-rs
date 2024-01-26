@@ -631,9 +631,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0)
                      || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                         // add 1 ulp and then check for overflow
-                        C1_lo = C1_lo.wrapping_add(1);
+                        C1_lo = C1_lo + 1;
                         if C1_lo == 0 { // rounding overflow in the low 64 bits
-                            C1_hi = C1_hi.wrapping_add(1);
+                            C1_hi = C1_hi + 1;
                         }
                         if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                             // C1 = 10^34 => rounding overflow
@@ -653,9 +653,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                         // subtract 1 ulp from C1
                         // Note: because delta >= P34 + 1 the result cannot be zero
-                        C1_lo = C1_lo.wrapping_sub(1);
+                        C1_lo = C1_lo - 1;
                         if C1_lo == 0xffffffffffffffffu64 {
-                            C1_hi = C1_hi.wrapping_sub(1);
+                            C1_hi = C1_hi - 1;
                         }
                         // if the coefficient is 10^33 - 1 then make it 10^34 - 1 and
                         // decrease the exponent by 1 (because delta >= P34 + 1 the
@@ -975,9 +975,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0)
                                  || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                                     // add 1 ulp and then check for overflow
-                                    C1_lo = C1_lo.wrapping_add(1);
+                                    C1_lo = C1_lo + 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                        C1_hi = C1_hi.wrapping_add(1);
+                                        C1_hi = C1_hi + 1;
                                     }
                                     if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                         // C1 = 10^34 => rounding overflow
@@ -1158,9 +1158,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0) {
                                 // the result is x + 1
                                 // for RN x_sign = y_sign, i.e. n1*n2 > 0
-                                C1_lo = C1_lo.wrapping_add(1);
+                                C1_lo = C1_lo + 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                    C1_hi = C1_hi.wrapping_add(1);
+                                    C1_hi = C1_hi + 1;
                                 }
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
@@ -1502,10 +1502,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C1_hi += 1;
                         }
                     } else { // if x_sign != y_sign
-                        C1_lo = C1_lo.wrapping_sub(C2_lo);
-                        C1_hi = C1_hi.wrapping_sub(C2_hi);
+                        C1_lo = C1_lo - C2_lo;
+                        C1_hi = C1_hi - C2_hi;
                         if C1_lo > C1.w[0] {
-                            C1_hi = C1_hi.wrapping_sub(1);
+                            C1_hi = C1_hi - 1;
                         }
                         // the result can be zero, but it cannot overflow
                         if C1_lo == 0 && C1_hi == 0 {
@@ -1562,8 +1562,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // now add C2
                     if x_sign == y_sign {
                         // the result can overflow!
-                        C1_lo = C1_lo.wrapping_add(C2_lo);
-                        C1_hi = C1_hi.wrapping_add(C2_hi);
+                        C1_lo = C1_lo + C2_lo;
+                        C1_hi = C1_hi + C2_hi;
                         if C1_lo < C1.w[0] {
                             C1_hi += 1;
                         }
@@ -1719,8 +1719,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             }
                         }    // else if (C1 < 10^34) then C1 is the coeff.; the result is exact
                     } else { // if x_sign != y_sign the result is exact
-                        C1_lo = C1_lo.wrapping_sub(C2_lo);
-                        C1_hi = C1_hi.wrapping_sub(C2_hi);
+                        C1_lo = C1_lo - C2_lo;
+                        C1_hi = C1_hi - C2_hi;
                         if C1_lo > C1.w[0] {
                             C1_hi -= 1;
                         }
@@ -1799,13 +1799,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C2.w[0] = C2_lo;
                             C2.w[1] = C2_hi;
                             if ind <= 18 {
-                                C2.w[0] = C2.w[0].wrapping_add(bid_midpoint64[ind as usize]);
+                                C2.w[0] = C2.w[0] + bid_midpoint64[ind as usize];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
                             } else { // 19 <= ind <= 32
-                                C2.w[0] = C2.w[0].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[0]);
-                                C2.w[1] = C2.w[1].wrapping_add(bid_midpoint128[(ind - 19) as usize].w[1]);
+                                C2.w[0] = C2.w[0] + bid_midpoint128[(ind - 19) as usize].w[0];
+                                C2.w[1] = C2.w[1] + bid_midpoint128[(ind - 19) as usize].w[1];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
@@ -1971,7 +1971,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
                              && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
                                 // the result is a midpoint
-                                if ((tmp64.wrapping_add(R256.w[2])) & 0x01) == 0x01 { // MP in [EVEN, ODD]
+                                if ((tmp64 + R256.w[2])) & 0x01 == 0x01 { // MP in [EVEN, ODD]
                                     // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
                                     R256.w[2] -= 1;
                                     if R256.w[2] == 0xffffffffffffffffu64 {
@@ -2013,8 +2013,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // and now add/subtract C1 * 10^(e1-e2-x1) +/- (C2 * 10^(-x1))rnd,P34
                         if x_sign == y_sign { // addition; could overflow
                             // no second pass is possible this way (only for x_sign != y_sign)
-                            C1.w[0] = C1.w[0].wrapping_add(R256.w[2]);
-                            C1.w[1] = C1.w[1].wrapping_add(R256.w[3]);
+                            C1.w[0] = C1.w[0] + R256.w[2];
+                            C1.w[1] = C1.w[1] + R256.w[3];
                             if C1.w[0] < tmp64 {
                                 C1.w[1] += 1; // carry
                             }
@@ -2160,8 +2160,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 return res;
                             }    // else no overflow
                         } else { // if x_sign != y_sign the result of this subtract. is exact
-                            C1.w[0] = C1.w[0].wrapping_sub(R256.w[2]);
-                            C1.w[1] = C1.w[1].wrapping_sub(R256.w[3]);
+                            C1.w[0] = C1.w[0] - R256.w[2];
+                            C1.w[1] = C1.w[1] - R256.w[3];
                             if C1.w[0] > tmp64 {
                                 C1.w[1] -= 1;                       // borrow
                             }
@@ -2321,8 +2321,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 // now add C2
                 if x_sign == y_sign {
                     // the result can overflow!
-                    C1_lo = C1_lo.wrapping_add(C2_lo);
-                    C1_hi = C1_hi.wrapping_add(C2_hi);
+                    C1_lo = C1_lo + C2_lo;
+                    C1_hi = C1_hi + C2_hi;
                     if C1_lo < C1.w[0] {
                         C1_hi += 1;
                     }
@@ -2481,8 +2481,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     res.w[1] = x_sign | y_exp | C1_hi;
                     res.w[0] = C1_lo;
                 } else { // if x_sign != y_sign the result is exact
-                    C1_lo = C2_lo.wrapping_sub(C1_lo);
-                    C1_hi = C2_hi.wrapping_sub(C1_hi);
+                    C1_lo = C2_lo - C1_lo;
+                    C1_hi = C2_hi - C1_hi;
                     if C1_lo > C2_lo {
                         C1_hi -= 1;
                     }
