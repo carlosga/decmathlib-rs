@@ -8,10 +8,12 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use std::str::FromStr;
 use crate::bid128_add::{bid128_add, bid128_sub};
+use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
@@ -21,7 +23,7 @@ use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, RoundingMode, StatusFlags};
 
-pub type _IDEC_flags = u32;       // could be a struct with diagnostic info
+pub type _IDEC_flags = u32;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub (crate) struct DEC_DIGITS {
@@ -222,13 +224,77 @@ impl decimal128 {
     pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_sub(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
     }
+
+    pub fn quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_equal(lhs, rhs, status)
+    }
+
+    pub fn quiet_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_greater(lhs, rhs, status)
+    }
+
+    pub fn quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_greater_equal(lhs, rhs, status)
+    }
+
+    pub fn quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_less(lhs, rhs, status)
+    }
+
+    pub fn quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_less_equal(lhs, rhs, status)
+    }
+
+    pub fn quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_not_equal(lhs, rhs, status)
+    }
 }
 
 impl Eq for decimal128 {}
 
 impl PartialEq for decimal128 {
     fn eq(&self, other: &Self) -> bool {
-        self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W]
+        self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W] == other.w[BID_LOW_128W]
+    }
+}
+
+impl PartialOrd for decimal128 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        let equal = self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W]
+                       && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W];
+        if equal {
+            return Some(Ordering::Equal)
+        }
+        let less = bid128_quiet_less(self, other, &mut status);
+        if less {
+            return Some(Ordering::Less);
+        }
+        let greater = bid128_quiet_greater(self, other, &mut status);
+        if greater {
+            return Some(Ordering::Greater);
+        }
+        None
+    }
+
+    fn lt(&self, other: &Self) -> bool {
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        bid128_quiet_less(self, other, &mut status)
+    }
+
+    fn le(&self, other: &Self) -> bool {
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        bid128_quiet_less_equal(self, other, &mut status)
+    }
+
+    fn gt(&self, other: &Self) -> bool {
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        bid128_quiet_greater(self, other, &mut status)
+    }
+
+    fn ge(&self, other: &Self) -> bool {
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        bid128_quiet_greater_equal(self, other, &mut status)
     }
 }
 

@@ -9,6 +9,7 @@ mod bid128;
 mod bid128_2_str_tables;
 mod bid128_2_str_macros;
 mod bid128_add;
+mod bid128_compare;
 mod bid128_fma;
 mod bid128_mul;
 mod bid128_noncomp;
