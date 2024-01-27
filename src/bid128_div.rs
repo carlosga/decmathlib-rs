@@ -32,7 +32,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut CA: BID_UINT128 = BID_UINT128::default();
     let mut TP128: BID_UINT128 = BID_UINT128::default();
     let mut Qh: BID_UINT128 = BID_UINT128::default();
-    let mut Ql: BID_UINT128;
+    let mut _Ql: BID_UINT128;
     let mut res: BID_UINT128 = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut sign_y: BID_UINT64 = 0;
@@ -220,7 +220,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         __set_status_flags(pfpsf, StatusFlags::BID_INEXACT_EXCEPTION);
     } else {   // check whether result is exact
         // check whether CX, CY are short
-        if CX.w[1] != 0 && CY.w[1] != 0 && (CX.w[0] <= 1024) && (CY.w[0] <= 1024) {
+        if CX.w[1] == 0 && CY.w[1] == 0 && (CX.w[0] <= 1024) && (CY.w[0] <= 1024) {
             i = (CY.w[0] as i32) - 1;
             j = (CX.w[0] as i32) - 1;
             // difference in powers of 2 bid_factors for Y and X
@@ -231,11 +231,11 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 nzeros = d5;
             }
             // get P*(2^M[extra_digits])/10^extra_digits
-            (Qh, Ql) = __mul_128x128_full(&CQ, &bid_reciprocals10_128[nzeros as usize]);
+            (Qh, _Ql) = __mul_128x128_full(&CQ, &bid_reciprocals10_128[nzeros as usize]);
 
             // now get P/10^extra_digits: shift Q_high right by M[extra_digits]-128
             amount = bid_recip_scale[nzeros as usize];
-            CQ = __shr_128_long(&Qh, amount);
+            CQ     = __shr_128_long(&Qh, amount);
 
             diff_expon += nzeros;
         } else {
@@ -368,7 +368,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
                 if nzeros != 0 {
                     // get P*(2^M[extra_digits])/10^extra_digits
-                    (Qh, Ql) = __mul_128x128_full(&CQ, &bid_reciprocals10_128[nzeros as usize]);
+                    (Qh, _Ql) = __mul_128x128_full(&CQ, &bid_reciprocals10_128[nzeros as usize]);
 
                     // now get P/10^extra_digits: shift Q_high right by M[extra_digits]-128
                     amount = bid_recip_scale[nzeros as usize];

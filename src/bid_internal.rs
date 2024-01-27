@@ -628,7 +628,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
     let TP128: BID_UINT128;
     let mut Qh: BID_UINT128;
     let Ql: BID_UINT128;
-    let Qh1: BID_UINT128;
+    let mut Qh1: BID_UINT128;
     let mut Stemp: BID_UINT128 = BID_UINT128::default();
     let mut Tmp: BID_UINT128 = BID_UINT128::default();
     let Tmp1: BID_UINT128;
@@ -636,7 +636,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
     let CY: BID_UINT64;
     let ed2: i32;
     let amount: i32;
-    let rmode: u32 = rnd_mode;
+    let mut rmode: u32;
     let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
     let mut pres: BID_UINT128 = BID_UINT128::default();
     let mut CQ: BID_UINT128 = *CQ;
@@ -646,32 +646,16 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
-        // if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
-        //     if cfg!(IEEE_ROUND_NEAREST == "1") {
-        //         if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
-        //         || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
-        //             pres.w[0] = 1u64;
-        //         }
-        //     }
-        // }
         return pres;
     }
 
     ed2 = 0 - expon;
 
     // add rounding constant to CQ
-    // if cfg!(IEEE_ROUND_NEAREST_TIES_AWAY == "1") {
-    //     if cfg!(IEEE_ROUND_NEAREST == "1") {
-    //         rmode = rnd_mode;
-    //         if sgn != 0 && ((rmode - 1) as u32) < 2 {
-    //         rmode = 3 - rmode;
-    //         }
-    //     } else {
-    //         rmode = 0;
-    //     }
-    // } else {
-    //       rmode = 0;
-    // }
+    rmode = rnd_mode;
+    if sgn != 0&& ((rmode - 1) < 2) {
+        rmode = 3 - rmode;
+    }
 
     T128             = bid_round_const_table_128[rmode as usize][ed2 as usize];
     (CQ.w[0], carry) = __add_carry_out(T128.w[0], CQ.w[0]);
@@ -689,24 +673,22 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
 
     expon = 0;
 
-    // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
-    // #ifndef IEEE_ROUND_NEAREST
-    //   if (!(*prounding_mode))
-    // #endif
-    //     if (CQ.w[0] & 1) {
-    //       // check whether fractional part of initial_P/10^ed1 is exactly .5
-    //
-    //       // get remainder
-    //       __shl_128_long (Qh1, Qh, (128 - amount));
-    //
-    //       if (!Qh1.w[1] && !Qh1.w[0]
-    // 	  && (Ql.w[1] < bid_reciprocals10_128[ed2 as usize].w[1]
-    // 	      || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
-    // 		  && Ql.w[0] < bid_reciprocals10_128[ed2 as usize].w[0]))) {
-    // 	CQ.w[0]--;
-    //       }
-    //     }
-    // #endif
+    if rnd_mode == 0 {
+        if (CQ.w[0] & 1) == 1 {
+            // check whether fractional part of initial_P/10^ed1 is exactly .5
+
+            // get remainder
+            Qh1 = __shl_128_long(&Qh, 128 - amount);
+
+            if  Qh1.w[1] == 0
+             && Qh1.w[0] == 0
+    	    && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+    	    || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+    	  	&& Ql.w[0] < bid_reciprocals10_128[ed2 as usize].w[0])) {
+                CQ.w[0] -= 1;
+            }
+        }
+    }
 
     if is_inexact(*pfpsc) {
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
