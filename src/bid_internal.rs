@@ -749,10 +749,12 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
 //  Status Flag Handling
 //////////////////////////////////////////////
 
+#[inline(always)]
 pub (crate) fn __set_status_flags(fpsc: &mut _IDEC_flags, status: _IDEC_flags) {
     *fpsc |= status;
 }
 
+#[inline(always)]
 pub (crate) fn is_inexact(fpsc: _IDEC_flags) -> bool{
     fpsc & StatusFlags::BID_INEXACT_EXCEPTION == StatusFlags::BID_INEXACT_EXCEPTION
 }
