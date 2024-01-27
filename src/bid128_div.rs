@@ -144,10 +144,6 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         return res;
     }
 
-    // #ifdef UNCHANGED_BINARY_STATUS_FLAGS
-    // // (void) fegetexceptflag (&binaryflags, BID_FE_ALL_FLAGS);
-    // #endif
-
     diff_expon = exponent_x - exponent_y + DECIMAL_EXPONENT_BIAS_128;
 
     if __unsigned_compare_gt_128(&CY, &CX) {
@@ -190,9 +186,6 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
         if CR.w[1] == 0 && CR.w[0] == 0 {
             res = bid_get_BID128(sign_x ^ sign_y, diff_expon, &CQ, rnd_mode, pfpsf);
-    // #ifdef UNCHANGED_BINARY_STATUS_FLAGS
-    //         // (void) fesetexceptflag (&binaryflags, BID_FE_ALL_FLAGS);
-    // #endif
             return res;
         }
 
@@ -225,9 +218,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     if CA4.w[0] != 0 || CA4.w[1] != 0 {
         // set status flags
         __set_status_flags(pfpsf, StatusFlags::BID_INEXACT_EXCEPTION);
-    }
-
-    if CA4.w[0] != 0 && CA4.w[1] != 0 {   // check whether result is exact
+    } else {   // check whether result is exact
         // check whether CX, CY are short
         if CX.w[1] != 0 && CY.w[1] != 0 && (CX.w[0] <= 1024) && (CY.w[0] <= 1024) {
             i = (CY.w[0] as i32) - 1;
@@ -387,9 +378,6 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             }
         }
         res = bid_get_BID128(sign_x ^ sign_y, diff_expon, &CQ, rnd_mode, pfpsf);
-    // #ifdef UNCHANGED_BINARY_STATUS_FLAGS
-    //     // (void) fesetexceptflag (&binaryflags, BID_FE_ALL_FLAGS);
-    // #endif
         return res;
     }
 
