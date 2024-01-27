@@ -70,23 +70,23 @@ pub(crate) fn bid_rounding_correction(
      || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
        || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
         // C = C + 1
-        C_lo = C_lo + 1;
+        C_lo += 1;
         if C_lo == 0 {
-            C_hi = C_hi + 1;
+            C_hi += 1;
         }
         if C_hi == 0x0001ed09bead87c0u64 && C_lo == 0x378d8e6400000000u64 {
             // C = 10^34 => rounding overflow
-            C_hi = 0x0000314dc6448d93u64;
-            C_lo = 0x38c15b0a00000000u64; // 10^33
+            C_hi    = 0x0000314dc6448d93u64;
+            C_lo    = 0x38c15b0a00000000u64; // 10^33
             // exp = exp + EXP_P1;
-            unbexp = unbexp + 1;
-            exp    = ((unbexp + 6176)as BID_UINT64) << 49;
+            unbexp += 1;
+            exp     = ((unbexp + 6176)as BID_UINT64) << 49;
         }
     } else if (is_midpoint_lt_even || is_inexact_gt_midpoint)
           && ((sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP   || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))
            || (sign == 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
         // C = C - 1
-        C_lo = C_lo - 1;
+        C_lo -= 1;
         if C_lo == 0xffffffffffffffffu64 {
             C_hi -= 1;
         }
@@ -97,8 +97,8 @@ pub(crate) fn bid_rounding_correction(
                 C_hi = 0x0001ed09bead87c0u64; // 10^34 - 1
                 C_lo = 0x378d8e63ffffffffu64;
                 // exp = exp - EXP_P1;
-                unbexp = unbexp - 1;
-                exp    = ((unbexp + 6176) as BID_UINT64) << 49;
+                unbexp -= 1;
+                exp     = ((unbexp + 6176) as BID_UINT64) << 49;
             } else { // if exp = 0 the result is tiny & inexact
                 *ptrfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
@@ -221,7 +221,7 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> i32 {
             ind += 1;
         }
         // ind + 20 digits
-        ind = ind + 20;
+        ind += 20;
     } else if r256.w[3]  == 0x0 &&
              (r256.w[2]   < bid_ten2k256[0].w[2] ||
               (r256.w[2] == bid_ten2k256[0].w[2] &&
@@ -250,7 +250,7 @@ pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> i32 {
             ind += 1;
         }
         // ind + 39 digits
-        ind = ind + 39;
+        ind += 39;
     }
 
     ind
@@ -566,8 +566,8 @@ pub (crate) fn bid_add_and_round(
                 res.w[1] = 0x0000000000000000u64;
                 res.w[0] = 0x0000000000000001u64;
             }
-            res.w[1] = p_sign | res.w[1];
-            e4 = expmin;
+            res.w[1] |= p_sign;
+            e4        = expmin;
         } else { // if (1 <= x0 <= ind - 1 <= 33)
             // round the ind-digit result to ind - x0 digits
 
@@ -590,7 +590,7 @@ pub (crate) fn bid_add_and_round(
                     &mut is_inexact_lt_midpoint,
                     &mut is_inexact_gt_midpoint);
             }
-            e4 = e4 + x0; // expmin
+            e4 += x0; // expmin
             // we want the exponent to be expmin, so if incr_exp = 1 then
             // multiply the rounded result by 10 - it will still fit in 113 bits
             if incr_exp {
@@ -774,8 +774,8 @@ pub (crate) fn bid128_ext_fma(
         if ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
         || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
           && (y.w[0] > 0x38c15b09ffffffffu64)) {
-            y.w[1] = y.w[1] & 0xffffc00000000000u64;
-            y.w[0] = 0x0u64;
+            y.w[1] &= 0xffffc00000000000u64;
+            y.w[0]  = 0x0u64;
         }
         if (y.w[1] & MASK_SNAN) == MASK_SNAN { // y is SNAN
             // set invalid flag
@@ -809,8 +809,8 @@ pub (crate) fn bid128_ext_fma(
         if ((z.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
         || (((z.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
           && (z.w[0] > 0x38c15b09ffffffffu64)) {
-            z.w[1] = z.w[1] & 0xffffc00000000000u64;
-            z.w[0] = 0x0u64;
+            z.w[1] &= 0xffffc00000000000u64;
+            z.w[0]  = 0x0u64;
         }
         if (z.w[1] & MASK_SNAN) == MASK_SNAN { // z is SNAN
             // set invalid flag
@@ -843,8 +843,8 @@ pub (crate) fn bid128_ext_fma(
         if ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
         || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
           && (x.w[0] > 0x38c15b09ffffffffu64)) {
-            x.w[1] = x.w[1] & 0xffffc00000000000u64;
-            x.w[0] = 0x0u64;
+            x.w[1] &= 0xffffc00000000000u64;
+            x.w[0]  = 0x0u64;
         }
         if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
             // set invalid flag
@@ -1196,8 +1196,8 @@ pub (crate) fn bid128_ext_fma(
                 res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
             }
             // subtract scale from the exponent
-            z_exp    = z_exp - ((scale as BID_UINT64) << 49);
-            res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+            z_exp    -= (scale as BID_UINT64) << 49;
+            res.w[1] |= z_sign | (z_exp & MASK_EXP);
         }
         *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
         *ptr_is_midpoint_gt_even    = is_midpoint_gt_even;
@@ -1423,10 +1423,10 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = R256.w[0];
                 res.w[1] = R256.w[1];
             }
-            e4 = e4 + x0;
-            q4 = p34;
+            e4 += x0;
+            q4  = p34;
             if incr_exp {
-                e4 = e4 + 1;
+                e4 += 1;
 
                 #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
                 if q4 + e4 == expmin + p34 {
@@ -1456,8 +1456,8 @@ pub (crate) fn bid128_ext_fma(
                     let tmp = BID_UINT128 { w: [C4.w[0], C4.w[1]] };
                     res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &tmp);
                 }
-                e4 = e4 - scale; // expmax
-                q4 = q4 + scale;
+                e4 -= scale; // expmax
+                q4 += scale;
             } else {
                 res.w[1] = C4.w[1];
                 res.w[0] = C4.w[0];
@@ -1474,7 +1474,7 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = 0x0000000000000000u64;
                 *pfpsf  |= StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION;
             } else {
-                res.w[1] = p_sign | res.w[1];
+                res.w[1] |= p_sign;
                 bid_rounding_correction(
                     rnd_mode,
                     is_inexact_lt_midpoint,
@@ -1549,7 +1549,7 @@ pub (crate) fn bid128_ext_fma(
                             }
                         }
                     }
-                    e4 = e4 + x0; // expmin
+                    e4 += x0; // expmin
                 } else if x0 == q4 {
                     // the second rounding is for 0.d(0)d(1)...d(q4-1) * 10^emin
                     // determine relationship with 1/2 ulp
@@ -1666,7 +1666,7 @@ pub (crate) fn bid128_ext_fma(
                         res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &res);
                     }
                     // subtract scale from the exponent
-                    e4 = e4 - scale;
+                    e4 -= scale;
                 }
             }
 
@@ -1676,7 +1676,7 @@ pub (crate) fn bid128_ext_fma(
                 *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                 *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
             }
-            res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | res.w[1];
+            res.w[1] |= p_sign | (((e4 + 6176) as BID_UINT64) << 49);
             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                 bid_rounding_correction(
                     rnd_mode,
@@ -1700,7 +1700,7 @@ pub (crate) fn bid128_ext_fma(
         // no overflow, and no underflow for rounding to nearest
         // (although if tininess is detected 'before rounding', we may
         // get here if incr_exp = 1 and then q4 + e4 == expmin + p34)
-        res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | res.w[1];
+        res.w[1] |= p_sign | (((e4 + 6176) as BID_UINT64) << 49);
 
         if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
             bid_rounding_correction(
@@ -1746,7 +1746,7 @@ pub (crate) fn bid128_ext_fma(
                     scale = ind;
                 }
                 // subtract scale from the exponent
-                p_exp = p_exp - ((scale as BID_UINT64) << 49);
+                p_exp -= (scale as BID_UINT64) << 49;
                 if scale == 0 {
                     // leave res unchanged
                 } else if q4 <= 19 { // x * y fits in 64 bits
@@ -1757,11 +1757,11 @@ pub (crate) fn bid128_ext_fma(
                         // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
                         __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
                     };
-                    res.w[1] = p_sign | (p_exp & MASK_EXP) | res.w[1];
+                    res.w[1] |= p_sign | (p_exp & MASK_EXP);
                 } else { // x * y fits in 128 bits, but 10^scale must fit in 64 bits
                     // 64 x 128 bid_ten2k64[scale as usize] * C3
-                    res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
-                    res.w[1] = p_sign | (p_exp & MASK_EXP) | res.w[1];
+                    res       = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                    res.w[1] |= p_sign | (p_exp & MASK_EXP);
                 }
             } // else leave the result as it is, because p_exp <= z_exp
         }
@@ -1784,8 +1784,8 @@ pub (crate) fn bid128_ext_fma(
 // TODO: Try to ge around C goto
 // delta_ge_zero:
     if delta >= 0 {
-        if  p34 <= delta - 1 	                    // Case (1')
-        || (p34 == delta && e3 + 6176 < p34 - q3) { // Case (1''A)
+        return if  p34 <= delta - 1 	                   // Case (1')
+               || (p34 == delta && e3 + 6176 < p34 - q3) { // Case (1''A)
             // check for overflow, which can occur only in Case (1')
             if (q3 + e3) > (p34 + expmax) && p34 <= delta - 1 {
                 // e3 > expmax implies p34 <= delta-1 and e3 > expmax is a necessary
@@ -1820,8 +1820,8 @@ pub (crate) fn bid128_ext_fma(
                         }
                         // the coefficient in res has q3 + scale = p34 digits
                     }
-                    e3 = e3 - scale;
-                    res.w[1] = z_sign | res.w[1];
+                    e3       -= scale;
+                    res.w[1] |= z_sign;
                     bid_rounding_correction(
                         rnd_mode,
                         is_inexact_lt_midpoint,
@@ -1865,9 +1865,9 @@ pub (crate) fn bid128_ext_fma(
                 }
                 // the coefficient in res has q3 + scale digits
                 // subtract scale from the exponent
-                z_exp    = z_exp - ((scale as BID_UINT64) << 49);
-                e3       = e3 - scale;
-                res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                z_exp    -= (scale as BID_UINT64) << 49;
+                e3       -= scale;
+                res.w[1] |= z_sign | (z_exp & MASK_EXP);
                 if scale + q3 < p34 {
                     *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;  // OK for tininess detection
                     // before or after rounding, because the exponent of the
@@ -1973,10 +1973,10 @@ pub (crate) fn bid128_ext_fma(
                             res.w[1] = bid_ten2k128[(q3 + scale - 20) as usize].w[1];
                             res.w[0] = bid_ten2k128[(q3 + scale - 20) as usize].w[0];
                         }
-                        res.w[0] = res.w[0] - 1; // borrow never occurs
-                        z_exp    = z_exp - EXP_P1;
-                        e3       = e3 - 1;
-                        res.w[1] = z_sign | (((e3 + 6176) as BID_UINT64) << 49) | res.w[1];
+                        res.w[0] -= 1; // borrow never occurs
+                        z_exp    -= EXP_P1;
+                        e3       -= 1;
+                        res.w[1] |= z_sign | (((e3 + 6176) as BID_UINT64) << 49);
                     }
                     if e3 == expmin {
                         if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
@@ -2093,7 +2093,7 @@ pub (crate) fn bid128_ext_fma(
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         } else if p34 == delta { // Case (1''B)
             // because Case (1''A) was treated above, e3 + 6176 >= p34 - q3
             // and C3 can be scaled up to p34 digits if needed
@@ -2116,8 +2116,8 @@ pub (crate) fn bid128_ext_fma(
                 res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
             }
             // subtract scale from the exponent
-            z_exp = z_exp - ((scale as BID_UINT64) << 49);
-            e3    = e3 - scale;
+            z_exp -= (scale as BID_UINT64) << 49;
+            e3    -= scale;
             // now z_sign, z_exp, and res correspond to a z scaled to p34 = 34 digits
 
             // determine whether x * y is less than, equal to, or greater than
@@ -2182,7 +2182,7 @@ pub (crate) fn bid128_ext_fma(
 
             if p_sign == z_sign {
                 if lt_half_ulp {
-                    res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                    res.w[1] |= z_sign | (z_exp & MASK_EXP);
                     // use the following to avoid double rounding errors when operating on
                     // mixed formats in rounding to nearest
                     is_inexact_lt_midpoint = true; // if (z_sign), as if for absolute value
@@ -2195,14 +2195,14 @@ pub (crate) fn bid128_ext_fma(
                     // check for rounding overflow, when coeff == 10^34
                     if (res.w[1] & MASK_COEFF) == 0x0001ed09bead87c0u64
                      && res.w[0] == 0x378d8e6400000000u64 { // coefficient = 10^34
-                        e3 = e3 + 1;
+                        e3      += 1;
                         // coeff = 10^33
                         z_exp    = (((e3 + 6176) as BID_UINT64) << 49) & MASK_EXP;
                         res.w[1] = 0x0000314dc6448d93u64;
                         res.w[0] = 0x38c15b0a00000000u64;
                     }
                     // end add 1 ulp
-                    res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                    res.w[1] |= z_sign | (z_exp & MASK_EXP);
                     if eq_half_ulp {
                         is_midpoint_lt_even    = true; // if (z_sign), as if for absolute value
                     } else {
@@ -2210,7 +2210,7 @@ pub (crate) fn bid128_ext_fma(
                     }
                 } else { // if (eq_half_ulp && !(res.w[0] & 0x01))
                     // leave unchanged
-                    res.w[1]            = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                    res.w[1]           |= z_sign | (z_exp & MASK_EXP);
                     is_midpoint_gt_even = true; // if (z_sign), as if for absolute value
                 }
                 // the result is always inexact, and never tiny
@@ -2245,7 +2245,7 @@ pub (crate) fn bid128_ext_fma(
                 if res.w[1] != 0x0000314dc6448d93u64 ||
                     res.w[0] != 0x38c15b0a00000000u64 { // C3 * 10^scale != 10^33
                     if lt_half_ulp {
-                        res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                        res.w[1] |= z_sign | (z_exp & MASK_EXP);
                         // use the following to avoid double rounding errors when operating
                         // on mixed formats in rounding to nearest
                         is_inexact_gt_midpoint = true; // if (z_sign), as if for absolute value
@@ -2255,7 +2255,7 @@ pub (crate) fn bid128_ext_fma(
                         if res.w[0] == 0xffffffffffffffffu64 {
                             res.w[1] -= 1;
                         }
-                        res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                        res.w[1] |= z_sign | (z_exp & MASK_EXP);
                         if eq_half_ulp {
                             is_midpoint_gt_even    = true; // if (z_sign), as if for absolute value
                         } else {
@@ -2263,7 +2263,7 @@ pub (crate) fn bid128_ext_fma(
                         }
                     } else { // if (eq_half_ulp && !(res.w[0] & 0x01))
                         // leave unchanged
-                        res.w[1]            = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                        res.w[1]           |= z_sign | (z_exp & MASK_EXP);
                         is_midpoint_lt_even = true; // if (z_sign), as if for absolute value
                     }
                     // the result is always inexact, and never tiny
@@ -2312,11 +2312,11 @@ pub (crate) fn bid128_ext_fma(
                         if q4 == 1 {
                             // if q4 = 1 the result is exact
                             // result coefficient = 10^34 - C4
-                            res.w[1] = 0x0001ed09bead87c0u64;
-                            res.w[0] = 0x378d8e6400000000u64 - C4.w[0];
-                            z_exp    = z_exp - EXP_P1;
-                            e3       = e3 - 1;
-                            res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
+                            res.w[1]  = 0x0001ed09bead87c0u64;
+                            res.w[0]  = 0x378d8e6400000000u64 - C4.w[0];
+                            z_exp    -= EXP_P1;
+                            e3       -= 1;
+                            res.w[1] |= z_sign | (z_exp & MASK_EXP);
                         } else {
                             // if q4 > 1 then truncate C4 from q4 digits to 1 digit;
                             // x = q4-1, 1 <= x <= 67 and check if this operation is exact
@@ -2365,8 +2365,8 @@ pub (crate) fn bid128_ext_fma(
                             && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
                                 // the result is exact: 10^34 - R64
                                 // incr_exp = 0 with certainty
-                                z_exp    = z_exp - EXP_P1;
-                                e3       = e3 - 1;
+                                z_exp   -= EXP_P1;
+                                e3      -= 1;
                                 res.w[1] = z_sign | (z_exp & MASK_EXP) | 0x0001ed09bead87c0u64;
                                 res.w[0] = 0x378d8e6400000000u64 - R64;
                             } else {
@@ -2388,10 +2388,10 @@ pub (crate) fn bid128_ext_fma(
                                 // calculate 10^34 - R64
                                 res.w[1] = 0x0001ed09bead87c0u64;
                                 res.w[0] = 0x378d8e6400000000u64 - R64;
-                                z_exp    = z_exp - EXP_P1; // will be OR-ed with sign & significand
+                                z_exp   -= EXP_P1; // will be OR-ed with sign & significand
                                 // calculate C4 - R64 * 10^(q4-1); this is a rare case and
                                 // R64 is small, 1 <= R64 <= 9
-                                e3 = e3 - 1;
+                                e3 -= 1;
                                 if is_inexact_lt_midpoint {
                                     is_inexact_lt_midpoint = false;
                                     is_inexact_gt_midpoint = true;
@@ -2434,8 +2434,8 @@ pub (crate) fn bid128_ext_fma(
                                     return res;
                                 }
                                 // set the inexact flag
-                                *pfpsf  |= StatusFlags::BID_INEXACT_EXCEPTION;
-                                res.w[1] = z_sign | (((e3 + 6176) as BID_UINT64) << 49) | res.w[1];
+                                *pfpsf   |= StatusFlags::BID_INEXACT_EXCEPTION;
+                                res.w[1] |= z_sign | (((e3 + 6176) as BID_UINT64) << 49);
                                 if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                     bid_rounding_correction(
                                         rnd_mode,
@@ -2465,8 +2465,8 @@ pub (crate) fn bid128_ext_fma(
                             res.w[1] = 0x0000314dc6448d93u64;
                             res.w[0] = 0x38c15b0a00000000u64;
                         }
-                        res.w[1] = z_sign | (z_exp & MASK_EXP) | res.w[1];
-                        *pfpsf  |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // inexact is set later
+                        res.w[1] |= z_sign | (z_exp & MASK_EXP);
+                        *pfpsf   |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // inexact is set later
 
                         if eq_half_ulp {
                             is_midpoint_lt_even = true; // if (z_sign), as if for absolute value
@@ -2495,7 +2495,7 @@ pub (crate) fn bid128_ext_fma(
                 } // end 10^33
             } // end if (p_sign != z_sign)
 
-            res.w[1]                    = z_sign | (z_exp & MASK_EXP) | res.w[1];
+            res.w[1]                   |= z_sign | (z_exp & MASK_EXP);
             *ptr_is_midpoint_lt_even    = is_midpoint_lt_even;
             *ptr_is_midpoint_gt_even    = is_midpoint_gt_even;
             *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
@@ -2504,7 +2504,7 @@ pub (crate) fn bid128_ext_fma(
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         } else if ((q3 <= delta && delta < p34 && p34 < delta + q4)     // Case (2)
             || (q3 <= delta && delta + q4 <= p34)                       // Case (3)
             || (delta < q3 && p34 < delta + q4)                         // Case (4)
@@ -2578,7 +2578,7 @@ pub (crate) fn bid128_ext_fma(
                 res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
             }
             // e3 is already calculated
-            e3 = e3 - scale;
+            e3 -= scale;
             // now res = C3 * 10^scale and e3 = e3 - scale
             // Note: C3 * 10^scale could be 10^34 if we returned to case2_repeat
             // because the result was too small
@@ -2688,8 +2688,8 @@ pub (crate) fn bid128_ext_fma(
             if z_sign == p_sign {
                 lsb = (res.w[0] & 0x01) == 0x01; // lsb of C3 * 10^scale
                 // the sum can result in [up to] p34 or p34 + 1 digits
-                res.w[0] = res.w[0] + R128.w[0];
-                res.w[1] = res.w[1] + R128.w[1];
+                res.w[0] += R128.w[0];
+                res.w[1] += R128.w[1];
                 if res.w[0] < R128.w[0] {
                     res.w[1] += 1; // carry
                 }
@@ -2765,7 +2765,7 @@ pub (crate) fn bid128_ext_fma(
                         // ;
                     }
                     // adjust exponent
-                    e3 = e3 + 1;
+                    e3 += 1;
                     if !is_midpoint_lt_even && !is_midpoint_gt_even && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
                         if is_midpoint_lt_even0 || is_midpoint_gt_even0 || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0 {
                             is_inexact_lt_midpoint = true;
@@ -2774,7 +2774,7 @@ pub (crate) fn bid128_ext_fma(
                 } else {
                     // this is the result rounded with unbounded exponent, unless a
                     // correction is needed
-                    res.w[1] = res.w[1] & MASK_COEFF;
+                    res.w[1] &= MASK_COEFF;
                     if lsb {
                         if is_midpoint_gt_even {
                             // res = res + 1
@@ -2829,9 +2829,9 @@ pub (crate) fn bid128_ext_fma(
                 lsb = (res.w[0] & 0x01) == 0x01; // lsb of C3 * 10^scale; R128 contains rounded C4
                 // used to swap rounding indicators if p_sign != z_sign
                 // the sum can result in [up to] p34 or p34 - 1 digits
-                tmp64    = res.w[0];
-                res.w[0] = res.w[0] - R128.w[0];
-                res.w[1] = res.w[1] - R128.w[1];
+                tmp64     = res.w[0];
+                res.w[0] -= R128.w[0];
+                res.w[1] -= R128.w[1];
                 if res.w[0] > tmp64 {
                     res.w[1] -= 1; // borrow
                 }
@@ -2845,10 +2845,10 @@ pub (crate) fn bid128_ext_fma(
                 && res.w[1] == 0x0000314dc6448d93u64
                 && res.w[0] == 0x38c15b0a00000000u64))
                 && x0 >= 1 {
-                    x0                     = x0 - 1;
+                    x0                    -= 1;
                     // first restore e3, otherwise it will be too small
                     e3                     = e3 + scale;
-                    scale                  = scale + 1;
+                    scale                 += 1;
                     is_inexact_lt_midpoint = false;
                     is_inexact_gt_midpoint = false;
                     is_midpoint_lt_even    = false;
@@ -3081,7 +3081,7 @@ pub (crate) fn bid128_ext_fma(
                     // ;
                 }
                 // adjust exponent
-                e3 = e3 + x0;
+                e3 += x0;
                 if !is_midpoint_lt_even    && !is_midpoint_gt_even
                 && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
                     if is_midpoint_lt_even0    || is_midpoint_gt_even0
@@ -3106,9 +3106,9 @@ pub (crate) fn bid128_ext_fma(
             if res.w[1] == 0x0001ed09bead87c0u64 && res.w[0] == 0x378d8e6400000000u64 { // if  res = 10^34
                 res.w[1] = 0x0000314dc6448d93u64; // res = 10^33
                 res.w[0] = 0x38c15b0a00000000u64;
-                e3 = e3 + 1;
+                e3      += 1;
             }
-            res.w[1] = z_sign | (((e3 + 6176) as BID_UINT64) << 49) | res.w[1];
+            res.w[1] |= z_sign | (((e3 + 6176) as BID_UINT64) << 49);
             // check for overflow
             if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && e3 > expmax {
                 res.w[1] = z_sign | 0x7800000000000000u64; // +/-inf
@@ -3132,7 +3132,7 @@ pub (crate) fn bid128_ext_fma(
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         } else {
             // we get here only if delta <= 1 in Cases (2), (3), (4), (5), or (6) and
             // the signs of x*y and z are opposite; in these cases massive
@@ -3185,7 +3185,7 @@ pub (crate) fn bid128_ext_fma(
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         }
     } else { // if delta < 0
         delta = -delta;
@@ -3228,9 +3228,9 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = R256.w[0];
                 res.w[1] = R256.w[1];
             }
-            e4 = e4 + x0;
+            e4 += x0;
             if incr_exp {
-                e4 = e4 + 1;
+                e4 += 1;
             }
             if !is_midpoint_lt_even    && !is_midpoint_gt_even
             && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
@@ -3260,7 +3260,7 @@ pub (crate) fn bid128_ext_fma(
                                 } else { // if (C3.w[0] > bid_midpoint64[q3-1]), C3 > 1/2 ulp
                                     res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
                                     res.w[0] = 0x378d8e63ffffffffu64;
-                                    e4       = e4 - 1;
+                                    e4      -= 1;
                                     is_inexact_lt_midpoint = true;
                                 }
                             } else { // if (20 <= q3 <=34)
@@ -3276,7 +3276,7 @@ pub (crate) fn bid128_ext_fma(
                                 } else { // if (C3 > bid_midpoint128[q3-20]), C3 > 1/2 ulp
                                     res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
                                     res.w[0] = 0x378d8e63ffffffffu64;
-                                    e4       = e4 - 1;
+                                    e4      -= 1;
                                     is_inexact_lt_midpoint = true;
                                 }
                             }
@@ -3286,7 +3286,7 @@ pub (crate) fn bid128_ext_fma(
             } else if is_midpoint_lt_even {
                 if z_sign != p_sign {
                     // needs correction: res = res - 1
-                    res.w[0] = res.w[0] - 1;
+                    res.w[0] -= 1;
                     if res.w[0] == 0xffffffffffffffffu64 {
                         res.w[1] -= 1;
                     }
@@ -3295,7 +3295,7 @@ pub (crate) fn bid128_ext_fma(
                     if res.w[1] == 0x0000314dc6448d93u64 && res.w[0] == 0x38c15b09ffffffffu64 {
                         res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
                         res.w[0] = 0x378d8e63ffffffffu64;
-                        e4       = e4 - 1;
+                        e4      -= 1;
                     }
                     is_midpoint_lt_even    = false;
                     is_inexact_lt_midpoint = true;
@@ -3306,7 +3306,7 @@ pub (crate) fn bid128_ext_fma(
             } else if is_midpoint_gt_even {
                 if z_sign == p_sign {
                     // needs correction: res = res + 1 (cannot cross in the next binade)
-                    res.w[0] = res.w[0] + 1;
+                    res.w[0] += 1;
                     if res.w[0] == 0x0000000000000000u64 {
                         res.w[1] += 1;
                     }
@@ -3325,8 +3325,8 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = 0x0000000000000000u64;
                 *pfpsf  |= StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION;
             } else { // no overflow or not RN
-                p_exp    = ((e4 + 6176) as BID_UINT64) << 49;
-                res.w[1] = p_sign | (p_exp & MASK_EXP) | res.w[1];
+                p_exp     = ((e4 + 6176) as BID_UINT64) << 49;
+                res.w[1] |= p_sign | (p_exp & MASK_EXP);
             }
             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                 bid_rounding_correction(
@@ -3427,7 +3427,7 @@ pub (crate) fn bid128_ext_fma(
                 P128.w[0] = C3.w[0];
                 C3        = __mul_64x128_to_128(bid_ten2k64[1], &P128);
             }
-            e3 = e3 + x0; // this is e4
+            e3 += x0; // this is e4
             // now add/subtract the 256-bit C4 and the new (and shorter) 128-bit C3;
             // the result will have the sign of x * y; the exponent is e4
             R256.w[3] = 0;
@@ -3642,7 +3642,7 @@ pub (crate) fn bid128_ext_fma(
 
             // the result rounded to the destination precision with unbounded exponent
             // is (-1)^p_sign * res * 10^e4
-            res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | res.w[1]; // RN
+            res.w[1] |= p_sign | (((e4 + 6176) as BID_UINT64) << 49); // RN
             // res.w[0] unchanged;
             // Note: res is correct only if expmin <= e4 <= expmax
             ind = p34; // the number of decimal digits in the signifcand of res
@@ -3736,8 +3736,8 @@ pub (crate) fn bid128_ext_fma(
                         res.w[1] = 0x0000000000000000u64;
                         res.w[0] = 0x0000000000000001u64;
                     }
-                    res.w[1] = p_sign | res.w[1];
-                    e4 = expmin;
+                    res.w[1] |= p_sign;
+                    e4        = expmin;
                 } else { // if (1 <= x0 <= ind - 1 <= 33)
                     // round the ind-digit result to ind - x0 digits
 
@@ -3762,7 +3762,7 @@ pub (crate) fn bid128_ext_fma(
                             &mut is_inexact_lt_midpoint,
                             &mut is_inexact_gt_midpoint);
                     }
-                    e4 = e4 + x0; // expmin
+                    e4 += x0; // expmin
                     // we want the exponent to be expmin, so if incr_exp = 1 then
                     // multiply the rounded result by 10 - it will still fit in 113 bits
                     if incr_exp {
@@ -3908,15 +3908,13 @@ pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
 
-    let res = bid128_ext_fma(
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         x, y, z,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -3925,18 +3923,17 @@ pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mo
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
 
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let z1  = bid64_to_bid128(z, pfpsf);
-    let res = bid128_ext_fma(
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         &x1, &y1, &z1,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -3945,17 +3942,16 @@ pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let res = bid128_ext_fma(
+    let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
+    let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         &x1, &y1, z,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -3964,17 +3960,16 @@ pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let z1  = bid64_to_bid128(z, pfpsf);
-    let res = bid128_ext_fma(
+    let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
+    let z1: BID_UINT128  = bid64_to_bid128(z, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         &x1, y, &z1,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -3983,16 +3978,15 @@ pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rn
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let res = bid128_ext_fma(
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         &x1, y, z,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -4001,17 +3995,16 @@ pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let z1  = bid64_to_bid128(z, pfpsf);
-    let res = bid128_ext_fma(
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         x, &y1, &z1,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -4020,16 +4013,15 @@ pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rn
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let res = bid128_ext_fma(
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         x, &y1, z,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -4038,16 +4030,15 @@ pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rn
     let mut is_inexact_lt_midpoint = false;
     let mut is_inexact_gt_midpoint = false;
 
-    let z1  = bid64_to_bid128(z, pfpsf);
-    let res = bid128_ext_fma(
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
+
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         x, y, &z1,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 // Note: bid128qqq_fma is represented by bid128_fma
@@ -4055,48 +4046,42 @@ pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rn
 // Note: bid64ddd_fma is represented by bid64_fma
 
 pub (crate) fn bid64ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1   = bid64_to_bid128(x, pfpsf);
-    let y1   = bid64_to_bid128(y, pfpsf);
-    let res1 = bid64qqq_fma(&x1, &y1, z, rnd_mode, pfpsf);
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
-    res1
+    bid64qqq_fma(&x1, &y1, z, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1   = bid64_to_bid128(x, pfpsf);
-    let z1   = bid64_to_bid128(z, pfpsf);
-    let res1 = bid64qqq_fma(&x1, y, &z1, rnd_mode, pfpsf);
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
-    res1
+    bid64qqq_fma(&x1, y, &z1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1   = bid64_to_bid128(x, pfpsf);
-    let res1 = bid64qqq_fma(&x1, y, z, rnd_mode, pfpsf);
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
 
-    res1
+    bid64qqq_fma(&x1, y, z, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let y1   = bid64_to_bid128(y, pfpsf);
-    let z1   = bid64_to_bid128(z, pfpsf);
-    let res1 = bid64qqq_fma(x, &y1, &z1, rnd_mode, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
-    res1
+    bid64qqq_fma(x, &y1, &z1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let y1   = bid64_to_bid128(y, pfpsf);
-    let res1 = bid64qqq_fma(x, &y1, z, rnd_mode, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
-    res1
+    bid64qqq_fma(x, &y1, z, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let z1   = bid64_to_bid128(z, pfpsf);
-    let res1 = bid64qqq_fma(x, y, &z1, rnd_mode, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
-    res1
+    bid64qqq_fma(x, y, &z1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
@@ -4250,7 +4235,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                 &mut is_inexact_lt_midpoint, &mut is_inexact_gt_midpoint);
             res1 = res128.w[0]; // the result fits in 64 bits
         }
-        unbexp = unbexp + x0;
+        unbexp += x0;
         if incr_exp {
             unbexp += 1;
         }
@@ -4312,8 +4297,8 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
         // not overflow; the result must be exact, and we can multiply res1 by
         // 10^(unbexp - expmax16) and the product will fit in 16 decimal digits
         scale  = unbexp - expmax16;
-        res1   = res1 * bid_ten2k64[scale as usize]; // res1 * 10^scale
-        unbexp = expmax16;                  // unbexp - scale
+        res1  *= bid_ten2k64[scale as usize];   // res1 * 10^scale
+        unbexp = expmax16;                      // unbexp - scale
     } else {
         // continue
     }
@@ -4342,7 +4327,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                     // res1 = 10^(q-x0), 1 <= q - x0 <= q - 1, 1 <= q - x0 <= 15
                     res1 = bid_ten2k64[(q - x0) as usize];
                 }
-                unbexp = unbexp + x0; // expmin16
+                unbexp += x0; // expmin16
             } else if x0 == q {
                 // the second rounding is for 0.d(0)d(1)...d(q-1) * 10^emin
                 // determine relationship with 1/2 ulp

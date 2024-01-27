@@ -10,10 +10,11 @@
 
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use std::str::FromStr;
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
+use crate::bid128_div::bid128_div;
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
@@ -21,7 +22,7 @@ use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
-use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, RoundingMode, StatusFlags};
+use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
 
 pub type _IDEC_flags = u32;
 
@@ -36,7 +37,7 @@ pub (crate) struct DEC_DIGITS {
 #[derive(Copy, Clone)]
 pub (crate) union BID_UI32FLOAT {
     pub (crate) i: BID_UINT32,
-    pub (crate) f: f32
+    pub (crate) d: f32
 }
 
 impl Default for BID_UI32FLOAT {
@@ -210,19 +211,23 @@ impl decimal128 {
     }
 
     pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> decimal64 {
-        bid128_to_bid64(self, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
-    }
-
-    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
-        bid128_mul(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+        bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
-        bid128_add(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+        bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
+    }
+
+    pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+        bid128_div(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
+    }
+
+    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+        bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
-        bid128_sub(lhs, rhs, rnd_mode.unwrap_or(RoundingMode::BID_ROUNDING_UP), status)
+        bid128_sub(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     pub fn quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
@@ -324,7 +329,6 @@ impl FromStr for decimal128 {
          }
     }
 }
-
 
 impl TryInto<decimal64> for decimal128 {
     type Error = _IDEC_flags;
@@ -471,6 +475,59 @@ impl AddAssign for decimal128 {
     fn add_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
         let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+
+        self.w[0] = dec.w[0];
+        self.w[1] = dec.w[1];
+    }
+}
+
+impl Div for decimal128 {
+    type Output = Self;
+
+    /// Performs the * operation.
+    /// # Examples
+    ///
+    /// ```
+    /// let dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2 = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// let res  = dec1 / dec2;
+    /// ```
+    fn div(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_div(&self, &rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+impl Div for &decimal128 {
+    type Output = decimal128;
+
+    /// Performs the / operation.
+    /// # Examples
+    ///
+    /// ```
+    /// let dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2 = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// let res  = &dec1 / &dec2;
+    /// ```
+    fn div(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_mul(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
+    }
+}
+
+impl DivAssign for decimal128 {
+    /// Performs the /= operation.
+    /// # Examples
+    ///
+    /// ```
+    /// use decmathlib_rs::core::RoundingMode;
+    /// let mut dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2     = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// dec1        /= dec2;
+    /// ```
+    fn div_assign(&mut self, rhs: Self) {
+        let mut status: _IDEC_flags = 0;
+        let dec: BID_UINT128 = bid128_div(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
