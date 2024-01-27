@@ -646,12 +646,12 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         }
     }
 
-    CX        = __mul_64x64_to_128_fast(coeff_high, scale_high);
-    coeff_low = coeff_low + carry;
-    CX.w[0]   = CX.w[0] + coeff_low;
+    CX         = __mul_64x64_to_128_fast(coeff_high, scale_high);
+    coeff_low += carry;
+    CX.w[0]   += coeff_low;
 
     if CX.w[0] < coeff_low {
-        CX.w[1] = CX.w[1] + 1;
+        CX.w[1] += 1;
     }
 
     if set_inexact {

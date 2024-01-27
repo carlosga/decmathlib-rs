@@ -122,37 +122,32 @@ pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd
     let mut is_inexact_lt_midpoint: bool = false;
     let mut is_inexact_gt_midpoint: bool = false;
 
-    let res = bid128_ext_fma(
+    bid128_ext_fma(
         &mut is_midpoint_lt_even,
         &mut is_midpoint_gt_even,
         &mut is_inexact_lt_midpoint,
         &mut is_inexact_gt_midpoint,
         x, y,  z,
-        rnd_mode, pfpsf);
-
-    res
+        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1  = bid64_to_bid128(*x, pfpsf);
-    let y1  = bid64_to_bid128(*y, pfpsf);
-    let res = bid128_mul(&x1, &y1, rnd_mode, pfpsf);
+    let x1: BID_UINT128 = bid64_to_bid128(*x, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(*y, pfpsf);
 
-    res
+    bid128_mul(&x1, &y1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1  = bid64_to_bid128(*x, pfpsf);
-    let res = bid128_mul(&x1, y, rnd_mode, pfpsf);
+    let x1: BID_UINT128  = bid64_to_bid128(*x, pfpsf);
 
-    res
+    bid128_mul(&x1, y, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-  let y1  = bid64_to_bid128(*y, pfpsf);
-  let res = bid128_mul(x, &y1, rnd_mode, pfpsf);
+  let y1: BID_UINT128 = bid64_to_bid128(*y, pfpsf);
 
-  res
+  bid128_mul(x, &y1, rnd_mode, pfpsf)
 }
 
 /// bid128_mul stands for bid128qq_mul

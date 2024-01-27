@@ -133,9 +133,9 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
             }
             CX.w[1] += CY.w[1];
         }
-    } else if __unsigned_compare_ge_128(&CX, &CY) {
+    } else if __unsigned_compare_ge_128(&CX, CY) {
         Q += 1;
-        CX = __sub_128_128(&CX, &CY);
+        CX = __sub_128_128(&CX, CY);
     }
 
     CQ = __add_128_64(&CQ, Q);
@@ -145,7 +145,7 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
     pCR.w[1] = CX.w[1];
     pCR.w[0] = CX.w[0];
 
-    return (pCQ, pCR);
+    (pCQ, pCR)
 }
 
 pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT256, CY: &BID_UINT128) {
@@ -205,7 +205,7 @@ pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT25
             Q     = (lq as BID_UINT64) - 4u64;
 
             // Q*CY
-            CA2 = __mul_64x128_to_256(Q, &CY);
+            CA2 = __mul_64x128_to_256(Q, CY);
 
             // __mul_64x128_to_192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT192 {
 
@@ -289,9 +289,9 @@ pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT25
             }
             CA4.w[1] += CY.w[1];
         }
-    } else if __unsigned_compare_ge_256_128(&CA4, &CY) {
+    } else if __unsigned_compare_ge_256_128(&CA4, CY) {
         Q   += 1;
-        CA4  = __sub_256_128(&CA4, &CY);
+        CA4  = __sub_256_128(&CA4, CY);
     }
 
     CQ = __add_128_64(&CQ, Q);

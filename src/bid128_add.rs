@@ -97,27 +97,26 @@ pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
             y.w[BID_HIGH_128W] | 0x8000000000000000u64
         };
     }
-    let res = bid64qqq_fma(&one, x, &y, rnd_mode, pfpsf);
-    res
+    bid64qqq_fma(&one, x, &y, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dd_sub(x: BID_UINT64, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let res = bid128_sub(&x1, &y1, rnd_mode, pfpsf);
-    res
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+
+    bid128_sub(&x1, &y1, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1  = bid64_to_bid128(x, pfpsf);
-    let res = bid128_sub(&x1, y, rnd_mode, pfpsf);
-    res
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+
+    bid128_sub(&x1, y, rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let y1  = bid64_to_bid128(y, pfpsf);
-    let res = bid128_sub(x, &y1, rnd_mode, pfpsf);
-    res
+    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
+
+    bid128_sub(x, &y1, rnd_mode, pfpsf)
 }
 
 // bid128_sub stands for bid128qq_sub
@@ -138,8 +137,7 @@ pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             y.w[BID_HIGH_128W] | 0x8000000000000000u64
         };
     }
-    let res = bid128_add(x, &y, rnd_mode, pfpsf);
-    res
+    bid128_add(x, &y, rnd_mode, pfpsf)
 }
 
 /////////////////////////////////////
@@ -208,13 +206,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         let mut y: BID_UINT128 = *y;
 
         // x is special or y is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
             // check first for non-canonical NaN payload
             if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
                 // set invalid flag
@@ -238,14 +236,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         } else if (y.w[1] & MASK_NAN) == MASK_NAN { // y is NAN
             // check first for non-canonical NaN payload
             if  ((y.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (y.w[0] > 0x38c15b09ffffffffu64)) {
-                y.w[1] = y.w[1] & 0xffffc00000000000u64;
-                y.w[0] = 0x0u64;
+                y.w[1] &= 0xffffc00000000000u64;
+                y.w[0]  = 0x0u64;
             }
             if (y.w[1] & MASK_SNAN) == MASK_SNAN { // y is SNAN
                 // set invalid flag
@@ -264,7 +262,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         } else {                                         // neither x not y is NaN; at least one is infinity
             if (x.w[1] & MASK_ANY_INF) == MASK_INF {     // x is infinity
                 if (y.w[1] & MASK_ANY_INF) == MASK_INF { // y is infinity
@@ -292,7 +290,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
-            return res;
+            res
         }
     }
     // unpack the arguments
@@ -350,9 +348,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         if (C2_hi == 0x0u64) && (C2_lo == 0x0u64) {
             res.w[1] = if x_exp < y_exp { x_exp } else { y_exp };
             if x_sign != 0 && y_sign != 0 {
-                res.w[1] = res.w[1] | x_sign; // both negative
+                res.w[1] |= x_sign; // both negative
             } else if rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != y_sign {
-                res.w[1] = res.w[1] | 0x8000000000000000u64; // -0
+                res.w[1] |= 0x8000000000000000u64; // -0
             }
             // else; // res = +0
             res.w[0] = 0;
@@ -420,7 +418,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     res     = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C2);
                 }
                 // subtract scale from the exponent
-                y_exp    = y_exp - ((scale as BID_UINT64) << 49);
+                y_exp   -= (scale as BID_UINT64) << 49;
                 res.w[1] = res.w[1] | y_sign | y_exp;
             }
         }
@@ -493,7 +491,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1);
             }
             // subtract scale from the exponent
-            x_exp    = x_exp - ((scale as BID_UINT64) << 49);
+            x_exp   -= (scale as BID_UINT64) << 49;
             res.w[1] = res.w[1] | x_sign | x_exp;
         }
 
@@ -596,7 +594,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         } else { // if 20 <= scale <= 33
                             // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                             // (C1 * 10^(scale-19)) fits in 64 bits
-                            C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                            C1_lo *= bid_ten2k64[(scale - 19) as usize];
                             __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                         };
                     } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -606,7 +604,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                         C1      = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                     }
-                    x_exp = x_exp - ((scale as BID_UINT64) << 49);
+                    x_exp -= (scale as BID_UINT64) << 49;
                     C1_hi = C1.w[1];
                     C1_lo = C1.w[0];
                 }
@@ -623,23 +621,23 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                    || (C2_hi == bid_midpoint128[(q2 - 20) as usize].w[1]
                     && C2_lo  > bid_midpoint128[(q2 - 20) as usize].w[0])))) {
                     // C1 = 10^34 - 1 and decrement x_exp by 1 (no underflow possible)
-                    C1_hi = 0x0001ed09bead87c0u64;
-                    C1_lo = 0x378d8e63ffffffffu64;
-                    x_exp = x_exp - EXP_P1;
+                    C1_hi  = 0x0001ed09bead87c0u64;
+                    C1_lo  = 0x378d8e63ffffffffu64;
+                    x_exp -= EXP_P1;
                 }
                 if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                     if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0)
                      || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                         // add 1 ulp and then check for overflow
-                        C1_lo = C1_lo + 1;
+                        C1_lo += 1;
                         if C1_lo == 0 { // rounding overflow in the low 64 bits
-                            C1_hi = C1_hi + 1;
+                            C1_hi += 1;
                         }
                         if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                             // C1 = 10^34 => rounding overflow
-                            C1_hi = 0x0000314dc6448d93u64;
-                            C1_lo = 0x38c15b0a00000000u64; // 10^33
-                            x_exp = x_exp + EXP_P1;
+                            C1_hi  = 0x0000314dc6448d93u64;
+                            C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                            x_exp += EXP_P1;
                             if x_exp == EXP_MAX_P1 {         // overflow
                                 C1_hi = 0x7800000000000000u64; // +inf
                                 C1_lo = 0x0u64;
@@ -653,9 +651,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                         // subtract 1 ulp from C1
                         // Note: because delta >= P34 + 1 the result cannot be zero
-                        C1_lo = C1_lo - 1;
+                        C1_lo -= 1;
                         if C1_lo == 0xffffffffffffffffu64 {
-                            C1_hi = C1_hi - 1;
+                            C1_hi -= 1;
                         }
                         // if the coefficient is 10^33 - 1 then make it 10^34 - 1 and
                         // decrease the exponent by 1 (because delta >= P34 + 1 the
@@ -664,9 +662,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // 10^34 - 1 = 0x0001ed09bead87c0378d8e63ffffffff
                         if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {
                             // make C1 = 10^34  - 1
-                            C1_hi = 0x0001ed09bead87c0u64;
-                            C1_lo = 0x378d8e63ffffffffu64;
-                            x_exp = x_exp - EXP_P1;
+                            C1_hi  = 0x0001ed09bead87c0u64;
+                            C1_lo  = 0x378d8e63ffffffffu64;
+                            x_exp -= EXP_P1;
                         }
                     } else {
                         // the result is already correct
@@ -706,7 +704,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -716,23 +714,23 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
                             }
                             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0) ||
                                     (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                                     // add 1 ulp and then check for overflow
-                                    C1_lo = C1_lo + 1;
+                                    C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                        C1_hi = C1_hi + 1;
+                                        C1_hi += 1;
                                     }
                                     if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                         // C1 = 10^34 => rounding overflow
-                                        C1_hi = 0x0000314dc6448d93u64;
-                                        C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                        x_exp = x_exp + EXP_P1;
+                                        C1_hi  = 0x0000314dc6448d93u64;
+                                        C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                        x_exp += EXP_P1;
                                         if x_exp == EXP_MAX_P1 {         // overflow
                                             C1_hi = 0x7800000000000000u64; // +inf
                                             C1_lo = 0x0u64;
@@ -746,9 +744,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                                     // subtract 1 ulp from C1
                                     // Note: because delta >= P34 + 1 the result cannot be zero
-                                    C1_lo = C1_lo - 1;
+                                    C1_lo -= 1;
                                     if C1_lo == 0xffffffffffffffffu64 {
-                                        C1_hi = C1_hi - 1;
+                                        C1_hi -= 1;
                                     }
                                     // if the coefficient is 10^33-1 then make it 10^34-1 and
                                     // decrease the exponent by 1 (because delta >= P34 + 1 the
@@ -757,9 +755,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // 10^34 - 1 = 0x0001ed09bead87c0378d8e63ffffffff
                                     if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {
                                         // make C1 = 10^34  - 1
-                                        C1_hi = 0x0001ed09bead87c0u64;
-                                        C1_lo = 0x378d8e63ffffffffu64;
-                                        x_exp = x_exp - EXP_P1;
+                                        C1_hi  = 0x0001ed09bead87c0u64;
+                                        C1_lo  = 0x378d8e63ffffffffu64;
+                                        x_exp -= EXP_P1;
                                     }
                                 } else {
                                     // the result is already correct
@@ -786,7 +784,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -796,24 +794,24 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
                             }
                             if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign == y_sign && (C1_lo & 0x01) == 0x01)
                              || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
                              || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0)
                              || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0) {
                                 // add 1 ulp and then check for overflow
-                                C1_lo = C1_lo + 1;
+                                C1_lo += 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                    C1_hi = C1_hi + 1;
+                                    C1_hi += 1;
                                 }
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
-                                    C1_hi = 0x0000314dc6448d93u64;
-                                    C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                    x_exp = x_exp + EXP_P1;
+                                    C1_hi  = 0x0000314dc6448d93u64;
+                                    C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                    x_exp += EXP_P1;
                                     if x_exp == EXP_MAX_P1 {         // overflow
                                         C1_hi = 0x7800000000000000u64; // +inf
                                         C1_lo = 0x0u64;
@@ -828,9 +826,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
                                 // subtract 1 ulp from C1
                                 // Note: because delta >= P34 + 1 the result cannot be zero
-                                C1_lo = C1_lo - 1;
+                                C1_lo -= 1;
                                 if C1_lo == 0xffffffffffffffffu64 {
-                                    C1_hi = C1_hi - 1;
+                                    C1_hi -= 1;
                                 }
                                 // if the coefficient is 10^33 - 1 then make it 10^34 - 1
                                 // and decrease the exponent by 1 (because delta >= P34 + 1
@@ -839,9 +837,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 // 10^34 - 1 = 0x0001ed09bead87c0378d8e63ffffffff
                                 if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {
                                     // make C1 = 10^34  - 1
-                                    C1_hi = 0x0001ed09bead87c0u64;
-                                    C1_lo = 0x378d8e63ffffffffu64;
-                                    x_exp = x_exp - EXP_P1;
+                                    C1_hi  = 0x0001ed09bead87c0u64;
+                                    C1_lo  = 0x378d8e63ffffffffu64;
+                                    x_exp -= EXP_P1;
                                 }
                             } else {
                                 // the result is already correct
@@ -868,7 +866,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -878,15 +876,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
                                 // check for rounding overflow
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
-                                    C1_hi = 0x0000314dc6448d93u64;
-                                    C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                    x_exp = x_exp + EXP_P1;
+                                    C1_hi  = 0x0000314dc6448d93u64;
+                                    C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                    x_exp += EXP_P1;
                                 }
                             }
                             if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign != y_sign)
@@ -896,33 +894,33 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                              || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
                                 // the result is x - 1
                                 // for RN n1 * n2 < 0; underflow not possible
-                                C1_lo = C1_lo - 1;
+                                C1_lo -= 1;
                                 if C1_lo == 0xffffffffffffffffu64 {
                                     C1_hi -= 1;
                                 }
                                 // check if we crossed into the lower decade
-                                if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                    C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                    C1_lo = 0x378d8e63ffffffffu64;
-                                    x_exp = x_exp - EXP_P1; // no underflow, because n1 >> n2
+                                if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {   // 10^33 - 1
+                                    C1_hi  = 0x0001ed09bead87c0u64;                                     // 10^34 - 1
+                                    C1_lo  = 0x378d8e63ffffffffu64;
+                                    x_exp -= EXP_P1; // no underflow, because n1 >> n2
                                 }
                             } else if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0) {
+                                    || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY && x_sign == y_sign)
+                                    || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN      && x_sign != 0 && y_sign != 0)
+                                    || (rnd_mode == RoundingMode::BID_ROUNDING_UP        && x_sign == 0 && y_sign == 0) {
                                 // the result is x + 1
                                 // for RN x_sign = y_sign, i.e. n1*n2 > 0
-                                C1_lo = C1_lo + 1;
+                                C1_lo += 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                    C1_hi = C1_hi + 1;
+                                    C1_hi += 1;
                                 }
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
-                                    C1_hi = 0x0000314dc6448d93u64;
-                                    C1_lo = 0x38c15b0a00000000u64;     // 10^33
-                                    x_exp = x_exp + EXP_P1;
-                                    if x_exp == EXP_MAX_P1 {         // overflow
-                                        C1_hi = 0x7800000000000000u64; // +inf
+                                    C1_hi  = 0x0000314dc6448d93u64;
+                                    C1_lo  = 0x38c15b0a00000000u64;     // 10^33
+                                    x_exp += EXP_P1;
+                                    if x_exp == EXP_MAX_P1 {            // overflow
+                                        C1_hi = 0x7800000000000000u64;  // +inf
                                         C1_lo = 0x0u64;
                                         x_exp = 0; // x_sign is preserved
                                         // set the overflow flag
@@ -957,7 +955,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -967,23 +965,23 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
                             }
                             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0)
                                  || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                                     // add 1 ulp and then check for overflow
-                                    C1_lo = C1_lo + 1;
+                                    C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                        C1_hi = C1_hi + 1;
+                                        C1_hi += 1;
                                     }
                                     if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                         // C1 = 10^34 => rounding overflow
                                         C1_hi = 0x0000314dc6448d93u64;
                                         C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                        x_exp = x_exp + EXP_P1;
+                                        x_exp += EXP_P1;
                                         if x_exp == EXP_MAX_P1 {         // overflow
                                             C1_hi = 0x7800000000000000u64; // +inf
                                             C1_lo = 0x0u64;
@@ -997,9 +995,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                                     // subtract 1 ulp from C1
                                     // Note: because delta >= P34 + 1 the result cannot be zero
-                                    C1_lo = C1_lo - 1;
+                                    C1_lo -= 1;
                                     if C1_lo == 0xffffffffffffffffu64 {
-                                        C1_hi = C1_hi - 1;
+                                        C1_hi -= 1;
                                     }
                                     // if the coefficient is 10^33-1 then make it 10^34-1 and
                                     // decrease the exponent by 1 (because delta >= P34 + 1 the
@@ -1008,9 +1006,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // 10^34 - 1 = 0x0001ed09bead87c0378d8e63ffffffff
                                     if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {
                                         // make C1 = 10^34  - 1
-                                        C1_hi = 0x0001ed09bead87c0u64;
-                                        C1_lo = 0x378d8e63ffffffffu64;
-                                        x_exp = x_exp - EXP_P1;
+                                        C1_hi  = 0x0001ed09bead87c0u64;
+                                        C1_lo  = 0x378d8e63ffffffffu64;
+                                        x_exp -= EXP_P1;
                                     }
                                 } else {
                                     // the result is already correct
@@ -1039,7 +1037,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -1049,24 +1047,24 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
                             }
                             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY && x_sign == y_sign)
                                  || (rnd_mode == RoundingMode::BID_ROUNDING_UP        && x_sign == 0 && y_sign == 0)
                                  || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN      && x_sign != 0 && y_sign != 0) {
                                     // add 1 ulp and then check for overflow
-                                    C1_lo = C1_lo + 1;
+                                    C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                        C1_hi = C1_hi + 1;
+                                        C1_hi += 1;
                                     }
                                     if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                         // C1 = 10^34 => rounding overflow
-                                        C1_hi = 0x0000314dc6448d93u64;
-                                        C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                        x_exp = x_exp + EXP_P1;
+                                        C1_hi  = 0x0000314dc6448d93u64;
+                                        C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                        x_exp += EXP_P1;
                                         if x_exp == EXP_MAX_P1 {         // overflow
                                             C1_hi = 0x7800000000000000u64; // +inf
                                             C1_lo = 0x0u64;
@@ -1080,9 +1078,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                                     // subtract 1 ulp from C1
                                     // Note: because delta >= P34 + 1 the result cannot be zero
-                                    C1_lo = C1_lo - 1;
+                                    C1_lo -= 1;
                                     if C1_lo == 0xffffffffffffffffu64 {
-                                        C1_hi = C1_hi - 1;
+                                        C1_hi -= 1;
                                     }
                                     // if the coefficient is 10^33 - 1 then make it 10^34 - 1
                                     // and decrease the exponent by 1 (because delta >= P34 + 1
@@ -1091,9 +1089,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // 10^34 - 1 = 0x0001ed09bead87c0378d8e63ffffffff
                                     if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {
                                         // make C1 = 10^34  - 1
-                                        C1_hi = 0x0001ed09bead87c0u64;
-                                        C1_lo = 0x378d8e63ffffffffu64;
-                                        x_exp = x_exp - EXP_P1;
+                                        C1_hi  = 0x0001ed09bead87c0u64;
+                                        C1_lo  = 0x378d8e63ffffffffu64;
+                                        x_exp -= EXP_P1;
                                     }
                                 } else {
                                     // the result is already correct
@@ -1121,7 +1119,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo = C1_lo * bid_ten2k64[(scale - 19) as usize];
+                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
                                         __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
@@ -1131,9 +1129,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
                                     C1      = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
                                 }
-                                C1_hi = C1.w[1];
-                                C1_lo = C1.w[0];
-                                x_exp = x_exp - ((scale as BID_UINT64) << 49);
+                                C1_hi  = C1.w[1];
+                                C1_lo  = C1.w[0];
+                                x_exp -= (scale as BID_UINT64) << 49;
                             }
                             if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign != y_sign)
                              || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign != y_sign && (C2_hi != halfulp128.w[1] || C2_lo != halfulp128.w[0]))
@@ -1142,31 +1140,31 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                              || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
                                 // the result is x - 1
                                 // for RN n1 * n2 < 0; underflow not possible
-                                C1_lo = C1_lo - 1;
+                                C1_lo -= 1;
                                 if C1_lo == 0xffffffffffffffffu64 {
                                     C1_hi -= 1;
                                 }
                                 // check if we crossed into the lower decade
-                                if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                    C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                    C1_lo = 0x378d8e63ffffffffu64;
-                                    x_exp = x_exp - EXP_P1; // no underflow, because n1 >> n2
+                                if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 {   // 10^33 - 1
+                                    C1_hi  = 0x0001ed09bead87c0u64;                                     // 10^34 - 1
+                                    C1_lo  = 0x378d8e63ffffffffu64;
+                                    x_exp -= EXP_P1; // no underflow, because n1 >> n2
                                 }
                             } else if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0) {
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0)
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0) {
                                 // the result is x + 1
                                 // for RN x_sign = y_sign, i.e. n1*n2 > 0
-                                C1_lo = C1_lo + 1;
+                                C1_lo += 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                    C1_hi = C1_hi + 1;
+                                    C1_hi += 1;
                                 }
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
-                                    C1_hi = 0x0000314dc6448d93u64;
-                                    C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                    x_exp = x_exp + EXP_P1;
+                                    C1_hi  = 0x0000314dc6448d93u64;
+                                    C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                    x_exp += EXP_P1;
                                     if x_exp == EXP_MAX_P1 {         // overflow
                                         C1_hi = 0x7800000000000000u64; // +inf
                                         C1_lo = 0x0u64;
@@ -1226,13 +1224,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         C2.w[0] = C2_lo;
                         C2.w[1] = C2_hi;
                         if ind <= 18 {
-                            C2.w[0] = C2.w[0] + bid_midpoint64[ind as usize];
+                            C2.w[0] += bid_midpoint64[ind as usize];
                             if C2.w[0] < C2_lo {
                                 C2.w[1] += 1;
                             }
                         } else { // 19 <= ind <= 32
-                            C2.w[0] = C2.w[0] + bid_midpoint128[(ind - 19) as usize].w[0];
-                            C2.w[1] = C2.w[1] + bid_midpoint128[(ind - 19) as usize].w[1];
+                            C2.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
+                            C2.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
                             if C2.w[0] < C2_lo {
                                 C2.w[1] += 1;
                             }
@@ -1269,8 +1267,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         if ind >= 3 {
                             shift = bid_shiftright128[ind as usize];
                             if shift < 64 { // 3 <= shift <= 63
-                                R256.w[2] = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
-                                R256.w[3] = R256.w[3] >> shift;
+                                R256.w[2]   = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
+                                R256.w[3] >>= shift;
                             } else { // 66 <= shift <= 102
                                 R256.w[2] = R256.w[3] >> (shift - 64);
                                 R256.w[3] = 0x0u64;
@@ -1397,8 +1395,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     }
                     // and now subtract C1 * 10^(e1-e2-x1) - (C2 * 10^(-x1))rnd,P34
                     // because x_sign != y_sign this last operation is exact
-                    C1.w[0] = C1.w[0] - R256.w[2];
-                    C1.w[1] = C1.w[1] - R256.w[3];
+                    C1.w[0] -= R256.w[2];
+                    C1.w[1] -= R256.w[3];
                     if C1.w[0] > tmp64 {
                         C1.w[1] -= 1;                       // borrow
                     }
@@ -1416,7 +1414,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // the difference has exactly P34 digits
                     x_sign = tmp_sign;
                     if x1 >= 1 {
-                        y_exp = y_exp + ((x1 as BID_UINT64) << 49);
+                        y_exp += (x1 as BID_UINT64) << 49;
                     }
                     C1_hi = C1.w[1];
                     C1_lo = C1.w[0];
@@ -1429,15 +1427,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
                                           || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
                             // C1 = C1 + 1
-                            C1_lo = C1_lo + 1;
+                            C1_lo += 1;
                             if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                C1_hi = C1_hi + 1;
+                                C1_hi += 1;
                             }
                             if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                 // C1 = 10^34 => rounding overflow
-                                C1_hi = 0x0000314dc6448d93u64;
-                                C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                y_exp = y_exp + EXP_P1;
+                                C1_hi  = 0x0000314dc6448d93u64;
+                                C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                y_exp += EXP_P1;
                             }
                         } else if (is_midpoint_lt_even || is_inexact_gt_midpoint)
                                && ((x_sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP
@@ -1445,15 +1443,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 || (x_sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN
                                                  || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
                             // C1 = C1 - 1
-                            C1_lo = C1_lo - 1;
+                            C1_lo -= 1;
                             if C1_lo == 0xffffffffffffffffu64 {
                                 C1_hi -= 1;
                             }
                             // check if we crossed into the lower decade
                             if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                C1_lo = 0x378d8e63ffffffffu64;
-                                y_exp = y_exp - EXP_P1;
+                                C1_hi  = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
+                                C1_lo  = 0x378d8e63ffffffffu64;
+                                y_exp -= EXP_P1;
                                 // no underflow, because delta + q2 >= P34 + 1
                             }
                         } else {
@@ -1502,10 +1500,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C1_hi += 1;
                         }
                     } else { // if x_sign != y_sign
-                        C1_lo = C1_lo - C2_lo;
-                        C1_hi = C1_hi - C2_hi;
+                        C1_lo -= C2_lo;
+                        C1_hi -= C2_hi;
                         if C1_lo > C1.w[0] {
-                            C1_hi = C1_hi - 1;
+                            C1_hi -= 1;
                         }
                         // the result can be zero, but it cannot overflow
                         if C1_lo == 0 && C1_hi == 0 {
@@ -1562,8 +1560,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // now add C2
                     if x_sign == y_sign {
                         // the result can overflow!
-                        C1_lo = C1_lo + C2_lo;
-                        C1_hi = C1_hi + C2_hi;
+                        C1_lo += C2_lo;
+                        C1_hi += C2_hi;
                         if C1_lo < C1.w[0] {
                             C1_hi += 1;
                         }
@@ -1576,10 +1574,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             // decimal digits
                             // Calculate C'' = C' + 1/2 * 10^x
                             if C1_lo >= 0xfffffffffffffffbu64 { // low half add has carry
-                                C1_lo = C1_lo + 5;
-                                C1_hi = C1_hi + 1;
+                                C1_lo += 5;
+                                C1_hi += 1;
                             } else {
-                                C1_lo = C1_lo + 5;
+                                C1_lo += 5;
                             }
                             // the approximation of 10^(-1) was rounded up to 118 bits
                             // 10^(-1) =~ 33333333333333333333333333333400 * 2^-129
@@ -1618,7 +1616,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 }
                             }
                             // n = Cstar * 10^(e2+1)
-                            y_exp = y_exp + EXP_P1;
+                            y_exp += EXP_P1;
                             // C* != 10^P because C* has P34 digits
                             // check for overflow
                             if y_exp == EXP_MAX_P1 && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
@@ -1670,15 +1668,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                                 || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
                                                   || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
                                     // C1 = C1 + 1
-                                    C1_lo = C1_lo + 1;
+                                    C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                        C1_hi = C1_hi + 1;
+                                        C1_hi += 1;
                                     }
                                     if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                         // C1 = 10^34 => rounding overflow
-                                        C1_hi = 0x0000314dc6448d93u64;
-                                        C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                        y_exp = y_exp + EXP_P1;
+                                        C1_hi  = 0x0000314dc6448d93u64;
+                                        C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                        y_exp += EXP_P1;
                                     }
                                 } else if (is_midpoint_lt_even || is_inexact_gt_midpoint)
                                        && ((x_sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP
@@ -1686,15 +1684,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || (x_sign == 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN
                                                          || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
                                     // C1 = C1 - 1
-                                    C1_lo = C1_lo - 1;
+                                    C1_lo -= 1;
                                     if C1_lo == 0xffffffffffffffffu64 {
                                         C1_hi -= 1;
                                     }
                                     // check if we crossed into the lower decade
                                     if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                        C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                        C1_lo = 0x378d8e63ffffffffu64;
-                                        y_exp = y_exp - EXP_P1;
+                                        C1_hi  = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
+                                        C1_lo  = 0x378d8e63ffffffffu64;
+                                        y_exp -= EXP_P1;
                                         // no underflow, because delta + q2 >= P34 + 1
                                     }
                                 } else {
@@ -1719,8 +1717,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             }
                         }    // else if (C1 < 10^34) then C1 is the coeff.; the result is exact
                     } else { // if x_sign != y_sign the result is exact
-                        C1_lo = C1_lo - C2_lo;
-                        C1_hi = C1_hi - C2_hi;
+                        C1_lo -= C2_lo;
+                        C1_hi -= C2_hi;
                         if C1_lo > C1.w[0] {
                             C1_hi -= 1;
                         }
@@ -1799,13 +1797,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C2.w[0] = C2_lo;
                             C2.w[1] = C2_hi;
                             if ind <= 18 {
-                                C2.w[0] = C2.w[0] + bid_midpoint64[ind as usize];
+                                C2.w[0] += bid_midpoint64[ind as usize];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
                             } else { // 19 <= ind <= 32
-                                C2.w[0] = C2.w[0] + bid_midpoint128[(ind - 19) as usize].w[0];
-                                C2.w[1] = C2.w[1] + bid_midpoint128[(ind - 19) as usize].w[1];
+                                C2.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
+                                C2.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
@@ -1842,8 +1840,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             if ind >= 3 {
                                 shift = bid_shiftright128[ind as usize];
                                 if shift < 64 { // 3 <= shift <= 63
-                                    R256.w[2] = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
-                                    R256.w[3] = R256.w[3] >> shift;
+                                    R256.w[2]   = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
+                                    R256.w[3] >>= shift;
                                 } else { // 66 <= shift <= 102
                                     R256.w[2] = R256.w[3] >> (shift - 64);
                                     R256.w[3] = 0x0u64;
@@ -1971,7 +1969,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
                              && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
                                 // the result is a midpoint
-                                if ((tmp64 + R256.w[2])) & 0x01 == 0x01 { // MP in [EVEN, ODD]
+                                if (tmp64 + R256.w[2]) & 0x01 == 0x01 { // MP in [EVEN, ODD]
                                     // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
                                     R256.w[2] -= 1;
                                     if R256.w[2] == 0xffffffffffffffffu64 {
@@ -2013,8 +2011,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // and now add/subtract C1 * 10^(e1-e2-x1) +/- (C2 * 10^(-x1))rnd,P34
                         if x_sign == y_sign { // addition; could overflow
                             // no second pass is possible this way (only for x_sign != y_sign)
-                            C1.w[0] = C1.w[0] + R256.w[2];
-                            C1.w[1] = C1.w[1] + R256.w[3];
+                            C1.w[0] += R256.w[2];
+                            C1.w[1] += R256.w[3];
                             if C1.w[0] < tmp64 {
                                 C1.w[1] += 1; // carry
                             }
@@ -2028,10 +2026,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 // now round C1 from P34+1 to P34 decimal digits
                                 // C1' = C1 + 1/2 * 10 = C1 + 5
                                 if C1.w[0] >= 0xfffffffffffffffbu64 { // low half add has carry
-                                    C1.w[0] = C1.w[0] + 5;
-                                    C1.w[1] = C1.w[1] + 1;
+                                    C1.w[0] += 5;
+                                    C1.w[1] += 1;
                                 } else {
-                                    C1.w[0] = C1.w[0] + 5;
+                                    C1.w[0] += 5;
                                 }
                                 // the approximation of 10^(-1) was rounded up to 118 bits
                                 Q256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[0]); // Q256 = C1*, f1*
@@ -2100,7 +2098,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     // ind = 0
                                     if Q256.w[1] > 0x8000000000000000u64 || (Q256.w[1] == 0x8000000000000000u64 && Q256.w[0] > 0x0u64) {
                                         // f1* > 1/2 and the result may be exact
-                                        Q256.w[1] = Q256.w[1] - 0x8000000000000000u64; // f1* - 1/2
+                                        Q256.w[1] -= 0x8000000000000000u64; // f1* - 1/2
                                         if  Q256.w[1]  > bid_ten2mk128trunc[0].w[1]
                                         || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
                                          && Q256.w[0]  > bid_ten2mk128trunc[0].w[0]) {
@@ -2138,11 +2136,11 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 // n = C1 * 10^(e2+x1)
                                 C1.w[1] = Q256.w[3];
                                 C1.w[0] = Q256.w[2];
-                                y_exp   = y_exp + (((x1 + 1) as BID_UINT64) << 49);
+                                y_exp  += ((x1 + 1) as BID_UINT64) << 49;
                             } else { // C1 < 10^34
                                 // C1.w[1] and C1.w[0] already set
                                 // n = C1 * 10^(e2+x1)
-                                y_exp = y_exp + ((x1 as BID_UINT64) << 49);
+                                y_exp += (x1 as BID_UINT64) << 49;
                             }
                             // check for overflow
                             if y_exp == EXP_MAX_P1 && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
@@ -2160,8 +2158,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 return res;
                             }    // else no overflow
                         } else { // if x_sign != y_sign the result of this subtract. is exact
-                            C1.w[0] = C1.w[0] - R256.w[2];
-                            C1.w[1] = C1.w[1] - R256.w[3];
+                            C1.w[0] -= R256.w[2];
+                            C1.w[1] -= R256.w[3];
                             if C1.w[0] > tmp64 {
                                 C1.w[1] -= 1;                       // borrow
                             }
@@ -2189,7 +2187,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0]  < 0x38c15b0a00000000u64))
                             || (C1.w[1] == 0x0000314dc6448d93u64 && C1.w[0] == 0x38c15b0a00000000u64
                             && (is_inexact_gt_midpoint || is_midpoint_lt_even)) { // C1=10^33
-                                x1 = x1 - 1;                                        // x1 >= 0
+                                x1 -= 1;                                        // x1 >= 0
                                 if x1 >= 0 {
                                     // clear position flags and tmp_inexact
                                     is_midpoint_lt_even    = false;
@@ -2208,11 +2206,11 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             if C1.w[1] == 0x0001ed09bead87c0u64 && C1.w[0] == 0x378d8e6400000000u64 { // if  C1 = 10^34
                                 C1.w[1] = 0x0000314dc6448d93u64;                                      // C1 = 10^33
                                 C1.w[0] = 0x38c15b0a00000000u64;
-                                y_exp = y_exp + ((1 as BID_UINT64) << 49);
+                                y_exp  += (1 as BID_UINT64) << 49;
                             }
                             x_sign = tmp_sign;
                             if x1 >= 1 {
-                                y_exp = y_exp + ((x1 as BID_UINT64) << 49);
+                                y_exp += (x1 as BID_UINT64) << 49;
                             }
                             // x1 = -1 is possible at the end of a second pass when the
                             // first pass started with x1 = 1
@@ -2230,15 +2228,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
                                           || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
                             // C1 = C1 + 1
-                            C1_lo = C1_lo + 1;
+                            C1_lo += 1;
                             if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                C1_hi = C1_hi + 1;
+                                C1_hi += 1;
                             }
                             if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                 // C1 = 10^34 => rounding overflow
-                                C1_hi = 0x0000314dc6448d93u64;
-                                C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                y_exp = y_exp + EXP_P1;
+                                C1_hi  = 0x0000314dc6448d93u64;
+                                C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                y_exp += EXP_P1;
                             }
                         } else if (is_midpoint_lt_even || is_inexact_gt_midpoint)
                                && ((x_sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP
@@ -2246,15 +2244,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 || (x_sign == 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN
                                                  || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
                             // C1 = C1 - 1
-                            C1_lo = C1_lo - 1;
+                            C1_lo -= 1;
                             if C1_lo == 0xffffffffffffffffu64 {
                                 C1_hi -= 1;
                             }
                             // check if we crossed into the lower decade
                             if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                C1_lo = 0x378d8e63ffffffffu64;
-                                y_exp = y_exp - EXP_P1;
+                                C1_hi  = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
+                                C1_lo  = 0x378d8e63ffffffffu64;
+                                y_exp -= EXP_P1;
                                 // no underflow, because delta + q2 >= P34 + 1
                             }
                         } else {
@@ -2321,8 +2319,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 // now add C2
                 if x_sign == y_sign {
                     // the result can overflow!
-                    C1_lo = C1_lo + C2_lo;
-                    C1_hi = C1_hi + C2_hi;
+                    C1_lo += C2_lo;
+                    C1_hi += C2_hi;
                     if C1_lo < C1.w[0] {
                         C1_hi += 1;
                     }
@@ -2335,10 +2333,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // decimal digits
                         // Calculate C'' = C' + 1/2 * 10^x
                         if C1_lo >= 0xfffffffffffffffbu64 { // low half add has carry
-                            C1_lo = C1_lo + 5;
-                            C1_hi = C1_hi + 1;
+                            C1_lo += 5;
+                            C1_hi += 1;
                         } else {
-                            C1_lo = C1_lo + 5;
+                            C1_lo += 5;
                         }
                         // the approximation of 10^(-1) was rounded up to 118 bits
                         // 10^(-1) =~ 33333333333333333333333333333400 * 2^-129
@@ -2377,7 +2375,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             }
                         }
                         // n = Cstar * 10^(e2+1)
-                        y_exp = y_exp + EXP_P1;
+                        y_exp += EXP_P1;
                         // C* != 10^P34 because C* has P34 digits
                         // check for overflow
                         if y_exp == EXP_MAX_P1 && (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
@@ -2429,15 +2427,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                             || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
                                               || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
                                 // C1 = C1 + 1
-                                C1_lo = C1_lo + 1;
+                                C1_lo += 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
-                                    C1_hi = C1_hi + 1;
+                                    C1_hi += 1;
                                 }
                                 if C1_hi == 0x0001ed09bead87c0u64 && C1_lo == 0x378d8e6400000000u64 {
                                     // C1 = 10^34 => rounding overflow
-                                    C1_hi = 0x0000314dc6448d93u64;
-                                    C1_lo = 0x38c15b0a00000000u64; // 10^33
-                                    y_exp = y_exp + EXP_P1;
+                                    C1_hi  = 0x0000314dc6448d93u64;
+                                    C1_lo  = 0x38c15b0a00000000u64; // 10^33
+                                    y_exp += EXP_P1;
                                 }
                             } else if (is_midpoint_lt_even || is_inexact_gt_midpoint)
                                    && ((x_sign != 0 && (rnd_mode == RoundingMode::BID_ROUNDING_UP
@@ -2445,15 +2443,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                    ||  (x_sign == 0 && (rnd_mode == RoundingMode::BID_ROUNDING_DOWN
                                                      || rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO))) {
                                 // C1 = C1 - 1
-                                C1_lo = C1_lo - 1;
+                                C1_lo -= 1;
                                 if C1_lo == 0xffffffffffffffffu64 {
                                     C1_hi -= 1;
                                 }
                                 // check if we crossed into the lower decade
                                 if C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                                    C1_hi = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
-                                    C1_lo = 0x378d8e63ffffffffu64;
-                                    y_exp = y_exp - EXP_P1;
+                                    C1_hi  = 0x0001ed09bead87c0u64;                                      // 10^34 - 1
+                                    C1_lo  = 0x378d8e63ffffffffu64;
+                                    y_exp -= EXP_P1;
                                     // no underflow, because delta + q2 >= P34 + 1
                                 }
                             } else {

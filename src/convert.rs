@@ -27,17 +27,15 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut exponent_x: i32           = 0;
     let mut coefficient_x: BID_UINT64 = 0;
 
-    if unpack_BID64(&mut sign_x, &mut exponent_x, &mut coefficient_x, x) == 0 {
-        if ((x) << 1) >= 0xf000000000000000u64 {
-            if ((x) & SNAN_MASK64) == SNAN_MASK64 {   // sNaN
-                __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
-            }
-            res.w[0] = coefficient_x & 0x0003ffffffffffffu64;
-            let cx = res.w[0];
-            res = __mul_64x64_to_128(cx, bid_power10_table_128[18].w[0]);
-            res.w[1] |= (coefficient_x) & 0xfc00000000000000u64;
-            return res;
+    if unpack_BID64(&mut sign_x, &mut exponent_x, &mut coefficient_x, x) == 0 && ((x) << 1) >= 0xf000000000000000u64 {
+        if ((x) & SNAN_MASK64) == SNAN_MASK64 {   // sNaN
+            __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
         }
+        res.w[0] = coefficient_x & 0x0003ffffffffffffu64;
+        let cx = res.w[0];
+        res = __mul_64x64_to_128(cx, bid_power10_table_128[18].w[0]);
+        res.w[1] |= (coefficient_x) & 0xfc00000000000000u64;
+        return res;
     }
 
     new_coeff.w[0] = coefficient_x;
@@ -177,19 +175,17 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
             CX = __shr_128(&Qh, amount);
         }
 
-        if rmode == 0 {
-            if (CX.w[0] & 1) == 1 {
-                // check whether fractional part of initial_P/10^ed1 is exactly .5
+        if rmode == 0 && (CX.w[0] & 1) == 1 {
+            // check whether fractional part of initial_P/10^ed1 is exactly .5
 
-                // get remainder
-                Qh1 = __shl_128_long(&Qh, 128 - amount);
+            // get remainder
+            Qh1 = __shl_128_long(&Qh, 128 - amount);
 
-                if Qh1.w[1] == 0 && Qh1.w[0] == 0
-                && (Ql.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
-                || (Ql.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
-                 && Ql.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                    CX.w[0] -= 1;
-                }
+            if Qh1.w[1] == 0 && Qh1.w[0] == 0
+            && (Ql.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
+            || (Ql.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
+             && Ql.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
+                CX.w[0] -= 1;
             }
         }
 

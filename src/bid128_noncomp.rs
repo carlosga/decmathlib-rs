@@ -697,8 +697,8 @@ pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     #[cfg(target_endian = "big")]
     BID_SWAP128 (y);
 
-    x.w[1] = x.w[1] & 0x7fffffffffffffffu64;
-    y.w[1] = y.w[1] & 0x7fffffffffffffffu64;
+    x.w[1] &= 0x7fffffffffffffffu64;
+    y.w[1] &= 0x7fffffffffffffffu64;
 
     // NaN (CASE 1)
     // if x and y are unordered numerically because either operand is NaN

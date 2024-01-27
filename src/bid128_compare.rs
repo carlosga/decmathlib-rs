@@ -143,12 +143,11 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     // else{
     //  recalculate y's significand upwards
     sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
-    {
-        res =  (sig_n_prime192.w[2] == 0)
-            && (sig_n_prime192.w[1] == sig_x.w[1])
-            && (sig_n_prime192.w[0] == sig_x.w[0]);
-        return res;
-    }
+
+    res =  (sig_n_prime192.w[2] == 0)
+        && (sig_n_prime192.w[1] == sig_x.w[1])
+        && (sig_n_prime192.w[0] == sig_x.w[0]);
+    res
 }
 
 pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
@@ -378,13 +377,12 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
         res = false;
         return res;
     } // if equal, return 0
-    {
-        res = (sig_n_prime192.w[2] != 0
-           || (sig_n_prime192.w[1]  > sig_x.w[1]
-           || (sig_n_prime192.w[1] == sig_x.w[1]
-            && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
-        return res;
-    }
+
+    res = (sig_n_prime192.w[2] != 0
+       || (sig_n_prime192.w[1]  > sig_x.w[1]
+       || (sig_n_prime192.w[1] == sig_x.w[1]
+        && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
+    res
 }
 
 pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
@@ -422,14 +420,10 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     // INFINITY (CASE3)
     if (x.w[1] & MASK_INF) == MASK_INF {
         // if x==neg_inf, { res = (y == neg_inf)?1:0; BID_RETURN_VAL (res) }
-        return if (x.w[1] & MASK_SIGN) == MASK_SIGN
-        // x is -inf, so it is less than y unless y is -inf
-        {
+        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { // x is -inf, so it is less than y unless y is -inf
             res = ((y.w[1] & MASK_INF) == MASK_INF) && (y.w[1] & MASK_SIGN) == MASK_SIGN;
             res
-        } else
-        // x is pos_inf, no way for it to be less than y
-        {
+        } else { // x is pos_inf, no way for it to be less than y
             res = true;
             res
         }
@@ -451,7 +445,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x = (sig_x.w[1]  > 0x0001ed09bead87c0u64)
+    non_canon_x =   (sig_x.w[1]  > 0x0001ed09bead87c0u64)
                 || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
                  && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
                 || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
@@ -618,7 +612,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
            && (sig_n_prime192.w[1]  < sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
             && sig_n_prime192.w[0] < sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
+        res
     }
 }
 
@@ -851,7 +845,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
            && (sig_n_prime192.w[1]  < sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
             && sig_n_prime192.w[0]  < sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
+        res
     }
 }
 
@@ -1084,7 +1078,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
            || (sig_n_prime192.w[1]  > sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
             && sig_n_prime192.w[0]  > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
+        res
     }
 }
 
@@ -1316,7 +1310,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
            || (sig_n_prime192.w[1]  > sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
             && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
+        res
     }
 }
 
@@ -1548,7 +1542,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
            || (sig_n_prime192.w[1]  > sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
             && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
+        res
     }
 }
 
@@ -1682,7 +1676,7 @@ pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
     sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
     {
         res = (sig_n_prime192.w[2] != 0) || (sig_n_prime192.w[1] != sig_x.w[1]) || (sig_n_prime192.w[0] != sig_x.w[0]);
-        return res;
+        res
     }
 }
 
