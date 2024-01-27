@@ -13,7 +13,7 @@
 use crate::constants::{DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL};
 use crate::d128::_IDEC_flags;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ClassTypes {
     signalingNaN,
     quietNaN,
@@ -27,7 +27,6 @@ pub enum ClassTypes {
     positiveInfinity
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RoundingMode;
 
 impl RoundingMode {
@@ -60,7 +59,6 @@ pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_ZERO;
 #[cfg(DECIMAL_DEFAULT_ROUNDING_MODE = "TIES_AWAY")]
 pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TIES_AWAY;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StatusFlags;
 
 impl StatusFlags {

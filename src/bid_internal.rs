@@ -671,6 +671,20 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
     R128
 }
 
+pub (crate) fn __sub_256_128(A128: &BID_UINT256, B128: &BID_UINT128) -> BID_UINT256 {
+    let mut Q128: BID_UINT128 = BID_UINT128::default();
+    let mut R256: BID_UINT256 = BID_UINT256::default();
+    Q128.w[1] = A128.w[1] - B128.w[1];
+    Q128.w[0] = A128.w[0] - B128.w[0];
+    if A128.w[0] < B128.w[0] {
+        Q128.w[1] -= 1;
+    }
+    R256.w[1] = Q128.w[1];
+    R256.w[0] = Q128.w[0];
+
+    R256
+}
+
 /// Returns (sum, carry)
 pub (crate) fn __add_carry_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
     let S: BID_UINT64  = X + Y;
@@ -684,6 +698,21 @@ pub (crate) fn __add_carry_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) 
     let S: BID_UINT64  = X1 + Y;
     let CY: BID_UINT64 = if S < X1 || X1 < CI { 1u64 } else { 0 };
     (S, CY)
+}
+
+pub (crate) fn __sub_borrow_out(X: BID_UINT64, Y: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
+    let X1: BID_UINT64 = X;
+	let S: BID_UINT64  = X - Y;
+	let CY: BID_UINT64 = if S > X1 { 1  } else { 0 };
+	(S, CY)
+}
+
+pub (crate) fn __sub_borrow_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64) -> (BID_UINT64, BID_UINT64) {
+    let X0: BID_UINT64 = X;
+	let X1: BID_UINT64 = X - CI;
+	let S: BID_UINT64  = X1 - Y;
+	let CY: BID_UINT64 = if (S > X1) || (X1 > X0) { 1 } else { 0 };
+	(S, CY)
 }
 
 //////////////////////////////////////////////
@@ -908,6 +937,19 @@ pub (crate) fn __mul_64x128_to_192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT19
     Q
 }
 
+pub (crate) fn __mul_64x128_to_256(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT256 {
+    let mut Q: BID_UINT256 = BID_UINT256::default();
+    let ALBH: BID_UINT128  = __mul_64x64_to_128(A, B.w[1]);
+    let ALBL: BID_UINT128  = __mul_64x64_to_128(A, B.w[0]);
+
+    Q.w[0] = ALBL.w[0];
+    let QM2: BID_UINT128 = __add_128_64(&ALBH, ALBL.w[1]);
+    Q.w[1] = QM2.w[0];
+    Q.w[2] = QM2.w[1];
+
+    Q
+}
+
 pub (crate) fn __mul_64x128_to192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT192 {
     let mut Q: BID_UINT192    = BID_UINT192::default();
     let ALBH: BID_UINT128 = __mul_64x64_to_128(A, B.w[1]);
@@ -1098,8 +1140,16 @@ pub (crate) fn __unsigned_compare_gt_128(A: &BID_UINT128, B: &BID_UINT128) -> bo
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
 }
 
+pub (crate) fn __unsigned_compare_gt_256_as_128(A: &BID_UINT256, B: &BID_UINT256) -> bool  {
+    (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
+}
+
 /// greater-or-equal
 pub (crate) fn __unsigned_compare_ge_128(A: &BID_UINT128, B: &BID_UINT128) -> bool {
+    (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] >= B.w[0]))
+}
+
+pub (crate) fn __unsigned_compare_ge_256_128(A: &BID_UINT256, B: &BID_UINT128) -> bool {
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] >= B.w[0]))
 }
 
