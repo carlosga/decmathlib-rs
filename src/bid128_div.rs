@@ -15,7 +15,7 @@
 use crate::bid_convert_data::{bid_convert_table, bid_factors, bid_packed_10000_zeros};
 use crate::bid_decimal_data::*;
 use crate::bid_div_macros::{bid___div_128_by_128, bid___div_256_by_128};
-use crate::bid_internal::{__mul_128x128_full, __mul_128x128_low, __mul_128x128_to_256, __mul_64x128_short, __mul_64x64_to_128, __set_status_flags, __shr_128, __shr_128_long, __sub_borrow_out, __unsigned_compare_ge_128, __unsigned_compare_gt_128, bid_get_BID128, bid_handle_UF_128_rem, unpack_BID128};
+use crate::bid_internal::*;
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, DECIMAL_MAX_EXPON_128, QUIET_MASK64};
 use crate::core::{RoundingMode, StatusFlags};
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT32, BID_UINT64};
@@ -65,10 +65,10 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut k: i32;
     let d5: i32;
     let mut rmode: u32;
-    let valid_y: BID_UINT64 = unpack_BID128(&mut sign_y, &mut exponent_y, &mut CY, y);
+    let valid_y: BID_UINT64 = unpack_BID128_value(&mut sign_y, &mut exponent_y, &mut CY, y);
 
     // unpack arguments, check for NaN or Infinity
-    if unpack_BID128(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
+    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
         // test if x is NaN
         if (x.w[1] & 0x7c00000000000000u64) == 0x7c00000000000000u64 {
             if (x.w[1] & 0x7e00000000000000u64) == 0x7e00000000000000u64 || // sNaN

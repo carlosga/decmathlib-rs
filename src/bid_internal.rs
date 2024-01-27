@@ -267,11 +267,75 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
     *pcoefficient_x
 }
 
+///  BID128 unpack, input passed by value
+pub (crate) fn unpack_BID128_value(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
+    let mut coeff: BID_UINT128 = Default::default();
+    let T33: &BID_UINT128;
+    let T34: &BID_UINT128;
+    let ex: BID_UINT64;
+
+    *psign_x = (x.w[1]) & 0x8000000000000000u64;
+
+    // special encodings
+    if (x.w[1] & INFINITY_MASK64) >= SPECIAL_ENCODING_MASK64 {
+        if (x.w[1] & INFINITY_MASK64) < INFINITY_MASK64 {
+            // non-canonical input
+            pcoefficient_x.w[0] = 0;
+            pcoefficient_x.w[1] = 0;
+            ex                  = (x.w[1]) >> 47;
+            *pexponent_x        = (ex as i32) & EXPONENT_MASK128;
+            return 0;
+        }
+        // 10^33
+        T33 = &bid_power10_table_128[33];
+        /*coeff.w[0] = x.w[0];
+           coeff.w[1] = (x.w[1]) & LARGE_COEFF_MASK128;
+           pcoefficient_x->w[0] = x.w[0];
+           pcoefficient_x->w[1] = x.w[1];
+           if (__unsigned_compare_ge_128 (coeff, T33)) // non-canonical
+           pcoefficient_x->w[1] &= (~LARGE_COEFF_MASK128); */
+
+        pcoefficient_x.w[0] = x.w[0];
+        pcoefficient_x.w[1] = (x.w[1]) & 0x00003fffffffffffu64;
+        if __unsigned_compare_ge_128(pcoefficient_x, T33) { // non-canonical
+            pcoefficient_x.w[1] = (x.w[1]) & 0xfe00000000000000u64;
+            pcoefficient_x.w[0] = 0;
+        } else {
+            pcoefficient_x.w[1] = (x.w[1]) & 0xfe003fffffffffffu64;
+        }
+        if (x.w[1] & NAN_MASK64) == INFINITY_MASK64 {
+            pcoefficient_x.w[0] = 0;
+            pcoefficient_x.w[1] = x.w[1] & SINFINITY_MASK64;
+        }
+        *pexponent_x = 0;
+        return 0;	// NaN or Infinity
+    }
+
+    coeff.w[0] = x.w[0];
+    coeff.w[1] = (x.w[1]) & SMALL_COEFF_MASK128;
+
+    // 10^34
+    T34 = &bid_power10_table_128[34];
+    // check for non-canonical values
+    if __unsigned_compare_ge_128(&coeff, T34) {
+        coeff.w[0] = 0;
+        coeff.w[1] = 0;
+    }
+
+    pcoefficient_x.w[0] = coeff.w[0];
+    pcoefficient_x.w[1] = coeff.w[1];
+
+    ex           = (x.w[1]) >> 49;
+    *pexponent_x = (ex as i32) & EXPONENT_MASK128;
+
+    coeff.w[0] | coeff.w[1]
+}
+
 ///  BID128 unpack, input pased by reference
 pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, px: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = BID_UINT128::default();
-    let T33: BID_UINT128;
-    let T34: BID_UINT128;
+    let T33: &BID_UINT128;
+    let T34: &BID_UINT128;
     let ex: BID_UINT64;
 
     *psign_x = (px.w[1]) & 0x8000000000000000u64;
@@ -287,7 +351,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
             return 0;
         }
         // 10^33
-        T33                 = bid_power10_table_128[33];
+        T33                 = &bid_power10_table_128[33];
         coeff.w[0]          = px.w[0];
         coeff.w[1]          = (px.w[1]) & LARGE_COEFF_MASK128;
         pcoefficient_x.w[0] = px.w[0];
@@ -304,7 +368,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
     coeff.w[1] = (px.w[1]) & SMALL_COEFF_MASK128;
 
     // 10^34
-    T34 = bid_power10_table_128[34];
+    T34 = &bid_power10_table_128[34];
     // check for non-canonical values
     if __unsigned_compare_ge_128 (&coeff, &T34) {
         coeff.w[0] = 0;
@@ -509,7 +573,7 @@ pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64,
 
 /// General BID128 pack macro
 pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
-    let T: BID_UINT128;
+    let T: &BID_UINT128;
     let mut tmp: BID_UINT64;
     let mut tmp2: BID_UINT64;
     let mut expon: i32 = expon;
@@ -532,7 +596,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
         }
 
         if expon - (MAX_FORMAT_DIGITS_128 as i32) <= (DECIMAL_MAX_EXPON_128) {
-            T = bid_power10_table_128[(MAX_FORMAT_DIGITS_128 - 1) as usize];
+            T = &bid_power10_table_128[(MAX_FORMAT_DIGITS_128 - 1) as usize];
             while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 {
                 coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
                 tmp2       = coeff.w[0] << 3;
