@@ -124,7 +124,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
             // 2^64
             f64.i = 0x5f800000;
             // fx ~ CX
-            fx.f         = CX.w[1] as f32 * f64.f + CX.w[0] as f32;
+            fx.d         = CX.w[1] as f32 * f64.d + CX.w[0] as f32;
             bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
             extra_digits = bid_estimate_decimal_digits[bin_expon_cx as usize] - 16;
             // scale = 38-estimate_decimal_digits[bin_expon_cx];

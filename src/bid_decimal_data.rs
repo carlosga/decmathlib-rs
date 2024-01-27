@@ -7,7 +7,7 @@
 
 #![allow(non_upper_case_globals)]
 
-use crate::d128::BID_UINT128;
+use crate::d128::{BID_UINT128, BID_UINT64};
 
 pub (crate) const bid_round_const_table: [[u64; 19]; 5] = [
     [	// RN
@@ -427,8 +427,8 @@ pub (crate) const bid_recip_scale: [i32; 36] = [
     92,	// 220 - 128
     96,	// 224 - 128
     99,	// 227 - 128
-    102,	// 230 - 128
-    109,	// 237 - 128, 1/10^35
+    102,// 230 - 128
+    109,// 237 - 128, 1/10^35
 ];
 
 /// tables used in computation
@@ -697,4 +697,47 @@ pub (crate) const bid_power10_index_binexp_128: [BID_UINT128; 125] = [
     BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] },	// 10^38
     BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] },	// 10^38
     BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] },	// 10^38
+];
+
+pub (crate) const bid_short_recip_scale: [i32; 18] = [
+    1,
+    65 - 64,
+    69 - 64,
+    71 - 64,
+    75 - 64,
+    78 - 64,
+    81 - 64,
+    85 - 64,
+    88 - 64,
+    91 - 64,
+    95 - 64,
+    98 - 64,
+    101 - 64,
+    105 - 64,
+    108 - 64,
+    111 - 64,
+    115 - 64,	//114 - 64
+    118 - 64
+];
+
+
+pub (crate) const bid_reciprocals10_64: [BID_UINT64; 18] = [
+    1u64,	                    // dummy value for 0 extra digits
+    0x3333333333333334u64,	// 1 extra digit
+    0x51eb851eb851eb86u64,
+    0x20c49ba5e353f7cfu64,
+    0x346dc5d63886594bu64,
+    0x29f16b11c6d1e109u64,
+    0x218def416bdb1a6eu64,
+    0x35afe535795e90b0u64,
+    0x2af31dc4611873c0u64,
+    0x225c17d04dad2966u64,
+    0x36f9bfb3af7b7570u64,
+    0x2bfaffc2f2c92ac0u64,
+    0x232f33025bd42233u64,
+    0x384b84d092ed0385u64,
+    0x2d09370d42573604u64,
+    0x24075f3dceac2b37u64,
+    0x39a5652fb1137857u64,
+    0x2e1dea8c8da92d13u64
 ];

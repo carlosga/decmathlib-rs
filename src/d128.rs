@@ -36,7 +36,7 @@ pub (crate) struct DEC_DIGITS {
 #[derive(Copy, Clone)]
 pub (crate) union BID_UI32FLOAT {
     pub (crate) i: BID_UINT32,
-    pub (crate) f: f32
+    pub (crate) d: f32
 }
 
 impl Default for BID_UI32FLOAT {
@@ -324,7 +324,6 @@ impl FromStr for decimal128 {
          }
     }
 }
-
 
 impl TryInto<decimal64> for decimal128 {
     type Error = _IDEC_flags;
