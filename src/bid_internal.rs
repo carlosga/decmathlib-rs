@@ -52,13 +52,10 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
-  // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
-  // #ifndef IEEE_ROUND_NEAREST
-  //     if ((sgn && *prounding_mode == BID_ROUNDING_DOWN)
-  // 	|| (!sgn && *prounding_mode == BID_ROUNDING_UP))
-  //       pres->w[0] = 1u64;
-  // #endif
-  // #endif
+        if  (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
+	     || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+            pres.w[0] = 1u64;
+        }
         return pres;
     }
 
@@ -77,18 +74,10 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
     ed2 = 1 - expon;
   // add rounding constant to CQ
-  // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
-  // #ifndef IEEE_ROUND_NEAREST
     rmode = rnd_mode;
     if sgn != 0 && ((rmode - 1) < 2) {
         rmode = 3 - rmode;
     }
-  // #else
-  //   rmode = 0;
-  // #endif
-  // #else
-  //   rmode = 0;
-  // #endif
     T128             = &bid_round_const_table_128[rmode as usize][ed2 as usize];
     (CQ.w[0], carry) = __add_carry_out(T128.w[0], CQ.w[0]);
     CQ.w[1]          = CQ.w[1] + T128.w[1] + carry;
@@ -108,8 +97,6 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
     // #ifndef IEEE_ROUND_NEAREST
     if rnd_mode == 0 {
-    //   if (prounding_mode == 0) {
-    // #endif
         if (CQ.w[0] & 1) == 1 {
             // check whether fractional part of initial_P/10^ed1 is exactly .5
 
@@ -125,7 +112,6 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
             }
         }
     }
-    // #endif
 
     if is_inexact(*pfpsc) {
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
@@ -615,21 +601,12 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             }
             // OF
             __set_status_flags (pfpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
-  // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
-  // #ifndef IEEE_ROUND_NEAREST
-  //       if *prounding_mode == BID_ROUNDING_TO_ZERO
-  //       || (sgn && *prounding_mode == BID_ROUNDING_UP) || (!sgn
-  //                              &&
-  //                              *prounding_mode
-  //                              ==
-  //                              BID_ROUNDING_DOWN)
-  //       {
-  //     pres->w[1] = sgn | LARGEST_BID128_HIGH;
-  //     pres->w[0] = LARGEST_BID128_LOW;
-  //       } else
-  // #endif
-  // #endif
-            {
+            if rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO
+            || (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP)
+            || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN) {
+                pres.w[1] = sgn | LARGEST_BID128_HIGH;
+                pres.w[0] = LARGEST_BID128_LOW;
+            } else {
                 pres.w[1] = sgn | INFINITY_MASK64;
                 pres.w[0] = 0;
             }

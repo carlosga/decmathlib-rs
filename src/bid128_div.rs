@@ -382,36 +382,6 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     }
 
     if diff_expon >= 0 {
-    // #ifdef IEEE_ROUND_NEAREST
-    //     // rounding
-    //     // 2*CA4 - CY
-    //     CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
-    //     CA4r.w[0] = CA4.w[0] + CA4.w[0];
-    //     __sub_borrow_out(CA4r.w[0], carry64, CA4r.w[0], CY.w[0]);
-    //     CA4r.w[1] = CA4r.w[1] - CY.w[1] - carry64;
-    //
-    //     D = (CA4r.w[1] | CA4r.w[0]) ? 1 : 0;
-    //     carry64 = (1 + (((BID_SINT64)CA4r.w[1]) >> 63)) & ((CQ.w[0]) | D);
-    //
-    //     CQ.w[0] += carry64;
-    //     if (CQ.w[0] < carry64)
-    //         CQ.w[1]++;
-    // #else
-    // #ifdef IEEE_ROUND_NEAREST_TIES_AWAY
-    //         // rounding
-    //         // 2*CA4 - CY
-    //         CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
-    //         CA4r.w[0] = CA4.w[0] + CA4.w[0];
-    //         __sub_borrow_out(CA4r.w[0], carry64, CA4r.w[0], CY.w[0]);
-    //         CA4r.w[1] = CA4r.w[1] - CY.w[1] - carry64;
-    //
-    //         D = (CA4r.w[1] | CA4r.w[0]) ? 0 : 1;
-    //         carry64 = (1 + (((BID_SINT64)CA4r.w[1]) >> 63)) | D;
-    //
-    //         CQ.w[0] += carry64;
-    //         if (CQ.w[0] < carry64)
-    //             CQ.w[1]++;
-    // #else
         rmode = rnd_mode;
         if (sign_x ^ sign_y) != 0 && ((rmode - 1) < 2) {
             rmode = 3 - rmode;
@@ -457,8 +427,6 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 }
             }
         }
-    // #endif
-    // #endif
     } else {
         if CA4.w[0] != 0 || CA4.w[1] != 0{
             // set status flags
@@ -466,17 +434,11 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         }
 
         res = bid_handle_UF_128_rem(sign_x ^ sign_y, diff_expon, &CQ, CA4.w[1] | CA4.w[0], rnd_mode, pfpsf);
-    // #ifdef UNCHANGED_BINARY_STATUS_FLAGS
-    //     // (void) fesetexceptflag (&binaryflags, BID_FE_ALL_FLAGS);
-    // #endif
         return res;
     }
 
     res = bid_get_BID128(sign_x ^ sign_y, diff_expon, &CQ, rnd_mode, pfpsf);
 
-    // #ifdef UNCHANGED_BINARY_STATUS_FLAGS
-    // // (void) fesetexceptflag (&binaryflags, BID_FE_ALL_FLAGS);
-    // #endif
     res
 }
 
