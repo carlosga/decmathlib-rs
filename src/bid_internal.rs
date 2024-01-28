@@ -1187,6 +1187,7 @@ pub (crate) fn __mul_64x128_to_128(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT12
     Ql
 }
 
+#[inline(always)]
 pub (crate) fn __mul_64x256_to_320(A: BID_UINT64, B: &BID_UINT256) -> BID_UINT512 {
     let mut lC: BID_UINT64;
     let mut P: BID_UINT512 = BID_UINT512::default();
