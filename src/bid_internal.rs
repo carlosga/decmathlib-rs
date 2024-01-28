@@ -1122,23 +1122,15 @@ pub (crate) fn __mul_128x128_to_256(A: &BID_UINT128, B: &BID_UINT128) -> BID_UIN
 }
 
 pub (crate) fn __mul_64x64_to_128MACH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID_UINT128 {
-    let CXH: BID_UINT64;
-    let CXL: BID_UINT64;
-    let CYH: BID_UINT64;
-    let CYL: BID_UINT64;
-    let PL: BID_UINT64;
-    let mut PH: BID_UINT64;
-    let mut PM: BID_UINT64;
-    let PM2: BID_UINT64;
+    let CXH: BID_UINT64    = CX64 >> 32;
+    let CXL: BID_UINT64    = (CX64 as BID_UINT32) as BID_UINT64;
+    let CYH: BID_UINT64    = CY64 >> 32;
+    let CYL: BID_UINT64    = (CY64 as BID_UINT32) as BID_UINT64;
+    let mut PM: BID_UINT64 = CXH * CYL;
+    let mut PH: BID_UINT64 = CXH * CYH;
+    let PL: BID_UINT64     = CXL * CYL;
+    let PM2: BID_UINT64    = CXL * CYH;
 
-    CXH = CX64 >> 32;
-    CXL = (CX64 as BID_UINT32) as BID_UINT64;
-    CYH = CY64 >> 32;
-    CYL = (CY64 as BID_UINT32) as BID_UINT64;
-    PM  = CXH * CYL;
-    PH  = CXH * CYH;
-    PL  = CXL * CYL;
-    PM2 = CXL * CYH;
     PH += PM >> 32;
     PM  = ((PM as BID_UINT32) as BID_UINT64 + PM2 + (PL >> 32)) as BID_UINT64;
 
@@ -1147,28 +1139,19 @@ pub (crate) fn __mul_64x64_to_128MACH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
 
 // 64x64-bit product
 pub (crate) fn __mul_64x64_to_128HIGH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID_UINT64 {
-    let CXH: BID_UINT64;
-    let CXL: BID_UINT64;
-    let CYH: BID_UINT64;
-    let CYL: BID_UINT64;
-    let PL: BID_UINT64;
-    let mut PH: BID_UINT64;
-    let mut PM: BID_UINT64;
-    let PM2: BID_UINT64;
-    let P64: BID_UINT64;
+    let CXH: BID_UINT64    = CX64 >> 32;
+    let CXL: BID_UINT64    = (CX64 as BID_UINT32) as BID_UINT64;
+    let CYH: BID_UINT64    = CY64 >> 32;
+    let CYL: BID_UINT64    = (CY64 as BID_UINT32) as BID_UINT64;
+    let mut PM: BID_UINT64 = CXH*CYL;
+    let mut PH: BID_UINT64 = CXH*CYH;
+    let PL:BID_UINT64      = CXL * CYL;
+    let PM2: BID_UINT64    = CXL * CYH;
 
-    CXH = CX64 >> 32;
-    CXL = (CX64 as BID_UINT32) as BID_UINT64;
-    CYH = CY64 >> 32;
-    CYL = (CY64 as BID_UINT32) as BID_UINT64;
-    PM  = CXH*CYL;
-    PH  = CXH*CYH;
-    PL  = CXL*CYL;
-    PM2 = CXL*CYH;
     PH += PM >> 32;
     PM  = ((PM as BID_UINT32) as BID_UINT64 + PM2 + (PL >> 32)) as BID_UINT64;
-    P64 = PH + (PM >> 32);
-    P64
+
+    PH + (PM >> 32) // P64
 }
 
 pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256 {
