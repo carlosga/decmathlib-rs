@@ -113,7 +113,7 @@ pub (crate) fn bid_round64_2_18(
     let mut Cstar: BID_UINT64;
     let tmp64: BID_UINT64;
     let shift: i32;
-    let mut ind: i32;
+    let mut ind: usize;
     let mut C: BID_UINT64 = C;
 
     // Note:
@@ -133,18 +133,18 @@ pub (crate) fn bid_round64_2_18(
     // C = C + 1/2 * 10^x where the result C fits in 64 bits
     // (because the largest value is 999999999999999999 + 50000000000000000 =
     // 0x0e92596fd628ffff, which fits in 60 bits)
-    ind = x - 1;	// 0 <= ind <= 16
-    C  += bid_midpoint64[ind as usize];
+    ind = (x - 1) as usize;	// 0 <= ind <= 16
+    C  += bid_midpoint64[ind];
     // kx ~= 10^(-x), kx = bid_Kx64[ind as usize] * 2^(-Ex), 0 <= ind <= 16
     // P128 = (C + 1/2 * 10^x) * kx * 2^Ex = (C + 1/2 * 10^x) * Kx
     // the approximation kx of 10^(-x) was rounded up to 64 bits
-    P128 = __mul_64x64_to_128MACH(C, bid_Kx64[ind as usize]);
+    P128 = __mul_64x64_to_128MACH(C, bid_Kx64[ind]);
     // calculate C* = floor (P128) and f*
     // Cstar = P128 >> Ex
     // fstar = low Ex bits of P128
-    shift      = bid_Ex64m64[ind as usize] as i32;	// in [3, 56]
+    shift      = bid_Ex64m64[ind] as i32;	// in [3, 56]
     Cstar      = P128.w[1] >> shift;
-    fstar.w[1] = P128.w[1] & bid_mask64[ind as usize];
+    fstar.w[1] = P128.w[1] & bid_mask64[ind];
     fstar.w[0] = P128.w[0];
     // the top Ex bits of 10^(-x) are T* = bid_ten2mxtrunc64[ind as usize], e.g.
     // if x=1, T*=bid_ten2mxtrunc64[0]=0xcccccccccccccccc
@@ -163,18 +163,18 @@ pub (crate) fn bid_round64_2_18(
     //   the result is exact
     // else // if (f* - 1/2 > T*) then
     //   the result is inexact
-    if fstar.w[1] > bid_half64[ind as usize] || (fstar.w[1] == bid_half64[ind as usize] && fstar.w[0] != 0) {
+    if fstar.w[1] > bid_half64[ind] || (fstar.w[1] == bid_half64[ind] && fstar.w[0] != 0) {
         // f* > 1/2 and the result may be exact
         // Calculate f* - 1/2
-        tmp64 = fstar.w[1] - bid_half64[ind as usize];
-        if tmp64 != 0 || fstar.w[0] > bid_ten2mxtrunc64[ind as usize] {	// f* - 1/2 > 10^(-x)
+        tmp64 = fstar.w[1] - bid_half64[ind];
+        if tmp64 != 0 || fstar.w[0] > bid_ten2mxtrunc64[ind] {	// f* - 1/2 > 10^(-x)
           *ptr_is_inexact_lt_midpoint = true;
         }	// else the result is exact
     } else {	// the result is inexact; f2* <= 1/2
         *ptr_is_inexact_gt_midpoint = true;
     }
     // check for midpoints (could do this before determining inexactness)
-    if fstar.w[1] == 0 && fstar.w[0] <= bid_ten2mxtrunc64[ind as usize] {
+    if fstar.w[1] == 0 && fstar.w[0] <= bid_ten2mxtrunc64[ind] {
         // the result is a midpoint
         if (Cstar & 0x01) == 0x01 {	// Cstar is odd; MP in [EVEN, ODD]
             // if floor(C*) is odd C = floor(C*) - 1; the result may be 0
@@ -189,11 +189,11 @@ pub (crate) fn bid_round64_2_18(
         }
     }
     // check for rounding overflow, which occurs if Cstar = 10^(q-x)
-    ind = q - x;	// 1 <= ind <= q - 1
-    if Cstar == bid_ten2k64[ind as usize] {	// if  Cstar = 10^(q-x)
-        Cstar     = bid_ten2k64[(ind - 1) as usize];	// Cstar = 10^(q-x-1)
+    ind = (q - x) as usize;	              // 1 <= ind <= q - 1
+    if Cstar == bid_ten2k64[ind] {	      // if  Cstar = 10^(q-x)
+        Cstar     = bid_ten2k64[ind - 1]; // Cstar = 10^(q-x-1)
         *incr_exp = true;
-    } else {	// 10^33 <= Cstar <= 10^34 - 1
+    } else {	                          // 10^33 <= Cstar <= 10^34 - 1
         *incr_exp = false;
     }
 
@@ -215,7 +215,7 @@ pub (crate) fn bid_round128_19_38(
     let mut Cstar: BID_UINT128 = BID_UINT128::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
-    let mut ind: i32;
+    let mut ind: usize;
     let mut C: BID_UINT128 = *C;
 
     // Note:
@@ -243,35 +243,35 @@ pub (crate) fn bid_round128_19_38(
     // 5000000000000000000000000000000000000 =
     // 0x4efe43b0c573e7e68a043d8fffffffff, which fits is 127 bits)
 
-    ind = x - 1;	// 0 <= ind <= 36
-    if ind <= 18 {	// if 0 <= ind <= 18
+    ind = (x - 1) as usize;	// 0 <= ind <= 36
+    if ind <= 18 {	        // if 0 <= ind <= 18
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint64[ind as usize];
+        C.w[0] += bid_midpoint64[ind];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
         }
-    } else {	// if 19 <= ind <= 37
+    } else {	            // if 19 <= ind <= 37
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
+        C.w[0] += bid_midpoint128[ind - 19].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
         }
-        C.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
+        C.w[1] += bid_midpoint128[ind - 19].w[1];
     }
     // kx ~= 10^(-x), kx = bid_Kx128[ind as usize] * 2^(-Ex), 0 <= ind <= 36
     // P256 = (C + 1/2 * 10^x) * kx * 2^Ex = (C + 1/2 * 10^x) * Kx
     // the approximation kx of 10^(-x) was rounded up to 128 bits
-    P256 = __mul_128x128_to_256(&C, &bid_Kx128[ind as usize]);
+    P256 = __mul_128x128_to_256(&C, &bid_Kx128[ind]);
     // calculate C* = floor (P256) and f*
     // Cstar = P256 >> Ex
     // fstar = low Ex bits of P256
-    shift = bid_Ex128m128[ind as usize] as i32;	// in [2, 63] but have to consider two cases
+    shift = bid_Ex128m128[ind] as i32;	// in [2, 63] but have to consider two cases
     if ind <= 18 {	// if 0 <= ind <= 18
         Cstar.w[0] = (P256.w[2] >> shift) | (P256.w[3] << (64 - shift));
         Cstar.w[1] = P256.w[3] >> shift;
         fstar.w[0] = P256.w[0];
         fstar.w[1] = P256.w[1];
-        fstar.w[2] = P256.w[2] & bid_mask128[ind as usize];
+        fstar.w[2] = P256.w[2] & bid_mask128[ind];
         fstar.w[3] = 0x0u64;
     } else {	// if 19 <= ind <= 37
         Cstar.w[0] = P256.w[3] >> shift;
@@ -279,7 +279,7 @@ pub (crate) fn bid_round128_19_38(
         fstar.w[0] = P256.w[0];
         fstar.w[1] = P256.w[1];
         fstar.w[2] = P256.w[2];
-        fstar.w[3] = P256.w[3] & bid_mask128[ind as usize];
+        fstar.w[3] = P256.w[3] & bid_mask128[ind];
     }
     // the top Ex bits of 10^(-x) are T* = bid_ten2mxtrunc64[ind as usize], e.g.
     // if x=1, T*=bid_ten2mxtrunc128[0]=0xcccccccccccccccccccccccccccccccc
@@ -299,35 +299,36 @@ pub (crate) fn bid_round128_19_38(
     // else // if (f* - 1/2 > T*) then
     //   the result is inexact
     if ind <= 18 {	// if 0 <= ind <= 18
-        if fstar.w[2] > bid_half128[ind as usize]
-       || (fstar.w[2] == bid_half128[ind as usize]
+        if fstar.w[2] > bid_half128[ind]
+       || (fstar.w[2] == bid_half128[ind]
        && (fstar.w[1] != 0
         || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[2] - bid_half128[ind as usize];
-            if tmp64 != 0 || fstar.w[1] > bid_ten2mxtrunc128[ind as usize].w[1]
-            || (fstar.w[1] == bid_ten2mxtrunc128[ind as usize].w[1]
-             && fstar.w[0] > bid_ten2mxtrunc128[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            tmp64 = fstar.w[2] - bid_half128[ind];
+            if tmp64 != 0
+            || fstar.w[1]   > bid_ten2mxtrunc128[ind].w[1]
+            || (fstar.w[1] == bid_ten2mxtrunc128[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc128[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
           *ptr_is_inexact_gt_midpoint = true;
         }
     } else {	// if 19 <= ind <= 37
-        if fstar.w[3] > bid_half128[ind as usize]
-       || (fstar.w[3] == bid_half128[ind as usize]
+        if fstar.w[3]  > bid_half128[ind]
+       || (fstar.w[3] == bid_half128[ind]
        && (fstar.w[2] != 0
         || fstar.w[1] != 0
         || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[3] - bid_half128[ind as usize];
-            if tmp64 != 0
-            || fstar.w[2] != 0
-            || fstar.w[1] > bid_ten2mxtrunc128[ind as usize].w[1]
-            || (fstar.w[1] == bid_ten2mxtrunc128[ind as usize].w[1]
-             && fstar.w[0] > bid_ten2mxtrunc128[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            tmp64 = fstar.w[3] - bid_half128[ind];
+            if  tmp64 != 0
+            ||  fstar.w[2] != 0
+            ||  fstar.w[1]  > bid_ten2mxtrunc128[ind].w[1]
+            || (fstar.w[1] == bid_ten2mxtrunc128[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc128[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
@@ -336,9 +337,9 @@ pub (crate) fn bid_round128_19_38(
     }
     // check for midpoints (could do this before determining inexactness)
     if  fstar.w[3] == 0 && fstar.w[2] == 0
-    && (fstar.w[1]  < bid_ten2mxtrunc128[ind as usize].w[1]
-    || (fstar.w[1] == bid_ten2mxtrunc128[ind as usize].w[1]
-     && fstar.w[0] <= bid_ten2mxtrunc128[ind as usize].w[0])) {
+    && (fstar.w[1]  < bid_ten2mxtrunc128[ind].w[1]
+    || (fstar.w[1] == bid_ten2mxtrunc128[ind].w[1]
+     && fstar.w[0] <= bid_ten2mxtrunc128[ind].w[0])) {
         // the result is a midpoint
         if (Cstar.w[0] & 0x01) == 0x01 {	// Cstar is odd; MP in [EVEN, ODD]
             // if floor(C*) is odd C = floor(C*) - 1; the result may be 0
@@ -356,11 +357,11 @@ pub (crate) fn bid_round128_19_38(
         }
     }
     // check for rounding overflow, which occurs if Cstar = 10^(q-x)
-    ind = q - x;	// 1 <= ind <= q - 1
+    ind = (q - x) as usize;	// 1 <= ind <= q - 1
     if ind <= 19 {
-        if Cstar.w[1] == 0x0u64 && Cstar.w[0] == bid_ten2k64[ind as usize] {
+        if Cstar.w[1] == 0x0u64 && Cstar.w[0] == bid_ten2k64[ind] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k64[(ind - 1) as usize];	// Cstar = 10^(q-x-1)
+            Cstar.w[0] = bid_ten2k64[ind - 1];	// Cstar = 10^(q-x-1)
             *incr_exp = true;
         } else {
             *incr_exp = false;
@@ -376,11 +377,11 @@ pub (crate) fn bid_round128_19_38(
             *incr_exp = false;
         }
     } else {	// if 21 <= ind <= 37
-        if Cstar.w[1] == bid_ten2k128[(ind - 20) as usize].w[1]
-        && Cstar.w[0] == bid_ten2k128[(ind - 20) as usize].w[0] {
+        if Cstar.w[1] == bid_ten2k128[ind - 20].w[1]
+        && Cstar.w[0] == bid_ten2k128[ind - 20].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k128[(ind - 21) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k128[(ind - 21) as usize].w[1];
+            Cstar.w[0] = bid_ten2k128[ind - 21].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k128[ind - 21].w[1];
             *incr_exp  = true;
         } else {
             *incr_exp = false;
@@ -409,7 +410,7 @@ pub (crate) fn bid_round192_39_57(
     let mut Cstar: BID_UINT192 = BID_UINT192::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
-    let mut ind: i32;
+    let mut ind: usize;
     let mut C: BID_UINT192 = *C;
 
     // Note:
@@ -433,10 +434,10 @@ pub (crate) fn bid_round192_39_57(
     // 999999999999999999999999999999999999999999999999999999999 +
     //  50000000000000000000000000000000000000000000000000000000 =
     // 0x2ad282f212a1da846afdaf18c034ff09da7fffffffffffff, which fits in 190 bits)
-    ind = x - 1;	// 0 <= ind <= 55
-    if ind <= 18 {	// if 0 <= ind <= 18
+    ind = (x - 1) as usize;	// 0 <= ind <= 55
+    if ind <= 18 {	        // if 0 <= ind <= 18
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint64[ind as usize];
+        C.w[0] += bid_midpoint64[ind];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0 {
@@ -445,7 +446,7 @@ pub (crate) fn bid_round192_39_57(
         }
     } else if ind <= 37 {	// if 19 <= ind <= 37
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
+        C.w[0] += bid_midpoint128[ind - 19].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0 {
@@ -453,13 +454,13 @@ pub (crate) fn bid_round192_39_57(
             }
         }
         tmp64   = C.w[1];
-        C.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
+        C.w[1] += bid_midpoint128[ind - 19].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
         }
     } else {	// if 38 <= ind <= 57 (actually ind <= 55)
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint192[(ind - 38) as usize].w[0];
+        C.w[0] += bid_midpoint192[ind - 38].w[0];
         if C.w[0] < tmp64 {
           C.w[1] += 1;
           if C.w[1] == 0x0u64 {
@@ -467,27 +468,27 @@ pub (crate) fn bid_round192_39_57(
           }
         }
         tmp64   = C.w[1];
-        C.w[1] += bid_midpoint192[(ind - 38) as usize].w[1];
+        C.w[1] += bid_midpoint192[ind - 38].w[1];
         if C.w[1] < tmp64 {
           C.w[2] += 1;
         }
-        C.w[2] += bid_midpoint192[(ind - 38) as usize].w[2];
+        C.w[2] += bid_midpoint192[ind - 38].w[2];
     }
     // kx ~= 10^(-x), kx = bid_Kx192[ind as usize] * 2^(-Ex), 0 <= ind <= 55
     // P384 = (C + 1/2 * 10^x) * kx * 2^Ex = (C + 1/2 * 10^x) * Kx
     // the approximation kx of 10^(-x) was rounded up to 192 bits
-    P384 = __mul_192x192_to_384(&C, &bid_Kx192[ind as usize]);
+    P384 = __mul_192x192_to_384(&C, &bid_Kx192[ind]);
     // calculate C* = floor (P384) and f*
     // Cstar = P384 >> Ex
     // fstar = low Ex bits of P384
-    shift = bid_Ex192m192[ind as usize] as i32;	// in [1, 63] but have to consider three cases
+    shift = bid_Ex192m192[ind] as i32;	// in [1, 63] but have to consider three cases
     if ind <= 18 {	// if 0 <= ind <= 18
         Cstar.w[2] = P384.w[5] >> shift;
         Cstar.w[1] = (P384.w[5] << (64 - shift)) | (P384.w[4] >> shift);
         Cstar.w[0] = (P384.w[4] << (64 - shift)) | (P384.w[3] >> shift);
         fstar.w[5] = 0x0u64;
         fstar.w[4] = 0x0u64;
-        fstar.w[3] = P384.w[3] & bid_mask192[ind as usize];
+        fstar.w[3] = P384.w[3] & bid_mask192[ind];
         fstar.w[2] = P384.w[2];
         fstar.w[1] = P384.w[1];
         fstar.w[0] = P384.w[0];
@@ -496,7 +497,7 @@ pub (crate) fn bid_round192_39_57(
         Cstar.w[1] = P384.w[5] >> shift;
         Cstar.w[0] = (P384.w[5] << (64 - shift)) | (P384.w[4] >> shift);
         fstar.w[5] = 0x0u64;
-        fstar.w[4] = P384.w[4] & bid_mask192[ind as usize];
+        fstar.w[4] = P384.w[4] & bid_mask192[ind];
         fstar.w[3] = P384.w[3];
         fstar.w[2] = P384.w[2];
         fstar.w[1] = P384.w[1];
@@ -505,7 +506,7 @@ pub (crate) fn bid_round192_39_57(
         Cstar.w[2] = 0x0u64;
         Cstar.w[1] = 0x0u64;
         Cstar.w[0] = P384.w[5] >> shift;
-        fstar.w[5] = P384.w[5] & bid_mask192[ind as usize];
+        fstar.w[5] = P384.w[5] & bid_mask192[ind];
         fstar.w[4] = P384.w[4];
         fstar.w[3] = P384.w[3];
         fstar.w[2] = P384.w[2];
@@ -531,61 +532,61 @@ pub (crate) fn bid_round192_39_57(
     // else // if (f* - 1/2 > T*) then
     //   the result is inexact
     if ind <= 18 {	// if 0 <= ind <= 18
-        if  fstar.w[3] > bid_half192[ind as usize]
-        || (fstar.w[3] == bid_half192[ind as usize]
+        if  fstar.w[3] > bid_half192[ind]
+        || (fstar.w[3] == bid_half192[ind]
         && (fstar.w[2] != 0
          || fstar.w[1] != 0
          || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[3] - bid_half192[ind as usize];
+            tmp64 = fstar.w[3] - bid_half192[ind];
             if tmp64 != 0
-             || fstar.w[2]   > bid_ten2mxtrunc192[ind as usize].w[2]
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1]  > bid_ten2mxtrunc192[ind as usize].w[1])
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1] == bid_ten2mxtrunc192[ind as usize].w[1]
-              && fstar.w[0]  > bid_ten2mxtrunc192[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+             || fstar.w[2]   > bid_ten2mxtrunc192[ind].w[2]
+             || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+              && fstar.w[1]  > bid_ten2mxtrunc192[ind].w[1])
+             || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+              && fstar.w[1] == bid_ten2mxtrunc192[ind].w[1]
+              && fstar.w[0]  > bid_ten2mxtrunc192[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
             *ptr_is_inexact_gt_midpoint = true;
         }
     } else if ind <= 37 {	// if 19 <= ind <= 37
-        if fstar.w[4] > bid_half192[ind as usize]
-        || (fstar.w[4] == bid_half192[ind as usize] && (fstar.w[3] != 0|| fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
+        if fstar.w[4] > bid_half192[ind]
+        || (fstar.w[4] == bid_half192[ind] && (fstar.w[3] != 0|| fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[4] - bid_half192[ind as usize];
-            if tmp64 != 0
-             || fstar.w[3] != 0
-             || fstar.w[2] > bid_ten2mxtrunc192[ind as usize].w[2]
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1]  > bid_ten2mxtrunc192[ind as usize].w[1])
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1] == bid_ten2mxtrunc192[ind as usize].w[1]
-              && fstar.w[0]  > bid_ten2mxtrunc192[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            tmp64 = fstar.w[4] - bid_half192[ind];
+            if  tmp64 != 0
+            ||  fstar.w[3] != 0
+            ||  fstar.w[2] > bid_ten2mxtrunc192[ind].w[2]
+            || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc192[ind].w[1])
+            || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc192[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc192[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
             *ptr_is_inexact_gt_midpoint = true;
         }
     } else {	// if 38 <= ind <= 55
-        if fstar.w[5] > bid_half192[ind as usize]
-        || (fstar.w[5] == bid_half192[ind as usize]
+        if  fstar.w[5]  > bid_half192[ind]
+        || (fstar.w[5] == bid_half192[ind]
         && (fstar.w[4] != 0|| fstar.w[3] != 0 || fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[5] - bid_half192[ind as usize];
+            tmp64 = fstar.w[5] - bid_half192[ind];
             if tmp64 != 0
-             || fstar.w[4] != 0
-             || fstar.w[3] != 0
-             || fstar.w[2]   > bid_ten2mxtrunc192[ind as usize].w[2]
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1]  > bid_ten2mxtrunc192[ind as usize].w[1])
-             || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-              && fstar.w[1] == bid_ten2mxtrunc192[ind as usize].w[1]
-              && fstar.w[0]  > bid_ten2mxtrunc192[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            || fstar.w[4] != 0
+            || fstar.w[3] != 0
+            || fstar.w[2]   > bid_ten2mxtrunc192[ind].w[2]
+            || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc192[ind].w[1])
+            || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc192[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc192[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
@@ -594,14 +595,14 @@ pub (crate) fn bid_round192_39_57(
     }
     // check for midpoints (could do this before determining inexactness)
     if fstar.w[5] == 0
-     && fstar.w[4] == 0
-     && fstar.w[3] == 0
-     && (fstar.w[2] < bid_ten2mxtrunc192[ind as usize].w[2]
-     || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-      && fstar.w[1] < bid_ten2mxtrunc192[ind as usize].w[1])
-     || (fstar.w[2] == bid_ten2mxtrunc192[ind as usize].w[2]
-      && fstar.w[1] == bid_ten2mxtrunc192[ind as usize].w[1]
-      && fstar.w[0] <= bid_ten2mxtrunc192[ind as usize].w[0])) {
+    && fstar.w[4] == 0
+    && fstar.w[3] == 0
+    && (fstar.w[2]  < bid_ten2mxtrunc192[ind].w[2]
+    || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+     && fstar.w[1]  < bid_ten2mxtrunc192[ind].w[1])
+    || (fstar.w[2] == bid_ten2mxtrunc192[ind].w[2]
+     && fstar.w[1] == bid_ten2mxtrunc192[ind].w[1]
+     && fstar.w[0] <= bid_ten2mxtrunc192[ind].w[0])) {
         // the result is a midpoint
         if (Cstar.w[0] & 0x01) == 0x01 {	// Cstar is odd; MP in [EVEN, ODD]
             // if floor(C*) is odd C = floor(C*) - 1; the result may be 0
@@ -622,11 +623,11 @@ pub (crate) fn bid_round192_39_57(
         }
     }
     // check for rounding overflow, which occurs if Cstar = 10^(q-x)
-    ind = q - x;	// 1 <= ind <= q - 1
+    ind = (q - x) as usize;	// 1 <= ind <= q - 1
     if ind <= 19 {
-        if Cstar.w[2] == 0x0u64 && Cstar.w[1] == 0x0u64 && Cstar.w[0] == bid_ten2k64[ind as usize] {
+        if Cstar.w[2] == 0x0u64 && Cstar.w[1] == 0x0u64 && Cstar.w[0] == bid_ten2k64[ind] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k64[(ind - 1) as usize];	// Cstar = 10^(q-x-1)
+            Cstar.w[0] = bid_ten2k64[ind - 1];	// Cstar = 10^(q-x-1)
             *incr_exp  = true;
         } else {
             *incr_exp = false;
@@ -642,10 +643,10 @@ pub (crate) fn bid_round192_39_57(
             *incr_exp = false;
         }
     } else if ind <= 38 {	// if 21 <= ind <= 38
-        if Cstar.w[2] == 0x0u64 && Cstar.w[1] == bid_ten2k128[(ind - 20) as usize].w[1] && Cstar.w[0] == bid_ten2k128[(ind - 20) as usize].w[0] {
+        if Cstar.w[2] == 0x0u64 && Cstar.w[1] == bid_ten2k128[ind - 20].w[1] && Cstar.w[0] == bid_ten2k128[ind - 20].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k128[(ind - 21) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k128[(ind - 21) as usize].w[1];
+            Cstar.w[0] = bid_ten2k128[ind - 21].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k128[ind - 21].w[1];
             *incr_exp  = true;
         } else {
             *incr_exp  = false;
@@ -661,24 +662,18 @@ pub (crate) fn bid_round192_39_57(
             *incr_exp  = false;
         }
     } else {	// if 40 <= ind <= 56
-        if Cstar.w[2] == bid_ten2k256[(ind - 39) as usize].w[2]
-        && Cstar.w[1] == bid_ten2k256[(ind - 39) as usize].w[1]
-        && Cstar.w[0] == bid_ten2k256[(ind - 39) as usize].w[0] {
+        if Cstar.w[2] == bid_ten2k256[ind - 39].w[2]
+        && Cstar.w[1] == bid_ten2k256[ind - 39].w[1]
+        && Cstar.w[0] == bid_ten2k256[ind - 39].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k256[(ind - 40) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k256[(ind - 40) as usize].w[1];
-            Cstar.w[2] = bid_ten2k256[(ind - 40) as usize].w[2];
+            Cstar.w[0] = bid_ten2k256[ind - 40].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k256[ind - 40].w[1];
+            Cstar.w[2] = bid_ten2k256[ind - 40].w[2];
             *incr_exp  = true;
         } else {
             *incr_exp  = false;
         }
     }
-
-    // ptr_Cstar.w[2] = Cstar.w[2];
-    // ptr_Cstar.w[1] = Cstar.w[1];
-    // ptr_Cstar.w[0] = Cstar.w[0];
-    //
-    // ptr_Cstar
 
     Cstar
 }
@@ -698,7 +693,7 @@ pub (crate) fn bid_round256_58_76(
     let mut Cstar: BID_UINT256 = BID_UINT256::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
-    let mut ind: i32;
+    let mut ind: usize;
     let mut C: BID_UINT256 = *C;
 
     // Note:
@@ -723,10 +718,10 @@ pub (crate) fn bid_round256_58_76(
     //     000000000000000000000000000000000000000000000000 =
     //     0x1736ca15d27a56cae15cf0e7b403d1f2bd6ebb0a50dc83ffffffffffffffffff,
     // which fits in 253 bits)
-    ind = x - 1;	// 0 <= ind <= 74
-    if ind <= 18 {	// if 0 <= ind <= 18
+    ind = (x as usize) - 1;	// 0 <= ind <= 74
+    if ind <= 18 {	        // if 0 <= ind <= 18
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint64[ind as usize];
+        C.w[0] += bid_midpoint64[ind];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0 {
@@ -738,7 +733,7 @@ pub (crate) fn bid_round256_58_76(
         }
     } else if ind <= 37 {	// if 19 <= ind <= 37
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
+        C.w[0] += bid_midpoint128[ind - 19].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0 {
@@ -749,7 +744,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64   = C.w[1];
-        C.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
+        C.w[1] += bid_midpoint128[ind - 19].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -758,7 +753,7 @@ pub (crate) fn bid_round256_58_76(
         }
     } else if ind <= 57 {	// if 38 <= ind <= 57
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint192[(ind - 38) as usize].w[0];
+        C.w[0] += bid_midpoint192[ind - 38].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0u64 {
@@ -769,7 +764,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64   = C.w[1];
-        C.w[1] += bid_midpoint192[(ind - 38) as usize].w[1];
+        C.w[1] += bid_midpoint192[ind - 38].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -777,13 +772,13 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64   = C.w[2];
-        C.w[2] += bid_midpoint192[(ind - 38) as usize].w[2];
+        C.w[2] += bid_midpoint192[ind - 38].w[2];
         if C.w[2] < tmp64 {
             C.w[3] += 1;
         }
     } else {	// if 58 <= ind <= 76 (actually 58 <= ind <= 74)
         tmp64   = C.w[0];
-        C.w[0] += bid_midpoint256[(ind - 58) as usize].w[0];
+        C.w[0] += bid_midpoint256[ind - 58].w[0];
         if C.w[0] < tmp64 {
             C.w[1] += 1;
             if C.w[1] == 0x0u64 {
@@ -794,7 +789,7 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64   = C.w[1];
-        C.w[1] += bid_midpoint256[(ind - 58) as usize].w[1];
+        C.w[1] += bid_midpoint256[ind - 58].w[1];
         if C.w[1] < tmp64 {
             C.w[2] += 1;
             if C.w[2] == 0x0 {
@@ -802,20 +797,20 @@ pub (crate) fn bid_round256_58_76(
             }
         }
         tmp64   = C.w[2];
-        C.w[2] += bid_midpoint256[(ind - 58) as usize].w[2];
+        C.w[2] += bid_midpoint256[ind - 58].w[2];
         if C.w[2] < tmp64 {
             C.w[3] += 1;
         }
-        C.w[3] += bid_midpoint256[(ind - 58) as usize].w[3];
+        C.w[3] += bid_midpoint256[ind - 58].w[3];
     }
     // kx ~= 10^(-x), kx = bid_Kx256[ind as usize] * 2^(-Ex), 0 <= ind <= 74
     // P512 = (C + 1/2 * 10^x) * kx * 2^Ex = (C + 1/2 * 10^x) * Kx
     // the approximation kx of 10^(-x) was rounded up to 192 bits
-    P512 = __mul_256x256_to_512(&C, &bid_Kx256[ind as usize]);
+    P512 = __mul_256x256_to_512(&C, &bid_Kx256[ind]);
     // calculate C* = floor (P512) and f*
     // Cstar = P512 >> Ex
     // fstar = low Ex bits of P512
-    shift = bid_Ex256m256[ind as usize] as i32;	// in [0, 63] but have to consider four cases
+    shift = bid_Ex256m256[ind] as i32;	// in [0, 63] but have to consider four cases
     if ind <= 18 {	// if 0 <= ind <= 18
         Cstar.w[3] = P512.w[7] >> shift;
         Cstar.w[2] = (P512.w[7] << (64 - shift)) | (P512.w[6] >> shift);
@@ -824,7 +819,7 @@ pub (crate) fn bid_round256_58_76(
         fstar.w[7] = 0x0u64;
         fstar.w[6] = 0x0u64;
         fstar.w[5] = 0x0u64;
-        fstar.w[4] = P512.w[4] & bid_mask256[ind as usize];
+        fstar.w[4] = P512.w[4] & bid_mask256[ind];
         fstar.w[3] = P512.w[3];
         fstar.w[2] = P512.w[2];
         fstar.w[1] = P512.w[1];
@@ -836,7 +831,7 @@ pub (crate) fn bid_round256_58_76(
         Cstar.w[0] = (P512.w[6] << (64 - shift)) | (P512.w[5] >> shift);
         fstar.w[7] = 0x0u64;
         fstar.w[6] = 0x0u64;
-        fstar.w[5] = P512.w[5] & bid_mask256[ind as usize];
+        fstar.w[5] = P512.w[5] & bid_mask256[ind];
         fstar.w[4] = P512.w[4];
         fstar.w[3] = P512.w[3];
         fstar.w[2] = P512.w[2];
@@ -848,7 +843,7 @@ pub (crate) fn bid_round256_58_76(
         Cstar.w[1] = P512.w[7] >> shift;
         Cstar.w[0] = (P512.w[7] << (64 - shift)) | (P512.w[6] >> shift);
         fstar.w[7] = 0x0u64;
-        fstar.w[6] = P512.w[6] & bid_mask256[ind as usize];
+        fstar.w[6] = P512.w[6] & bid_mask256[ind];
         fstar.w[5] = P512.w[5];
         fstar.w[4] = P512.w[4];
         fstar.w[3] = P512.w[3];
@@ -873,7 +868,7 @@ pub (crate) fn bid_round256_58_76(
         Cstar.w[2] = 0x0u64;
         Cstar.w[1] = 0x0u64;
         Cstar.w[0] = P512.w[7] >> shift;
-        fstar.w[7] = P512.w[7] & bid_mask256[ind as usize];
+        fstar.w[7] = P512.w[7] & bid_mask256[ind];
         fstar.w[6] = P512.w[6];
         fstar.w[5] = P512.w[5];
         fstar.w[4] = P512.w[4];
@@ -902,55 +897,55 @@ pub (crate) fn bid_round256_58_76(
     // else // if (f* - 1/2 > T*) then
     //   the result is inexact
     if ind <= 18 {	// if 0 <= ind <= 18
-        if fstar.w[4]   > bid_half256[ind as usize]
-        || (fstar.w[4] == bid_half256[ind as usize]
+        if fstar.w[4]   > bid_half256[ind]
+        || (fstar.w[4] == bid_half256[ind]
         && (fstar.w[3] != 0 || fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[4] - bid_half256[ind as usize];
+            tmp64 = fstar.w[4] - bid_half256[ind];
             if tmp64 != 0
-            || fstar.w[3]   > bid_ten2mxtrunc256[ind as usize].w[2]
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2]  > bid_ten2mxtrunc256[ind as usize].w[2])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1]  > bid_ten2mxtrunc256[ind as usize].w[1])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1] == bid_ten2mxtrunc256[ind as usize].w[1]
-             && fstar.w[0]  > bid_ten2mxtrunc256[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            ||  fstar.w[3]  > bid_ten2mxtrunc256[ind].w[2]
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2]  > bid_ten2mxtrunc256[ind].w[2])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc256[ind].w[1])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc256[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc256[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	    // else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
             *ptr_is_inexact_gt_midpoint = true;
         }
     } else if ind <= 37 {	// if 19 <= ind <= 37
-        if fstar.w[5]   > bid_half256[ind as usize]
-        || (fstar.w[5] == bid_half256[ind as usize]
+        if fstar.w[5]   > bid_half256[ind]
+        || (fstar.w[5] == bid_half256[ind]
         && (fstar.w[4] != 0 || fstar.w[3] != 0 || fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[5] - bid_half256[ind as usize];
+            tmp64 = fstar.w[5] - bid_half256[ind];
             if tmp64 != 0
             || fstar.w[4] != 0
-            || fstar.w[3]   > bid_ten2mxtrunc256[ind as usize].w[3]
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2]  > bid_ten2mxtrunc256[ind as usize].w[2])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1]  > bid_ten2mxtrunc256[ind as usize].w[1])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1] == bid_ten2mxtrunc256[ind as usize].w[1]
-             && fstar.w[0]  > bid_ten2mxtrunc256[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            || fstar.w[3]   > bid_ten2mxtrunc256[ind].w[3]
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2]  > bid_ten2mxtrunc256[ind].w[2])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc256[ind].w[1])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc256[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc256[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
             *ptr_is_inexact_gt_midpoint = true;
         }
     } else if ind <= 57 {	// if 38 <= ind <= 57
-        if fstar.w[6]   > bid_half256[ind as usize]
-        || (fstar.w[6] == bid_half256[ind as usize]
+        if fstar.w[6]   > bid_half256[ind]
+        || (fstar.w[6] == bid_half256[ind]
         && (fstar.w[5] != 0
          || fstar.w[4] != 0
          || fstar.w[3] != 0
@@ -959,28 +954,28 @@ pub (crate) fn bid_round256_58_76(
          || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[6] - bid_half256[ind as usize];
+            tmp64 = fstar.w[6] - bid_half256[ind];
             if tmp64 != 0
             || fstar.w[5] != 0
             || fstar.w[4] != 0
-            || fstar.w[3]   > bid_ten2mxtrunc256[ind as usize].w[3]
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2]  > bid_ten2mxtrunc256[ind as usize].w[2])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1]  > bid_ten2mxtrunc256[ind as usize].w[1])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1] == bid_ten2mxtrunc256[ind as usize].w[1]
-             && fstar.w[0]  > bid_ten2mxtrunc256[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            || fstar.w[3]   > bid_ten2mxtrunc256[ind].w[3]
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2]  > bid_ten2mxtrunc256[ind].w[2])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc256[ind].w[1])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc256[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc256[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
             *ptr_is_inexact_gt_midpoint = true;
         }
     } else {	// if 58 <= ind <= 74
-        if fstar.w[7]   > bid_half256[ind as usize]
-        || (fstar.w[7] == bid_half256[ind as usize]
+        if fstar.w[7]   > bid_half256[ind]
+        || (fstar.w[7] == bid_half256[ind]
         && (fstar.w[6] != 0
          || fstar.w[5] != 0
          || fstar.w[4] != 0
@@ -990,21 +985,21 @@ pub (crate) fn bid_round256_58_76(
          || fstar.w[0] != 0)) {
             // f* > 1/2 and the result may be exact
             // Calculate f* - 1/2
-            tmp64 = fstar.w[7] - bid_half256[ind as usize];
+            tmp64 = fstar.w[7] - bid_half256[ind];
             if tmp64      != 0
             || fstar.w[6] != 0
             || fstar.w[5] != 0
             || fstar.w[4] != 0
-            || fstar.w[3]   > bid_ten2mxtrunc256[ind as usize].w[3]
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2]  > bid_ten2mxtrunc256[ind as usize].w[2])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1]  > bid_ten2mxtrunc256[ind as usize].w[1])
-            || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-             && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-             && fstar.w[1] == bid_ten2mxtrunc256[ind as usize].w[1]
-             && fstar.w[0]  > bid_ten2mxtrunc256[ind as usize].w[0]) {	// f* - 1/2 > 10^(-x)
+            || fstar.w[3]   > bid_ten2mxtrunc256[ind].w[3]
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2]  > bid_ten2mxtrunc256[ind].w[2])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1]  > bid_ten2mxtrunc256[ind].w[1])
+            || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+             && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+             && fstar.w[1] == bid_ten2mxtrunc256[ind].w[1]
+             && fstar.w[0]  > bid_ten2mxtrunc256[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                 *ptr_is_inexact_lt_midpoint = true;
             }	// else the result is exact
         } else {	// the result is inexact; f2* <= 1/2
@@ -1014,16 +1009,16 @@ pub (crate) fn bid_round256_58_76(
     // check for midpoints (could do this before determining inexactness)
     if fstar.w[7] == 0 && fstar.w[6] == 0
     && fstar.w[5] == 0 && fstar.w[4] == 0
-    && (fstar.w[3]  < bid_ten2mxtrunc256[ind as usize].w[3]
-    || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-     && fstar.w[2]  < bid_ten2mxtrunc256[ind as usize].w[2])
-    || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-     && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-     && fstar.w[1]  < bid_ten2mxtrunc256[ind as usize].w[1])
-    || (fstar.w[3] == bid_ten2mxtrunc256[ind as usize].w[3]
-     && fstar.w[2] == bid_ten2mxtrunc256[ind as usize].w[2]
-     && fstar.w[1] == bid_ten2mxtrunc256[ind as usize].w[1]
-     && fstar.w[0] <= bid_ten2mxtrunc256[ind as usize].w[0])) {
+    && (fstar.w[3]  < bid_ten2mxtrunc256[ind].w[3]
+    || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+     && fstar.w[2]  < bid_ten2mxtrunc256[ind].w[2])
+    || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+     && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+     && fstar.w[1]  < bid_ten2mxtrunc256[ind].w[1])
+    || (fstar.w[3] == bid_ten2mxtrunc256[ind].w[3]
+     && fstar.w[2] == bid_ten2mxtrunc256[ind].w[2]
+     && fstar.w[1] == bid_ten2mxtrunc256[ind].w[1]
+     && fstar.w[0] <= bid_ten2mxtrunc256[ind].w[0])) {
         // the result is a midpoint
         if (Cstar.w[0] & 0x01) == 0x01 {	// Cstar is odd; MP in [EVEN, ODD]
             // if floor(C*) is odd C = floor(C*) - 1; the result may be 0
@@ -1047,14 +1042,14 @@ pub (crate) fn bid_round256_58_76(
         }
     }
     // check for rounding overflow, which occurs if Cstar = 10^(q-x)
-    ind = q - x;	// 1 <= ind <= q - 1
+    ind = (q - x) as usize;	// 1 <= ind <= q - 1
     if ind <= 19 {
         if Cstar.w[3] == 0x0u64
         && Cstar.w[2] == 0x0u64
         && Cstar.w[1] == 0x0u64
-        && Cstar.w[0] == bid_ten2k64[ind as usize] {
+        && Cstar.w[0] == bid_ten2k64[ind] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k64[(ind - 1) as usize];	// Cstar = 10^(q-x-1)
+            Cstar.w[0] = bid_ten2k64[ind - 1];	// Cstar = 10^(q-x-1)
             *incr_exp  = true;
         } else {
             *incr_exp  = false;
@@ -1075,11 +1070,11 @@ pub (crate) fn bid_round256_58_76(
     } else if ind <= 38 {	// if 21 <= ind <= 38
         if Cstar.w[3] == 0x0u64
         && Cstar.w[2] == 0x0u64
-        && Cstar.w[1] == bid_ten2k128[(ind - 20) as usize].w[1]
-        && Cstar.w[0] == bid_ten2k128[(ind - 20) as usize].w[0] {
+        && Cstar.w[1] == bid_ten2k128[ind - 20].w[1]
+        && Cstar.w[0] == bid_ten2k128[ind - 20].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k128[(ind - 21) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k128[(ind - 21) as usize].w[1];
+            Cstar.w[0] = bid_ten2k128[ind - 21].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k128[ind - 21].w[1];
             *incr_exp  = true;
         } else {
             *incr_exp = false;
@@ -1099,37 +1094,33 @@ pub (crate) fn bid_round256_58_76(
         }
     } else if ind <= 57 {	// if 40 <= ind <= 57
         if Cstar.w[3] == 0x0u64
-        && Cstar.w[2] == bid_ten2k256[(ind - 39) as usize].w[2]
-        && Cstar.w[1] == bid_ten2k256[(ind - 39) as usize].w[1]
-        && Cstar.w[0] == bid_ten2k256[(ind - 39) as usize].w[0] {
+        && Cstar.w[2] == bid_ten2k256[ind - 39].w[2]
+        && Cstar.w[1] == bid_ten2k256[ind - 39].w[1]
+        && Cstar.w[0] == bid_ten2k256[ind - 39].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k256[(ind - 40) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k256[(ind - 40) as usize].w[1];
-            Cstar.w[2] = bid_ten2k256[(ind - 40) as usize].w[2];
+            Cstar.w[0] = bid_ten2k256[ind - 40].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k256[ind - 40].w[1];
+            Cstar.w[2] = bid_ten2k256[ind - 40].w[2];
             *incr_exp  = true;
         } else {
             *incr_exp = false;
         }
         // else if (ind == 58) is not needed becauae we do not have ten2k192[] yet
     } else {	// if 58 <= ind <= 77 (actually 58 <= ind <= 74)
-        if Cstar.w[3] == bid_ten2k256[(ind - 39) as usize].w[3]
-        && Cstar.w[2] == bid_ten2k256[(ind - 39) as usize].w[2]
-        && Cstar.w[1] == bid_ten2k256[(ind - 39) as usize].w[1]
-        && Cstar.w[0] == bid_ten2k256[(ind - 39) as usize].w[0] {
+        if Cstar.w[3] == bid_ten2k256[ind - 39].w[3]
+        && Cstar.w[2] == bid_ten2k256[ind - 39].w[2]
+        && Cstar.w[1] == bid_ten2k256[ind - 39].w[1]
+        && Cstar.w[0] == bid_ten2k256[ind - 39].w[0] {
             // if  Cstar = 10^(q-x)
-            Cstar.w[0] = bid_ten2k256[(ind - 40) as usize].w[0];	// Cstar = 10^(q-x-1)
-            Cstar.w[1] = bid_ten2k256[(ind - 40) as usize].w[1];
-            Cstar.w[2] = bid_ten2k256[(ind - 40) as usize].w[2];
-            Cstar.w[3] = bid_ten2k256[(ind - 40) as usize].w[3];
+            Cstar.w[0] = bid_ten2k256[ind - 40].w[0];	// Cstar = 10^(q-x-1)
+            Cstar.w[1] = bid_ten2k256[ind - 40].w[1];
+            Cstar.w[2] = bid_ten2k256[ind - 40].w[2];
+            Cstar.w[3] = bid_ten2k256[ind - 40].w[3];
             *incr_exp = true;
         } else {
             *incr_exp = false;
         }
     }
-    // ptr_Cstar->w[3] = Cstar.w[3];
-    // ptr_Cstar->w[2] = Cstar.w[2];
-    // ptr_Cstar->w[1] = Cstar.w[1];
-    // ptr_Cstar->w[0] = Cstar.w[0];
 
     Cstar
 }

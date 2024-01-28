@@ -23,4 +23,4 @@ mod bid_round;
 mod constants;
 mod convert;
 pub mod core;
-pub mod d128;mod bid_convert_data;
+pub mod d128;mod bid_convert_data;mod bid128_rem;
