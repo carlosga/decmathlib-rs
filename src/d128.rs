@@ -10,7 +10,7 @@
 
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign};
 use std::str::FromStr;
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
@@ -260,7 +260,7 @@ impl decimal128 {
     }
 }
 
-impl Eq for decimal128 {}
+impl Eq for decimal128 { }
 
 impl PartialEq for decimal128 {
     fn eq(&self, other: &Self) -> bool {
@@ -479,7 +479,7 @@ impl AddAssign for decimal128 {
     /// ```
     fn add_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
-        let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+        let dec: BID_UINT128 = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
@@ -585,7 +585,60 @@ impl MulAssign for decimal128 {
     /// ```
     fn mul_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
-        let dec = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+        let dec: BID_UINT128 = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+
+        self.w[0] = dec.w[0];
+        self.w[1] = dec.w[1];
+    }
+}
+
+impl Rem for decimal128 {
+    type Output = Self;
+
+    /// Performs the - operation.
+    /// # Examples
+    ///
+    /// ```
+    /// let dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2 = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// let res  = dec1 % dec2;
+    /// ```
+    fn rem(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_rem(&self, &rhs, &mut status)
+    }
+}
+
+impl Rem for &decimal128 {
+    type Output = decimal128;
+
+    /// Performs the % operation.
+    /// # Examples
+    ///
+    /// ```
+    /// let dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2 = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// let res  = &dec1 % &dec2;
+    /// ```
+    fn rem(self, rhs: Self) -> Self::Output {
+        let mut status: _IDEC_flags = 0;
+        bid128_rem(self, rhs, &mut status)
+    }
+}
+
+impl RemAssign for decimal128 {
+    /// Performs the %= operation.
+    /// # Examples
+    ///
+    /// ```
+    /// use decmathlib_rs::core::RoundingMode;
+    /// let mut dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
+    /// let dec2     = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
+    /// dec1        %= dec2;
+    /// ```
+    fn rem_assign(&mut self, rhs: Self) {
+        let mut status: _IDEC_flags = 0;
+        let dec: BID_UINT128 = bid128_rem(self, &rhs, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
@@ -634,11 +687,11 @@ impl SubAssign for decimal128 {
     /// use decmathlib_rs::core::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::decimal128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// dec1        += dec2;
+    /// dec1        -= dec2;
     /// ```
     fn sub_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
-        let dec = bid128_sub(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+        let dec: BID_UINT128 = bid128_sub(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
