@@ -18,6 +18,7 @@ use crate::bid128_div::bid128_div;
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
+use crate::bid128_rem::bid128_rem;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
@@ -224,6 +225,10 @@ impl decimal128 {
 
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
+    }
+
+    pub fn remainder(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> Self {
+        bid128_rem(lhs, rhs, status)
     }
 
     pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
