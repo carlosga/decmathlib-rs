@@ -341,7 +341,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     }
 
     ed2 = 1 - expon;
-  // add rounding constant to CQ
+    // add rounding constant to CQ
     rmode = rnd_mode;
     if sgn != 0 && ((rmode - 1) < 2) {
         rmode = 3 - rmode;
@@ -877,7 +877,7 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
     R128
 }
 
-pub (crate) fn __sub_256_128(A128: &BID_UINT256, B128: &BID_UINT128) -> BID_UINT256 {
+pub (crate) fn __sub_256_128_to_256(A128: &BID_UINT256, B128: &BID_UINT128) -> BID_UINT256 {
     let mut Q128: BID_UINT128 = BID_UINT128::default();
     let mut R256: BID_UINT256 = BID_UINT256::default();
     Q128.w[1] = A128.w[1] - B128.w[1];
@@ -927,6 +927,7 @@ pub (crate) fn __sub_borrow_in_out(X: BID_UINT64, Y: BID_UINT64, CI: BID_UINT64)
 // Multiply Macros
 //////////////////////////////////////////////
 
+#[inline(always)]
 pub (crate) fn __mul_64x64_to_64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT64 {
     CX * CY
 }
@@ -936,9 +937,10 @@ pub (crate) fn __mul_64x64_to_64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT64 {
 //////////////////////////////////////////////
 
 /// get fu64 64x64bit product
+#[inline(always)]
 pub (crate) fn __mul_64x64_to_128(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128 {
     let CXH: BID_UINT64 = CX >> 32;
-    let CXL: BID_UINT64 =  (CX as BID_UINT32) as BID_UINT64;
+    let CXL: BID_UINT64 = (CX as BID_UINT32) as BID_UINT64;
     let CYH: BID_UINT64 = CY >> 32;
     let CYL: BID_UINT64 = (CY as BID_UINT32) as BID_UINT64;
 
@@ -949,9 +951,7 @@ pub (crate) fn __mul_64x64_to_128(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128
     PH += PM >> 32;
     PM  = ((PM as BID_UINT32) as BID_UINT64) + PM2 + (PL >> 32) as BID_UINT64;
 
-    BID_UINT128 {
-        w: [(PM << 32) + ((PL as BID_UINT32) as BID_UINT64), PH + (PM >> 32)]
-    }
+    BID_UINT128::new(PH + (PM >> 32), (PM << 32) + ((PL as BID_UINT32) as BID_UINT64))
 }
 
 /// get fu64 64x64bit product
@@ -964,7 +964,6 @@ pub (crate) fn __mul_64x64_to_128_fast(CX: BID_UINT64, CY: BID_UINT64) -> BID_UI
     let PL: BID_UINT64;
     let PH: BID_UINT64;
     let mut PM: BID_UINT64;
-    let mut P: BID_UINT128 = BID_UINT128::default();
 
     CXH = CX >> 32;
     CXL = (CX as BID_UINT32) as BID_UINT64;
@@ -977,14 +976,11 @@ pub (crate) fn __mul_64x64_to_128_fast(CX: BID_UINT64, CY: BID_UINT64) -> BID_UI
     PM += CXL * CYH;
     PM += PL >> 32;
 
-    P.w[1] = PH + (PM >> 32);
-    P.w[0] = (PM << 32) + ((PL as BID_UINT32) as BID_UINT64);
-
-    P
+    BID_UINT128::new(PH + (PM >> 32), (PM << 32) + ((PL as BID_UINT32) as BID_UINT64))
 }
 
 /// get fu64 64x64bit product
-pub (crate) fn __mul_64x64_to_128_fu64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128 {
+pub (crate) fn __mul_64x64_to_128_full(CX: BID_UINT64, CY: BID_UINT64) -> BID_UINT128 {
     let CXH:BID_UINT64;
     let CXL:BID_UINT64;
     let CYH:BID_UINT64;
@@ -993,7 +989,6 @@ pub (crate) fn __mul_64x64_to_128_fu64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UI
     let mut PH:BID_UINT64;
     let mut PM:BID_UINT64;
     let PM2:BID_UINT64;
-    let mut P: BID_UINT128 = BID_UINT128::default();
 
     CXH = CX >> 32;
     CXL = (CX as BID_UINT32) as BID_UINT64;
@@ -1007,10 +1002,7 @@ pub (crate) fn __mul_64x64_to_128_fu64(CX: BID_UINT64, CY: BID_UINT64) -> BID_UI
     PH += PM >> 32;
     PM  = (PM as BID_UINT32) as BID_UINT64 + PM2 + (PL >> 32);
 
-    P.w[1] = PH + (PM >> 32);
-    P.w[0] = (PM << 32) + ((PL as BID_UINT32) as BID_UINT64);
-
-    P
+    BID_UINT128::new(PH + (PM >> 32), (PM << 32) + ((PL as BID_UINT32) as BID_UINT64))
 }
 
 pub (crate) fn __mul_128x128_high(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT128 {
@@ -1020,9 +1012,8 @@ pub (crate) fn __mul_128x128_high(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT1
     let AHBH: BID_UINT128 = __mul_64x64_to_128(A.w[1], B.w[1]);
     let QM: BID_UINT128   = __add_128_128(&ALBH, &AHBL);
     let QM2: BID_UINT128  = __add_128_64(&QM, ALBL.w[1]);
-    let Q: BID_UINT128    = __add_128_64(&AHBH, QM2.w[1]);
 
-    Q
+    __add_128_64(&AHBH, QM2.w[1])
 }
 
 pub (crate) fn __mul_128x128_full(A: &BID_UINT128, B: &BID_UINT128) -> (BID_UINT128, BID_UINT128) {
@@ -1151,11 +1142,7 @@ pub (crate) fn __mul_64x64_to_128MACH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
     PH += PM >> 32;
     PM  = ((PM as BID_UINT32) as BID_UINT64 + PM2 + (PL >> 32)) as BID_UINT64;
 
-    let mut P128 = BID_UINT128::default();
-    P128.w[1] = PH + (PM >> 32);
-    P128.w[0] = (PM << 32) + ((PL as BID_UINT32) as BID_UINT64);
-
-    P128
+    BID_UINT128::new(PH + (PM >> 32), (PM << 32) + ((PL as BID_UINT32) as BID_UINT64))
 }
 
 // 64x64-bit product
@@ -1233,8 +1220,7 @@ pub (crate) fn __mul_64x256_to_320(A: BID_UINT64, B: &BID_UINT256) -> BID_UINT51
     P
 }
 
-pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UINT384
-{
+pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UINT384 {
     let mut CY: BID_UINT64;
     let mut P: BID_UINT384  = BID_UINT384::default();
     let P0: BID_UINT256 = __mul_64x192_to_256(A.w[0], B);
