@@ -150,7 +150,7 @@ pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: u32, pfps
   bid128_mul(x, &y1, rnd_mode, pfpsf)
 }
 
-/// bid128_mul stands for bid128qq_mul
+/// Decimal floating-point multiplication
 pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
     let x_sign: BID_UINT64;

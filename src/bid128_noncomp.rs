@@ -36,17 +36,19 @@
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
+use crate::bid128_string::bid128_from_string;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
 use crate::constants::*;
-use crate::core::ClassTypes;
-use crate::d128::{BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE};
+use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 
+/// Return true if and only if x has negative sign
 pub (crate) fn bid128_isSigned(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_SIGN) == MASK_SIGN
 }
 
-/// return 1 iff x is not zero, nor NaN nor subnormal nor infinity
+/// Return true if and only if x is normal (not zero, subnormal, infinite, or NaN)
 pub (crate) fn bid128_isNormal(x: &BID_UINT128) -> bool {
     let x_exp: BID_UINT64;
     let C1_hi: BID_UINT64;
@@ -116,7 +118,7 @@ pub (crate) fn bid128_isNormal(x: &BID_UINT128) -> bool {
     if exp + q <= -6143 { false } else { true }
 }
 
-// return 1 iff x is not zero, nor NaN nor normal nor infinity
+/// Return true if and only if x is subnormal
 pub (crate) fn bid128_isSubnormal(x: &BID_UINT128) -> bool {
     let x_exp: BID_UINT64;
     let C1_hi: BID_UINT64;
@@ -186,10 +188,12 @@ pub (crate) fn bid128_isSubnormal(x: &BID_UINT128) -> bool {
     // if (exp + q <= -6143) {  1 } else { 0 }
 }
 
+/// Return true if and only if x is zero, subnormal or normal (not infinite or NaN)
 pub (crate) fn bid128_isFinite(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_INF) != MASK_INF
 }
 
+/// Return true if and only if x is +0 or -0
 pub (crate) fn bid128_isZero(x: &BID_UINT128) -> bool {
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
 
@@ -213,15 +217,17 @@ pub (crate) fn bid128_isZero(x: &BID_UINT128) -> bool {
     false
 }
 
+/// Return true if and only if x is infinite
 pub (crate) fn bid128_isInf(x: &BID_UINT128) -> bool {
     ((x.w[BID_HIGH_128W] & MASK_INF) == MASK_INF) && ((x.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN)
 }
 
+/// Return true if and only if x is a signaling NaN
 pub (crate) fn bid128_isSignaling(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_SNAN) == MASK_SNAN
 }
 
-/// return 1 iff x is a canonical number ,infinity, or NaN.
+/// Return true if and only if x is a finite number, infinity, or NaN that is canonical
 pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
 
@@ -258,36 +264,40 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
     }
 }
 
+/// Return true if and only if x is a NaN
 pub (crate) fn bid128_isNaN(x: &BID_UINT128) -> bool {
     (x.w[BID_HIGH_128W] & MASK_NAN) == MASK_NAN
 }
 
-/// copies a floating-point operand x to destination y, with no change
+/// Copies a decimal floating-point operand x to a destination in the same format, with no change
 pub (crate) fn bid128_copy(x: &BID_UINT128) -> BID_UINT128 {
     *x
 }
 
-/// copies a floating-point operand x to destination y, reversing the sign
+/// Copies a 128-bit decimal floating-point operand x to a destination in the same format, reversing the sign
 pub (crate) fn bid128_negate(x: &BID_UINT128) -> BID_UINT128 {
     let mut res = *x;
     res.w[BID_HIGH_128W] ^= MASK_SIGN;
     res
 }
 
-/// copies a floating-point operand x to destination y, changing the sign to positive
+/// Copies a 128-bit decimal floating-point operand x to a destination in the same format, changing the sign to positive
 pub (crate) fn bid128_abs(x: &BID_UINT128) -> BID_UINT128 {
     let mut res = *x;
     res.w[BID_HIGH_128W] &= !MASK_SIGN;
     res
 }
 
-/// copies operand x to destination in the same format as x, but with the sign of y
+/// Copies a 128-bit decimal floating-point operand x to a destination in the same format as x, but with the sign of y
 pub (crate) fn bid128_copySign(x: &BID_UINT128, y: &BID_UINT128) -> BID_UINT128 {
     let mut res = *x;
     res.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W] & !MASK_SIGN) | y.w[BID_HIGH_128W] & MASK_SIGN;
     res
 }
 
+/// Tells which of the following ten classes x falls into (details in the IEEE Standard 754-2008):
+/// signalingNaN, quietNaN, negativeInfinity, negativeNormal, negativeSubnormal, negativeZero, positiveZero,
+/// positiveSubnormal, positiveNormal, positiveInfinity
 pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
     let sig_x_prime256: BID_UINT256;
     let sig_x_prime192: BID_UINT192;
@@ -352,9 +362,9 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
     if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeNormal } else { ClassTypes::positiveNormal }
 }
 
-/// true if the exponents of x and y are the same, false otherwise.
-/// The special cases of sameQuantum(NaN, NaN) and sameQuantum(Inf, Inf) are true
-/// If exactly one operand is infinite or exactly one operand is NaN, then false
+/// sameQuantum(x, y) is true if the exponents of x and y are the same, and false otherwise;
+/// sameQuantum(NaN, NaN) and sameQuantum(inf, inf) are true;
+/// if exactly one operand is infinite or exactly one operand is NaN, sameQuantum is false
 pub (crate) fn bid128_sameQuantum(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let x_exp: BID_UINT64;
     let y_exp: BID_UINT64;
@@ -393,6 +403,7 @@ pub (crate) fn bid128_sameQuantum(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     x_exp == y_exp
 }
 
+/// Return true if x and y are ordered (see the IEEE Standard 754-2008)
 pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let mut exp_x: i32;
     let mut exp_y: i32;
@@ -677,6 +688,7 @@ pub (crate) fn bid128_totalOrder(x: &BID_UINT128, y: &BID_UINT128) -> bool {
   || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN)
 }
 
+/// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
 pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let mut exp_x: i32;
     let mut exp_y: i32;
@@ -903,6 +915,7 @@ pub (crate) fn bid128_totalOrderMag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
  || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0])
 }
 
+/// Return the radix b of the format of x, 2 or 10
 pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
     // // dummy test
     // (x.w[BID_LOW_128W]) { 10 } else { 10 }
@@ -916,29 +929,17 @@ pub (crate) fn bid128_inf() -> BID_UINT128 {
     res
 }
 
-// TODO: bid128_from_string
-/*
-pub (crate) bid128_nan(tagp: string) -> BID_UINT128 {
-    let res: BID_UINT128 = BID_UINT128::default();
-    let x: BID_UINT128 = BID_UINT128::default();
-
-#if !DECIMAL_GLOBAL_ROUNDING
-    unsigned int rnd_mode = BID_ROUNDING_TO_NEAREST;
-#endif
-#if !DECIMAL_GLOBAL_EXCEPTION_FLAGS
-    unsigned int fpsf;
-    unsigned int *pfpsf = &fpsf;
-#endif
+pub (crate) fn bid128_nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    let mut res: BID_UINT128 = BID_UINT128::default();
 
     res.w[BID_HIGH_128W] = 0x7c00000000000000u64; // +QNaN
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
 
-    if (!tagp) {
+    if tagp.len() == 0 {
         return res;
     }
 
-    bid128_from_string(&x, &tagp _RND_MODE_ARG _EXC_FLAGS_ARG);
-    // bid128_from_string(&x, &tagp);
+    let mut x: BID_UINT128 = bid128_from_string(tagp, DEFAULT_ROUNDING_MODE, pfpsf);
 
     x.w[BID_HIGH_128W]   = x.w[BID_HIGH_128W] & 0x0000cfffffffffffu64; // valid values fit in 110 bits=46+64
     res.w[BID_HIGH_128W] = res.w[BID_HIGH_128W] | x.w[BID_HIGH_128W];
@@ -946,4 +947,3 @@ pub (crate) bid128_nan(tagp: string) -> BID_UINT128 {
 
     return res;
 }
-*/

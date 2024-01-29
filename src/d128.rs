@@ -370,18 +370,6 @@ impl From<decimal64> for decimal128 {
     }
 }
 
-impl From<i128> for decimal128 {
-    /// Converts an i128 encoded decimal.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::decimal128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// ```
-    fn from(value: i128) -> Self {
-        Self::new((value >> 64) as u64, value as u64)
-    }
-}
-
 impl From<u128> for decimal128 {
     /// Converts an i128 encoded decimal.
     /// # Examples

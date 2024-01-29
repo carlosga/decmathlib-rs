@@ -125,6 +125,7 @@ pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf
 ///  BID128 sub
 /////////////////////////////////////
 
+/// Decimal floating-point subtraction
 pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut y: BID_UINT128 = *y;
     if (y.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN {
@@ -144,6 +145,7 @@ pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 /// BID128 add
 /////////////////////////////////////
 
+/// Decimal floating-point addition
 pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
     let mut x_sign: BID_UINT64;
