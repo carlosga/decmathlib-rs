@@ -20,6 +20,7 @@ use crate::bid128_mul::bid128_mul;
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
+use crate::bid128_to_int32::{bid128_to_int32_ceil, bid128_to_int32_floor, bid128_to_int32_int, bid128_to_int32_rnint, bid128_to_int32_rninta, bid128_to_int32_xceil, bid128_to_int32_xfloor, bid128_to_int32_xint, bid128_to_int32_xrnint, bid128_to_int32_xrninta};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
@@ -115,50 +116,64 @@ impl decimal128 {
         return Self { w: [l, h] };
     }
 
+    /// Tells which of the following ten classes x falls into (details in the IEEE Standard 754-2008):
+    /// signalingNaN, quietNaN, negativeInfinity, negativeNormal, negativeSubnormal, negativeZero, positiveZero,
+    /// positiveSubnormal, positiveNormal, positiveInfinity
     pub fn class(&self) -> ClassTypes {
         bid128_class(self)
     }
 
+    /// Copies a decimal floating-point operand x to a destination in the same format, with no change
     pub fn copy(&self) -> Self { bid128_copy(self) }
 
+    /// Copies a 128-bit decimal floating-point operand x to a destination in the same format as x, but with the sign of y
     pub fn copy_sign(&self, other: &Self) -> Self { bid128_copySign(self, other) }
 
     pub fn infinity() -> Self {
         bid128_inf()
     }
 
+    /// Return true if and only if x is a finite number, infinity, or NaN that is canonical
     pub fn is_canonical(&self) -> bool {
         bid128_isCanonical(self)
     }
 
+    /// Return true if and only if x is zero, subnormal or normal (not infinite or NaN)
     pub fn is_finite(&self) -> bool {
         bid128_isFinite(self)
     }
 
+    /// Return true if and only if x is infinite
     pub fn is_infinity(&self) -> bool {
         bid128_isInf(self)
     }
 
+    /// Return true if and only if x is a NaN
     pub fn is_nan(&self) -> bool {
         bid128_isNaN(self)
     }
 
+    /// Return true if and only if x is normal (not zero, subnormal, infinite, or NaN)
     pub fn is_normal(&self) -> bool {
         bid128_isNormal(self)
     }
 
+    /// Return true if and only if x is a signaling NaN
     pub fn is_signaling(&self) -> bool {
         bid128_isSignaling(self)
     }
 
+    /// Return true if and only if x has negative sign
     pub fn is_signed(&self) -> bool {
         bid128_isSigned(self)
     }
 
+    /// Return true if and only if x is subnormal
     pub fn is_subnormal(&self) -> bool {
         bid128_isSubnormal(self)
     }
 
+    /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, reversing the sign
     pub fn is_zero(&self) -> bool {
         bid128_isZero(self)
     }
@@ -167,10 +182,15 @@ impl decimal128 {
         bid128_negate(x)
     }
 
+    /// same_quantum(x, y) is true if the exponents of x and y are the same,
+    /// and false otherwise; same_quantum(NaN, NaN) and same_quantum(inf, inf) are
+    /// true; if exactly one operand is infinite or exactly one operand is NaN,
+    /// sameQuantum is false
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
         bid128_sameQuantum(x, y)
     }
 
+    /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
     pub fn total_order(x: &Self, y: &Self) -> bool {
         bid128_totalOrder(x, y)
     }
@@ -194,6 +214,8 @@ impl decimal128 {
         res
     }
 
+    /// Convert a decimal floating-point value represented in string format
+    /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
     pub fn from_string(value: &str, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode, pfpsf)
     }
@@ -207,12 +229,74 @@ impl decimal128 {
         res
     }
 
+    /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
     pub fn from_decimal64(bid: decimal64, status: &mut _IDEC_flags) -> Self {
         bid64_to_bid128(bid, status)
     }
 
+    /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
     pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> decimal64 {
         bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed
+    /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    pub fn to_i32_rnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-to-nearest-even mode; inexact exceptions signaled
+    pub fn to_i32_xrnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_xrnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-down mode; inexact exceptions not signaled
+    pub fn to_i32_floor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_floor(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-down mode; inexact exceptions signaled
+    pub fn to_i32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_xfloor(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-up mode; inexact exceptions not signaled
+    pub fn to_i32_ceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_ceil(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-up mode; inexact exceptions signaled
+    pub fn to_i32_xceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_xceil(&self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-to-zero; inexact exceptions not signaled
+    pub fn to_i32_int(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_int(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-to-zero; inexact exceptions signale
+    pub fn to_i32_xint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_xint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-to-nearest-away; inexact exceptions not signaled
+    pub fn to_i32_rninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_rninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit signed integer
+    /// in rounding-to-nearest-away; inexact exceptions signaled
+    pub fn to_i32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_to_int32_xrninta(self, pfpsf)
     }
 
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
