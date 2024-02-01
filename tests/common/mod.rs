@@ -458,6 +458,30 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_to_int32_xrnint, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::decimal128::from($input1);
+            let res1 = dec1.to_i32_xrnint(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_int32_xrninta, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::decimal128::from($input1);
+            let res1 = dec1.to_i32_xrninta(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
     ($name:ident, bid128_to_string, $input1:expr, $exp:expr) => {
         #[test]
         fn $name() {
