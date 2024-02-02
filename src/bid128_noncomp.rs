@@ -935,15 +935,15 @@ pub (crate) fn bid128_nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     res.w[BID_HIGH_128W] = 0x7c00000000000000u64; // +QNaN
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
 
-    if tagp.len() == 0 {
+    if tagp.is_empty() {
         return res;
     }
 
     let mut x: BID_UINT128 = bid128_from_string(tagp, DEFAULT_ROUNDING_MODE, pfpsf);
 
-    x.w[BID_HIGH_128W]   = x.w[BID_HIGH_128W] & 0x0000cfffffffffffu64; // valid values fit in 110 bits=46+64
-    res.w[BID_HIGH_128W] = res.w[BID_HIGH_128W] | x.w[BID_HIGH_128W];
-    res.w[BID_LOW_128W]  = x.w[BID_LOW_128W];
+    x.w[BID_HIGH_128W]   &= 0x0000cfffffffffffu64; // valid values fit in 110 bits=46+64
+    res.w[BID_HIGH_128W] |= x.w[BID_HIGH_128W];
+    res.w[BID_LOW_128W]   = x.w[BID_LOW_128W];
 
-    return res;
+    res
 }
