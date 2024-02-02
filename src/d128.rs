@@ -20,7 +20,8 @@ use crate::bid128_mul::bid128_mul;
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
-use crate::bid128_to_int32::{bid128_to_int32_ceil, bid128_to_int32_floor, bid128_to_int32_int, bid128_to_int32_rnint, bid128_to_int32_rninta, bid128_to_int32_xceil, bid128_to_int32_xfloor, bid128_to_int32_xint, bid128_to_int32_xrnint, bid128_to_int32_xrninta};
+use crate::bid128_to_int32::*;
+use crate::bid128_to_int64::*;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
@@ -297,6 +298,18 @@ impl decimal128 {
     /// in rounding-to-nearest-away; inexact exceptions signaled
     pub fn to_i32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xrninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit signed integer
+    /// in rounding-up mode; inexact exceptions not signaled
+    pub fn to_i64_ceil(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_to_int64_ceil(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit signed integer
+    /// in rounding-down mode; inexact exceptions not signaled
+    pub fn to_i64_floor(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_to_int64_floor(self, pfpsf)
     }
 
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
