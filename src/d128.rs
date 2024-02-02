@@ -318,6 +318,12 @@ impl decimal128 {
         bid128_to_int64_int(self, pfpsf)
     }
 
+    /// Convert 128-bit decimal floating-point value to 64-bit signed
+    /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    pub fn to_i64_rnint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_to_int64_rnint(self, pfpsf)
+    }
+
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
