@@ -2065,6 +2065,8 @@ pub (crate) fn bid128_to_int64_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> 
     return res;
 }
 
+/// Convert 128-bit decimal floating-point value to 64-bit signed integer
+/// in rounding-to-zero; inexact exceptions signaled
 pub (crate) fn bid128_to_int64_xint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_SINT64 {
     let res: BID_SINT64;
     let x_sign: BID_UINT64;
@@ -2332,279 +2334,281 @@ pub (crate) fn bid128_to_int64_xint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
     return res;
 }
 
-/*
-/*****************************************************************************
- *  BID128_to_int64_rninta
- ****************************************************************************/
+/// Convert 128-bit decimal floating-point value to 64-bit signed
+/// integer in rounding-to-nearest-away; inexact exceptions not signaled
+pub (crate) fn bid128_to_int64_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_SINT64 {
+    let res: BID_SINT64;
+    let x_sign: BID_UINT64;
+    let x_exp: BID_UINT64;
+    let exp: i32; // unbiased exponent
+    // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
+    let tmp64: BID_UINT64;
+    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let x_nr_bits: u32;
+    let mut q: i32;
+    let ind: i32;
+    let shift: i32;
+    let mut C1: BID_UINT128 = BID_UINT128::default();
+    let mut C: BID_UINT128 = BID_UINT128::default();
+    let mut Cstar: BID_UINT128 = BID_UINT128::default(); // C* represents up to 34 decimal digits ~ 113 bits
+    let P256: BID_UINT256;
 
-BID128_FUNCTION_ARG1_NORND_CUSTOMRESTYPE(BID_SINT64,
-    bid128_to_int64_rninta, x)
-
-BID_SINT64 res;
-BID_UINT64 x_sign;
-BID_UINT64 x_exp;
-int exp; // unbiased exponent
-// Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-BID_UINT64 tmp64;
-BID_UI64DOUBLE tmp1;
-unsigned int x_nr_bits;
-int q, ind, shift;
-BID_UINT128 C1, C;
-BID_UINT128 Cstar; // C* represents up to 34 decimal digits ~ 113 bits
-BID_UINT256 P256;
-
-// unpack x
-x_sign = x.w[1] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative
-x_exp = x.w[1] & MASK_EXP; // biased and shifted left 49 bit positions
-C1.w[1] = x.w[1] & MASK_COEFF;
-C1.w[0] = x.w[0];
-
-// check for NaN or Infinity
-if ((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
-    // x is special
-    if ((x.w[1] & MASK_NAN) == MASK_NAN) { // x is NAN
-        if ((x.w[1] & MASK_SNAN) == MASK_SNAN) { // x is SNAN
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return Integer Indefinite
-            res = 0x8000000000000000i64;
-        } else { // x is QNaN
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return Integer Indefinite
-            res = 0x8000000000000000i64;
-        }
-        return res;
-    } else { // x is not a NaN, so it must be infinity
-        if (!x_sign) { // x is +inf
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return Integer Indefinite
-            res = 0x8000000000000000i64;
-        } else { // x is -inf
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return Integer Indefinite
-            res = 0x8000000000000000i64;
-        }
-        return res;
-    }
-}
-// check for non-canonical values (after the check for special values)
-if ((C1.w[1] > 0x0001ed09bead87c0u64) ||
-    (C1.w[1] == 0x0001ed09bead87c0u64 &&
-        (C1.w[0] > 0x378d8e63ffffffffu64)) ||
-    ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)) {
-    res = 0x0000000000000000i64;
-    return res;
-} else if ((C1.w[1] == 0x0u64) && (C1.w[0] == 0x0u64)) {
-    // x is 0
-    res = 0x0000000000000000i64;
-    return res;
-} else { // x is not special and is not zero
-
-    // q = nr. of decimal digits in x
-    //  determine first the nr. of bits in x
-    if (C1.w[1] == 0) {
-        if (C1.w[0] >= 0x0020000000000000u64) { // x >= 2^53
-            // split the 64-bit value in two 32-bit halves to avoid rounding errors
-            tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-            x_nr_bits =
-                33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
-        } else { // if x < 2^53
-            tmp1.d    = C1.w[0] as f64; // exact conversion
-            x_nr_bits =
-                1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
-        }
-    } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
-        tmp1.d    = C1.w[1] as f64; // exact conversion
-        x_nr_bits =
-            65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
-    }
-    q = bid_nr_digits[(x_nr_bits - 1) as usize].digits;
-    if (q == 0) {
-        q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1;
-        if (C1.w[1] > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi ||
-            (C1.w[1] == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi &&
-                C1.w[0] >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo))
-            q += 1;
-    }
-    exp = (x_exp >> 49) - 6176;
-    if ((q + exp) > 19) { // x >= 10^19 ~= 2^63.11... (cannot fit in BID_SINT64)
-        // set invalid flag
-        *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        // return Integer Indefinite
-        res = 0x8000000000000000i64;
-        return res;
-    } else if ((q + exp) == 19) { // x = c(0)c(1)...c(18).c(19)...c(q-1)
-        // in this case 2^63.11... ~= 10^19 <= x < 10^20 ~= 2^66.43...
-        // so x rounded to an integer may or may not fit in a signed 64-bit int
-        // the cases that do not fit are identified here; the ones that fit
-        // fall through and will be handled with other cases further,
-        // under '1 <= q + exp <= 19'
-        if x_sign != 0 { // if n < 0 and q + exp = 19
-            // if n <= -2^63 - 1/2 then n is too large
-            // too large if c(0)c(1)...c(18).c(19)...c(q-1) >= 2^63+1/2
-            // <=> 0.c(0)c(1)...c(q-1) * 10^20 >= 5*(2^64+1), 1<=q<=34
-            // <=> 0.c(0)c(1)...c(q-1) * 10^20 >= 0x50000000000000005, 1<=q<=34
-            C.w[1] = 0x0000000000000005u64;
-            C.w[0] = 0000000000000005u64;
-            if (q <= 19) { // 1 <= q <= 19 => 1 <= 20-q <= 19 =>
-                // 10^(20-q) is 64-bit, and so is C1
-                C1 = __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[(20 - q) as usize]);
-            } else if (q == 20) {
-                // C1 * 10^0 = C1
-            } else { // if 21 <= q <= 34
-                C = __mul_128x64_to_128(bid_ten2k64[(q - 20) as usize], &C); // max 47-bit x 67-bit
-            }
-            if (C1.w[1] > C.w[1] || (C1.w[1] == C.w[1] && C1.w[0] >= C.w[0])) {
-                // set invalid flag
-                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-                // return Integer Indefinite
-                res = 0x8000000000000000i64;
-                return res;
-            }
-            // else cases that can be rounded to a 64-bit int fall through
-            // to '1 <= q + exp <= 19'
-        } else { // if n > 0 and q + exp = 19
-            // if n >= 2^63 - 1/2 then n is too large
-            // too large if c(0)c(1)...c(18).c(19)...c(q-1) >= 2^63-1/2
-            // <=> if 0.c(0)c(1)...c(q-1) * 10^20 >= 5*(2^64-1), 1<=q<=34
-            // <=> if 0.c(0)c(1)...c(q-1) * 10^20 >= 0x4fffffffffffffffb, 1<=q<=34
-            C.w[1] = 0x0000000000000004u64;
-            C.w[0] = 0xfffffffffffffffbu64;
-            if (q <= 19) { // 1 <= q <= 19 => 1 <= 20-q <= 19 =>
-                // 10^(20-q) is 64-bit, and so is C1
-                C1 = __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[(20 - q) as usize]);
-            } else if (q == 20) {
-                // C1 * 10^0 = C1
-            } else { // if 21 <= q <= 34
-                C = __mul_128x64_to_128(bid_ten2k64[(q - 20) as usize], &C); // max 47-bit x 67-bit
-            }
-            if (C1.w[1] > C.w[1] || (C1.w[1] == C.w[1] && C1.w[0] >= C.w[0])) {
-                // set invalid flag
-                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-                // return Integer Indefinite
-                res = 0x8000000000000000i64;
-                return res;
-            }
-            // else cases that can be rounded to a 64-bit int fall through
-            // to '1 <= q + exp <= 19'
-        }
-    }
-    // n is not too large to be converted to int64: -2^63-1/2 <= n < 2^63-1/2
-    // Note: some of the cases tested for above fall through to this point
-    // Restore C1 which may have been modified above
+    // unpack x
+    x_sign  = x.w[1] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative
+    x_exp   = x.w[1] & MASK_EXP; // biased and shifted left 49 bit positions
     C1.w[1] = x.w[1] & MASK_COEFF;
     C1.w[0] = x.w[0];
-    if ((q + exp) < 0) { // n = +/-0.0...c(0)c(1)...c(q-1)
-        // return 0
-        res = 0x0000000000000000i64;
-        return res;
-    } else if ((q + exp) == 0) { // n = +/-0.c(0)c(1)...c(q-1)
-        // if 0.c(0)c(1)...c(q-1) < 0.5 <=> c(0)c(1)...c(q-1) < 5 * 10^(q-1)
-        //   res = 0
-        // else
-        //   res = +/-1
-        ind = q - 1;
-        if (ind <= 18) { // 0 <= ind <= 18
-            if ((C1.w[1] == 0) && (C1.w[0] < bid_midpoint64[ind as usize])) {
-                res = 0x0000000000000000i64; // return 0
-            } else if x_sign != 0 { // n < 0
-                res = 0xffffffffffffffffi64; // return -1
-            } else { // n > 0
-                res = 0x0000000000000001i64; // return +1
-            }
-        } else { // 19 <= ind <= 33
-            if ((C1.w[1] < bid_midpoint128[(ind - 19) as usize].w[1]) ||
-                ((C1.w[1] == bid_midpoint128[(ind - 19) as usize].w[1]) &&
-                    (C1.w[0] < bid_midpoint128[(ind - 19) as usize].w[0]))) {
-                res = 0x0000000000000000i64; // return 0
-            } else if x_sign != 0 { // n < 0
-                res = 0xffffffffffffffffi64; // return -1
-            } else { // n > 0
-                res = 0x0000000000000001i64; // return +1
-            }
-        }
-    } else { // if (1 <= q + exp <= 19, 1 <= q <= 34, -33 <= exp <= 18)
-        // -2^63-1/2 <= x <= -1 or 1 <= x < 2^63-1/2 so x can be rounded
-        // to nearest to a 64-bit signed integer
-        if (exp < 0) { // 2 <= q <= 34, -33 <= exp <= -1, 1 <= q + exp <= 19
-            ind = -exp; // 1 <= ind <= 33; ind is a synonym for 'x'
-            // chop off ind digits from the lower part of C1
-            // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
-            tmp64 = C1.w[0];
-            if (ind <= 19) {
-                C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
-            } else {
-                C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
-            }
-            if (C1.w[0] < tmp64)
-                C1.w[1] += 1;
-            // calculate C* and f*
-            // C* is actually floor(C*) in this case
-            // C* and f* need shifting and masking, as shown by
-            // bid_shiftright128[] and bid_maskhigh128[]
-            // 1 <= x <= 33
-            // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
-            // C* = (C1 + 1/2 * 10^x) * 10^(-x)
-            // the approximation of 10^(-x) was rounded up to 118 bits
-            P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
-            if (ind - 1 <= 21) { // 0 <= ind - 1 <= 21
-                Cstar.w[1] = P256.w[3];
-                Cstar.w[0] = P256.w[2];
-            } else { // 22 <= ind - 1 <= 33
-                Cstar.w[1] = 0;
-                Cstar.w[0] = P256.w[3];
-            }
-            // the top Ex bits of 10^(-x) are T* = bid_ten2mk128trunc[ind as usize], e.g.
-            // if x=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
-            // if (0 < f* < 10^(-x)) then the result is a midpoint
-            //   if floor(C*) is even then C* = floor(C*) - logical right
-            //       shift; C* has p decimal digits, correct by Prop. 1)
-            //   else if floor(C*) is odd C* = floor(C*)-1 (logical right
-            //       shift; C* has p decimal digits, correct by Pr. 1)
-            // else
-            //   C* = floor(C*) (logical right shift; C has p decimal digits,
-            //       correct by Property 1)
-            // n = C* * 10^(e+x)
 
-            // shift right C* by Ex-128 = bid_shiftright128[ind as usize]
-            shift = bid_shiftright128[(ind - 1) as usize]; // 0 <= shift <= 102
-            if (ind - 1 <= 21) { // 0 <= ind - 1 <= 21
-                Cstar.w[0] =
-                    (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
-                // redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
-            } else { // 22 <= ind - 1 <= 33
-                Cstar.w[0] = (Cstar.w[0] >> (shift - 64)); // 2 <= shift - 64 <= 38
+    // check for NaN or Infinity
+    if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
+        // x is special
+        if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
+            if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
+                // set invalid flag
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return Integer Indefinite
+                res = 0x8000000000000000i64;
+            } else { // x is QNaN
+                // set invalid flag
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return Integer Indefinite
+                res = 0x8000000000000000i64;
             }
-
-            // if the result was a midpoint it was rounded away from zero
-            if x_sign != 0
-                -(Cstar.w[0] as BID_SINT64
-            else
-                Cstar.w[0]
-        } else if (exp == 0) {
-            // 1 <= q <= 19
-            // res = +/-C (exact)
-            if x_sign != 0
-                res = -(C1.w[0] as BID_SINT64);
-            else
-                res = C1.w[0];
-        } else { // if (exp>0) => 1 <= exp <= 18, 1 <= q < 18, 2 <= q + exp <= 19
-            // res = +/-C * 10^exp (exact) where this fits in 64-bit integer
-            if x_sign != 0
-                -(C1.w[0] as BID_SINT64) * (bid_ten2k64[exp as usize] as BID_SINT64);
-            else
-                res = (C1.w[0] as BID_SINT64) * (bid_ten2k64[exp as usize] as BID_SINT64);
+            return res;
+        } else { // x is not a NaN, so it must be infinity
+            if x_sign == 0 { // x is +inf
+                // set invalid flag
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return Integer Indefinite
+                res = 0x8000000000000000i64;
+            } else { // x is -inf
+                // set invalid flag
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return Integer Indefinite
+                res = 0x8000000000000000i64;
+            }
+            return res;
         }
     }
+    // check for non-canonical values (after the check for special values)
+    if (C1.w[1] > 0x0001ed09bead87c0u64) ||
+        (C1.w[1] == 0x0001ed09bead87c0u64 &&
+            (C1.w[0] > 0x378d8e63ffffffffu64)) ||
+        ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+        res = 0x0000000000000000i64;
+        return res;
+    } else if (C1.w[1] == 0x0u64) && (C1.w[0] == 0x0u64) {
+        // x is 0
+        res = 0x0000000000000000i64;
+        return res;
+    } else { // x is not special and is not zero
+        unsafe {
+            // q = nr. of decimal digits in x
+            //  determine first the nr. of bits in x
+            if C1.w[1] == 0 {
+                if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
+                    // split the 64-bit value in two 32-bit halves to avoid rounding errors
+                    tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
+                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                } else { // if x < 2^53
+                    tmp1.d    = C1.w[0] as f64; // exact conversion
+                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                }
+            } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
+                tmp1.d    = C1.w[1] as f64; // exact conversion
+                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+            }
+        }
+        q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
+        if q == 0 {
+            q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
+            if C1.w[1] > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+            || (C1.w[1] == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+             && C1.w[0] >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+                q += 1;
+             }
+        }
+        exp = ((x_exp >> 49) - 6176) as i32;
+        if (q + exp) > 19 { // x >= 10^19 ~= 2^63.11... (cannot fit in BID_SINT64)
+            // set invalid flag
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+            // return Integer Indefinite
+            res = 0x8000000000000000i64;
+            return res;
+        } else if (q + exp) == 19 { // x = c(0)c(1)...c(18).c(19)...c(q-1)
+            // in this case 2^63.11... ~= 10^19 <= x < 10^20 ~= 2^66.43...
+            // so x rounded to an integer may or may not fit in a signed 64-bit int
+            // the cases that do not fit are identified here; the ones that fit
+            // fall through and will be handled with other cases further,
+            // under '1 <= q + exp <= 19'
+            if x_sign != 0 { // if n < 0 and q + exp = 19
+                // if n <= -2^63 - 1/2 then n is too large
+                // too large if c(0)c(1)...c(18).c(19)...c(q-1) >= 2^63+1/2
+                // <=> 0.c(0)c(1)...c(q-1) * 10^20 >= 5*(2^64+1), 1<=q<=34
+                // <=> 0.c(0)c(1)...c(q-1) * 10^20 >= 0x50000000000000005, 1<=q<=34
+                C.w[1] = 0x0000000000000005u64;
+                C.w[0] = 0000000000000005u64;
+                if q <= 19 { // 1 <= q <= 19 => 1 <= 20-q <= 19 =>
+                    // 10^(20-q) is 64-bit, and so is C1
+                    C1 = __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[(20 - q) as usize]);
+                } else if q == 20 {
+                    // C1 * 10^0 = C1
+                } else { // if 21 <= q <= 34
+                    C = __mul_128x64_to_128(bid_ten2k64[(q - 20) as usize], &C); // max 47-bit x 67-bit
+                }
+                if C1.w[1] > C.w[1] || (C1.w[1] == C.w[1] && C1.w[0] >= C.w[0]) {
+                    // set invalid flag
+                    *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                    // return Integer Indefinite
+                    res = 0x8000000000000000i64;
+                    return res;
+                }
+                // else cases that can be rounded to a 64-bit int fall through
+                // to '1 <= q + exp <= 19'
+            } else { // if n > 0 and q + exp = 19
+                // if n >= 2^63 - 1/2 then n is too large
+                // too large if c(0)c(1)...c(18).c(19)...c(q-1) >= 2^63-1/2
+                // <=> if 0.c(0)c(1)...c(q-1) * 10^20 >= 5*(2^64-1), 1<=q<=34
+                // <=> if 0.c(0)c(1)...c(q-1) * 10^20 >= 0x4fffffffffffffffb, 1<=q<=34
+                C.w[1] = 0x0000000000000004u64;
+                C.w[0] = 0xfffffffffffffffbu64;
+                if q <= 19 { // 1 <= q <= 19 => 1 <= 20-q <= 19 =>
+                    // 10^(20-q) is 64-bit, and so is C1
+                    C1 = __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[(20 - q) as usize]);
+                } else if q == 20 {
+                    // C1 * 10^0 = C1
+                } else { // if 21 <= q <= 34
+                    C = __mul_128x64_to_128(bid_ten2k64[(q - 20) as usize], &C); // max 47-bit x 67-bit
+                }
+                if C1.w[1] > C.w[1] || (C1.w[1] == C.w[1] && C1.w[0] >= C.w[0]) {
+                    // set invalid flag
+                    *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                    // return Integer Indefinite
+                    res = 0x8000000000000000i64;
+                    return res;
+                }
+                // else cases that can be rounded to a 64-bit int fall through
+                // to '1 <= q + exp <= 19'
+            }
+        }
+        // n is not too large to be converted to int64: -2^63-1/2 <= n < 2^63-1/2
+        // Note: some of the cases tested for above fall through to this point
+        // Restore C1 which may have been modified above
+        C1.w[1] = x.w[1] & MASK_COEFF;
+        C1.w[0] = x.w[0];
+        if (q + exp) < 0 { // n = +/-0.0...c(0)c(1)...c(q-1)
+            // return 0
+            res = 0x0000000000000000i64;
+            return res;
+        } else if (q + exp) == 0 { // n = +/-0.c(0)c(1)...c(q-1)
+            // if 0.c(0)c(1)...c(q-1) < 0.5 <=> c(0)c(1)...c(q-1) < 5 * 10^(q-1)
+            //   res = 0
+            // else
+            //   res = +/-1
+            ind = q - 1;
+            if ind <= 18 { // 0 <= ind <= 18
+                if (C1.w[1] == 0) && (C1.w[0] < bid_midpoint64[ind as usize]) {
+                    res = 0x0000000000000000i64; // return 0
+                } else if x_sign != 0 { // n < 0
+                    res = 0xffffffffffffffffi64; // return -1
+                } else { // n > 0
+                    res = 0x0000000000000001i64; // return +1
+                }
+            } else { // 19 <= ind <= 33
+                if (C1.w[1] < bid_midpoint128[(ind - 19) as usize].w[1]) ||
+                    ((C1.w[1] == bid_midpoint128[(ind - 19) as usize].w[1]) &&
+                        (C1.w[0] < bid_midpoint128[(ind - 19) as usize].w[0])) {
+                    res = 0x0000000000000000i64; // return 0
+                } else if x_sign != 0 { // n < 0
+                    res = 0xffffffffffffffffi64; // return -1
+                } else { // n > 0
+                    res = 0x0000000000000001i64; // return +1
+                }
+            }
+        } else { // if (1 <= q + exp <= 19, 1 <= q <= 34, -33 <= exp <= 18)
+            // -2^63-1/2 <= x <= -1 or 1 <= x < 2^63-1/2 so x can be rounded
+            // to nearest to a 64-bit signed integer
+            if exp < 0 { // 2 <= q <= 34, -33 <= exp <= -1, 1 <= q + exp <= 19
+                ind = -exp; // 1 <= ind <= 33; ind is a synonym for 'x'
+                // chop off ind digits from the lower part of C1
+                // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
+                tmp64 = C1.w[0];
+                if ind <= 19 {
+                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                } else {
+                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                }
+                if C1.w[0] < tmp64 {
+                    C1.w[1] += 1;
+                }
+                // calculate C* and f*
+                // C* is actually floor(C*) in this case
+                // C* and f* need shifting and masking, as shown by
+                // bid_shiftright128[] and bid_maskhigh128[]
+                // 1 <= x <= 33
+                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // C* = (C1 + 1/2 * 10^x) * 10^(-x)
+                // the approximation of 10^(-x) was rounded up to 118 bits
+                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+                if ind - 1 <= 21 { // 0 <= ind - 1 <= 21
+                    Cstar.w[1] = P256.w[3];
+                    Cstar.w[0] = P256.w[2];
+                } else { // 22 <= ind - 1 <= 33
+                    Cstar.w[1] = 0;
+                    Cstar.w[0] = P256.w[3];
+                }
+                // the top Ex bits of 10^(-x) are T* = bid_ten2mk128trunc[ind as usize], e.g.
+                // if x=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                // if (0 < f* < 10^(-x)) then the result is a midpoint
+                //   if floor(C*) is even then C* = floor(C*) - logical right
+                //       shift; C* has p decimal digits, correct by Prop. 1)
+                //   else if floor(C*) is odd C* = floor(C*)-1 (logical right
+                //       shift; C* has p decimal digits, correct by Pr. 1)
+                // else
+                //   C* = floor(C*) (logical right shift; C has p decimal digits,
+                //       correct by Property 1)
+                // n = C* * 10^(e+x)
+
+                // shift right C* by Ex-128 = bid_shiftright128[ind as usize]
+                shift = bid_shiftright128[(ind - 1) as usize]; // 0 <= shift <= 102
+                if ind - 1 <= 21 { // 0 <= ind - 1 <= 21
+                    Cstar.w[0] =
+                        (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+                    // redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
+                } else { // 22 <= ind - 1 <= 33
+                    Cstar.w[0] = Cstar.w[0] >> (shift - 64); // 2 <= shift - 64 <= 38
+                }
+
+                // if the result was a midpoint it was rounded away from zero
+                res = if x_sign != 0 {
+                    -(Cstar.w[0] as BID_SINT64)
+                } else {
+                    Cstar.w[0] as BID_SINT64
+                };
+            } else if exp == 0 {
+                // 1 <= q <= 19
+                // res = +/-C (exact)
+                res = if x_sign != 0 {
+                    -(C1.w[0] as BID_SINT64)
+                } else {
+                    C1.w[0] as BID_SINT64
+                };
+            } else { // if (exp>0) => 1 <= exp <= 18, 1 <= q < 18, 2 <= q + exp <= 19
+                // res = +/-C * 10^exp (exact) where this fits in 64-bit integer
+                res = if x_sign != 0 {
+                    -(C1.w[0] as BID_SINT64) * (bid_ten2k64[exp as usize] as BID_SINT64)
+                } else {
+                    (C1.w[0] as BID_SINT64) * (bid_ten2k64[exp as usize] as BID_SINT64)
+                }
+            }
+        }
+    }
+
+    return res;
 }
 
-return res;
-}
-
+/*
 /*****************************************************************************
  *  BID128_to_int64_xrninta
  ****************************************************************************/
@@ -2649,7 +2653,7 @@ if ((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
         }
         return res;
     } else { // x is not a NaN, so it must be infinity
-        if (!x_sign) { // x is +inf
+        if (x_sign == 0) { // x is +inf
             // set invalid flag
             *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
             // return Integer Indefinite
