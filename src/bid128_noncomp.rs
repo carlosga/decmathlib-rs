@@ -923,7 +923,7 @@ pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
 }
 
 pub (crate) fn bid128_inf() -> BID_UINT128 {
-    let mut res = BID_UINT128::default();
+    let mut res: BID_UINT128 = BID_UINT128::default();
     res.w[BID_HIGH_128W] = 0x7800000000000000u64; // +inf
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
     res

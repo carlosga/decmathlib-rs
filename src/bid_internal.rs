@@ -223,10 +223,8 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                 return sgn | _C64;
             }
         }
-        if coeff == 0 {
-            if expon > DECIMAL_MAX_EXPON_64 {
-                expon = DECIMAL_MAX_EXPON_64;
-            }
+        if coeff == 0 && expon > DECIMAL_MAX_EXPON_64 {
+            expon = DECIMAL_MAX_EXPON_64;
         }
         while coeff < 1000000000000000u64 && expon >= 3 * 256 {
             expon -= 1;
@@ -360,20 +358,18 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
     // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
     // #ifndef IEEE_ROUND_NEAREST
-    if rnd_mode == 0 {
-        if (CQ.w[0] & 1) == 1 {
-            // check whether fractional part of initial_P/10^ed1 is exactly .5
+    if rnd_mode == 0 && (CQ.w[0] & 1) == 1{
+        // check whether fractional part of initial_P/10^ed1 is exactly .5
 
-            // get remainder
-            Qh1 = __shl_128_long(&Qh, 128 - amount);
+        // get remainder
+        Qh1 = __shl_128_long(&Qh, 128 - amount);
 
-            if   (Qh1.w[1] == 0)
-              && (Qh1.w[0] == 0)
-  	          && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
-  	          || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
-  	  	       && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
-  	            CQ.w[0] -= 1;
-            }
+        if   (Qh1.w[1] == 0)
+          && (Qh1.w[0] == 0)
+          && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+          || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+           && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
+            CQ.w[0] -= 1;
         }
     }
 
@@ -486,20 +482,18 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
 
     expon = 0;
 
-    if rnd_mode == 0 {
-        if (CQ.w[0] & 1) == 1 {
-            // check whether fractional part of initial_P/10^ed1 is exactly .5
+    if rnd_mode == 0 && (CQ.w[0] & 1) == 1 {
+        // check whether fractional part of initial_P/10^ed1 is exactly .5
 
-            // get remainder
-            Qh1 = __shl_128_long(&Qh, 128 - amount);
+        // get remainder
+        Qh1 = __shl_128_long(&Qh, 128 - amount);
 
-            if  Qh1.w[1] == 0
-             && Qh1.w[0] == 0
-    	    && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
-    	    || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
-    	  	&& Ql.w[0] < bid_reciprocals10_128[ed2 as usize].w[0])) {
-                CQ.w[0] -= 1;
-            }
+        if  Qh1.w[1] == 0
+         && Qh1.w[0] == 0
+        && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
+        || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
+        && Ql.w[0] < bid_reciprocals10_128[ed2 as usize].w[0])) {
+            CQ.w[0] -= 1;
         }
     }
 
@@ -647,7 +641,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
         coeff.w[1]          = (px.w[1]) & LARGE_COEFF_MASK128;
         pcoefficient_x.w[0] = px.w[0];
         pcoefficient_x.w[1] = px.w[1];
-        if __unsigned_compare_ge_128(&coeff, &T33) { // non-canonical
+        if __unsigned_compare_ge_128(&coeff, T33) { // non-canonical
             pcoefficient_x.w[1] &= !LARGE_COEFF_MASK128;
             pcoefficient_x.w[0] = 0;
         }
@@ -661,7 +655,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
     // 10^34
     T34 = &bid_power10_table_128[34];
     // check for non-canonical values
-    if __unsigned_compare_ge_128 (&coeff, &T34) {
+    if __unsigned_compare_ge_128 (&coeff, T34) {
         coeff.w[0] = 0;
         coeff.w[1] = 0;
     }
@@ -714,7 +708,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
 
         if expon - (MAX_FORMAT_DIGITS_128 as i32) <= (DECIMAL_MAX_EXPON_128) {
             T = &bid_power10_table_128[(MAX_FORMAT_DIGITS_128 - 1) as usize];
-            while __unsigned_compare_gt_128(&T, &coeff) && expon > DECIMAL_MAX_EXPON_128 {
+            while __unsigned_compare_gt_128(T, &coeff) && expon > DECIMAL_MAX_EXPON_128 {
                 coeff.w[1] = (coeff.w[1] << 3) + (coeff.w[1] << 1) + (coeff.w[0] >> 61) + (coeff.w[0] >> 63);
                 tmp2       = coeff.w[0] << 3;
                 coeff.w[0] = (coeff.w[0] << 1) + tmp2;

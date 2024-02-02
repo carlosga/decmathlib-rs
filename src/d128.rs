@@ -272,7 +272,7 @@ impl decimal128 {
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-up mode; inexact exceptions signaled
     pub fn to_i32_xceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
-        bid128_to_int32_xceil(&self, pfpsf)
+        bid128_to_int32_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer

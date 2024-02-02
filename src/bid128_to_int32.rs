@@ -1850,7 +1850,7 @@ pub (crate) fn bid128_to_int32_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 32-bit signed integer

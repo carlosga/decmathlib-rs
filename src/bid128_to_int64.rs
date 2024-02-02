@@ -219,10 +219,10 @@ pub (crate) fn bid128_to_int64_rnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                 // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
@@ -309,7 +309,7 @@ pub (crate) fn bid128_to_int64_rnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed
@@ -518,10 +518,10 @@ pub (crate) fn bid128_to_int64_xrnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
                 // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
@@ -672,7 +672,7 @@ pub (crate) fn bid128_to_int64_xrnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -958,7 +958,7 @@ pub (crate) fn bid128_to_int64_floor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -1254,7 +1254,7 @@ pub (crate) fn bid128_to_int64_xfloor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -1539,7 +1539,7 @@ pub (crate) fn bid128_to_int64_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -1757,7 +1757,7 @@ pub (crate) fn bid128_to_int64_xceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                     Cstar.w[0] = (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
                     // redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
                 } else { // 22 <= ind - 1 <= 33
-                    Cstar.w[0] = Cstar.w[0] >> (shift - 64); // 2 <= shift - 64 <= 38
+                    Cstar.w[0] >>= shift - 64; // 2 <= shift - 64 <= 38
                 }
                 // if the result is positive and inexact, need to add 1 to it
 
@@ -1833,7 +1833,7 @@ pub (crate) fn bid128_to_int64_xceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -2036,7 +2036,7 @@ pub (crate) fn bid128_to_int64_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> 
                     Cstar.w[0] = (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
                     // redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
                 } else { // 22 <= ind - 1 <= 33
-                    Cstar.w[0] = Cstar.w[0] >> (shift - 64); // 2 <= shift - 64 <= 38
+                    Cstar.w[0] >>= shift - 64; // 2 <= shift - 64 <= 38
                 }
                 res = if x_sign != 0 {
                     -(Cstar.w[0] as BID_SINT64)
@@ -2062,7 +2062,7 @@ pub (crate) fn bid128_to_int64_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> 
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed integer
@@ -2331,7 +2331,7 @@ pub (crate) fn bid128_to_int64_xint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed
@@ -2534,10 +2534,10 @@ pub (crate) fn bid128_to_int64_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
                 // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
@@ -2572,13 +2572,12 @@ pub (crate) fn bid128_to_int64_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
 
                 // shift right C* by Ex-128 = bid_shiftright128[ind as usize]
                 shift = bid_shiftright128[(ind - 1) as usize]; // 0 <= shift <= 102
-                if ind - 1 <= 21 { // 0 <= ind - 1 <= 21
-                    Cstar.w[0] =
-                        (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+                Cstar.w[0] = if ind - 1 <= 21 { // 0 <= ind - 1 <= 21
+                    (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift))
                     // redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
                 } else { // 22 <= ind - 1 <= 33
-                    Cstar.w[0] = Cstar.w[0] >> (shift - 64); // 2 <= shift - 64 <= 38
-                }
+                    Cstar.w[0] >> (shift - 64) // 2 <= shift - 64 <= 38
+                };
 
                 // if the result was a midpoint it was rounded away from zero
                 res = if x_sign != 0 {
@@ -2605,7 +2604,7 @@ pub (crate) fn bid128_to_int64_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
         }
     }
 
-    return res;
+    res
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed
@@ -2814,10 +2813,10 @@ pub (crate) fn bid128_to_int64_xrninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
                 // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
                 }
                 if C1.w [0] < tmp64 {
                     C1.w[1] += 1;
@@ -2955,5 +2954,5 @@ pub (crate) fn bid128_to_int64_xrninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
         }
     }
 
-    return res;
+    res
 }
