@@ -252,8 +252,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     // c gets first character
     c = str.chars().nth(ps);
 
-    // if c is nu64 or not equal to a (radix point, negative sign,
-    // positive sign, or number) it might be SNaN, sNaN, Infinity
+    // if c is nu64 or not equal to a (radix point, negative sign, positive sign, or number) it might be SNaN, sNaN, Infinity
     if c.is_none() || (c != Some('.') && c != Some('-') && c != Some('+') && ((c.unwrap() as i32 - '0' as i32) > 9)) {
         let range = &str[ps..];
 
@@ -261,8 +260,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         res.w[1] = if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
             // Infinity
             0x7800000000000000u64
-        } else if range.eq_ignore_ascii_case("snan") { // return sNaN
-            // case insensitive check for snan
+        } else if range.len() >= 4 && range[0..4].eq_ignore_ascii_case("snan") { // return sNaN
+            // case-insensitive check for snan
             0x7e00000000000000u64
         } else { // return qNaN
             0x7c00000000000000u64
@@ -272,7 +271,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
     let range = &str[ps + 1..];
 
-    // if +Inf, -Inf, +Infinity, or -Infinity (case insensitive check for inf)
+    // if +Inf, -Inf, +Infinity, or -Infinity (case-insensitive check for inf)
     if range.eq_ignore_ascii_case("inf") || range.eq_ignore_ascii_case("infinity") {
         res.w[0] = 0;
         res.w[1] = if c == Some('+') {

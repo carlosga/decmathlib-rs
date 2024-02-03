@@ -432,7 +432,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 }
 
 /// Macro for handling BID128 underflow
-pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128{
+pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T128: BID_UINT128;
     let TP128: BID_UINT128;
     let mut Qh: BID_UINT128;
@@ -449,12 +449,17 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, mut  expon: i32, CQ: &BID_UINT128,
     let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
     let mut pres: BID_UINT128 = BID_UINT128::default();
     let mut CQ: BID_UINT128 = *CQ;
+    let mut expon = expon;
 
     // UF occurs
-    if expon + (MAX_FORMAT_DIGITS_128 as i32) < 0 {
+    if (expon + (MAX_FORMAT_DIGITS_128 as i32)) < 0 {
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
+        if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
+        || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+          pres.w[0] = 1u64;
+        }
         return pres;
     }
 
