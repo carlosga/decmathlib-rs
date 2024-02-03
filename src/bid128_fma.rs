@@ -28,7 +28,7 @@ use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT
 // BID128 fma   x * y + z
 //////////////////////////////////////////////
 
-pub(crate) fn bid_rounding_correction(
+pub (crate) fn bid_rounding_correction(
     rnd_mode: u32,
     is_inexact_lt_midpoint: bool,
     is_inexact_gt_midpoint: bool,

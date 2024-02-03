@@ -19,7 +19,7 @@ use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
 
-/// Takes a BID64 as input and converts it to a BID128 and returns it.
+/// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut new_coeff: BID_UINT128    = BID_UINT128::default();
     let mut res: BID_UINT128          = BID_UINT128::default();
@@ -49,7 +49,7 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     res
 }
 
-/// Takes a BID128 as input and converts it to a BID64 and returns it.
+/// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
 pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let mut CX: BID_UINT128    = BID_UINT128::default();
     let mut T128: BID_UINT128;

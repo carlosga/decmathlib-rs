@@ -18,6 +18,8 @@ use crate::constants::{MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256};
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let mut res: bool;
     let mut exp_x: i32;
@@ -150,6 +152,8 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     res
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -385,6 +389,8 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
     res
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -616,6 +622,8 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     }
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -849,6 +857,8 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
     }
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -1082,6 +1092,8 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     }
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -1314,6 +1326,8 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
     }
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let exp_x: i32;
@@ -1546,6 +1560,8 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
     }
 }
 
+/// Compare 128-bit decimal floating-point numbers for specified relation;
+/// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     let res: bool;
     let mut exp_x: i32;

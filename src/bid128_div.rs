@@ -20,6 +20,7 @@ use crate::constants::{DECIMAL_EXPONENT_BIAS_128, DECIMAL_MAX_EXPON_128, QUIET_M
 use crate::core::{RoundingMode, StatusFlags};
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT32, BID_UINT64};
 
+/// Decimal floating-point division
 pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CA4: BID_UINT256 = BID_UINT256::default();
     let mut CA4r: BID_UINT256 = BID_UINT256::default();
