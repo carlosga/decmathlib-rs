@@ -19,6 +19,7 @@ use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
+use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid128_to_int32::*;
@@ -249,6 +250,11 @@ impl decimal128 {
     /// Returns x * 10^N
     pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Returns x * 10^N
+    pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
