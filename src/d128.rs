@@ -196,8 +196,13 @@ impl decimal128 {
         bid128_totalOrder(x, y)
     }
 
+    /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
         bid128_totalOrderMag(x, y)
+    }
+
+    pub fn nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_nan(tagp, pfpsf)
     }
 
     pub fn from_i64(value: i64) -> Self {
