@@ -7,16 +7,6 @@
 
 #[macro_export]
 macro_rules! dec_test {
-    ($name:ident, bid128_abs, $input1:expr, $exp:expr) => {
-        #[test]
-        fn $name() {
-            let res1 = decmathlib_rs::d128::decimal128::from($input1);
-            let exp  = decmathlib_rs::d128::decimal128::from($exp);
-
-            assert_eq!(exp, res1.abs());
-        }
-    };
-
     ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {
@@ -26,6 +16,16 @@ macro_rules! dec_test {
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status);
+        }
+    };
+
+    ($name:ident, bid128_abs, $input1:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let res1 = decmathlib_rs::d128::decimal128::from($input1);
+            let exp  = decmathlib_rs::d128::decimal128::from($exp);
+
+            assert_eq!(exp, res1.abs());
         }
     };
 
@@ -107,9 +107,10 @@ macro_rules! dec_test {
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec = decmathlib_rs::d128::decimal128::from_string($input1, $rounding_mode, &mut status);
+            let exp = decmathlib_rs::d128::decimal128::from($expected);
 
             assert_eq!($status, status);
-            assert_eq!($expected, dec.to_string());
+            assert_eq!(exp, dec);
         }
     };
 

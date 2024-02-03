@@ -154,3 +154,5 @@ dec_test!(bid128_rem_144, bid128_rem, 4, "-Infinity"                           ,
 dec_test!(bid128_rem_145, bid128_rem, 4, "-Infinity"                           , "QNaN"                                , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_rem_146, bid128_rem, 4,  "Infinity"                           , "QNaN"                                , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_rem_147, bid128_rem, 4,      "QNaN"                           , "QNaN"                                , 0x7c000000000000000000000000000000u128, 0x00);
+
+dec_test!(bid128_rem_148, bid128_rem, 0, "99"                                  , "66"                                  , "-33"                                 , 0x00);

@@ -358,3 +358,11 @@ dec_test!(bid128_sub_348, bid128_sub, 4,  "Infinity"                            
 dec_test!(bid128_sub_349, bid128_sub, 4, "-Infinity"                                        , "QNaN"                                            , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_sub_350, bid128_sub, 4,      "QNaN"                                        , "-Infinity"                                       , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_sub_351, bid128_sub, 4,      "SNaN"                                        , "-Infinity"                                       , 0x7c000000000000000000000000000000u128, 0x01);
+
+dec_test!(bid128_sub_352, bid128_sub, 0, 0x800230c441000400f9af3bf37dee171du128             , 0x0003c0005220403cfffebffffeffff7eu128            , 0x800431ad41e9a06c98f7cc652617cf10u128, 0x20);
+dec_test!(bid128_sub_353, bid128_sub, 2, 0x0000000000000000000a400222480018u128             , 0x8020f41400402000ffffffffffffffffu128            , 0x0020f414004020010000000000000000u128, 0x20);
+dec_test!(bid128_sub_354, bid128_sub, 0, 0x800230c441000400f9af3bf37dee171du128             , 0x0003c0005220403cfffebffffeffff7eu128            , 0x800431ad41e9a06c98f7cc652617cf10u128, 0x20);
+dec_test!(bid128_sub_355, bid128_sub, 2, 0x0000000000000000000a400222480018u128             , 0x8020f41400402000ffffffffffffffffu128            , 0x0020f414004020010000000000000000u128, 0x20);
+dec_test!(bid128_sub_356, bid128_sub, 0, 0x0000008800000200ffffffffffffffffu128             , 0x0000010000000000ffffffffffffffffu128            , 0x80000077fffffe000000000000000000u128, 0x00);
+dec_test!(bid128_sub_357, bid128_sub, 0, 0xae01cbf56695692467131a19439520a7u128             , 0x2dff68be032101ef5da009c86eb48d88u128            , 0xae02319a70b08d17f434268c35f1ff90u128, 0x20);
+dec_test!(bid128_sub_358, bid128_sub, 2, 0xa61857066e6da73aedd2a0bc28137c9du128             , 0x265a60318c518074fffffffffffffffeu128            , 0xa65a60318c518074ffffffffffffffffu128, 0x20);
