@@ -117,6 +117,11 @@ impl decimal128 {
         return Self { w: [l, h] };
     }
 
+    /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, changing the sign to positive
+    pub fn abs(&self) -> BID_UINT128 {
+        bid128_abs(self)
+    }
+
     /// Tells which of the following ten classes x falls into (details in the IEEE Standard 754-2008):
     /// signalingNaN, quietNaN, negativeInfinity, negativeNormal, negativeSubnormal, negativeZero, positiveZero,
     /// positiveSubnormal, positiveNormal, positiveInfinity
@@ -196,8 +201,13 @@ impl decimal128 {
         bid128_totalOrder(x, y)
     }
 
+    /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
         bid128_totalOrderMag(x, y)
+    }
+
+    pub fn nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_nan(tagp, pfpsf)
     }
 
     pub fn from_i64(value: i64) -> Self {

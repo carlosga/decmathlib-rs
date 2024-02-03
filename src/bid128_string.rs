@@ -285,7 +285,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
         return res;
     }
     // if +sNaN, +SNaN, -sNaN, or -SNaN
-    if range.eq_ignore_ascii_case("snan") {
+    if range.len() >= 4 && range[0..4].eq_ignore_ascii_case("snan") {
         res.w[0] = 0;
         res.w[1] = if c == Some('-') {
             0xfe00000000000000u64

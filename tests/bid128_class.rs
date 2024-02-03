@@ -33,3 +33,21 @@ dec_test!(bid128class_018, bid128_class, 0xfe000000000000000000000000000000u128,
 dec_test!(bid128class_019, bid128_class, 0xfe000000000000000000000000000001u128, ClassTypes::signalingNaN);
 dec_test!(bid128class_020, bid128_class, "-Infinity"                           , ClassTypes::negativeInfinity);
 dec_test!(bid128class_021, bid128_class,  "Infinity"                           , ClassTypes::positiveInfinity);
+
+dec_test!(bid128class_022, bid128_class, 0x00400000000000000000000000000001u128, ClassTypes::positiveSubnormal);
+dec_test!(bid128class_023, bid128_class, 0x0000314DC6448D93FFFFFFFFFFFFFFFFu128, ClassTypes::positiveNormal);
+dec_test!(bid128class_024, bid128_class, 0x0000314DC6448D93ffffffff00000000u128, ClassTypes::positiveNormal);
+dec_test!(bid128class_025, bid128_class, 0x002A000000000000FFFFFFFFFFFFFFFFu128, ClassTypes::positiveNormal);
+dec_test!(bid128class_026, bid128_class, 0x0028000000000000FFFFFFFFFFFFFFFFu128, ClassTypes::positiveNormal);
+dec_test!(bid128class_027, bid128_class, 0x002A000000000000000000E8D4A51000u128, ClassTypes::positiveNormal);
+dec_test!(bid128class_028, bid128_class, 0x002A000000000000000000E8D4A51001u128, ClassTypes::positiveNormal);
+dec_test!(bid128class_029, bid128_class, 0x002A000000000000000000E8D4A50FFFu128, ClassTypes::positiveSubnormal);
+dec_test!(bid128class_030, bid128_class, 0x0000314DC6448D9338C15B0A00000001u128, ClassTypes::positiveNormal);
+dec_test!(bid128class_031, bid128_class, 0x0000314DC6448D9338C15B0A00000000u128, ClassTypes::positiveNormal);
+dec_test!(bid128class_032, bid128_class, 0x0000314DC6448D9338C15B09FFFFFFFFu128, ClassTypes::positiveSubnormal);
+dec_test!(bid128class_033, bid128_class, 0x802A000000000000000000E8D4A51000u128, ClassTypes::negativeNormal);
+dec_test!(bid128class_034, bid128_class, 0x802A000000000000000000E8D4A51001u128, ClassTypes::negativeNormal);
+dec_test!(bid128class_035, bid128_class, 0x802A000000000000000000E8D4A50FFFu128, ClassTypes::negativeSubnormal);
+dec_test!(bid128class_036, bid128_class, 0x8000314DC6448D9338C15B0A00000001u128, ClassTypes::negativeNormal);
+dec_test!(bid128class_037, bid128_class, 0x8000314DC6448D9338C15B0A00000000u128, ClassTypes::negativeNormal);
+dec_test!(bid128class_038, bid128_class, 0x8000314DC6448D9338C15B09FFFFFFFFu128, ClassTypes::negativeSubnormal);

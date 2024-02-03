@@ -327,3 +327,7 @@ dec_test!(bid128_div_317, bid128_div, 4, "-Infinity"                           ,
 dec_test!(bid128_div_318, bid128_div, 4,  "Infinity"                           ,  "Infinity"                           , 0x7c000000000000000000000000000000u128, 0x01);
 dec_test!(bid128_div_319, bid128_div, 4,      "QNaN"                           ,        "-0"                           , 0x7c000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_div_320, bid128_div, 4,      "QNaN"                           ,      "QNaN"                           , 0x7c000000000000000000000000000000u128, 0x00);
+
+dec_test!(bid128_div_321, bid128_div, 0, 0x4fbfaae29deedb77ffffffffffffffffu128, 0x00000000000000000000000000000004u128, 0x78000000000000000000000000000000u128, 0x28);
+dec_test!(bid128_div_322, bid128_div, 4, 0x4fbfaae29deedb77ffffffffffffffffu128, 0x00000000000000000000000000000004u128, 0x78000000000000000000000000000000u128, 0x28);
+dec_test!(bid128_div_323, bid128_div, 2, 0x4fbfaae29deedb77ffffffffffffffffu128, 0x00000000000000000000000000000004u128, 0x78000000000000000000000000000000u128, 0x28);
