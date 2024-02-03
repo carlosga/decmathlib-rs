@@ -29,4 +29,4 @@ mod bid_round;
 mod constants;
 mod convert;
 pub mod core;
-pub mod d128;
+pub mod d128;mod bid128_scalbn;mod bid128_scalbln;

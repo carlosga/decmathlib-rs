@@ -102,11 +102,12 @@ macro_rules! dec_test {
         }
     };
 
-    ($name:ident, bid128_from_string, $rounding_mode:expr, $input1:expr, $expected:expr, $status:expr) => {
+    ($name:ident, bid128_from_string, $rnd_mode:expr, $input1:expr, $expected:expr, $status:expr) => {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let dec = decmathlib_rs::d128::decimal128::from_string($input1, $rounding_mode, &mut status);
+            let rnd_mode = Some($rnd_mode);
+            let dec = decmathlib_rs::d128::decimal128::from_string($input1, rnd_mode, &mut status);
             let exp = decmathlib_rs::d128::decimal128::from($expected);
 
             assert_eq!($status, status);
@@ -366,6 +367,34 @@ macro_rules! dec_test {
             let dec2     = decmathlib_rs::d128::decimal128::from($input2);
             let exp      = decmathlib_rs::d128::decimal128::from($exp);
             let res1     = decmathlib_rs::d128::decimal128::subtract(&dec1, &dec2, rnd_mode, &mut status);
+
+            assert_eq!(exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_scalbn, $rnd_mode:expr, $input1:expr, $n:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let rnd_mode = Some($rnd_mode);
+            let dec1     = decmathlib_rs::d128::decimal128::from($input1);
+            let exp      = decmathlib_rs::d128::decimal128::from($exp);
+            let res1     = dec1.scalbn($n, rnd_mode, &mut status);
+
+            assert_eq!(exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_scalbln, $rnd_mode:expr, $input1:expr, $n:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let rnd_mode = Some($rnd_mode);
+            let dec1     = decmathlib_rs::d128::decimal128::from($input1);
+            let exp      = decmathlib_rs::d128::decimal128::from($exp);
+            let res1     = dec1.scalbln($n, rnd_mode, &mut status);
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status)
