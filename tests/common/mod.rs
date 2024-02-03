@@ -7,6 +7,16 @@
 
 #[macro_export]
 macro_rules! dec_test {
+    ($name:ident, bid128_abs, $input1:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let res1 = decmathlib_rs::d128::decimal128::from($input1);
+            let exp  = decmathlib_rs::d128::decimal128::from($exp);
+
+            assert_eq!(exp, res1.abs());
+        }
+    };
+
     ($name:ident, bid64_to_bid128, $input1:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {

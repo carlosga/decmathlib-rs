@@ -117,6 +117,11 @@ impl decimal128 {
         return Self { w: [l, h] };
     }
 
+    /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, changing the sign to positive
+    pub fn abs(&self) -> BID_UINT128 {
+        bid128_abs(self)
+    }
+
     /// Tells which of the following ten classes x falls into (details in the IEEE Standard 754-2008):
     /// signalingNaN, quietNaN, negativeInfinity, negativeNormal, negativeSubnormal, negativeZero, positiveZero,
     /// positiveSubnormal, positiveNormal, positiveInfinity
