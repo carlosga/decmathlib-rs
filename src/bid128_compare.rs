@@ -899,9 +899,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         {
             res = ((y.w[1] & MASK_INF) != MASK_INF) || (y.w[1] & MASK_SIGN) != MASK_SIGN;
             res
-        } else
-        // x is pos_inf, no way for it to be less than y
-        {
+        } else {    // x is pos_inf, no way for it to be less than y
             res = false;
             res
         }
@@ -1367,9 +1365,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
         {
             res = ((y.w[1] & MASK_INF) != MASK_INF) || (y.w[1] & MASK_SIGN) != MASK_SIGN;
             res
-        } else
-        // x is pos_inf, no way for it to be less than y
-        {
+        } else {    // x is pos_inf, no way for it to be less than y
             res = false;
             res
         }

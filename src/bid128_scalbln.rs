@@ -16,12 +16,10 @@ use crate::d128::{_IDEC_flags, BID_UINT128};
 
 pub (crate) fn bid128_scalbln(x: &BID_UINT128, n: i64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut n1: i32 = n as i32;
-    n1 = if (n1 as i64) < n {
-        0x7fffffffi32
-    } else if (n1 as i64) > n  {
-        0x80000000i32
-    } else {
-        n1
+    n1 = match n1 as i64 {
+        val if val < n => 0x7fffffffi32,
+        val if val > n => 0x80000000i32,
+        _ => n1
     };
 
     bid128_scalbn(x, n1, rnd_mode, pfpsf)

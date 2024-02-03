@@ -166,7 +166,7 @@ pub(crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     let mut z: BID_UINT256 = BID_UINT256::default();
     z.w[0] = x.w[0] - y.w[0];
     if z.w[0] > x.w[0] {
-        x.w[1];
+        x.w[1] -= 1;
         if x.w[1] == 0xffffffffffffffffu64 {
             x.w[2] -= 1;
             if x.w[2] == 0xffffffffffffffffu64 {
@@ -2847,7 +2847,7 @@ pub (crate) fn bid128_ext_fma(
                 && x0 >= 1 {
                     x0                    -= 1;
                     // first restore e3, otherwise it will be too small
-                    e3                     = e3 + scale;
+                    e3                    += scale;
                     scale                 += 1;
                     is_inexact_lt_midpoint = false;
                     is_inexact_gt_midpoint = false;
