@@ -18,6 +18,7 @@ use crate::bid128_div::bid128_div;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_logb::bid128_logb;
+use crate::bid128_lrint::bid128_lrint;
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
@@ -269,6 +270,12 @@ impl d128 {
     /// as though x were represented with infinite range and minimum exponent
     pub fn logb(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_logb(self, pfpsf)
+    }
+
+    /// The lrint function rounds its argument to the nearest integer value of
+    /// type long int, rounding according to the current rounding direction.
+    pub fn lrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_lrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns the exponent e of x, a signed integral value, determined
