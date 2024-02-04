@@ -18,8 +18,8 @@ use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_logb::bid128_logb;
 use crate::bid128_lrint::bid128_lrint;
+use crate::bid128_minmax::{bid128_maxnum, bid128_maxnum_mag, bid128_minnum, bid128_minnum_mag};
 use crate::bid128_mul::bid128_mul;
-
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
@@ -213,6 +213,32 @@ impl d128 {
 
     pub fn nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
         bid128_nan(tagp, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number y if x < y,
+    /// x if y < x, the canonicalized floating-point number if one operand is a
+    /// floating-point number and the other a quiet NaN.
+    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_maxnum(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if |x| > |y|,
+    /// y if |y| > |x|, otherwise this function is identical to __bid128_maxnum
+    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_maxnum_mag(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if x < y,
+    /// y if y < x, the canonicalized floating-point number if one operand is
+    /// a floating-point number and the other a quiet NaN. Otherwise it is either x or y, canonicalized.
+    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_minnum(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if |x| < |y|,
+    /// y if |y| < |x|, otherwise this function is identical to __bid64_minnum
+    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_minnum_mag(x, y, pfpsf)
     }
 
     pub fn from_i64(value: i64) -> Self {
