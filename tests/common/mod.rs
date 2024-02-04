@@ -216,6 +216,20 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_ldexp, $rnd_mode:expr, $input1:expr, $n:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let rnd_mode = Some($rnd_mode);
+            let dec1     = decmathlib_rs::d128::d128::from($input1);
+            let exp      = decmathlib_rs::d128::d128::from($exp);
+            let res1     = dec1.ldexp($n, rnd_mode, &mut status);
+
+            assert_eq!(exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
     ($name:ident, bid128_mul, $rnd_mode:expr, $input1:expr, $input2:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {
