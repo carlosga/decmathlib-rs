@@ -125,6 +125,18 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_ilogb, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.ilogb(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
     ($name:ident, bid128_inf, $exp:expr) => {
         #[test]
         fn $name() {
