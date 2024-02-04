@@ -21,12 +21,12 @@ use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT6
 pub (crate) fn bid128_ilogb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> i32 {
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
-    let mut D: BID_SINT64 = 0;
+    let D: BID_SINT64;
     let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
     let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
     let mut exponent_x: i32 = 0;
-    let mut bin_expon_cx: usize = 0;
-    let mut digits: i32 = 0;
+    let bin_expon_cx: usize;
+    let mut digits: i32;
 
     if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
         __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);

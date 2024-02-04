@@ -84,5 +84,5 @@ pub (crate) fn bid128_ldexp(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut 
     // exponent < 0
     // the BID pack routine will round the coefficient
     res = bid_get_BID128(sign_x, exponent_x, &CX, rnd_mode, pfpsf);
-    return res;
+    res
 }

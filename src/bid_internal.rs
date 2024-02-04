@@ -9,6 +9,7 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
+#![allow(unused_assignments)]
 
 use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table, bid_round_const_table_128};
 use crate::constants::*;
