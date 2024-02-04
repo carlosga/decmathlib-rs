@@ -105,7 +105,7 @@ pub struct BID_UINT128 {
 pub type d128 = BID_UINT128;
 
 #[macro_export]
-macro_rules! d128 {
+macro_rules! dec128 {
     ($t:tt) => {{
         $crate::d128::d128::from_str(stringify!($t)).expect("Invalid decimal number literal")
     }}
