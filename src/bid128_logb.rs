@@ -5,12 +5,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(unused_mut)]
 
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
@@ -23,7 +18,7 @@ use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT64};
 
 pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut ires: i32;
+    let ires: i32;
     let mut exponent_x: i32 = 0;
     let mut sign_x: BID_UINT64 = 0;
     let mut res: BID_UINT128 = BID_UINT128::default();

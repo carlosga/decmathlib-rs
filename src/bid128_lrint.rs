@@ -12,19 +12,6 @@
 #![allow(dead_code)]
 #![allow(unused_mut)]
 
-
-/*
-  DESCRIPTION:
-    The lrint function rounds its argument to the nearest integer value of
-    type long int, rounding according to the current rounding direction.
-  RETURN VALUE:
-    If the rounded value is outside the range of the return type or the
-    argument is infinity or NaN, the result is the largest negative value
-    and the invalid exception is signaled
-  EXCEPTIONS SIGNALED:
-    invalid and inexact
- */
-
 use crate::bid128_to_int64::{bid128_to_int64_xceil, bid128_to_int64_xfloor, bid128_to_int64_xint, bid128_to_int64_xrnint, bid128_to_int64_xrninta};
 use crate::core::RoundingMode;
 use crate::d128::{_IDEC_flags, BID_UINT128};
