@@ -13,7 +13,7 @@
 #![allow(unused_mut)]
 
 use crate::bid128::{bid_ten2k128, bid_ten2k64};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, SWAP};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, swap};
 use crate::constants::{MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256};
@@ -121,9 +121,9 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     }
     // REDUNDANT REPRESENTATIONS (CASE6)
     if exp_x > exp_y {                                                      // to simplify the loop below,
-        SWAP(&mut exp_x, &mut exp_y, &mut exp_t);                           // put the larger exp in y,
-        SWAP(&mut sig_x.w[1], &mut sig_y.w[1], &mut sig_t.w[1]);    // and the smaller exp in x
-        SWAP(&mut sig_x.w[0], &mut sig_y.w[0], &mut sig_t.w[0]);    // and the smaller exp in x
+        swap(&mut exp_x, &mut exp_y, &mut exp_t);                           // put the larger exp in y,
+        swap(&mut sig_x.w[1], &mut sig_y.w[1], &mut sig_t.w[1]);    // and the smaller exp in x
+        swap(&mut sig_x.w[0], &mut sig_y.w[0], &mut sig_t.w[0]);    // and the smaller exp in x
     }
 
     if exp_y - exp_x > 33 {
@@ -1662,9 +1662,9 @@ pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
     }
     // REDUNDANT REPRESENTATIONS (CASE6)
     if exp_x > exp_y {                                                      // to simplify the loop below,
-        SWAP(&mut exp_x, &mut exp_y, &mut exp_t);                           // put the larger exp in y,
-        SWAP(&mut sig_x.w[1], &mut sig_y.w[1], &mut sig_t.w[1]);    // and the smaller exp in x
-        SWAP(&mut sig_x.w[0], &mut sig_y.w[0], &mut sig_t.w[0]);    // and the smaller exp in x
+        swap(&mut exp_x, &mut exp_y, &mut exp_t);                           // put the larger exp in y,
+        swap(&mut sig_x.w[1], &mut sig_y.w[1], &mut sig_t.w[1]);    // and the smaller exp in x
+        swap(&mut sig_x.w[0], &mut sig_y.w[0], &mut sig_t.w[0]);    // and the smaller exp in x
     }
 
     if exp_y - exp_x > 33 {

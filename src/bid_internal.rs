@@ -16,7 +16,7 @@ use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
 
-pub (crate) fn SWAP<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {
+pub (crate) fn swap<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {
     *T = *A;
     *A = *B;
     *B = *T;
