@@ -15,6 +15,7 @@ use std::str::FromStr;
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
+use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_mul::bid128_mul;
 
 use crate::bid128_noncomp::*;
@@ -255,6 +256,11 @@ impl d128 {
     /// Returns x * 10^N
     pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// multiply a 128-bit decimal floating-point value by an integral power of 2.
+    pub fn ldexp(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_ldexp(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)

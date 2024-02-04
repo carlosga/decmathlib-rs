@@ -5,18 +5,19 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
+#![allow(unused_assignments)]
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(overflowing_literals)]
+#![allow(unused_mut)]
 
 use crate::bid_internal::{__add_128_128, __set_status_flags, bid_get_BID128, bid_get_BID128_very_fast, unpack_BID128_value};
 use crate::constants::{DECIMAL_MAX_EXPON_128, QUIET_MASK64, SNAN_MASK64};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
 
-pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_ldexp(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut CX2: BID_UINT128 = BID_UINT128::default();
     let mut CBID_X8: BID_UINT128 = BID_UINT128::default();
@@ -28,19 +29,19 @@ pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut
     // unpack arguments, check for NaN or Infinity
     if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
         // x is Inf. or NaN or 0
-        if (x.w[1] & SNAN_MASK64) == SNAN_MASK64 {	// y is sNaN
+        if (x.w[1] & SNAN_MASK64) == SNAN_MASK64 { // y is sNaN
             __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
         }
         res.w[1] = CX.w[1] & QUIET_MASK64;
         res.w[0] = CX.w[0];
         if CX.w[1] == 0 {
-            exp64 = (exponent_x as BID_SINT64) + n as BID_SINT64;
+            exp64 = (exponent_x as BID_SINT64) + (n as BID_SINT64);
             if exp64 < 0 {
                 exp64 = 0;
             }
             if exp64 > DECIMAL_MAX_EXPON_128 as i64 {
                 exp64 = DECIMAL_MAX_EXPON_128 as BID_SINT64;
-            }
+            };
             exponent_x = exp64 as i32;
             bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
         }
@@ -50,38 +51,38 @@ pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut
     exp64      = (exponent_x as BID_SINT64) + (n as BID_SINT64);
     exponent_x = exp64 as i32;
 
-    if (exponent_x as BID_UINT32) <= (DECIMAL_MAX_EXPON_128 as BID_UINT32) {
-      bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
-      return res;
+    if (exponent_x as BID_UINT32) <= DECIMAL_MAX_EXPON_128 as u32 {
+        bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
+        return res;
     }
     // check for overflow
     if exp64 > DECIMAL_MAX_EXPON_128 as i64 {
-      if CX.w[1] < 0x314dc6448d93u64 {
-        // try to normalize coefficient
-        loop {
-          CBID_X8.w[1] = (CX.w[1] << 3) | (CX.w[0] >> 61);
-          CBID_X8.w[0] =  CX.w[0] << 3;
-          CX2.w[1]     = (CX.w[1] << 1) | (CX.w[0] >> 63);
-          CX2.w[0]     =  CX.w[0] << 1;
-          CX           = __add_128_128(&CX2, &CBID_X8);
+        if CX.w[1] < 0x314dc6448d93u64 {
+            // try to normalize coefficient
+            loop {
+                CBID_X8.w[1] = (CX.w[1] << 3) | (CX.w[0] >> 61);
+                CBID_X8.w[0] =  CX.w[0] << 3;
+                CX2.w[1]     = (CX.w[1] << 1) | (CX.w[0] >> 63);
+                CX2.w[0]     =  CX.w[0] << 1;
+                CX           = __add_128_128(&CX2, &CBID_X8);
 
-          exponent_x -= 1;
-          exp64      -= 1;
+                exponent_x -= 1;
+                exp64      -= 1;
 
-          if !(CX.w[1] < 0x314dc6448d93u64 && exp64 > DECIMAL_MAX_EXPON_128 as i64) {
-            break;
-          }
+                if ! (CX.w[1] < 0x314dc6448d93u64 && exp64 > DECIMAL_MAX_EXPON_128 as i64) {
+                    break;
+                }
+            }
         }
-      }
-      if exp64 <= DECIMAL_MAX_EXPON_128 as i64 {
-        bid_get_BID128_very_fast (&mut res, sign_x, exponent_x, &CX);
-        return res;
-      } else {
-        exponent_x = 0x7fffffff;	// overflow
-      }
+        if exp64 <= DECIMAL_MAX_EXPON_128 as i64 {
+            bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
+            return res;
+        } else {
+            exponent_x = 0x7fffffff; // overflow
+        }
     }
     // exponent < 0
     // the BID pack routine will round the coefficient
     res = bid_get_BID128(sign_x, exponent_x, &CX, rnd_mode, pfpsf);
-    res
+    return res;
 }
