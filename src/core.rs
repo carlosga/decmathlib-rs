@@ -5,26 +5,21 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-
 use crate::constants::{DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL};
 use crate::d128::_IDEC_flags;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ClassTypes {
-    signalingNaN,
-    quietNaN,
-    negativeInfinity,
-    negativeNormal,
-    negativeSubnormal,
-    negativeZero,
-    positiveZero,
-    positiveSubnormal,
-    positiveNormal,
-    positiveInfinity
+    SignalingNaN,
+    QuietNaN,
+    NegativeInfinity,
+    NegativeNormal,
+    NegativeSubnormal,
+    NegativeZero,
+    PositiveZero,
+    PositiveSubnormal,
+    PositiveNormal,
+    PositiveInfinity
 }
 
 pub struct RoundingMode;

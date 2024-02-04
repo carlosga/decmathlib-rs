@@ -6,9 +6,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
 #![allow(unused)]
-#![allow(dead_code)]
 
 use crate::d128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 

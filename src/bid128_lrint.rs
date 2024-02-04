@@ -5,13 +5,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(unused_mut)]
-
 use crate::bid128_to_int64::{bid128_to_int64_xceil, bid128_to_int64_xfloor, bid128_to_int64_xint, bid128_to_int64_xrnint, bid128_to_int64_xrninta};
 use crate::core::RoundingMode;
 use crate::d128::{_IDEC_flags, BID_UINT128};

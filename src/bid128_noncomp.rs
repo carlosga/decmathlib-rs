@@ -27,8 +27,6 @@
 /*  - bid128_totalOrderMag                                                       */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
@@ -311,10 +309,10 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
     BID_SWAP128(&mut x);
 
     if (x.w[1] & MASK_NAN) == MASK_NAN {
-        return if (x.w[1] & MASK_SNAN) == MASK_SNAN { ClassTypes::signalingNaN } else { ClassTypes::quietNaN };
+        return if (x.w[1] & MASK_SNAN) == MASK_SNAN { ClassTypes::SignalingNaN } else { ClassTypes::QuietNaN };
     }
     if (x.w[1] & MASK_INF) == MASK_INF {
-        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeInfinity } else { ClassTypes::positiveInfinity };
+        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::NegativeInfinity } else { ClassTypes::PositiveInfinity };
     }
     // decode number into exponent and significand
     sig_x.w[1] = x.w[1] & 0x0001ffffffffffffu64;
@@ -324,7 +322,7 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
    || ((sig_x.w[1] == 0x0001ed09bead87c0u64) && (sig_x.w[0] > 0x378d8e63ffffffffu64))
    || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
    || ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
-        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeZero } else { ClassTypes::positiveZero };
+        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::NegativeZero } else { ClassTypes::PositiveZero };
     }
     exp_x = ((x.w[1] >> 49) & 0x000000000003fffu64) as i32;
     // if exponent is less than -6176, the number may be subnormal
@@ -339,9 +337,9 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
                 && ((sig_x_prime256.w[1] < 0x0000314dc6448d93u64) || ((sig_x_prime256.w[1] == 0x0000314dc6448d93u64)
                 && (sig_x_prime256.w[0] < 0x38c15b0a00000000u64))) {
                 return if (x.w[1] & MASK_SIGN) == MASK_SIGN {
-                    ClassTypes::negativeSubnormal
+                    ClassTypes::NegativeSubnormal
                 } else {
-                    ClassTypes::positiveSubnormal
+                    ClassTypes::PositiveSubnormal
                 };
             }
         } else {
@@ -351,15 +349,15 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
                 && ((sig_x_prime192.w[1] < 0x0000314dc6448d93u64) || ((sig_x_prime192.w[1] == 0x0000314dc6448d93u64)
                 && (sig_x_prime192.w[0] < 0x38c15b0a00000000u64))) {
                 return if (x.w[1] & MASK_SIGN) == MASK_SIGN {
-                    ClassTypes::negativeSubnormal
+                    ClassTypes::NegativeSubnormal
                 } else {
-                    ClassTypes::positiveSubnormal
+                    ClassTypes::PositiveSubnormal
                 }
             }
         }
     }
     // otherwise, normal number, determine the sign
-    if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::negativeNormal } else { ClassTypes::positiveNormal }
+    if (x.w[1] & MASK_SIGN) == MASK_SIGN { ClassTypes::NegativeNormal } else { ClassTypes::PositiveNormal }
 }
 
 /// sameQuantum(x, y) is true if the exponents of x and y are the same, and false otherwise;

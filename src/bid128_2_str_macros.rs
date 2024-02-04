@@ -5,15 +5,12 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_mut)]
 
 use crate::bid128_2_str_tables::*;
 use crate::d128::{BID_UINT32, BID_UINT64};
+
 pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
     let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + bid_Twoto60_m_10to18;
     if (L0_tmp & bid_Twoto60) == bid_Twoto60 {
@@ -89,8 +86,8 @@ pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
 }
 
 pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
-    let mut L1_X_hi: BID_UINT32;
-    let mut L1_X_lo: BID_UINT32;
+    let L1_X_hi: BID_UINT32;
+    let L1_X_lo: BID_UINT32;
     let mut L1_Xhi_64: BID_UINT64;
     let mut L1_Xlo_64: BID_UINT64;
 

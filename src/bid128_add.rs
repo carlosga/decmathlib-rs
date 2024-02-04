@@ -6,11 +6,8 @@
 /* ----------------------------------------------------------------------------- */
 
 #![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_mut)]
 
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
@@ -181,7 +178,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut shift: i32;
     let mut tmp_inexact: bool = false;
     let halfulp64: BID_UINT64;
-    let mut halfulp128: &BID_UINT128;
+    let halfulp128: &BID_UINT128;
     let mut C1: BID_UINT128 = BID_UINT128::default();
     let mut C2: BID_UINT128 = BID_UINT128::default();
     let mut ten2m1: BID_UINT128 = BID_UINT128::default();

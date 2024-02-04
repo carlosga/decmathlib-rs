@@ -5,16 +5,12 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 #![allow(unused_assignments)]
 
 //////////////////////////////////////////////
 //    BID128_to_string
 //////////////////////////////////////////////
-
 
 use crate::bid128::{bid_char_table2, bid_char_table3};
 use crate::bid128_2_str_macros::*;
@@ -26,7 +22,7 @@ use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
 
 const MAX_FORMAT_DIGITS_128: usize = 34;
 const MAX_STRING_DIGITS_128: usize = 100;
-const MAX_SEARCH: usize            = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
+// const MAX_SEARCH: usize            = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
 
 /// Convert 128-bit decimal floating-point value (binary encoding) to string format
 pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {

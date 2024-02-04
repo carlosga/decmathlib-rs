@@ -6,11 +6,8 @@
 /* ----------------------------------------------------------------------------- */
 
 #![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_mut)]
 
 use crate::bid_decimal_data::{bid_estimate_decimal_digits, bid_power10_index_binexp_128, bid_power10_table_128};
 use crate::bid_div_macros::bid___div_128_by_128;
@@ -43,7 +40,7 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
     let mut res: BID_UINT128 = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut sign_y: BID_UINT64 = 0;
-    let mut valid_y: BID_UINT64;
+    let valid_y: BID_UINT64;
     let mut D: BID_SINT64;
     let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
     let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();

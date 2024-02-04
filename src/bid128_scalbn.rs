@@ -5,10 +5,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 #![allow(overflowing_literals)]
 
 use crate::bid_internal::{__add_128_128, __set_status_flags, bid_get_BID128, bid_get_BID128_very_fast, unpack_BID128_value};

@@ -6,11 +6,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
-#![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_mut)]
 
 use crate::bid128::{bid_ten2k128, bid_ten2k64};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, swap};
@@ -21,7 +17,7 @@ use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256};
 /// Compare 128-bit decimal floating-point numbers for specified relation;
 /// do not signal invalid exception for quiet NaNs
 pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
-    let mut res: bool;
+    let res: bool;
     let mut exp_x: i32;
     let mut exp_y: i32;
     let mut exp_t: i32 = 0;

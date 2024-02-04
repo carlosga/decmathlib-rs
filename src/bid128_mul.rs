@@ -5,12 +5,8 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_mut)]
 
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
@@ -236,7 +232,7 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
         if (C1.w[1] == 0x0 && C1.w[0] == 0x0) || (C2.w[1] == 0x0 && C2.w[0] == 0x0) {
             // x = 0 or y = 0
             // the result is 0
-            let mut res = BID_UINT128 { w: [0x0, p_sign | p_exp] }; // preferred exponent in [EXP_MIN, EXP_MAX]
+            let res = BID_UINT128 { w: [0x0, p_sign | p_exp] }; // preferred exponent in [EXP_MIN, EXP_MAX]
 
             #[cfg(target_endian = "big")]
             BID_SWAP128(&mut resres);
