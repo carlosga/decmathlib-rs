@@ -12,6 +12,9 @@
 #![allow(dead_code)]
 #![allow(unused_mut)]
 
+#[cfg(target_endian = "big")]
+use crate::bid_conf::BID_SWAP128;
+
 use crate::bid128::*;
 use crate::bid128_fma::bid64qqq_fma;
 use crate::bid_conf::BID_HIGH_128W;
