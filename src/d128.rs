@@ -32,6 +32,7 @@ use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
+use crate::d64::d64;
 
 pub type _IDEC_flags = u32;
 
@@ -97,15 +98,13 @@ pub (crate) type BID_SINT64 = i64;
 
 pub (crate) type BID_UINT64 = u64;
 
-pub type decimal64 = BID_UINT64;
-
 /// The 128-bit decimal type.
 #[derive(Copy, Clone, Debug, Default)]
-pub struct BID_UINT128 {
+pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
 }
 
-pub type d128 = BID_UINT128;
+pub (crate) type BID_UINT128 = d128;
 
 #[macro_export]
 macro_rules! dec128 {
@@ -273,8 +272,8 @@ impl d128 {
     }
 
     /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
-    pub fn from_decimal64(bid: decimal64, status: &mut _IDEC_flags) -> Self {
-        bid64_to_bid128(bid, status)
+    pub fn from_decimal64(bid: d64, status: &mut _IDEC_flags) -> Self {
+        bid64_to_bid128(bid.0, status)
     }
 
     /// Returns x * 10^N
@@ -317,8 +316,8 @@ impl d128 {
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
-    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> decimal64 {
-        bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
+    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> d64 {
+        d64(bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status))
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed
@@ -561,38 +560,40 @@ impl FromStr for d128 {
     }
 }
 
-impl TryInto<decimal64> for d128 {
+impl TryInto<d64> for d128 {
     type Error = _IDEC_flags;
 
     /// Tries to convert decimal128 to decimal64
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::d128::{_IDEC_flags, d128, decimal64};
+    /// use decmathlib_rs::d64::d64;
+    /// use decmathlib_rs::d128::{_IDEC_flags, d128};
     /// let res: d128 = decmathlib_rs::d128::d128::from(0x2cffed09bead87c0378d8e63ffffffffu128);
-    /// let dec64: Result<decimal64, _IDEC_flags> = res.try_into();
+    /// let dec64: Result<d64, _IDEC_flags> = res.try_into();
     /// ```
-    fn try_into(self) -> Result<BID_UINT64, Self::Error> {
+    fn try_into(self) -> Result<d64, Self::Error> {
          let mut status: _IDEC_flags = 0;
          let dec64: BID_UINT64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
 
          match status {
-            0 => Ok(dec64),
+            0 => Ok(d64(dec64)),
             _ => Err(status)
          }
     }
 }
 
-impl From<decimal64> for d128 {
+impl From<d64> for d128 {
     /// Converts decimal64 to decimal128.
     /// # Examples
     ///
     /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x002462d53c8abac0u64);
+    /// let dec64 = decmathlib_rs::d64::d64(0x002462d53c8abac0u64);
+    /// let dec1 = decmathlib_rs::d128::d128::from(dec64);
     /// ```
-    fn from(value: BID_UINT64) -> Self {
+    fn from(value: d64) -> Self {
         let mut status: _IDEC_flags = 0;
-        bid64_to_bid128(value, &mut status)
+        bid64_to_bid128(value.0, &mut status)
     }
 }
 

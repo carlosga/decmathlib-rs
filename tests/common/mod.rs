@@ -11,8 +11,9 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let res1 = decmathlib_rs::d128::d128::from_decimal64($input1, &mut status);
-            let exp  = decmathlib_rs::d128::d128::from($exp);
+            let dec64 = decmathlib_rs::d64::d64($input1);
+            let res1  = decmathlib_rs::d128::d128::from_decimal64(dec64, &mut status);
+            let exp   = decmathlib_rs::d128::d128::from($exp);
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status);
@@ -529,7 +530,7 @@ macro_rules! dec_test {
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let res1     = dec1.to_decimal64(rnd_mode, &mut status);
 
-            assert_eq!($exp, res1);
+            assert_eq!($exp, res1.0);
             assert_eq!($exp_status, status)
         }
     };
