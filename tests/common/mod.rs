@@ -96,7 +96,7 @@ macro_rules! dec_test {
     ($name:ident, bid128_from_int64, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
-            let dec = decmathlib_rs::d128::d128::from_i64($input1);
+            let dec = decmathlib_rs::d128::d128::from($input1);
             let exp = decmathlib_rs::d128::d128::from($expected);
 
             assert_eq!(exp, dec);
@@ -119,7 +119,7 @@ macro_rules! dec_test {
     ($name:ident, bid128_from_uint64, $input1:expr, $expected:expr) => {
         #[test]
         fn $name() {
-            let dec = decmathlib_rs::d128::d128::from_u64($input1);
+            let dec = decmathlib_rs::d128::d128::from($input1);
             let exp = decmathlib_rs::d128::d128::from($expected);
 
             assert_eq!(exp, dec);

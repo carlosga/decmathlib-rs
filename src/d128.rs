@@ -29,8 +29,7 @@ use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::constants::*;
-use crate::convert::{bid128_to_bid64, bid64_to_bid128};
+use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
 use crate::d64::d64;
 
@@ -241,34 +240,11 @@ impl d128 {
         bid128_minnum_mag(x, y, pfpsf)
     }
 
-    pub fn from_i64(value: i64) -> Self {
-        let mut res = Self::default();
-
-        // if integer is negative, use the absolute value
-        if (value & SIGNMASK64 as i64) == SIGNMASK64 as i64 {
-            res.w[BID_HIGH_128W] = 0xb040000000000000u64;
-            res.w[BID_LOW_128W]  = (!value + 1) as BID_UINT64;	// 2's complement of x
-        } else {
-            res.w[BID_HIGH_128W] = 0x3040000000000000u64;
-            res.w[BID_LOW_128W]  = value as u64;
-        }
-
-        res
-    }
 
     /// Convert a decimal floating-point value represented in string format
     /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
     pub fn from_string(value: &str, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    pub fn from_u64(value: u64) -> Self {
-        let mut res = Self::default();
-
-        res.w[BID_HIGH_128W] = 0x3040000000000000u64;
-        res.w[BID_LOW_128W]  = value;
-
-        res
     }
 
     /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
@@ -560,6 +536,72 @@ impl FromStr for d128 {
     }
 }
 
+impl From<i32> for d128 {
+    /// Converts i32 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let value = 0;
+    /// let dec1 = decmathlib_rs::d128::d128::from(value);
+    /// ```
+    fn from(value: i32) -> Self {
+        bid128_from_int32(value)
+    }
+}
+
+impl From<u32> for d128 {
+    /// Converts u32 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let value = 0;
+    /// let dec1 = decmathlib_rs::d128::d128::from(value);
+    /// ```
+    fn from(value: u32) -> Self {
+        bid128_from_uint32(value)
+    }
+}
+
+impl From<i64> for d128 {
+    /// Converts i64 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let value = 0;
+    /// let dec1 = decmathlib_rs::d128::d128::from(value);
+    /// ```
+    fn from(value: i64) -> Self {
+        bid128_from_int64(value)
+    }
+}
+
+impl From<u64> for d128 {
+    /// Converts i64 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let value = 0;
+    /// let dec1 = decmathlib_rs::d128::d128::from(value);
+    /// ```
+    fn from(value: u64) -> Self {
+        bid128_from_uint64(value)
+    }
+}
+
+impl From<d64> for d128 {
+    /// Converts decimal64 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let dec64 = decmathlib_rs::d64::d64(0x002462d53c8abac0u64);
+    /// let dec1 = decmathlib_rs::d128::d128::from(dec64);
+    /// ```
+    fn from(value: d64) -> Self {
+        let mut status: _IDEC_flags = 0;
+        bid64_to_bid128(value.0, &mut status)
+    }
+}
+
 impl TryInto<d64> for d128 {
     type Error = _IDEC_flags;
 
@@ -580,20 +622,6 @@ impl TryInto<d64> for d128 {
             0 => Ok(d64(dec64)),
             _ => Err(status)
          }
-    }
-}
-
-impl From<d64> for d128 {
-    /// Converts decimal64 to decimal128.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec64 = decmathlib_rs::d64::d64(0x002462d53c8abac0u64);
-    /// let dec1 = decmathlib_rs::d128::d128::from(dec64);
-    /// ```
-    fn from(value: d64) -> Self {
-        let mut status: _IDEC_flags = 0;
-        bid64_to_bid128(value.0, &mut status)
     }
 }
 

@@ -32,6 +32,7 @@ mod bid_conf;
 mod bid_convert_data;
 mod bid_decimal_data;
 mod bid_div_macros;
+mod bid_from_int;
 mod bid_internal;
 mod bid_round;
 mod constants;
