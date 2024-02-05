@@ -17,7 +17,7 @@ pub (crate) const bid_Tento9: BID_UINT32           = 1000000000u32;
 pub (crate) const bid_Tento6: BID_UINT32           = 1000000u32;
 pub (crate) const bid_Tento3: BID_UINT32           = 1000u32;
 
-pub (crate) const bid_midi_tbl: [&str; 1000] = [  // [1000][3] = {
+pub (crate) static bid_midi_tbl: [&str; 1000] = [  // [1000][3] = {
     "000", "001", "002", "003", "004", "005", "006", "007", "008", "009",
     "010", "011", "012", "013", "014", "015", "016", "017", "018", "019",
     "020", "021", "022", "023", "024", "025", "026", "027", "028", "029",
@@ -120,7 +120,7 @@ pub (crate) const bid_midi_tbl: [&str; 1000] = [  // [1000][3] = {
     "990", "991", "992", "993", "994", "995", "996", "997", "998", "999"
 ];
 
-pub (crate) const mod10_18_tbl: [[u64; 128]; 9] = [
+pub (crate) static mod10_18_tbl: [[u64; 128]; 9] = [
     // 2^59 = 576460752303423488, A and B breakdown, where data = A*10^18 + B
     [
         0u64, 0u64, 0u64, 576460752303423488u64,
