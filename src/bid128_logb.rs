@@ -18,7 +18,6 @@ use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT64};
 
 pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let ires: i32;
     let mut exponent_x: i32 = 0;
     let mut sign_x: BID_UINT64 = 0;
     let mut res: BID_UINT128 = BID_UINT128::default();
@@ -57,7 +56,7 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
     #[cfg(target_endian = "big")]
     BID_SWAP128 (x);
 
-    ires = bid128_ilogb(x, pfpsf);
+    let ires = bid128_ilogb(x, pfpsf);
     if (ires & (0x80000000u32 as i32)) == (0x80000000u32 as i32) {
       res.w[BID_HIGH_128W] = 0xb040000000000000u64;
       res.w[BID_LOW_128W]  = -ires as BID_UINT64;
@@ -65,5 +64,5 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
       res.w[BID_HIGH_128W] = 0x3040000000000000u64;
       res.w[BID_LOW_128W]  = ires as BID_UINT64;
     }
-    return res;
+    res
 }
