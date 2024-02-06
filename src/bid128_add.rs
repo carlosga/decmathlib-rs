@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
@@ -194,7 +194,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut second_pass: bool = false;
 
     #[cfg(target_endian = "big")]
+    let mut x = *x;
+
+    #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
+
+    #[cfg(target_endian = "big")]
+    let mut y = *y;
 
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut y);
@@ -205,8 +211,6 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     // check for NaN or Infinity
     if ((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL) || ((y.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
         let mut x: BID_UINT128 = *x;
-        let mut y: BID_UINT128 = *y;
-
         // x is special or y is special
         return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
             // check first for non-canonical NaN payload
@@ -240,6 +244,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
             res
         } else if (y.w[1] & MASK_NAN) == MASK_NAN { // y is NAN
+            let mut y = *y;
             // check first for non-canonical NaN payload
             if  ((y.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)

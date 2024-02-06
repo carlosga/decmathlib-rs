@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
@@ -8,23 +8,23 @@
 /*  - bid128_abs                                                                 */
 /*  - bid128_class                                                               */
 /*  - bid128_copy                                                                */
-/*  - bid128_copySign                                                            */
+/*  - bid128_copy_sign                                                           */
 /*  - bid128_inf                                                                 */
-/*  - bid128_isCanonical                                                         */
-/*  - bid128_isFinite                                                            */
-/*  - bid128_isInf                                                               */
-/*  - bid128_isNaN                                                               */
-/*  - bid128_isNormal                                                            */
-/*  - bid128_isSignaling                                                         */
-/*  - bid128_isSigned                                                            */
-/*  - bid128_isSubnormal                                                         */
-/*  - bid128_isZero                                                              */
+/*  - bid128_is_canonical                                                        */
+/*  - bid128_is_finite                                                           */
+/*  - bid128_is_inf                                                              */
+/*  - bid128_is_nan                                                              */
+/*  - bid128_is_normal                                                           */
+/*  - bid128_is_signaling                                                        */
+/*  - bid128_is_signed                                                           */
+/*  - bid128_is_subnormal                                                        */
+/*  - bid128_is_zero                                                             */
 /*  - bid128_nan                                                                 */
 /*  - bid128_negate                                                              */
 /*  - bid128_radix                                                               */
-/*  - bid128_sameQuantum                                                         */
-/*  - bid128_totalOrder                                                          */
-/*  - bid128_totalOrderMag                                                       */
+/*  - bid128_same_quantum                                                        */
+/*  - bid128_total_order                                                         */
+/*  - bid128_total_order_mag                                                     */
 /* ----------------------------------------------------------------------------- */
 
 #![allow(non_snake_case)]
@@ -76,11 +76,11 @@ pub (crate) fn bid128_isNormal(x: &BID_UINT128) -> bool {
         return false;
     }
     // test for non-canonical values of the argument x
-    if (((C1_hi > 0x0001ed09bead87c0u64)
-        || ((C1_hi == 0x0001ed09bead87c0u64)
-        && (C1_lo > 0x378d8e63ffffffffu64)))
-        && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
-        || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+    if (((C1_hi  > 0x0001ed09bead87c0u64)
+     || ((C1_hi == 0x0001ed09bead87c0u64)
+      && (C1_lo  > 0x378d8e63ffffffffu64)))
+     && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
+     || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
         return false;
     }
     // x is subnormal or normal
@@ -105,9 +105,9 @@ pub (crate) fn bid128_isNormal(x: &BID_UINT128) -> bool {
     q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
     if q == 0 {
         q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-        if C1_hi > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi ||
-            (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi &&
-                C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+        if  C1_hi  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+        || (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+         && C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
             q += 1;
         }
     }
@@ -174,9 +174,9 @@ pub (crate) fn bid128_isSubnormal(x: &BID_UINT128) -> bool {
     q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
     if q == 0 {
         q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-        if C1_hi > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi ||
-            (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi &&
-                C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+        if  C1_hi  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+        || (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+         && C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
             q += 1;
         }
     }
@@ -244,7 +244,7 @@ pub (crate) fn bid128_isCanonical(x: &BID_UINT128) -> bool {
         // payload must be < 10^33 = 0x0000314dc6448d93_38c15b0a00000000
         return sig_x.w[1]  < 0x0000314dc6448d93u64
            || (sig_x.w[1] == 0x0000314dc6448d93u64
-            && sig_x.w[0] < 0x38c15b0a00000000u64)
+            && sig_x.w[0]  < 0x38c15b0a00000000u64)
     } else if (x.w[1] & MASK_INF) == MASK_INF {	// infinity
         return if (x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0 { false } else { true };
     }

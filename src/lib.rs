@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.         */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.         */
 /* --------------------------------------------------------------------- */
 /* decmathlib-rs                                                         */
 /* Copyright (C) 2023-2024 Carlos Guzmán Álvarez                         */

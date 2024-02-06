@@ -1,13 +1,11 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
 
 #![allow(unused)]
-#![allow(dead_code)]
-#![allow(non_upper_case_globals)]
 
 pub (crate) const P7: i32  = 7;
 pub (crate) const P16: i32 = 16;
@@ -37,12 +35,12 @@ pub (crate) const EXP_MIN: u64                    = 0x0000000000000000;     // E
 pub (crate) const EXP_MAX: u64                    = 0x5ffe000000000000u64;  // EXP_MAX = (6111 + 6176) << 49
 pub (crate) const EXP_MAX_P1: u64                 = 0x6000000000000000u64;  // EXP_MAX + 1 = (6111 + 6176 + 1) << 49
 pub (crate) const EXP_P1: u64                     = 0x0002000000000000u64;  // EXP_ P1= 1 << 49
-pub (crate) const expmin: i32                     = -6176; // min unbiased exponent
-pub (crate) const expmax: i32                     = 6111; // max unbiased exponent
-pub (crate) const expmin16: i32                   = -398; // min unbiased exponent
-pub (crate) const expmax16: i32                   = 369; // max unbiased exponent
-pub (crate) const expmin7: i32                    = -101; // min unbiased exponent
-pub (crate) const expmax7: i32                    = 90;  // max unbiased exponent
+pub (crate) const EXP_MIN_UNBIASED: i32           = -6176; // min unbiased exponent
+pub (crate) const EXP_MAX_UNBIASED: i32           = 6111; // max unbiased exponent
+pub (crate) const EXP_MIN16_UNBIASED: i32         = -398; // min unbiased exponent
+pub (crate) const EXP_MAX16_UNBIASED: i32         = 369; // max unbiased exponent
+pub (crate) const EXP_MIN7_UNBIASED: i32          = -101; // min unbiased exponent
+pub (crate) const EXP_MAX7_UNBIASED: i32          = 90;  // max unbiased exponent
 
 pub (crate) const MASK_INF32: u32                 = 0x78000000;
 pub (crate) const MASK_ANY_INF32: u32             = 0x7c000000;

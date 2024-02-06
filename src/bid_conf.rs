@@ -1,9 +1,11 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
 /* ----------------------------------------------------------------------------- */
+
+#![allow(non_snake_case)]
 
 #[cfg(target_endian = "big")]
 use crate::d128::{BID_UINT128, BID_UINT64};

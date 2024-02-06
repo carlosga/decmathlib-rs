@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
@@ -73,9 +73,6 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
     let mut rmode: u32;
     let mut status: u32;
     let mut uf_check= 0;
-
-    // TODO
-    // BID_OPT_SAVE_BINARY_FLAGS()
 
     #[cfg(target_endian = "big")]
     let mut x = *x;

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------- */
-/* decimal128 type from Intel decimal math library port to Rust.                 */
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
 /* ----------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
@@ -29,7 +29,7 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
 
-    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
+    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, &x) == 0 {
         // test if x is NaN/Inf
         #[cfg(target_endian = "big")]
         BID_SWAP128(&mut x);
@@ -54,9 +54,14 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
     }
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128 (x);
+    BID_SWAP128(&mut x);
 
+    #[cfg(target_endian = "big")]
+    let ires = bid128_ilogb(&x, pfpsf);
+
+    #[cfg(target_endian = "little")]
     let ires = bid128_ilogb(x, pfpsf);
+
     if (ires & (0x80000000u32 as i32)) == (0x80000000u32 as i32) {
       res.w[BID_HIGH_128W] = 0xb040000000000000u64;
       res.w[BID_LOW_128W]  = -ires as BID_UINT64;
