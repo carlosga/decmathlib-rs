@@ -2,3 +2,9 @@
 #DECIMAL_TINY_DETECTION_AFTER_ROUNDING="1|0"
 rustflags=["--cfg", "DECIMAL_DEFAULT_ROUNDING_MODE=\"TO_NEAREST\""]
 rustdocflags=["--cfg", "DECIMAL_DEFAULT_ROUNDING_MODE=\"TO_NEAREST\""]
+
+[bench]
+
+[profile.profiling]
+inherits = "release"
+debug = true
