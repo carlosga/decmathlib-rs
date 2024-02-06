@@ -2,6 +2,11 @@
 name = "decmathlib-rs"
 version = "0.1.0"
 edition = "2021"
+authors = ["Carlos Guzmán Álvarez"]
+description = "Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust."
+readme = "README.md"
+repository = "https://github.com/carlosga/decmathlib-rs"
+license = "MIT"
 
 # https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
@@ -11,3 +16,5 @@ overflow-checks = false     # Disable integer overflow checks.
 [features]
 
 [dependencies]
+
+[dev-dependencies]
