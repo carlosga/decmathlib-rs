@@ -15,3 +15,7 @@ Cargo.lock
 
 # RustRover
 .idea/
+
+# perf
+perf*.*
+perf.data.old
