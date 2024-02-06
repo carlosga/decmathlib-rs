@@ -3347,7 +3347,7 @@ pub (crate) fn bid128_to_int32_xrninta(x : &BID_UINT128, pfpsf: &mut _IDEC_flags
         q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
         if q == 0 {
             q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-            if  C1.w[1] > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
+            if  C1.w[1]  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
             || (C1.w[1] == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
              && C1.w[0] >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
                 q += 1;

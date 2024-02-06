@@ -1154,10 +1154,10 @@ pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT
     let lP0: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[0]);
     let lP1: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[1]);
     let lP2: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[2]);
-    lP.w[0] = lP0.w[0];
+    lP.w[0]       = lP0.w[0];
     (lP.w[1], lC) = __add_carry_out(lP1.w[0], lP0.w[1]);
     (lP.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
-    lP.w[3] = lP2.w[1] + lC;
+    lP.w[3]       = lP2.w[1] + lC;
 
     lP
 }

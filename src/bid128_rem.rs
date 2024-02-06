@@ -161,7 +161,6 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
 
         CX2.w[1] = (CR.w[1] << 1) | (CR.w[0] >> 63);
         CX2.w[0] = CR.w[0] << 1;
-        // TODO : try to use macros for __unsigned_compare_gt_128 & __sub_128_128
         if (__unsigned_compare_gt_128_256(&CX2, &P256)) || (CX2.w[1] == P256.w[1] && CX2.w[0] == P256.w[0] && ((CQ.w[0] & 1) == 1)) {
             let tCR: BID_UINT256 = __sub_256_128_to_256(&P256, &CR);
             CR.w[0] = tCR.w[0];

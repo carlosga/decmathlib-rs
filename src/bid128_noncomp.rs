@@ -472,7 +472,6 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
         } else {    // x is +NaN
             // return false, unless y is +NaN also
             if (y.w[1] & MASK_NAN) != MASK_NAN || (y.w[1] & MASK_SIGN) == MASK_SIGN {
-                // TODO: Check comment
                 false    // y is a number, return 1
             } else {
                 // x and y are both +NaN;
