@@ -139,7 +139,7 @@ impl d128 {
     pub fn copy(&self) -> Self { bid128_copy(self) }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format as x, but with the sign of y
-    pub fn copy_sign(&self, other: &Self) -> Self { bid128_copySign(self, other) }
+    pub fn copy_sign(&self, other: &Self) -> Self { bid128_copy_sign(self, other) }
 
     pub fn infinity() -> Self {
         bid128_inf()
@@ -147,47 +147,47 @@ impl d128 {
 
     /// Return true if and only if x is a finite number, infinity, or NaN that is canonical
     pub fn is_canonical(&self) -> bool {
-        bid128_isCanonical(self)
+        bid128_is_canonical(self)
     }
 
     /// Return true if and only if x is zero, subnormal or normal (not infinite or NaN)
     pub fn is_finite(&self) -> bool {
-        bid128_isFinite(self)
+        bid128_is_finite(self)
     }
 
     /// Return true if and only if x is infinite
     pub fn is_infinity(&self) -> bool {
-        bid128_isInf(self)
+        bid128_is_inf(self)
     }
 
     /// Return true if and only if x is a NaN
     pub fn is_nan(&self) -> bool {
-        bid128_isNaN(self)
+        bid128_is_nan(self)
     }
 
     /// Return true if and only if x is normal (not zero, subnormal, infinite, or NaN)
     pub fn is_normal(&self) -> bool {
-        bid128_isNormal(self)
+        bid128_is_normal(self)
     }
 
     /// Return true if and only if x is a signaling NaN
     pub fn is_signaling(&self) -> bool {
-        bid128_isSignaling(self)
+        bid128_is_signaling(self)
     }
 
     /// Return true if and only if x has negative sign
     pub fn is_signed(&self) -> bool {
-        bid128_isSigned(self)
+        bid128_is_signed(self)
     }
 
     /// Return true if and only if x is subnormal
     pub fn is_subnormal(&self) -> bool {
-        bid128_isSubnormal(self)
+        bid128_is_subnormal(self)
     }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, reversing the sign
     pub fn is_zero(&self) -> bool {
-        bid128_isZero(self)
+        bid128_is_zero(self)
     }
 
     pub fn negate(x: &Self) -> Self {
@@ -199,17 +199,17 @@ impl d128 {
     /// true; if exactly one operand is infinite or exactly one operand is NaN,
     /// sameQuantum is false
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
-        bid128_sameQuantum(x, y)
+        bid128_same_quantum(x, y)
     }
 
     /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
     pub fn total_order(x: &Self, y: &Self) -> bool {
-        bid128_totalOrder(x, y)
+        bid128_total_order(x, y)
     }
 
     /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
-        bid128_totalOrderMag(x, y)
+        bid128_total_order_mag(x, y)
     }
 
     pub fn nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
