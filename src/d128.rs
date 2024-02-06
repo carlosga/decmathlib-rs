@@ -16,6 +16,7 @@ use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_qui
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
 use crate::bid128_fmod::bid128_fmod;
+use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_logb::bid128_logb;
@@ -233,6 +234,10 @@ impl d128 {
 
     pub fn fmod(&self, rhs: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fmod(self, rhs, pfpsf)
+    }
+
+    pub fn frexp(&self, exp: i32) -> (Self, i32) {
+        bid128_frexp(self, exp)
     }
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
