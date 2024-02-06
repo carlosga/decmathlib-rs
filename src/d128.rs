@@ -14,6 +14,7 @@ use std::str::FromStr;
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
+use crate::bid128_fdim::bid128_fdim;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_logb::bid128_logb;
@@ -33,9 +34,10 @@ use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
 use crate::d64::d64;
 
+// BID_FPSC
 pub type _IDEC_flags = u32;
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone)]
 pub (crate) struct DEC_DIGITS {
     pub (crate) digits: u32,
     pub (crate) threshold_hi: BID_UINT64,
@@ -43,7 +45,6 @@ pub (crate) struct DEC_DIGITS {
     pub (crate) digits1: u32
 }
 
-#[derive(Copy, Clone)]
 pub (crate) union BID_UI32FLOAT {
     pub (crate) i: BID_UINT32,
     pub (crate) d: f32
@@ -57,7 +58,6 @@ impl Default for BID_UI32FLOAT {
     }
 }
 
-#[derive(Copy, Clone)]
 pub (crate) union BID_UI64DOUBLE {
     pub (crate) i: BID_UINT64,
     pub (crate) d: f64
@@ -81,12 +81,12 @@ pub (crate) struct BID_UINT256 {
     pub (crate) w: [BID_UINT64; 4]
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub (crate) struct BID_UINT384 {
     pub (crate) w: [BID_UINT64; 6]
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub (crate) struct BID_UINT512 {
     pub (crate) w: [BID_UINT64; 8]
 }
@@ -252,14 +252,9 @@ impl d128 {
         bid64_to_bid128(bid.0, status)
     }
 
-    /// Returns x * 10^N
-    pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Returns x * 10^N
-    pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    /// fdim returns x - y if x > y, and +0 is x <= y
+    pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_fdim(self, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
@@ -289,6 +284,16 @@ impl d128 {
     /// as though x were represented with infinite range and minimum exponent
     pub fn ilogb(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_ilogb(self, pfpsf)
+    }
+
+    /// Returns x * 10^N
+    pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Returns x * 10^N
+    pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)

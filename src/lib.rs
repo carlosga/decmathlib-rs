@@ -11,6 +11,7 @@ mod bid128_2_str_macros;
 mod bid128_add;
 mod bid128_compare;
 mod bid128_div;
+mod bid128_fdim;
 mod bid128_fma;
 mod bid128_ilogb;
 mod bid128_ldexp;

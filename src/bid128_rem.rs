@@ -40,7 +40,6 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
     let mut res: BID_UINT128 = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut sign_y: BID_UINT64 = 0;
-    let valid_y: BID_UINT64;
     let mut D: BID_SINT64;
     let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
     let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
@@ -55,7 +54,7 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
 
     // unpack arguments, check for NaN or Infinity
 
-    valid_y = unpack_BID128_value(&mut sign_y, &mut exponent_y, &mut CY, y);
+    let valid_y: BID_UINT64 = unpack_BID128_value(&mut sign_y, &mut exponent_y, &mut CY, y);
 
     if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
         if (y.w[1] & SNAN_MASK64) == SNAN_MASK64 {    // y is sNaN

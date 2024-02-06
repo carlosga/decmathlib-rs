@@ -210,7 +210,6 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
 pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128  = BID_UINT128::default();
     let mut res: BID_UINT128 = BID_UINT128::default();
-    let sign_x: BID_UINT64;
     let mut coeff_high: BID_UINT64;
     let mut coeff_low: BID_UINT64;
     let mut coeff2: BID_UINT64;
@@ -292,7 +291,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     // set up sign_x to be OR'ed with the upper word later
-    sign_x = if c == Some('-') { 0x8000000000000000u64 } else { 0 };
+    let sign_x: BID_UINT64 = if c == Some('-') { 0x8000000000000000u64 } else { 0 };
 
     // go to next character if leading sign
     if c == Some('-') || c == Some('+') {
