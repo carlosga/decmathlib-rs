@@ -369,8 +369,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 //  determine first the nr. of bits in y (y_nr_bits)
 
                 unsafe {
-                    if C2_hi == 0 {                           // y_bits is the nr. of bits in C2_lo
-                        if C2_lo >= 0x0020000000000000u64 {   // y >= 2^53
+                    if C2_hi == 0 {                             // y_bits is the nr. of bits in C2_lo
+                        if C2_lo >= 0x0020000000000000u64 {     // y >= 2^53
                                                                 // split the 64-bit value in two 32-bit halves to avoid
                                                                 // rounding errors
                             tmp2.d    = (C2_lo >> 32) as f64;   // exact conversion

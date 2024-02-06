@@ -1239,6 +1239,10 @@ pub (crate) fn __unsigned_compare_gt_128_256(A: &BID_UINT128, B: &BID_UINT256) -
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
 }
 
+pub (crate) fn __unsigned_compare_gt_256_128(A: &BID_UINT256, B: &BID_UINT128) -> bool  {
+    (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
+}
+
 pub (crate) fn __unsigned_compare_gt_256_as_128(A: &BID_UINT256, B: &BID_UINT256) -> bool  {
     (A.w[1] > B.w[1]) || ((A.w[1] == B.w[1]) && (A.w[0] > B.w[0]))
 }

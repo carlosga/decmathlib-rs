@@ -15,6 +15,7 @@ use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
+use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
 use crate::bid128_logb::bid128_logb;
@@ -214,33 +215,6 @@ impl d128 {
         bid128_nan(tagp, pfpsf)
     }
 
-    /// Returns the canonicalized floating-point number y if x < y,
-    /// x if y < x, the canonicalized floating-point number if one operand is a
-    /// floating-point number and the other a quiet NaN.
-    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-        bid128_maxnum(x, y, pfpsf)
-    }
-
-    /// Returns the canonicalized floating-point number x if |x| > |y|,
-    /// y if |y| > |x|, otherwise this function is identical to __bid128_maxnum
-    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-        bid128_maxnum_mag(x, y, pfpsf)
-    }
-
-    /// Returns the canonicalized floating-point number x if x < y,
-    /// y if y < x, the canonicalized floating-point number if one operand is
-    /// a floating-point number and the other a quiet NaN. Otherwise it is either x or y, canonicalized.
-    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-        bid128_minnum(x, y, pfpsf)
-    }
-
-    /// Returns the canonicalized floating-point number x if |x| < |y|,
-    /// y if |y| < |x|, otherwise this function is identical to __bid64_minnum
-    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-        bid128_minnum_mag(x, y, pfpsf)
-    }
-
-
     /// Convert a decimal floating-point value represented in string format
     /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
     pub fn from_string(value: &str, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
@@ -255,6 +229,10 @@ impl d128 {
     /// fdim returns x - y if x > y, and +0 is x <= y
     pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fdim(self, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    pub fn fmod(&self, rhs: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_fmod(self, rhs, pfpsf)
     }
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
@@ -284,6 +262,32 @@ impl d128 {
     /// as though x were represented with infinite range and minimum exponent
     pub fn ilogb(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_ilogb(self, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number y if x < y,
+    /// x if y < x, the canonicalized floating-point number if one operand is a
+    /// floating-point number and the other a quiet NaN.
+    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_maxnum(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if |x| > |y|,
+    /// y if |y| > |x|, otherwise this function is identical to __bid128_maxnum
+    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_maxnum_mag(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if x < y,
+    /// y if y < x, the canonicalized floating-point number if one operand is
+    /// a floating-point number and the other a quiet NaN. Otherwise it is either x or y, canonicalized.
+    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_minnum(x, y, pfpsf)
+    }
+
+    /// Returns the canonicalized floating-point number x if |x| < |y|,
+    /// y if |y| < |x|, otherwise this function is identical to __bid64_minnum
+    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+        bid128_minnum_mag(x, y, pfpsf)
     }
 
     /// Returns x * 10^N
