@@ -2,6 +2,8 @@
 
 Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.
 
+Rust learning project.
+
 ## Badges
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
