@@ -1,9 +1,11 @@
-/* ----------------------------------------------------------------------------- */
-/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
-/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
-/* ----------------------------------------------------------------------------- */
-/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
-/* ----------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------------------------*/
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
+/* -------------------------------------------------------------------------------------------------- */
+/* Licensed under the MIT license. See LICENSE file in the project root for full license information. */
+/* -------------------------------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
+/* -------------------------------------------------------------------------------------------------- */
 
 use crate::bid128::{bid_ten2k128, bid_ten2k64};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};

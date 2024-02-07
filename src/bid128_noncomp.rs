@@ -1,31 +1,33 @@
-/* ----------------------------------------------------------------------------- */
-/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.*/
-/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                 */
-/* ----------------------------------------------------------------------------- */
-/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.  */
-/* ----------------------------------------------------------------------------- */
-/* BID128 non-computational functions:                                           */
-/*  - bid128_abs                                                                 */
-/*  - bid128_class                                                               */
-/*  - bid128_copy                                                                */
-/*  - bid128_copy_sign                                                           */
-/*  - bid128_inf                                                                 */
-/*  - bid128_is_canonical                                                        */
-/*  - bid128_is_finite                                                           */
-/*  - bid128_is_inf                                                              */
-/*  - bid128_is_nan                                                              */
-/*  - bid128_is_normal                                                           */
-/*  - bid128_is_signaling                                                        */
-/*  - bid128_is_signed                                                           */
-/*  - bid128_is_subnormal                                                        */
-/*  - bid128_is_zero                                                             */
-/*  - bid128_nan                                                                 */
-/*  - bid128_negate                                                              */
-/*  - bid128_radix                                                               */
-/*  - bid128_same_quantum                                                        */
-/*  - bid128_total_order                                                         */
-/*  - bid128_total_order_mag                                                     */
-/* ----------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------------------------*/
+/* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
+/* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
+/* -------------------------------------------------------------------------------------------------- */
+/* Licensed under the MIT license. See LICENSE file in the project root for full license information. */
+/* -------------------------------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
+/* -------------------------------------------------------------------------------------------------- */
+/* BID128 non-computational functions:                                                                */
+/*  - bid128_abs                                                                                      */
+/*  - bid128_class                                                                                    */
+/*  - bid128_copy                                                                                     */
+/*  - bid128_copy_sign                                                                                */
+/*  - bid128_inf                                                                                      */
+/*  - bid128_is_canonical                                                                             */
+/*  - bid128_is_finite                                                                                */
+/*  - bid128_is_inf                                                                                   */
+/*  - bid128_is_nan                                                                                   */
+/*  - bid128_is_normal                                                                                */
+/*  - bid128_is_signaling                                                                             */
+/*  - bid128_is_signed                                                                                */
+/*  - bid128_is_subnormal                                                                             */
+/*  - bid128_is_zero                                                                                  */
+/*  - bid128_nan                                                                                      */
+/*  - bid128_negate                                                                                   */
+/*  - bid128_radix                                                                                    */
+/*  - bid128_same_quantum                                                                             */
+/*  - bid128_total_order                                                                              */
+/*  - bid128_total_order_mag                                                                          */
+/* -------------------------------------------------------------------------------------------------- */
 
 #![allow(non_snake_case)]
 #![allow(dead_code)]
