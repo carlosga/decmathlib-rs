@@ -17,9 +17,9 @@ overflow-checks = false     # Disable integer overflow checks.
 
 [dependencies]
 
-[dev-dependencies]
-criterion = { version = "0.5.1", features = ["html_reports"] }
-
-[[bench]]
-name = "decmathlib"
-harness = false
+#[dev-dependencies]
+#criterion = { version = "0.5.1", features = ["html_reports"] }
+#
+#[[bench]]
+#name = "decmathlib"
+#harness = false
