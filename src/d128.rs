@@ -25,6 +25,7 @@ use crate::bid128_logb::bid128_logb;
 use crate::bid128_lrint::bid128_lrint;
 use crate::bid128_lround::bid128_lround;
 use crate::bid128_minmax::{bid128_maxnum, bid128_maxnum_mag, bid128_minnum, bid128_minnum_mag};
+use crate::bid128_modf::bid128_modf;
 use crate::bid128_mul::bid128_mul;
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
@@ -295,6 +296,11 @@ impl d128 {
     /// y if |y| < |x|, otherwise this function is identical to __bid64_minnum
     pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
         bid128_minnum_mag(x, y, pfpsf)
+    }
+
+    /// Decomposes given decimal floating point value num into integral and fractional parts,
+    pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
+        bid128_modf(self, pfpsf)
     }
 
     /// Returns x * 10^N
