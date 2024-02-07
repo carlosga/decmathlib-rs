@@ -13,7 +13,7 @@
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
 
-use crate::bid128_fma::{bid128_ext_fma, bid64qqq_fma};
+use crate::bid128_fma::{bid128_fma, bid64qqq_fma};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::constants::*;
 use crate::convert::bid64_to_bid128;
@@ -112,21 +112,6 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
     }
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
     bid64qqq_fma(y, x, &z, rnd_mode, pfpsf)
-}
-
-pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut is_midpoint_lt_even: bool = false;
-    let mut is_midpoint_gt_even: bool = false;
-    let mut is_inexact_lt_midpoint: bool = false;
-    let mut is_inexact_gt_midpoint: bool = false;
-
-    bid128_ext_fma(
-        &mut is_midpoint_lt_even,
-        &mut is_midpoint_gt_even,
-        &mut is_inexact_lt_midpoint,
-        &mut is_inexact_gt_midpoint,
-        x, y,  z,
-        rnd_mode, pfpsf)
 }
 
 pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
