@@ -161,7 +161,6 @@ pub(crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
 pub(crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x - y; assume x >= y
     let mut x: BID_UINT256 = *x;
-    let y: BID_UINT256 = *y;
     let mut z: BID_UINT256 = BID_UINT256::default();
     z.w[0] = x.w[0] - y.w[0];
     if z.w[0] > x.w[0] {
@@ -351,7 +350,7 @@ pub (crate) fn bid_add_and_round(
         && R256.w[0] >= C4.w[0]) { // C3 * 10^scale >= C4
             // calculate R256 = C3 * 10^scale - C4 = R256 - C4, which is exact,
             // but may require rounding
-            R256 = bid_sub256(C4, &R256);
+            R256 = bid_sub256(&R256, C4);
             // flip p_sign too, because the result has the sign of z
             p_sign = z_sign;
         } else { // if C4 > C3 * 10^scale
