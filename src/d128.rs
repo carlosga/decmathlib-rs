@@ -565,7 +565,7 @@ impl FromStr for d128 {
          let dec: BID_UINT128 = bid128_from_string(s, DEFAULT_ROUNDING_MODE, &mut status);
 
          match status {
-            0 => Ok(dec),
+            StatusFlags::BID_EXACT_STATUS | StatusFlags::BID_INEXACT_EXCEPTION => Ok(dec),
             _ => Err(status)
          }
     }
