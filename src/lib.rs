@@ -23,6 +23,7 @@ mod bid128_lround;
 mod bid128_minmax;
 mod bid128_modf;
 mod bid128_mul;
+mod bid128_nearbyint;
 mod bid128_noncomp;
 mod bid128_rem;
 mod bid128_round_integral;

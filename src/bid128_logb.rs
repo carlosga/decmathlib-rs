@@ -31,7 +31,7 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
 
-    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, &x) == 0 {
+    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
         // test if x is NaN/Inf
         #[cfg(target_endian = "big")]
         BID_SWAP128(&mut x);

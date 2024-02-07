@@ -27,6 +27,7 @@ use crate::bid128_lround::bid128_lround;
 use crate::bid128_minmax::{bid128_maxnum, bid128_maxnum_mag, bid128_minnum, bid128_minnum_mag};
 use crate::bid128_modf::bid128_modf;
 use crate::bid128_mul::bid128_mul;
+use crate::bid128_nearbyint::bid128_nearbyint;
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
@@ -301,6 +302,11 @@ impl d128 {
     /// Decomposes given decimal floating point value num into integral and fractional parts,
     pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
         bid128_modf(self, pfpsf)
+    }
+
+    /// Rounds the decimal floating-point value num to an integer value in deicmal floating-point format, using the given rounding mode.
+    pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns x * 10^N

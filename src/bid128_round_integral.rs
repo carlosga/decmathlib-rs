@@ -143,7 +143,7 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
         }
     }
     exp = ((x_exp >> 49) - 6176) as i32;
-    return if exp >= 0 {	// -exp <= 0
+    if exp >= 0 {	// -exp <= 0
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
