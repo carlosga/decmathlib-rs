@@ -11,6 +11,7 @@ Rust learning project.
 ## Acknowledgements
 
 - [Intel Decimal Floating-Point Math Library](https://www.intel.com/content/www/us/en/developer/articles/tool/intel-decimal-floating-point-math-library.html)
+- [FPBench](https://fpbench.org/)
 - [readme.so](https://readme.so/editor)
 
 ## License

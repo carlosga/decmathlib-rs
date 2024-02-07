@@ -188,66 +188,54 @@ pub(crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     z
 }
 
-pub (crate) fn bid_bid_nr_digits256(r256: &BID_UINT256) -> i32 {
+pub (crate) fn bid_bid_nr_digits256(R256: &BID_UINT256) -> i32 {
     let mut ind: i32;
 
     // determine the number of decimal digits in r256
-    if r256.w[3] == 0x0 && r256.w[2] == 0x0 && r256.w[1] == 0x0 {
+    if R256.w[3] == 0x0 && R256.w[2] == 0x0 && R256.w[1] == 0x0 {
         // between 1 and 19 digits
-        ind = 1;
-        while ind <= 19 {
-            if r256.w[0] < bid_ten2k64[ind as usize] {
-                break;
-            }
-            ind += 1;
-        }
+        ind = bid_ten2k64[1..=19]
+            .iter().enumerate()
+            .take_while(|&(_, x)| R256.w[0] < *x)
+            .count() as i32;
+        ind += 1;
         // ind digits
-    } else if r256.w[3]  == 0x0 && r256.w[2] == 0x0
-           && (r256.w[1]  < bid_ten2k128[0].w[1]
-           || (r256.w[1] == bid_ten2k128[0].w[1]
-            && r256.w[0]  < bid_ten2k128[0].w[0])) {
+    } else if R256.w[3]  == 0x0 && R256.w[2] == 0x0
+           && (R256.w[1]  < bid_ten2k128[0].w[1]
+           || (R256.w[1] == bid_ten2k128[0].w[1]
+            && R256.w[0]  < bid_ten2k128[0].w[0])) {
         // 20 digits
         ind = 20;
-    } else if r256.w[3] == 0x0 && r256.w[2] == 0x0 {
+    } else if R256.w[3] == 0x0 && R256.w[2] == 0x0 {
         // between 21 and 38 digits
-        ind = 1;
-        while ind <= 18 {
-            if r256.w[1]   < bid_ten2k128[ind as usize].w[1]
-            || (r256.w[1] == bid_ten2k128[ind as usize].w[1]
-             && r256.w[0]  < bid_ten2k128[ind as usize].w[0]) {
-                break;
-            }
-            ind += 1;
-        }
+        ind = bid_ten2k128[1..=18]
+            .iter().enumerate()
+            .take_while(|&(_, d)|
+                !(R256.w[1] < d.w[1] || (R256.w[1] == d.w[1] && R256.w[0] < d.w[0]))
+            ).count() as i32;
+        ind += 1;
         // ind + 20 digits
         ind += 20;
-    } else if r256.w[3]  == 0x0 &&
-             (r256.w[2]   < bid_ten2k256[0].w[2] ||
-              (r256.w[2] == bid_ten2k256[0].w[2] &&
-               r256.w[1]  < bid_ten2k256[0].w[1]) ||
-              (r256.w[2] == bid_ten2k256[0].w[2] &&
-               r256.w[1] == bid_ten2k256[0].w[1] &&
-               r256.w[0]  < bid_ten2k256[0].w[0])) {
+    } else if R256.w[3]  == 0x0 &&
+             (R256.w[2]   < bid_ten2k256[0].w[2] ||
+              (R256.w[2] == bid_ten2k256[0].w[2] &&
+               R256.w[1]  < bid_ten2k256[0].w[1]) ||
+              (R256.w[2] == bid_ten2k256[0].w[2] &&
+               R256.w[1] == bid_ten2k256[0].w[1] &&
+               R256.w[0]  < bid_ten2k256[0].w[0])) {
         // 39 digits
         ind = 39;
     } else {
         // between 40 and 68 digits
-        ind = 1;
-        while ind <= 29 {
-            if r256.w[3]  < bid_ten2k256[ind as usize].w[3] ||
-              (r256.w[3] == bid_ten2k256[ind as usize].w[3] &&
-               r256.w[2]  < bid_ten2k256[ind as usize].w[2]) ||
-              (r256.w[3] == bid_ten2k256[ind as usize].w[3] &&
-               r256.w[2] == bid_ten2k256[ind as usize].w[2] &&
-               r256.w[1]  < bid_ten2k256[ind as usize].w[1]) ||
-              (r256.w[3] == bid_ten2k256[ind as usize].w[3] &&
-               r256.w[2] == bid_ten2k256[ind as usize].w[2] &&
-               r256.w[1] == bid_ten2k256[ind as usize].w[1] &&
-               r256.w[0]  < bid_ten2k256[ind as usize].w[0]) {
-                break;
-            }
-            ind += 1;
-        }
+        ind = bid_ten2k256[1..=29usize]
+            .iter().enumerate()
+            .take_while(|&(_, d)|
+                !(R256.w[3]  < d.w[3]
+              || (R256.w[3] == d.w[3] && R256.w[2]  < d.w[2])
+              || (R256.w[3] == d.w[3] && R256.w[2] == d.w[2] && R256.w[1]  < d.w[1])
+              || (R256.w[3] == d.w[3] && R256.w[2] == d.w[2] && R256.w[1] == d.w[1] && R256.w[0] < d.w[0])))
+            .count() as i32;
+        ind += 1;
         // ind + 39 digits
         ind += 39;
     }
@@ -2953,13 +2941,11 @@ pub (crate) fn bid128_ext_fma(
                 // determine the number of decimal digits in res
                 if res.w[1] == 0x0 {
                     // between 1 and 19 digits
-                    ind = 1;
-                    while ind <= 19 {
-                        if R256.w[0] < bid_ten2k64[ind as usize] {
-                            break;
-                        }
-                        ind += 1;
-                    }
+                    ind = bid_ten2k64[1..=19]
+                        .iter().enumerate()
+                        .take_while(|&(_, x)| R256.w[0] < *x)
+                        .count() as i32;
+                    ind += 1;
                     // ind digits
                 } else if res.w[1] < bid_ten2k128[0].w[1]
                       || (res.w[1] == bid_ten2k128[0].w[1]
@@ -2967,15 +2953,12 @@ pub (crate) fn bid128_ext_fma(
                     // 20 digits
                     ind = 20;
                 } else { // between 21 and 38 digits
-                    ind = 1;
-                    while ind <= 18 {
-                        if  res.w[1]  < bid_ten2k128[ind as usize].w[1]
-                        || (res.w[1] == bid_ten2k128[ind as usize].w[1]
-                         && res.w[0]  < bid_ten2k128[ind as usize].w[0]) {
-                            break;
-                        }
-                        ind += 1;
-                    }
+                    ind = bid_ten2k128[1..=18]
+                        .iter().enumerate()
+                        .take_while(|&(_, d)|
+                                res.w[1]  < d.w[1] || (res.w[1] == d.w[1] && res.w[0]  < d.w[0])
+                        ).count() as i32;
+                    ind += 1;
                     // ind + 20 digits
                     ind += 20;
                 }
