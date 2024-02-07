@@ -299,8 +299,8 @@ impl d128 {
     }
 
     /// Decomposes given decimal floating point value num into integral and fractional parts,
-    pub fn modf(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
-        bid128_modf(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
+        bid128_modf(self, pfpsf)
     }
 
     /// Returns x * 10^N

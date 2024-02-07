@@ -35,15 +35,15 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             let mut x = *x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
             if  ((x.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
@@ -56,7 +56,7 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
                 res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
                 res.w[0] = x.w[0];
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if (x.w[1] & MASK_SIGN) == 0x0u64 {	// x is +inf
                 // return +inf
@@ -67,7 +67,7 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
                 res.w[1] = 0xf800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
             }
-            return res;
+            res
         }
     }
     // unpack x
@@ -128,8 +128,8 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
                 x_nr_bits = (1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
             }
         } else {	// C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
-          tmp1.d    = C1.w[1] as f64;	// exact conversion
-          x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
+            tmp1.d    = C1.w[1] as f64;	// exact conversion
+            x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
         }
     }
 
@@ -143,11 +143,11 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
         }
     }
     exp = ((x_exp >> 49) - 6176) as i32;
-    if exp >= 0 {	// -exp <= 0
+    return if exp >= 0 {	// -exp <= 0
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
-        return res;
+        res
     } else if (q + exp) > 0 {	// exp < 0 and 1 <= -exp < q
         // need to shift right -exp digits from the coefficient; the exp will be 0
         ind = -exp;	// 1 <= ind <= 34; ind is a synonym for 'x'
@@ -187,11 +187,11 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
           res.w[1] = 0;
           res.w[0] = P256.w[3] >> shift;
         }
-        res.w[1] = x_sign | 0x3040000000000000u64 | res.w[1];
-        return res;
+        res.w[1] |= x_sign | 0x3040000000000000u64;
+        res
     } else {	// if exp < 0 and q + exp <= 0 the result is +0 or -0
         res.w[1] = x_sign | 0x3040000000000000u64;
         res.w[0] = 0x0000000000000000u64;
-        return res;
+        res
     }
 }
