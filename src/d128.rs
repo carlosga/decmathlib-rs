@@ -22,6 +22,8 @@ use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
+use crate::bid128_llrint::bid128_llrint;
+use crate::bid128_llround::bid128_llround;
 use crate::bid128_logb::bid128_logb;
 use crate::bid128_lrint::bid128_lrint;
 use crate::bid128_lround::bid128_lround;
@@ -78,34 +80,39 @@ impl Default for BID_UI64DOUBLE {
     }
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UINT192 {
-    pub (crate) w: [BID_UINT64; 3]
-}
-
-#[derive(Debug, Copy, Clone, Default)]
-pub (crate) struct BID_UINT256 {
-    pub (crate) w: [BID_UINT64; 4]
-}
-
-#[derive(Debug, Clone, Default)]
-pub (crate) struct BID_UINT384 {
-    pub (crate) w: [BID_UINT64; 6]
-}
-
-#[derive(Debug, Clone, Default)]
-pub (crate) struct BID_UINT512 {
-    pub (crate) w: [BID_UINT64; 8]
-}
-
 pub (crate) type BID_UINT32 = u32;
 
 pub (crate) type BID_SINT64 = i64;
 
 pub (crate) type BID_UINT64 = u64;
 
+#[derive(Debug, Copy, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT192 {
+    pub (crate) w: [BID_UINT64; 3]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT256 {
+    pub (crate) w: [BID_UINT64; 4]
+}
+
+#[derive(Debug, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT384 {
+    pub (crate) w: [BID_UINT64; 6]
+}
+
+#[derive(Debug, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT512 {
+    pub (crate) w: [BID_UINT64; 8]
+}
+
 /// The 128-bit decimal type.
 #[derive(Copy, Clone, Debug, Default)]
+#[repr(align(16))]
 pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
 }
@@ -268,10 +275,22 @@ impl d128 {
         bid128_lrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
+    /// The llrint function rounds its argument to the nearest integer value of
+    /// type long long int, rounding according to the current rounding direction.
+    pub fn llrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_llrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
     /// The lround function rounds its argument to the nearest integer value of
     /// type long int, using rounding to nearest-away
     pub fn lround(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_lround(self, pfpsf)
+    }
+
+    /// The llround function rounds its argument to the nearest integer value of
+    /// type long int, using rounding to nearest-away
+    pub fn llround(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_llround(self, pfpsf)
     }
 
     /// Returns the exponent e of x, a signed integral value, determined

@@ -17,6 +17,8 @@ mod bid128_fmod;
 mod bid128_frexp;
 mod bid128_ilogb;
 mod bid128_ldexp;
+mod bid128_llrint;
+mod bid128_llround;
 mod bid128_logb;
 mod bid128_lrint;
 mod bid128_lround;
