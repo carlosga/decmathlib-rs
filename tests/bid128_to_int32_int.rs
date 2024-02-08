@@ -319,7 +319,7 @@ dec_test!(bid128_to_int32_int_307, bid128_to_int32_int, 0xB010D3C21BCFA0AFBCCECC
 dec_test!(bid128_to_int32_int_308, bid128_to_int32_int, 0xB010F684DF56C3E01BC6C731FFFFFFFFu128, -2147483648, 0x01); // -- -(5e9-ulp)
 dec_test!(bid128_to_int32_int_309, bid128_to_int32_int, 0xB010F684DF56C3E01BC6C73200000000u128, -2147483648, 0x01); // -- -(5e9)
 dec_test!(bid128_to_int32_int_310, bid128_to_int32_int, 0xB010F684DF56C3E01BC6C73200000001u128, -2147483648, 0x01); // -- -(5e9+ulp)
-dec_test!(bid128_to_int32_int_311, bid128_to_int32_int, 0xb01128888b3098055ffff3ffef7717bfu128, -2147483648, 01);
+dec_test!(bid128_to_int32_int_311, bid128_to_int32_int, 0xb01128888b3098055ffff3ffef7717bfu128, -2147483648, 0x01);
 dec_test!(bid128_to_int32_int_312, bid128_to_int32_int, 0xB012629B8C88FB62ED56E4238E3FFFFFu128, -2147483648, 0x01); // -- -(2e10-1.5-ulp)
 dec_test!(bid128_to_int32_int_313, bid128_to_int32_int, 0xB012629B8C88FB62ED56E4238E400000u128, -2147483648, 0x01); // -- -(2e10-1.5)
 dec_test!(bid128_to_int32_int_314, bid128_to_int32_int, 0xB012629B8C88FB62ED56E4238E400001u128, -2147483648, 0x01); // -- -(2e10-1.5+ulp)

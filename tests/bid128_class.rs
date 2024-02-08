@@ -38,7 +38,7 @@ dec_test!(bid128class_021, bid128_class,  "Infinity"                           ,
 
 dec_test!(bid128class_022, bid128_class, 0x00400000000000000000000000000001u128, ClassTypes::PositiveSubnormal);
 dec_test!(bid128class_023, bid128_class, 0x0000314DC6448D93FFFFFFFFFFFFFFFFu128, ClassTypes::PositiveNormal);
-dec_test!(bid128class_024, bid128_class, 0x0000314DC6448D93ffffffff00000000u128, ClassTypes::PositiveNormal);
+dec_test!(bid128class_024, bid128_class, 0x0000314DC6448D93FFFFFFFF00000000u128, ClassTypes::PositiveNormal);
 dec_test!(bid128class_025, bid128_class, 0x002A000000000000FFFFFFFFFFFFFFFFu128, ClassTypes::PositiveNormal);
 dec_test!(bid128class_026, bid128_class, 0x0028000000000000FFFFFFFFFFFFFFFFu128, ClassTypes::PositiveNormal);
 dec_test!(bid128class_027, bid128_class, 0x002A000000000000000000E8D4A51000u128, ClassTypes::PositiveNormal);

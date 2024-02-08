@@ -427,8 +427,8 @@ dec_test!(bid128_to_int32_ceil_415, bid128_to_int32_ceil, 0xB03A0000000000000000
 dec_test!(bid128_to_int32_ceil_416, bid128_to_int32_ceil, 0xB03C0000000000000000000000007561u128, -300       , 0x00); // -- -(300.5-ulp)
 dec_test!(bid128_to_int32_ceil_417, bid128_to_int32_ceil, 0xB03C0000000000000000000000007562u128, -300       , 0x00); // -- -(300.5)
 dec_test!(bid128_to_int32_ceil_418, bid128_to_int32_ceil, 0xB03C0000000000000000000000007563u128, -300       , 0x00); // -- -(300.5+ulp)
-dec_test!(bid128_to_int32_ceil_419, bid128_to_int32_ceil, 0xB03E0000000000000000000000000005u128, 0          , 00); // -- -(0.5)
-dec_test!(bid128_to_int32_ceil_420, bid128_to_int32_ceil, 0xB03E000000000000000000000000000Fu128, -1         , 00); // -- -(1.5)
+dec_test!(bid128_to_int32_ceil_419, bid128_to_int32_ceil, 0xB03E0000000000000000000000000005u128, 0          , 0x00); // -- -(0.5)
+dec_test!(bid128_to_int32_ceil_420, bid128_to_int32_ceil, 0xB03E000000000000000000000000000Fu128, -1         , 0x00); // -- -(1.5)
 dec_test!(bid128_to_int32_ceil_421, bid128_to_int32_ceil, 0xB03E0000000000000000000000000BB7u128, -299       , 0x00); // -- -(300-ulp)
 dec_test!(bid128_to_int32_ceil_422, bid128_to_int32_ceil, 0xB03E0000000000000000000000000BB8u128, -300       , 0x00); // -- -(300)
 dec_test!(bid128_to_int32_ceil_423, bid128_to_int32_ceil, 0xB03E0000000000000000000000000BB9u128, -300       , 0x00); // -- -(300+ulp)
@@ -442,34 +442,34 @@ dec_test!(bid128_to_int32_ceil_430, bid128_to_int32_ceil, 0xB03E0000000000000000
 dec_test!(bid128_to_int32_ceil_431, bid128_to_int32_ceil, 0xB03E0000000000000000002E90EDCFFBu128, -2147483648, 0x01); // -- -(2e10-0.5)
 dec_test!(bid128_to_int32_ceil_432, bid128_to_int32_ceil, 0xB03E0000000000000000002E90EDD005u128, -2147483648, 0x01); // -- -(2e10+0.5)
 dec_test!(bid128_to_int32_ceil_433, bid128_to_int32_ceil, 0xB03E0000000000000000002E90EDD00Fu128, -2147483648, 0x01); // -- -(2e10+1.5)
-dec_test!(bid128_to_int32_ceil_434, bid128_to_int32_ceil, 0xB0400000000000000000000000000001u128, -1         , 00); // -- -(1)
-dec_test!(bid128_to_int32_ceil_435, bid128_to_int32_ceil, 0xB040000000000000000000000000012Bu128, -299       , 00); // -- -(300-ulp)
-dec_test!(bid128_to_int32_ceil_436, bid128_to_int32_ceil, 0xB040000000000000000000000000012Cu128, -300       , 00); // -- -(300)
-dec_test!(bid128_to_int32_ceil_437, bid128_to_int32_ceil, 0xB040000000000000000000000000012Du128, -301       , 00); // -- -(300+ulp)
-dec_test!(bid128_to_int32_ceil_438, bid128_to_int32_ceil, 0xB040000000000000000000007FFFFFFFu128, -2147483647, 00); // -- -(2^31-1)
-dec_test!(bid128_to_int32_ceil_439, bid128_to_int32_ceil, 0xB0400000000000000000000080000000u128, -2147483648, 00); // -- -(2^31)
-dec_test!(bid128_to_int32_ceil_440, bid128_to_int32_ceil, 0xB0400000000000000000000080000001u128, -2147483648, 01); // -- -(2^31+1)
-dec_test!(bid128_to_int32_ceil_441, bid128_to_int32_ceil, 0xB04000000000000000000000FFFFFFFFu128, -2147483648, 01); // -- -(2^32-1)
-dec_test!(bid128_to_int32_ceil_442, bid128_to_int32_ceil, 0xB0400000000000000000000100000000u128, -2147483648, 01); // -- -(2^32)
-dec_test!(bid128_to_int32_ceil_443, bid128_to_int32_ceil, 0xB0400000000000000000000100000001u128, -2147483648, 01); // -- -(2^32+1)
-dec_test!(bid128_to_int32_ceil_444, bid128_to_int32_ceil, 0xB04000000000000000000004A817C7FFu128, -2147483648, 01); // -- -(2e10-1)
-dec_test!(bid128_to_int32_ceil_445, bid128_to_int32_ceil, 0xB04000000000000000000004A817C801u128, -2147483648, 01); // -- -(2e10+1)
-dec_test!(bid128_to_int32_ceil_446, bid128_to_int32_ceil, 0xB042000000000000000000000000001Du128, -290       , 00); // -- -(300-ulp)
-dec_test!(bid128_to_int32_ceil_447, bid128_to_int32_ceil, 0xB042000000000000000000000000001Eu128, -300       , 00); // -- -(300)
-dec_test!(bid128_to_int32_ceil_448, bid128_to_int32_ceil, 0xB042000000000000000000000000001Fu128, -310       , 00); // -- -(300+ulp)
-dec_test!(bid128_to_int32_ceil_449, bid128_to_int32_ceil, 0xB04200000000000000000000773593FFu128, -2147483648, 01); // -- -(2e10-ulp)
-dec_test!(bid128_to_int32_ceil_450, bid128_to_int32_ceil, 0xB0420000000000000000000077359400u128, -2147483648, 01); // -- -(2e10)
-dec_test!(bid128_to_int32_ceil_451, bid128_to_int32_ceil, 0xB0420000000000000000000077359401u128, -2147483648, 01); // -- -(2e10+ulp)
-dec_test!(bid128_to_int32_ceil_452, bid128_to_int32_ceil, 0xB0440000000000000000000000000003u128, -300       , 00); // -- -(300)
-dec_test!(bid128_to_int32_ceil_453, bid128_to_int32_ceil, 0xB0520000000000000000000000000004u128, -2147483648, 01); // -- -(4e9)
-dec_test!(bid128_to_int32_ceil_454, bid128_to_int32_ceil, 0xB0520000000000000000000000000005u128, -2147483648, 01); // -- -(5e9)
-dec_test!(bid128_to_int32_ceil_455, bid128_to_int32_ceil, 0xB0540000000000000000000000000002u128, -2147483648, 01); // -- -(2e10)
-dec_test!(bid128_to_int32_ceil_456, bid128_to_int32_ceil, 0xc0acaab4903a5d352a97091f09a48523u128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_457, bid128_to_int32_ceil, 0xc5799e203ad96a1192d17cb72860e6b3u128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_458, bid128_to_int32_ceil, 0xcae587a584dd961034721b920398ad2fu128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_459, bid128_to_int32_ceil, 0xcfb54af90e99798e8100000000000014u128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_460, bid128_to_int32_ceil, 0xfbd6b77b4b5fdb3eff97fa7d5f72ffffu128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_461, bid128_to_int32_ceil, 0xfd66946885a384a3760997164b5e1975u128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_462, bid128_to_int32_ceil, 0xfffbbbefff5df77f302020b4aea4dc82u128, -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_463, bid128_to_int32_ceil, "-Infinity"                           , -2147483648, 01);
-dec_test!(bid128_to_int32_ceil_464, bid128_to_int32_ceil,  "Infinity"                           , -2147483648, 01);
+dec_test!(bid128_to_int32_ceil_434, bid128_to_int32_ceil, 0xB0400000000000000000000000000001u128, -1         , 0x00); // -- -(1)
+dec_test!(bid128_to_int32_ceil_435, bid128_to_int32_ceil, 0xB040000000000000000000000000012Bu128, -299       , 0x00); // -- -(300-ulp)
+dec_test!(bid128_to_int32_ceil_436, bid128_to_int32_ceil, 0xB040000000000000000000000000012Cu128, -300       , 0x00); // -- -(300)
+dec_test!(bid128_to_int32_ceil_437, bid128_to_int32_ceil, 0xB040000000000000000000000000012Du128, -301       , 0x00); // -- -(300+ulp)
+dec_test!(bid128_to_int32_ceil_438, bid128_to_int32_ceil, 0xB040000000000000000000007FFFFFFFu128, -2147483647, 0x00); // -- -(2^31-1)
+dec_test!(bid128_to_int32_ceil_439, bid128_to_int32_ceil, 0xB0400000000000000000000080000000u128, -2147483648, 0x00); // -- -(2^31)
+dec_test!(bid128_to_int32_ceil_440, bid128_to_int32_ceil, 0xB0400000000000000000000080000001u128, -2147483648, 0x01); // -- -(2^31+1)
+dec_test!(bid128_to_int32_ceil_441, bid128_to_int32_ceil, 0xB04000000000000000000000FFFFFFFFu128, -2147483648, 0x01); // -- -(2^32-1)
+dec_test!(bid128_to_int32_ceil_442, bid128_to_int32_ceil, 0xB0400000000000000000000100000000u128, -2147483648, 0x01); // -- -(2^32)
+dec_test!(bid128_to_int32_ceil_443, bid128_to_int32_ceil, 0xB0400000000000000000000100000001u128, -2147483648, 0x01); // -- -(2^32+1)
+dec_test!(bid128_to_int32_ceil_444, bid128_to_int32_ceil, 0xB04000000000000000000004A817C7FFu128, -2147483648, 0x01); // -- -(2e10-1)
+dec_test!(bid128_to_int32_ceil_445, bid128_to_int32_ceil, 0xB04000000000000000000004A817C801u128, -2147483648, 0x01); // -- -(2e10+1)
+dec_test!(bid128_to_int32_ceil_446, bid128_to_int32_ceil, 0xB042000000000000000000000000001Du128, -290       , 0x00); // -- -(300-ulp)
+dec_test!(bid128_to_int32_ceil_447, bid128_to_int32_ceil, 0xB042000000000000000000000000001Eu128, -300       , 0x00); // -- -(300)
+dec_test!(bid128_to_int32_ceil_448, bid128_to_int32_ceil, 0xB042000000000000000000000000001Fu128, -310       , 0x00); // -- -(300+ulp)
+dec_test!(bid128_to_int32_ceil_449, bid128_to_int32_ceil, 0xB04200000000000000000000773593FFu128, -2147483648, 0x01); // -- -(2e10-ulp)
+dec_test!(bid128_to_int32_ceil_450, bid128_to_int32_ceil, 0xB0420000000000000000000077359400u128, -2147483648, 0x01); // -- -(2e10)
+dec_test!(bid128_to_int32_ceil_451, bid128_to_int32_ceil, 0xB0420000000000000000000077359401u128, -2147483648, 0x01); // -- -(2e10+ulp)
+dec_test!(bid128_to_int32_ceil_452, bid128_to_int32_ceil, 0xB0440000000000000000000000000003u128, -300       , 0x00); // -- -(300)
+dec_test!(bid128_to_int32_ceil_453, bid128_to_int32_ceil, 0xB0520000000000000000000000000004u128, -2147483648, 0x01); // -- -(4e9)
+dec_test!(bid128_to_int32_ceil_454, bid128_to_int32_ceil, 0xB0520000000000000000000000000005u128, -2147483648, 0x01); // -- -(5e9)
+dec_test!(bid128_to_int32_ceil_455, bid128_to_int32_ceil, 0xB0540000000000000000000000000002u128, -2147483648, 0x01); // -- -(2e10)
+dec_test!(bid128_to_int32_ceil_456, bid128_to_int32_ceil, 0xc0acaab4903a5d352a97091f09a48523u128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_457, bid128_to_int32_ceil, 0xc5799e203ad96a1192d17cb72860e6b3u128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_458, bid128_to_int32_ceil, 0xcae587a584dd961034721b920398ad2fu128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_459, bid128_to_int32_ceil, 0xcfb54af90e99798e8100000000000014u128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_460, bid128_to_int32_ceil, 0xfbd6b77b4b5fdb3eff97fa7d5f72ffffu128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_461, bid128_to_int32_ceil, 0xfd66946885a384a3760997164b5e1975u128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_462, bid128_to_int32_ceil, 0xfffbbbefff5df77f302020b4aea4dc82u128, -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_463, bid128_to_int32_ceil, "-Infinity"                           , -2147483648, 0x01);
+dec_test!(bid128_to_int32_ceil_464, bid128_to_int32_ceil,  "Infinity"                           , -2147483648, 0x01);

@@ -62,7 +62,7 @@ dec_test!(bid128_quiet_equal_045, bid128_quiet_equal, 0x3042314DC6448D9338C15B0A
 // -- ##### File bid128_compare.c, function bid128_quiet_equal(), line 151 ################################
 // -- Here when exp_y-exp_x>19, carry CY2=1, case when in macro __add_carry_in_out (called from
 // -- __mul_128x128_to_256 macro), carry CY2 appeared in S=X1+Y (not in X1=X+CI).
-dec_test!(bid128_quiet_equal_046, bid128_quiet_equal, 0x3042314DC6448D9338C15B0A00000000u128, 0x30845313A5E419B7ffffffffffffffffu128, false, 0x00);
+dec_test!(bid128_quiet_equal_046, bid128_quiet_equal, 0x3042314DC6448D9338C15B0A00000000u128, 0x30845313A5E419B7FFFFFFFFFFFFFFFFu128, false, 0x00);
 dec_test!(bid128_quiet_equal_047, bid128_quiet_equal, 0x3047ec3daf9417fe642eaec0d36a73d5u128, 0x307fec3c64797fe80000000000000000u128, false, 0x00);
 dec_test!(bid128_quiet_equal_048, bid128_quiet_equal, 0x3047ec3daf9417fe642eaec0d36a73d7u128, 0x307fec3c64797fe80000000000000000u128, false, 0x00);
 dec_test!(bid128_quiet_equal_049, bid128_quiet_equal, 0x3047ec3daf9417fe642eaec0d36a73d7u128, 0x307fec4450b72ff30000000000000000u128, false, 0x00);
