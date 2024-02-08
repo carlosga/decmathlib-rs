@@ -215,13 +215,13 @@ pub (crate) fn bid_bid_nr_digits256(R256: &BID_UINT256) -> i32 {
         ind += 1;
         // ind + 20 digits
         ind += 20;
-    } else if R256.w[3]  == 0x0 &&
-             (R256.w[2]   < bid_ten2k256[0].w[2] ||
-              (R256.w[2] == bid_ten2k256[0].w[2] &&
-               R256.w[1]  < bid_ten2k256[0].w[1]) ||
-              (R256.w[2] == bid_ten2k256[0].w[2] &&
-               R256.w[1] == bid_ten2k256[0].w[1] &&
-               R256.w[0]  < bid_ten2k256[0].w[0])) {
+    } else if R256.w[3] == 0x0 &&
+             (R256.w[2]  < bid_ten2k256[0].w[2] ||
+             (R256.w[2] == bid_ten2k256[0].w[2] &&
+              R256.w[1]  < bid_ten2k256[0].w[1]) ||
+             (R256.w[2] == bid_ten2k256[0].w[2] &&
+              R256.w[1] == bid_ten2k256[0].w[1] &&
+              R256.w[0]  < bid_ten2k256[0].w[0])) {
         // 39 digits
         ind = 39;
     } else {
