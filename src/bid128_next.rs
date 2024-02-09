@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 
 use crate::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
+use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_not_equal};
+use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_internal::{__mul_128x64_to_128, __mul_64x64_to_128MACH};
-use crate::constants::{
-    EXP_MIN, EXP_P1, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34,
-};
+use crate::constants::{EXP_MIN, EXP_P1, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT64};
 
@@ -466,199 +466,160 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
     res
 }
 
-/*
-/*****************************************************************************
- *  BID128 nextafter
- ****************************************************************************/
+/// Returns the next 128-bit decimal floating-point number that neighbors
+/// the first operand in the direction toward the second operand
+pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut tmp1: BID_UINT128 = BID_UINT128::default();
+    let mut tmp2: BID_UINT128 = BID_UINT128::default();
+    let mut tmp3: BID_UINT128 = BID_UINT128::default();
+    let mut tmp_fpsf: _IDEC_flags;		// dummy fpsf for calls to comparison functions
+    let mut res1: bool;
+    let mut res2: bool;
+    let x_exp: BID_UINT64;
+    let xnswp: BID_UINT128 = *x;
+    let ynswp: BID_UINT128 = *y;
+    let mut x: BID_UINT128 = *x;
+    let mut y: BID_UINT128 = *y;
 
-BID128_FUNCTION_ARG2_NORND (bid128_nextafter, x, y)
+    #[cfg(target_endian = "big")]
+    BID_SWAP128(&mut xnswp);
 
-BID_UINT128 xnswp = x;
-BID_UINT128 ynswp = y;
-BID_UINT128 res;
-BID_UINT128 tmp1, tmp2, tmp3;
-BID_FPSC tmp_fpsf = 0;		// dummy fpsf for calls to comparison functions
-int res1, res2;
-BID_UINT64 x_exp;
+    #[cfg(target_endian = "big")]
+    BID_SWAP128(&mut ynswp);
 
-
-BID_SWAP128 (xnswp);
-BID_SWAP128 (ynswp);
-// check for NaNs
-if (((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL)
-|| ((y.w[1] & MASK_SPECIAL) == MASK_SPECIAL)) {
-    // x is special or y is special
-    if ((x.w[1] & MASK_NAN) == MASK_NAN) {	// x is NAN
-        // if x = NaN, then res = Q (x)
-        // check first for non-canonical NaN payload
-        if (((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64) ||
-                (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
-                 && (x.w[0] > 0x38c15b09ffffffffu64))) {
-            x.w[1] = x.w[1] & 0xffffc00000000000u64;
-            x.w[0] = 0x0u64;
-        }
-        if ((x.w[1] & MASK_SNAN) == MASK_SNAN) {	// x is SNAN
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return quiet (x)
-            res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out also G[6]-G[16]
-            res.w[0] = x.w[0];
-        } else {	// x is QNaN
-            // return x
-            res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
-            res.w[0] = x.w[0];
-            if ((y.w[1] & MASK_SNAN) == MASK_SNAN) {	// y is SNAN
+    // check for NaNs
+    if ((x.w[1] & MASK_SPECIAL) == MASK_SPECIAL) || ((y.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
+        // x is special or y is special
+        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+            // if x = NaN, then res = Q (x)
+            // check first for non-canonical NaN payload
+            if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
+              && (x.w[0] > 0x38c15b09ffffffffu64)) {
+                x.w[1] = x.w[1] & 0xffffc00000000000u64;
+                x.w[0] = 0x0u64;
+            }
+            if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
                 *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return quiet (x)
+                res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out also G[6]-G[16]
+                res.w[0] = x.w[0];
+            } else {	// x is QNaN
+                // return x
+                res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
+                res.w[0] = x.w[0];
+                if (y.w[1] & MASK_SNAN) == MASK_SNAN {	// y is SNAN
+                    // set invalid flag
+                    *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                }
+            }
+            return res;
+        } else if (y.w[1] & MASK_NAN) == MASK_NAN {	// y is NAN
+            // if x = NaN, then res = Q (x)
+            // check first for non-canonical NaN payload
+            if  ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
+              && (y.w[0] > 0x38c15b09ffffffffu64)) {
+                y.w[1] = y.w[1] & 0xffffc00000000000u64;
+                y.w[0] = 0x0u64;
+            }
+            if (y.w[1] & MASK_SNAN) == MASK_SNAN {	// y is SNAN
+                // set invalid flag
+                *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+                // return quiet (x)
+                res.w[1] = y.w[1] & 0xfc003fffffffffffu64;	// clear out also G[6]-G[16]
+                res.w[0] = y.w[0];
+            } else {	// x is QNaN
+                // return x
+                res.w[1] = y.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
+                res.w[0] = y.w[0];
+            }
+            return res;
+        } else {	// at least one is infinity
+            if (x.w[1] & MASK_ANY_INF) == MASK_INF {	// x = inf
+                x.w[1] = x.w[1] & (MASK_SIGN | MASK_INF);
+                x.w[0] = 0x0u64;
+            }
+            if (y.w[1] & MASK_ANY_INF) == MASK_INF {	// y = inf
+                y.w[1] = y.w[1] & (MASK_SIGN | MASK_INF);
+                y.w[0] = 0x0u64;
             }
         }
-        BID_RETURN (res)
-    } else if ((y.w[1] & MASK_NAN) == MASK_NAN) {	// y is NAN
-        // if x = NaN, then res = Q (x)
-        // check first for non-canonical NaN payload
-        if (((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64) ||
-                (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
-                 && (y.w[0] > 0x38c15b09ffffffffu64))) {
-            y.w[1] = y.w[1] & 0xffffc00000000000u64;
-            y.w[0] = 0x0u64;
-        }
-        if ((y.w[1] & MASK_SNAN) == MASK_SNAN) {	// y is SNAN
-            // set invalid flag
-            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-            // return quiet (x)
-            res.w[1] = y.w[1] & 0xfc003fffffffffffu64;	// clear out also G[6]-G[16]
-            res.w[0] = y.w[0];
-        } else {	// x is QNaN
-            // return x
-            res.w[1] = y.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
-            res.w[0] = y.w[0];
-        }
-        BID_RETURN (res)
-    } else {	// at least one is infinity
-        if ((x.w[1] & MASK_ANY_INF) == MASK_INF) {	// x = inf
-            x.w[1] = x.w[1] & (MASK_SIGN | MASK_INF);
-            x.w[0] = 0x0u64;
-        }
-        if ((y.w[1] & MASK_ANY_INF) == MASK_INF) {	// y = inf
-            y.w[1] = y.w[1] & (MASK_SIGN | MASK_INF);
-            y.w[0] = 0x0u64;
-        }
     }
-}
-// neither x nor y is NaN
+    // neither x nor y is NaN
 
-// if not infinity, check for non-canonical values x (treated as zero)
-if ((x.w[1] & MASK_ANY_INF) != MASK_INF) {	// x != inf
-    if ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {	// G0_G1=11
-        // non-canonical
-        x_exp = (x.w[1] << 2) & MASK_EXP;	// biased and shifted left 49 bits
-        x.w[1] = (x.w[1] & MASK_SIGN) | x_exp;
-        x.w[0] = 0x0u64;
-    } else {	// G0_G1 != 11
-        x_exp = x.w[1] & MASK_EXP;	// biased and shifted left 49 bits
-        if ((x.w[1] & MASK_COEFF) > 0x0001ed09bead87c0u64 ||
-                ((x.w[1] & MASK_COEFF) == 0x0001ed09bead87c0u64
-                 && x.w[0] > 0x378d8e63ffffffffu64)) {
-            // x is non-canonical if coefficient is larger than 10^34 -1
+    // if not infinity, check for non-canonical values x (treated as zero)
+    if (x.w[1] & MASK_ANY_INF) != MASK_INF {	// x != inf
+        if (x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {	// G0_G1=11
+            // non-canonical
+            x_exp = (x.w[1] << 2) & MASK_EXP;	// biased and shifted left 49 bits
             x.w[1] = (x.w[1] & MASK_SIGN) | x_exp;
             x.w[0] = 0x0u64;
-        } else {	// canonical
-            ;
+        } else {	// G0_G1 != 11
+            x_exp = x.w[1] & MASK_EXP;	// biased and shifted left 49 bits
+            if (x.w[1] & MASK_COEFF) > 0x0001ed09bead87c0u64 ||
+                    ((x.w[1] & MASK_COEFF) == 0x0001ed09bead87c0u64
+                     && x.w[0] > 0x378d8e63ffffffffu64) {
+                // x is non-canonical if coefficient is larger than 10^34 -1
+                x.w[1] = (x.w[1] & MASK_SIGN) | x_exp;
+                x.w[0] = 0x0u64;
+            } else {
+                // canonical
+            }
         }
     }
-}
-// no need to check for non-canonical y
+    // no need to check for non-canonical y
 
-// neither x nor y is NaN
-tmp_fpsf = *pfpsf;	// save fpsf
-#if DECIMAL_CALL_BY_REFERENCE
-bid128_quiet_equal (&res1, &xnswp,
-                    &ynswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                    _EXC_INFO_ARG);
-bid128_quiet_greater (&res2, &xnswp,
-                      &ynswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                      _EXC_INFO_ARG);
-#else
-res1 =
-        bid128_quiet_equal (xnswp,
-                            ynswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                            _EXC_INFO_ARG);
-res2 =
-        bid128_quiet_greater (xnswp,
-                              ynswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                              _EXC_INFO_ARG);
-#endif
-*pfpsf = tmp_fpsf;	// restore fpsf
+    // neither x nor y is NaN
+    tmp_fpsf = *pfpsf;	// save fpsf
+    res1     = bid128_quiet_equal(&xnswp, &ynswp, pfpsf);
+    res2     = bid128_quiet_greater(&xnswp, &ynswp, pfpsf);
+    *pfpsf   = tmp_fpsf;	// restore fpsf
 
-if (res1) {	// x = y
-    // return x with the sign of y
-    res.w[1] =
-            (x.w[1] & 0x7fffffffffffffffu64) | (y.
-                                                w[1] & 0x8000000000000000u64);
-    res.w[0] = x.w[0];
-} else if (res2) {	// x > y
-#if DECIMAL_CALL_BY_REFERENCE
-    bid128_nextdown (&res,
-                     &xnswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                     _EXC_INFO_ARG);
-#else
-    res =
-            bid128_nextdown (xnswp _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                             _EXC_INFO_ARG);
-#endif
-    BID_SWAP128 (res);
-} else {	// x < y
-#if DECIMAL_CALL_BY_REFERENCE
-bid128_nextup (&res,
-               &xnswp _EXC_FLAGS_ARG _EXC_MASKS_ARG _EXC_INFO_ARG);
-#else
-res =
-        bid128_nextup (xnswp _EXC_FLAGS_ARG _EXC_MASKS_ARG _EXC_INFO_ARG);
-#endif
-BID_SWAP128 (res);
+    if res1 {	// x = y
+        // return x with the sign of y
+        res.w[1] = (x.w[1] & 0x7fffffffffffffffu64) | (y.w[1] & 0x8000000000000000u64);
+        res.w[0] = x.w[0];
+    } else if res2 {	// x > y
+        res = bid128_nextdown(&xnswp, pfpsf);
+        #[cfg(target_endian = "big")]
+        BID_SWAP128(&mut res);
+    } else {	// x < y
+        res = bid128_nextup(&xnswp, pfpsf);
+        #[cfg(target_endian = "big")]
+        BID_SWAP128(&mut res);
+    }
+    // if the operand x is finite but the result is infinite, signal
+    // overflow and inexact
+    if ((x.w[1] & MASK_SPECIAL) != MASK_SPECIAL) && ((res.w[1] & MASK_SPECIAL) == MASK_SPECIAL) {
+        // set the inexact flag
+        *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+        // set the overflow flag
+        *pfpsf |= StatusFlags::BID_OVERFLOW_EXCEPTION;
+    }
+    // if the result is in (-10^emin, 10^emin), and is different from the
+    // operand x, signal underflow and inexact
+    tmp1.w[BID_HIGH_128W] = 0x0000314dc6448d93u64;
+    tmp1.w[BID_LOW_128W]  = 0x38c15b0a00000000u64;	// +100...0[34] * 10^emin
+    tmp2.w[BID_HIGH_128W] = res.w[1] & 0x7fffffffffffffffu64;
+    tmp2.w[BID_LOW_128W]  = res.w[0];
+    tmp3.w[BID_HIGH_128W] = res.w[1];
+    tmp3.w[BID_LOW_128W]  = res.w[0];
+    tmp_fpsf              = *pfpsf;	// save fpsf
+
+    res1 = bid128_quiet_greater(&tmp1, &tmp2, pfpsf);
+    res2 = bid128_quiet_not_equal(&xnswp, &tmp3, pfpsf);
+
+    *pfpsf = tmp_fpsf;	// restore fpsf
+
+    if res1 && res2 {
+        // set the inexact flag
+        *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
+        // set the underflow flag
+        *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
+    }
+
+    return res;
 }
-// if the operand x is finite but the result is infinite, signal
-// overflow and inexact
-if (((x.w[1] & MASK_SPECIAL) != MASK_SPECIAL)
-&& ((res.w[1] & MASK_SPECIAL) == MASK_SPECIAL)) {
-    // set the inexact flag
-    *pfpsf |= BID_INEXACT_EXCEPTION;
-    // set the overflow flag
-    *pfpsf |= BID_OVERFLOW_EXCEPTION;
-}
-// if the result is in (-10^emin, 10^emin), and is different from the
-// operand x, signal underflow and inexact
-tmp1.w[BID_HIGH_128W] = 0x0000314dc6448d93u64;
-tmp1.w[BID_LOW_128W] = 0x38c15b0a00000000u64;	// +100...0[34] * 10^emin
-tmp2.w[BID_HIGH_128W] = res.w[1] & 0x7fffffffffffffffu64;
-tmp2.w[BID_LOW_128W] = res.w[0];
-tmp3.w[BID_HIGH_128W] = res.w[1];
-tmp3.w[BID_LOW_128W] = res.w[0];
-tmp_fpsf = *pfpsf;	// save fpsf
-#if DECIMAL_CALL_BY_REFERENCE
-bid128_quiet_greater (&res1, &tmp1,
-                      &tmp2 _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                      _EXC_INFO_ARG);
-bid128_quiet_not_equal (&res2, &xnswp,
-                        &tmp3 _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                        _EXC_INFO_ARG);
-#else
-res1 =
-        bid128_quiet_greater (tmp1,
-                              tmp2 _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                              _EXC_INFO_ARG);
-res2 =
-        bid128_quiet_not_equal (xnswp,
-                                tmp3 _EXC_FLAGS_ARG _EXC_MASKS_ARG
-                                _EXC_INFO_ARG);
-#endif
-*pfpsf = tmp_fpsf;	// restore fpsf
-if (res1 && res2) {
-    // set the inexact flag
-    *pfpsf |= BID_INEXACT_EXCEPTION;
-    // set the underflow flag
-    *pfpsf |= BID_UNDERFLOW_EXCEPTION;
-}
-return res;
-}
-*/

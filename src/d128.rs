@@ -31,7 +31,7 @@ use crate::bid128_minmax::{bid128_maxnum, bid128_maxnum_mag, bid128_minnum, bid1
 use crate::bid128_modf::bid128_modf;
 use crate::bid128_mul::bid128_mul;
 use crate::bid128_nearbyint::bid128_nearbyint;
-use crate::bid128_next::{bid128_nextdown, bid128_nextup};
+use crate::bid128_next::{bid128_nextafter, bid128_nextdown, bid128_nextup};
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
@@ -334,6 +334,12 @@ impl d128 {
     /// Rounds the decimal floating-point value num to an integer value in deicmal floating-point format, using the given rounding mode.
     pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Returns the next 128-bit decimal floating-point number that neighbors
+    /// the first operand in the direction toward the second operand
+    pub fn nextafter(x: &Self, y:&Self, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_nextafter(x, y, pfpsf)
     }
 
     /// Returns the greatest 128-bit decimal floating-point number that
