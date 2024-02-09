@@ -108,19 +108,19 @@ pub (crate) fn bid_rounding_correction(
     if unbexp > EXP_MAX_UNBIASED { // 6111
         *ptrfpsf |= StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_OVERFLOW_EXCEPTION;
         exp       = 0;
-        if sign == 0 { // result is positive
-            (C_hi, C_lo) = if rnd_mode == RoundingMode::BID_ROUNDING_UP || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // +inf
+        (C_hi, C_lo) = if sign == 0 { // result is positive
+            if rnd_mode == RoundingMode::BID_ROUNDING_UP || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // +inf
                 (0x7800000000000000u64, 0x0000000000000000u64)
             } else { // res = +MAXFP = (10^34-1) * 10^emax
                 (0x5fffed09bead87c0u64, 0x378d8e63ffffffffu64)
-            };
+            }
         } else { // result is negative
-            (C_hi, C_lo) = if rnd_mode == RoundingMode::BID_ROUNDING_DOWN || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // -inf
+            if rnd_mode == RoundingMode::BID_ROUNDING_DOWN || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY { // -inf
                 (0xf800000000000000u64, 0x0000000000000000u64)
             } else { // res = -MAXFP = -(10^34-1) * 10^emax
                 (0xdfffed09bead87c0u64, 0x378d8e63ffffffffu64)
-            };
-        }
+            }
+        };
     }
     // assemble the result
     res.w[1] = sign | exp | C_hi;
@@ -302,7 +302,7 @@ pub (crate) fn bid_add_and_round(
     } else if scale <= 19 { // 10^scale fits in 64 bits
         P128.w[1] = 0;
         P128.w[0] = bid_ten2k64[scale as usize];
-        R256 = __mul_128x128_to_256(&P128, C3);
+        R256      = __mul_128x128_to_256(&P128, C3);
     } else if scale <= 38 { // 10^scale fits in 128 bits
         R256 = __mul_128x128_to_256(&bid_ten2k128[(scale - 20) as usize], C3);
     } else if scale <= 57 { // 39 <= scale <= 57
@@ -504,132 +504,140 @@ pub (crate) fn bid_add_and_round(
         is_midpoint_lt_even     = false;
         is_midpoint_gt_even     = false;
 
-        if x0 > ind {
-            // nothing is left of res when moving the decimal point left x0 digits
-            is_inexact_lt_midpoint = true;
-            res.w[1]               = p_sign | 0x0000000000000000u64;
-            res.w[0]               = 0x0000000000000000u64;
-            e4                     = EXP_MIN_UNBIASED;
-        } else if x0 == ind { // 1 <= x0 = ind <= p34 = 34
-            // this is <, =, or > 1/2 ulp
-            // compare the ind-digit value in the significand of res with
-            // 1/2 ulp = 5*10^(ind-1), i.e. determine whether it is
-            // less than, equal to, or greater than 1/2 ulp (significand of res)
-            R128.w[1] = res.w[1] & MASK_COEFF;
-            R128.w[0] = res.w[0];
-            if ind <= 19 {
-                if R128.w[0] < bid_midpoint64[(ind - 1) as usize] { // < 1/2 ulp
-                    lt_half_ulp            = true;
-                    is_inexact_lt_midpoint = true;
-                } else if R128.w[0] == bid_midpoint64[(ind - 1) as usize] { // = 1/2 ulp
-                    eq_half_ulp         = true;
-                    is_midpoint_gt_even = true;
-                } else { // > 1/2 ulp
-                    // gt_half_ulp = 1;
-                    is_inexact_gt_midpoint = true;
+        match x0 {
+            value if value > ind => {
+                // nothing is left of res when moving the decimal point left x0 digits
+                is_inexact_lt_midpoint = true;
+                res.w[1]               = p_sign | 0x0000000000000000u64;
+                res.w[0]               = 0x0000000000000000u64;
+                e4                     = EXP_MIN_UNBIASED;
+            },
+            value if value == ind => { // 1 <= x0 = ind <= p34 = 34
+                // this is <, =, or > 1/2 ulp
+                // compare the ind-digit value in the significand of res with
+                // 1/2 ulp = 5*10^(ind-1), i.e. determine whether it is
+                // less than, equal to, or greater than 1/2 ulp (significand of res)
+                R128.w[1] = res.w[1] & MASK_COEFF;
+                R128.w[0] = res.w[0];
+                if ind <= 19 {
+                    match bid_midpoint64[(ind - 1) as usize] {
+                        value if R128.w[0] < value => { // < 1/2 ulp
+                            lt_half_ulp            = true;
+                            is_inexact_lt_midpoint = true;
+                        },
+                        value if R128.w[0] == value => { // = 1/2 ulp
+                            eq_half_ulp         = true;
+                            is_midpoint_gt_even = true;
+                        },
+                        _ => { // > 1/2 ulp
+                            // gt_half_ulp = 1;
+                            is_inexact_gt_midpoint = true;
+                        }
+                    }
+                } else { // if (ind <= 38) {
+                    if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
+                    || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
+                     && R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) { // < 1/2 ulp
+                        lt_half_ulp            = true;
+                        is_inexact_lt_midpoint = true;
+                    } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
+                           && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
+                        eq_half_ulp         = true;
+                        is_midpoint_gt_even = true;
+                    } else { // > 1/2 ulp
+                        // gt_half_ulp = 1;
+                        is_inexact_gt_midpoint = true;
+                    }
                 }
-            } else { // if (ind <= 38) {
-                if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
-                || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                 && R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) { // < 1/2 ulp
-                    lt_half_ulp            = true;
-                    is_inexact_lt_midpoint = true;
-                } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                       && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
-                    eq_half_ulp         = true;
-                    is_midpoint_gt_even = true;
-                } else { // > 1/2 ulp
-                    // gt_half_ulp = 1;
-                    is_inexact_gt_midpoint = true;
+                if lt_half_ulp || eq_half_ulp {
+                    // res = +0.0 * 10^EXP_MIN_UNBIASED
+                    res.w[1] = 0x0000000000000000u64;
+                    res.w[0] = 0x0000000000000000u64;
+                } else { // if (gt_half_ulp)
+                    // res = +1 * 10^EXP_MIN_UNBIASED
+                    res.w[1] = 0x0000000000000000u64;
+                    res.w[0] = 0x0000000000000001u64;
                 }
-            }
-            if lt_half_ulp || eq_half_ulp {
-                // res = +0.0 * 10^EXP_MIN_UNBIASED
-                res.w[1] = 0x0000000000000000u64;
-                res.w[0] = 0x0000000000000000u64;
-            } else { // if (gt_half_ulp)
-                // res = +1 * 10^EXP_MIN_UNBIASED
-                res.w[1] = 0x0000000000000000u64;
-                res.w[0] = 0x0000000000000001u64;
-            }
-            res.w[1] |= p_sign;
-            e4        = EXP_MIN_UNBIASED;
-        } else { // if (1 <= x0 <= ind - 1 <= 33)
-            // round the ind-digit result to ind - x0 digits
+                res.w[1] |= p_sign;
+                e4        = EXP_MIN_UNBIASED;
+            },
+            _ => {
+                // round the ind-digit result to ind - x0 digits
 
-            if ind <= 18 { // 2 <= ind <= 18
-                R64 = bid_round64_2_18(
-                    ind, x0, res.w[0], &mut incr_exp,
-                    &mut is_midpoint_lt_even,
-                    &mut is_midpoint_gt_even,
-                    &mut is_inexact_lt_midpoint,
-                    &mut is_inexact_gt_midpoint);
-                res.w[1] = 0x0;
-                res.w[0] = R64;
-            } else if ind <= 38 {
-                P128.w[1] = res.w[1] & MASK_COEFF;
-                P128.w[0] = res.w[0];
-                res = bid_round128_19_38(
-                    ind, x0, &P128, &mut incr_exp,
-                    &mut is_midpoint_lt_even,
-                    &mut is_midpoint_gt_even,
-                    &mut is_inexact_lt_midpoint,
-                    &mut is_inexact_gt_midpoint);
-            }
-            e4 += x0; // EXP_MIN_UNBIASED
-            // we want the exponent to be EXP_MIN_UNBIASED, so if incr_exp = 1 then
-            // multiply the rounded result by 10 - it will still fit in 113 bits
-            if incr_exp {
-                // 64 x 128 -> 128
-                P128.w[1] = res.w[1] & MASK_COEFF;
-                P128.w[0] = res.w[0];
-                res       = __mul_64x128_to_128(bid_ten2k64[1], &P128);
-            }
-            res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
-            // avoid a double rounding error
-            if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
-                // res = res - 1
-                res.w[0] -= 1;
-                if res.w[0] == 0xffffffffffffffffu64 {
-                    res.w[1] -= 1;
+                if ind <= 18 { // 2 <= ind <= 18
+                    R64 = bid_round64_2_18(
+                        ind, x0, res.w[0], &mut incr_exp,
+                        &mut is_midpoint_lt_even,
+                        &mut is_midpoint_gt_even,
+                        &mut is_inexact_lt_midpoint,
+                        &mut is_inexact_gt_midpoint);
+                    res.w[1] = 0x0;
+                    res.w[0] = R64;
+                } else if ind <= 38 {
+                    P128.w[1] = res.w[1] & MASK_COEFF;
+                    P128.w[0] = res.w[0];
+                    res = bid_round128_19_38(
+                        ind, x0, &P128, &mut incr_exp,
+                        &mut is_midpoint_lt_even,
+                        &mut is_midpoint_gt_even,
+                        &mut is_inexact_lt_midpoint,
+                        &mut is_inexact_gt_midpoint);
                 }
-                // Note: a double rounding error upward is not possible; for this
-                // the result after the first rounding would have to be 99...95
-                // (35 digits in all), possibly followed by a number of zeros; this
-                // is not possible in Cases (2)-(6) or (15)-(17) which may get here
-                is_midpoint_lt_even    = false;
-                is_inexact_lt_midpoint = true;
-            } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
-                // res = res + 1
-                res.w[0] += 1;
-                if res.w[0] == 0 {
-                    res.w[1] += 1;
+                e4 += x0; // EXP_MIN_UNBIASED
+                // we want the exponent to be EXP_MIN_UNBIASED, so if incr_exp = 1 then
+                // multiply the rounded result by 10 - it will still fit in 113 bits
+                if incr_exp {
+                    // 64 x 128 -> 128
+                    P128.w[1] = res.w[1] & MASK_COEFF;
+                    P128.w[0] = res.w[0];
+                    res       = __mul_64x128_to_128(bid_ten2k64[1], &P128);
                 }
-                is_midpoint_gt_even    = false;
-                is_inexact_gt_midpoint = true;
-            } else if !is_midpoint_lt_even && !is_midpoint_gt_even && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                // if this second rounding was exact the result may still be
-                // inexact because of the first rounding
-                if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
-                    is_inexact_gt_midpoint = true;
-                }
-                if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
+                // avoid a double rounding error
+                if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
+                    // res = res - 1
+                    res.w[0] -= 1;
+                    if res.w[0] == 0xffffffffffffffffu64 {
+                        res.w[1] -= 1;
+                    }
+                    // Note: a double rounding error upward is not possible; for this
+                    // the result after the first rounding would have to be 99...95
+                    // (35 digits in all), possibly followed by a number of zeros; this
+                    // is not possible in Cases (2)-(6) or (15)-(17) which may get here
+                    is_midpoint_lt_even    = false;
                     is_inexact_lt_midpoint = true;
+                } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
+                    // res = res + 1
+                    res.w[0] += 1;
+                    if res.w[0] == 0 {
+                        res.w[1] += 1;
+                    }
+                    is_midpoint_gt_even    = false;
+                    is_inexact_gt_midpoint = true;
+                } else if !is_midpoint_lt_even && !is_midpoint_gt_even && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
+                    // if this second rounding was exact the result may still be
+                    // inexact because of the first rounding
+                    if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
+                        is_inexact_gt_midpoint = true;
+                    }
+                    if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                        is_inexact_lt_midpoint = true;
+                    }
+                } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
+                    // pu64ed up to a midpoint
+                    is_inexact_lt_midpoint = true;
+                    is_inexact_gt_midpoint = false;
+                    is_midpoint_lt_even    = false;
+                    is_midpoint_gt_even    = false;
+                } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
+                    // pu64ed down to a midpoint
+                    is_inexact_lt_midpoint = true;
+                    is_inexact_gt_midpoint = true;
+                    is_midpoint_lt_even    = false;
+                    is_midpoint_gt_even    = false;
+                } else {
+                    // ;
                 }
-            } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
-                // pu64ed up to a midpoint
-                is_inexact_lt_midpoint = true;
-                is_inexact_gt_midpoint = false;
-                is_midpoint_lt_even    = false;
-                is_midpoint_gt_even    = false;
-            } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
-                // pu64ed down to a midpoint
-                is_inexact_lt_midpoint = true;
-                is_inexact_gt_midpoint = true;
-                is_midpoint_lt_even    = false;
-                is_midpoint_gt_even    = false;
-            } else {
-                // ;
             }
         }
     }
@@ -1081,7 +1089,7 @@ pub (crate) fn bid128_ext_fma(
                     x_nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
-                tmp.d     = C1.w[1] as f64;           // exact conversion
+                tmp.d     = C1.w[1] as f64;             // exact conversion
                 x_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
             q1 = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
@@ -1496,91 +1504,99 @@ pub (crate) fn bid128_ext_fma(
                 is_midpoint_lt_even     = false;
                 is_midpoint_gt_even     = false;
                 // the number of decimal digits in res is q4
-                if x0 < q4 { // 1 <= x0 <= q4-1 => round res to q4 - x0 digits
-                    if q4 <= 18 { // 2 <= q4 <= 18, 1 <= x0 <= 17
-                        R64 = bid_round64_2_18(
-                            q4, x0, res.w[0],
-                            &mut incr_exp,
-                            &mut is_midpoint_lt_even,
-                            &mut is_midpoint_gt_even,
-                            &mut is_inexact_lt_midpoint,
-                            &mut is_inexact_gt_midpoint);
+                match x0 {
+                    value if value < q4 => { // 1 <= x0 <= q4-1 => round res to q4 - x0 digits
+                        if q4 <= 18 { // 2 <= q4 <= 18, 1 <= x0 <= 17
+                            R64 = bid_round64_2_18(
+                                q4, x0, res.w[0],
+                                &mut incr_exp,
+                                &mut is_midpoint_lt_even,
+                                &mut is_midpoint_gt_even,
+                                &mut is_inexact_lt_midpoint,
+                                &mut is_inexact_gt_midpoint);
 
-                        if incr_exp {
-                            // R64 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 17
-                            R64 = bid_ten2k64[(q4 - x0) as usize];
-                        }
-                        // res.w[1] = 0; (from above)
-                        res.w[0] = R64;
-                    } else { // if (q4 <= 34)
-                        // 19 <= q4 <= 38
-                        P128.w[1] = res.w[1];
-                        P128.w[0] = res.w[0];
-                        res = bid_round128_19_38(
-                            q4, x0, &P128,
-                            &mut incr_exp,
-                            &mut is_midpoint_lt_even,
-                            &mut is_midpoint_gt_even,
-                            &mut is_inexact_lt_midpoint,
-                            &mut is_inexact_gt_midpoint);
-                        if incr_exp {
-                            // increase coefficient by a factor of 10; this will be <= 10^33
-                            // R128 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 37
-                            if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
-                                // res.w[1] = 0;
-                                res.w[0] = bid_ten2k64[(q4 - x0) as usize];
-                            } else { // 20 <= q4 - x0 <= 37
-                                res.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
-                                res.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                            if incr_exp {
+                                // R64 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 17
+                                R64 = bid_ten2k64[(q4 - x0) as usize];
+                            }
+                            // res.w[1] = 0; (from above)
+                            res.w[0] = R64;
+                        } else { // if (q4 <= 34)
+                            // 19 <= q4 <= 38
+                            P128.w[1] = res.w[1];
+                            P128.w[0] = res.w[0];
+                            res = bid_round128_19_38(
+                                q4, x0, &P128,
+                                &mut incr_exp,
+                                &mut is_midpoint_lt_even,
+                                &mut is_midpoint_gt_even,
+                                &mut is_inexact_lt_midpoint,
+                                &mut is_inexact_gt_midpoint);
+                            if incr_exp {
+                                // increase coefficient by a factor of 10; this will be <= 10^33
+                                // R128 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 37
+                                if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
+                                    // res.w[1] = 0;
+                                    res.w[0] = bid_ten2k64[(q4 - x0) as usize];
+                                } else { // 20 <= q4 - x0 <= 37
+                                    res.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
+                                    res.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                                }
                             }
                         }
-                    }
-                    e4 += x0; // EXP_MIN_UNBIASED
-                } else if x0 == q4 {
-                    // the second rounding is for 0.d(0)d(1)...d(q4-1) * 10^emin
-                    // determine relationship with 1/2 ulp
-                    if q4 <= 19 {
-                        if res.w[0] < bid_midpoint64[(q4 - 1) as usize] { // < 1/2 ulp
-                            lt_half_ulp            = true;
-                            is_inexact_lt_midpoint = true;
-                        } else if res.w[0] == bid_midpoint64[(q4 - 1) as usize] { // = 1/2 ulp
-                            eq_half_ulp         = true;
-                            is_midpoint_gt_even = true;
-                        } else { // > 1/2 ulp
-                            // gt_half_ulp = 1;
-                            is_inexact_gt_midpoint = true;
+                        e4 += x0; // EXP_MIN_UNBIASED
+                    },
+                    value if value == q4 => {
+                        // the second rounding is for 0.d(0)d(1)...d(q4-1) * 10^emin
+                        // determine relationship with 1/2 ulp
+                        if q4 <= 19 {
+                            match bid_midpoint64[(q4 - 1) as usize] {
+                                value if res.w[0] < value => { // < 1/2 ulp
+                                    lt_half_ulp            = true;
+                                    is_inexact_lt_midpoint = true;
+                                },
+                                value if res.w[0] == value => { // = 1/2 ulp
+                                    eq_half_ulp         = true;
+                                    is_midpoint_gt_even = true;
+                                },
+                                _ => { // > 1/2 ulp
+                                    // gt_half_ulp = 1;
+                                    is_inexact_gt_midpoint = true;
+                                }
+                            }
+                        } else { // if (q4 <= 34)
+                            if res.w[1]  < bid_midpoint128[(q4 - 20) as usize].w[1]
+                           || (res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
+                            && res.w[0]  < bid_midpoint128[(q4 - 20) as usize].w[0]) { // < 1/2 ulp
+                                lt_half_ulp            = true;
+                                is_inexact_lt_midpoint = true;
+                            } else if res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
+                                   && res.w[0] == bid_midpoint128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
+                                eq_half_ulp         = true;
+                                is_midpoint_gt_even = true;
+                            } else { // > 1/2 ulp
+                                // gt_half_ulp = 1;
+                                is_inexact_gt_midpoint = true;
+                            }
                         }
-                    } else { // if (q4 <= 34)
-                        if res.w[1]  < bid_midpoint128[(q4 - 20) as usize].w[1]
-                       || (res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                        && res.w[0]  < bid_midpoint128[(q4 - 20) as usize].w[0]) { // < 1/2 ulp
-                            lt_half_ulp            = true;
-                            is_inexact_lt_midpoint = true;
-                        } else if res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                               && res.w[0] == bid_midpoint128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
-                            eq_half_ulp         = true;
-                            is_midpoint_gt_even = true;
-                        } else { // > 1/2 ulp
-                            // gt_half_ulp = 1;
-                            is_inexact_gt_midpoint = true;
+                        if lt_half_ulp || eq_half_ulp {
+                            // res = +0.0 * 10^EXP_MIN_UNBIASED
+                            res.w[1] = 0x0000000000000000u64;
+                            res.w[0] = 0x0000000000000000u64;
+                        } else { // if (gt_half_ulp)
+                            // res = +1 * 10^EXP_MIN_UNBIASED
+                            res.w[1] = 0x0000000000000000u64;
+                            res.w[0] = 0x0000000000000001u64;
                         }
+                        e4 = EXP_MIN_UNBIASED;
+                    },
+                    _ => { // if (x0 > q4)
+                        // the second rounding is for 0.0...d(0)d(1)...d(q4-1) * 10^emin
+                        res.w[1] = 0;
+                        res.w[0] = 0;
+                        e4       = EXP_MIN_UNBIASED;
+                        is_inexact_lt_midpoint = true;
                     }
-                    if lt_half_ulp || eq_half_ulp {
-                        // res = +0.0 * 10^EXP_MIN_UNBIASED
-                        res.w[1] = 0x0000000000000000u64;
-                        res.w[0] = 0x0000000000000000u64;
-                    } else { // if (gt_half_ulp)
-                        // res = +1 * 10^EXP_MIN_UNBIASED
-                        res.w[1] = 0x0000000000000000u64;
-                        res.w[0] = 0x0000000000000001u64;
-                    }
-                    e4 = EXP_MIN_UNBIASED;
-                } else { // if (x0 > q4)
-                    // the second rounding is for 0.0...d(0)d(1)...d(q4-1) * 10^emin
-                    res.w[1] = 0;
-                    res.w[0] = 0;
-                    e4       = EXP_MIN_UNBIASED;
-                    is_inexact_lt_midpoint = true;
                 }
                 // avoid a double rounding error
                 if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
@@ -2109,12 +2125,16 @@ pub (crate) fn bid128_ext_fma(
             // determine whether x * y is less than, equal to, or greater than
             // 1/2 ulp (z)
             if q4 <= 19 {
-                if C4.w[0] < bid_midpoint64[(q4 - 1) as usize] { // < 1/2 ulp
-                    lt_half_ulp = true;
-                } else if C4.w[0] == bid_midpoint64[(q4 - 1) as usize] { // = 1/2 ulp
-                    eq_half_ulp = true;
-                } else { // > 1/2 ulp
-                    gt_half_ulp = true;
+                match bid_midpoint64[(q4 - 1) as usize] {
+                    value if C4.w[0] < value => { // < 1/2 ulp
+                        lt_half_ulp = true;
+                    },
+                    value if C4.w[0] == value => { // = 1/2 ulp
+                        eq_half_ulp = true;
+                    },
+                    _ => { // > 1/2 ulp
+                        gt_half_ulp = true;
+                    }
                 }
             } else if q4 <= 38 {
                 if C4.w[2] == 0 && (C4.w[1] < bid_midpoint128[(q4 - 20) as usize].w[1]
@@ -2913,165 +2933,169 @@ pub (crate) fn bid128_ext_fma(
             }
 
             // check for underflow
-            if e3 == EXP_MIN_UNBIASED { // and if significand < 10^33 => result is tiny
-                if (res.w[1] & MASK_COEFF) < 0x0000314dc6448d93u64
-                || ((res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64
-                  && res.w[0] < 0x38c15b0a00000000u64) {
-                    is_tiny = true;
-                }
-                #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
-                if ((res.w[1] & 0x7fffffffffffffffu64) == 0x0000314dc6448d93u64) &&
-                    (res.w[0] == 0x38c15b0a00000000u64) &&  // 10^33*10^-6176
-                    (z_sign != p_sign) {
-                    is_tiny = true;
-                }
-            } else if e3 < EXP_MIN_UNBIASED {
-                // the result is tiny, so we must truncate more of res
-                is_tiny                 = true;
-                x0                      = EXP_MIN_UNBIASED - e3;
-                is_inexact_lt_midpoint0 = is_inexact_lt_midpoint;
-                is_inexact_gt_midpoint0 = is_inexact_gt_midpoint;
-                is_midpoint_lt_even0    = is_midpoint_lt_even;
-                is_midpoint_gt_even0    = is_midpoint_gt_even;
-                is_inexact_lt_midpoint  = false;
-                is_inexact_gt_midpoint  = false;
-                is_midpoint_lt_even     = false;
-                is_midpoint_gt_even     = false;
-                // determine the number of decimal digits in res
-                if res.w[1] == 0x0 {
-                    // between 1 and 19 digits
-                    ind = bid_ten2k64[1..=19]
-                        .iter().enumerate()
-                        .take_while(|&(_, x)| R256.w[0] < *x)
-                        .count() as i32;
-                    ind += 1;
-                    // ind digits
-                } else if res.w[1] < bid_ten2k128[0].w[1]
-                      || (res.w[1] == bid_ten2k128[0].w[1]
-                       && res.w[0] < bid_ten2k128[0].w[0]) {
-                    // 20 digits
-                    ind = 20;
-                } else { // between 21 and 38 digits
-                    ind = bid_ten2k128[1..=18]
-                        .iter().enumerate()
-                        .take_while(|&(_, d)|
-                                res.w[1]  < d.w[1] || (res.w[1] == d.w[1] && res.w[0]  < d.w[0])
-                        ).count() as i32;
-                    ind += 1;
-                    // ind + 20 digits
-                    ind += 20;
-                }
-
-                // at this point ind >= x0; because delta >= 2 on this path, the case
-                // ind = x0 can occur only in Case (2) or case (3), when C3 has one
-                // digit (q3 = 1) equal to 1 (C3 = 1), e3 is EXP_MIN_UNBIASED (e3 = EXP_MIN_UNBIASED),
-                // the signs of x * y and z are opposite, and through cancellation
-                // the most significant decimal digit in res has the weight
-                // 10^(emin-1); however, it is clear that in this case the most
-                // significant digit is 9, so the result before rounding is
-                // 0.9... * 10^emin
-                // Otherwise, ind > x0 because there are non-zero decimal digits in the
-                // result with weight of at least 10^emin, and correction for underflow
-                //  can be carried out using the round*_*_2_* () routines
-                if x0 == ind { // the result before rounding is 0.9... * 10^emin
-                    res.w[1]               = 0x0;
-                    res.w[0]               = 0x1;
-                    is_inexact_gt_midpoint = true;
-                } else if ind <= 18 { // check that 2 <= ind
-                    // 2 <= ind <= 18, 1 <= x0 <= 17
-                    R64 = bid_round64_2_18(
-                        ind, x0, res.w[0],
-                        &mut incr_exp,
-                        &mut is_midpoint_lt_even,
-                        &mut is_midpoint_gt_even,
-                        &mut is_inexact_lt_midpoint,
-                        &mut is_inexact_gt_midpoint);
-
-                    if incr_exp {
-                        // R64 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 17
-                        R64 = bid_ten2k64[(ind - x0) as usize];
+            match e3 {
+                value if value == EXP_MIN_UNBIASED => { // and if significand < 10^33 => result is tiny
+                    if (res.w[1] & MASK_COEFF) < 0x0000314dc6448d93u64
+                    || ((res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64
+                      && res.w[0] < 0x38c15b0a00000000u64) {
+                        is_tiny = true;
                     }
-                    res.w[1] = 0;
-                    res.w[0] = R64;
-                } else if ind <= 38 {
-                    // 19 <= ind <= 38
-                    P128.w[1] = res.w[1];
-                    P128.w[0] = res.w[0];
-                    res = bid_round128_19_38(
-                        ind, x0, &P128,
-                        &mut incr_exp,
-                        &mut is_midpoint_lt_even,
-                        &mut is_midpoint_gt_even,
-                        &mut is_inexact_lt_midpoint,
-                        &mut is_inexact_gt_midpoint);
-                    if incr_exp {
-                        // R128 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 37
-                        if ind - x0 <= 19 { // 1 <= ind - x0 <= 19
-                            res.w[0] = bid_ten2k64[(ind - x0) as usize];
-                            // res.w[1] stays 0
-                        } else { // 20 <= ind - x0 <= 37
-                            res.w[0] = bid_ten2k128[(ind - x0 - 20) as usize].w[0];
-                            res.w[1] = bid_ten2k128[(ind - x0 - 20) as usize].w[1];
+                    #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
+                    if ((res.w[1] & 0x7fffffffffffffffu64) == 0x0000314dc6448d93u64) &&
+                        (res.w[0] == 0x38c15b0a00000000u64) &&  // 10^33*10^-6176
+                        (z_sign != p_sign) {
+                        is_tiny = true;
+                    }
+                },
+                value if value < EXP_MIN_UNBIASED => {
+                    // the result is tiny, so we must truncate more of res
+                    is_tiny                 = true;
+                    x0                      = EXP_MIN_UNBIASED - e3;
+                    is_inexact_lt_midpoint0 = is_inexact_lt_midpoint;
+                    is_inexact_gt_midpoint0 = is_inexact_gt_midpoint;
+                    is_midpoint_lt_even0    = is_midpoint_lt_even;
+                    is_midpoint_gt_even0    = is_midpoint_gt_even;
+                    is_inexact_lt_midpoint  = false;
+                    is_inexact_gt_midpoint  = false;
+                    is_midpoint_lt_even     = false;
+                    is_midpoint_gt_even     = false;
+                    // determine the number of decimal digits in res
+                    if res.w[1] == 0x0 {
+                        // between 1 and 19 digits
+                        ind = bid_ten2k64[1..=19]
+                            .iter().enumerate()
+                            .take_while(|&(_, x)| R256.w[0] < *x)
+                            .count() as i32;
+                        ind += 1;
+                        // ind digits
+                    } else if res.w[1] < bid_ten2k128[0].w[1]
+                          || (res.w[1] == bid_ten2k128[0].w[1]
+                           && res.w[0] < bid_ten2k128[0].w[0]) {
+                        // 20 digits
+                        ind = 20;
+                    } else { // between 21 and 38 digits
+                        ind = bid_ten2k128[1..=18]
+                            .iter().enumerate()
+                            .take_while(|&(_, d)|
+                                    res.w[1]  < d.w[1] || (res.w[1] == d.w[1] && res.w[0]  < d.w[0])
+                            ).count() as i32;
+                        ind += 1;
+                        // ind + 20 digits
+                        ind += 20;
+                    }
+
+                    // at this point ind >= x0; because delta >= 2 on this path, the case
+                    // ind = x0 can occur only in Case (2) or case (3), when C3 has one
+                    // digit (q3 = 1) equal to 1 (C3 = 1), e3 is EXP_MIN_UNBIASED (e3 = EXP_MIN_UNBIASED),
+                    // the signs of x * y and z are opposite, and through cancellation
+                    // the most significant decimal digit in res has the weight
+                    // 10^(emin-1); however, it is clear that in this case the most
+                    // significant digit is 9, so the result before rounding is
+                    // 0.9... * 10^emin
+                    // Otherwise, ind > x0 because there are non-zero decimal digits in the
+                    // result with weight of at least 10^emin, and correction for underflow
+                    //  can be carried out using the round*_*_2_* () routines
+                    if x0 == ind { // the result before rounding is 0.9... * 10^emin
+                        res.w[1]               = 0x0;
+                        res.w[0]               = 0x1;
+                        is_inexact_gt_midpoint = true;
+                    } else if ind <= 18 { // check that 2 <= ind
+                        // 2 <= ind <= 18, 1 <= x0 <= 17
+                        R64 = bid_round64_2_18(
+                            ind, x0, res.w[0],
+                            &mut incr_exp,
+                            &mut is_midpoint_lt_even,
+                            &mut is_midpoint_gt_even,
+                            &mut is_inexact_lt_midpoint,
+                            &mut is_inexact_gt_midpoint);
+
+                        if incr_exp {
+                            // R64 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 17
+                            R64 = bid_ten2k64[(ind - x0) as usize];
+                        }
+                        res.w[1] = 0;
+                        res.w[0] = R64;
+                    } else if ind <= 38 {
+                        // 19 <= ind <= 38
+                        P128.w[1] = res.w[1];
+                        P128.w[0] = res.w[0];
+                        res = bid_round128_19_38(
+                            ind, x0, &P128,
+                            &mut incr_exp,
+                            &mut is_midpoint_lt_even,
+                            &mut is_midpoint_gt_even,
+                            &mut is_inexact_lt_midpoint,
+                            &mut is_inexact_gt_midpoint);
+                        if incr_exp {
+                            // R128 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 37
+                            if ind - x0 <= 19 { // 1 <= ind - x0 <= 19
+                                res.w[0] = bid_ten2k64[(ind - x0) as usize];
+                                // res.w[1] stays 0
+                            } else { // 20 <= ind - x0 <= 37
+                                res.w[0] = bid_ten2k128[(ind - x0 - 20) as usize].w[0];
+                                res.w[1] = bid_ten2k128[(ind - x0 - 20) as usize].w[1];
+                            }
                         }
                     }
-                }
-                // avoid a double rounding error
-                if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
-                    // res = res - 1
-                    res.w[0] -= 1;
-                    if res.w[0] == 0xffffffffffffffffu64 {
-                        res.w[1] -= 1;
-                    }
-                    // Note: a double rounding error upward is not possible; for this
-                    // the result after the first rounding would have to be 99...95
-                    // (35 digits in all), possibly followed by a number of zeros; this
-                    // not possible in Cases (2)-(6) which may get here
-                    is_midpoint_lt_even    = false;
-                    is_inexact_lt_midpoint = true;
-                } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
-                    // res = res + 1
-                    res.w[0] += 1;
-                    if res.w[0] == 0 {
-                        res.w[1] += 1;
-                    }
-                    is_midpoint_gt_even    = false;
-                    is_inexact_gt_midpoint = true;
-                } else if !is_midpoint_lt_even    && !is_midpoint_gt_even
-                       && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                    // if this second rounding was exact the result may still be
-                    // inexact because of the first rounding
-                    if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
+                    // avoid a double rounding error
+                    if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
+                        // res = res - 1
+                        res.w[0] -= 1;
+                        if res.w[0] == 0xffffffffffffffffu64 {
+                            res.w[1] -= 1;
+                        }
+                        // Note: a double rounding error upward is not possible; for this
+                        // the result after the first rounding would have to be 99...95
+                        // (35 digits in all), possibly followed by a number of zeros; this
+                        // not possible in Cases (2)-(6) which may get here
+                        is_midpoint_lt_even    = false;
+                        is_inexact_lt_midpoint = true;
+                    } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
+                        // res = res + 1
+                        res.w[0] += 1;
+                        if res.w[0] == 0 {
+                            res.w[1] += 1;
+                        }
+                        is_midpoint_gt_even    = false;
                         is_inexact_gt_midpoint = true;
-                    }
-                    if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                    } else if !is_midpoint_lt_even    && !is_midpoint_gt_even
+                           && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
+                        // if this second rounding was exact the result may still be
+                        // inexact because of the first rounding
+                        if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
+                            is_inexact_gt_midpoint = true;
+                        }
+                        if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                            is_inexact_lt_midpoint = true;
+                        }
+                    } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
+                        // pu64ed up to a midpoint
                         is_inexact_lt_midpoint = true;
+                        is_inexact_gt_midpoint = false;
+                        is_midpoint_lt_even    = false;
+                        is_midpoint_gt_even    = false;
+                    } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
+                        // pu64ed down to a midpoint
+                        is_inexact_lt_midpoint = false;
+                        is_inexact_gt_midpoint = true;
+                        is_midpoint_lt_even    = false;
+                        is_midpoint_gt_even    = false;
+                    } else {
+                        // ;
                     }
-                } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
-                    // pu64ed up to a midpoint
-                    is_inexact_lt_midpoint = true;
-                    is_inexact_gt_midpoint = false;
-                    is_midpoint_lt_even    = false;
-                    is_midpoint_gt_even    = false;
-                } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
-                    // pu64ed down to a midpoint
-                    is_inexact_lt_midpoint = false;
-                    is_inexact_gt_midpoint = true;
-                    is_midpoint_lt_even    = false;
-                    is_midpoint_gt_even    = false;
-                } else {
-                    // ;
-                }
-                // adjust exponent
-                e3 += x0;
-                if !is_midpoint_lt_even    && !is_midpoint_gt_even
-                && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                    if is_midpoint_lt_even0    || is_midpoint_gt_even0
-                    || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0 {
-                        is_inexact_lt_midpoint = true;
+                    // adjust exponent
+                    e3 += x0;
+                    if !is_midpoint_lt_even    && !is_midpoint_gt_even
+                    && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
+                        if is_midpoint_lt_even0    || is_midpoint_gt_even0
+                        || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0 {
+                            is_inexact_lt_midpoint = true;
+                        }
                     }
+                },
+                _ => {
+                    // not underflow
                 }
-            } else {
-                // not underflow
             }
             // check for inexact result
             if is_inexact_lt_midpoint || is_inexact_gt_midpoint
@@ -3232,17 +3256,21 @@ pub (crate) fn bid128_ext_fma(
                             is_inexact_gt_midpoint = true;
                         } else { // if (delta == p34 + 1)
                             if q3 <= 19 {
-                                if C3.w[0] < bid_midpoint64[(q3 - 1) as usize] { // C3 < 1/2 ulp
-                                    // res = 10^33, unchanged
-                                    is_inexact_gt_midpoint = true;
-                                } else if C3.w[0] == bid_midpoint64[(q3 - 1) as usize] { // C3 = 1/2 ulp
-                                    // res = 10^33, unchanged
-                                    is_midpoint_lt_even = true;
-                                } else { // if (C3.w[0] > bid_midpoint64[q3-1]), C3 > 1/2 ulp
-                                    res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
-                                    res.w[0] = 0x378d8e63ffffffffu64;
-                                    e4      -= 1;
-                                    is_inexact_lt_midpoint = true;
+                                match bid_midpoint64[(q3 - 1) as usize] {
+                                    value if C3.w[0] < value => { // C3 < 1/2 ulp
+                                        // res = 10^33, unchanged
+                                        is_inexact_gt_midpoint = true;
+                                    },
+                                    value if C3.w[0] == value => { // C3 = 1/2 ulp
+                                        // res = 10^33, unchanged
+                                        is_midpoint_lt_even = true;
+                                    },
+                                    _ => { // if (C3.w[0] > bid_midpoint64[q3-1]), C3 > 1/2 ulp
+                                        res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
+                                        res.w[0] = 0x378d8e63ffffffffu64;
+                                        e4      -= 1;
+                                        is_inexact_lt_midpoint = true;
+                                    }
                                 }
                             } else { // if (20 <= q3 <=34)
                                 if  C3.w[1]  < bid_midpoint128[(q3 - 20) as usize].w[1]
@@ -3479,120 +3507,125 @@ pub (crate) fn bid128_ext_fma(
             // and using the indicators from the rounding of C3 to avoid a double
             // rounding error
 
-            if ind < p34 {
-                // ;
-            } else if ind == p34 {
-                // the result rounded to the destination precision with
-                // unbounded exponent
-                // is (-1)^p_sign * R256 * 10^e4
-                res.w[1] = R256.w[1];
-                res.w[0] = R256.w[0];
-            } else { // if (ind > p34)
-                // if more than P digits, round to nearest to P digits
-                // round R256 to p34 digits
-                x0 = ind - p34; // 1 <= x0 <= 34 as 35 <= ind <= 68
-                // save C3 rounding indicators to help avoid double rounding error
-                is_inexact_lt_midpoint0 = is_inexact_lt_midpoint;
-                is_inexact_gt_midpoint0 = is_inexact_gt_midpoint;
-                is_midpoint_lt_even0    = is_midpoint_lt_even;
-                is_midpoint_gt_even0    = is_midpoint_gt_even;
-                // initialize rounding indicators
-                is_inexact_lt_midpoint = false;
-                is_inexact_gt_midpoint = false;
-                is_midpoint_lt_even    = false;
-                is_midpoint_gt_even    = false;
-                // round to p34 digits; the result fits in 113 bits
-                if ind <= 38 {
-                    P128.w[1] = R256.w[1];
-                    P128.w[0] = R256.w[0];
-                    R128 = bid_round128_19_38(
-                        ind, x0, &P128,
-                        &mut incr_exp,
-                        &mut is_midpoint_lt_even,
-                        &mut is_midpoint_gt_even,
-                        &mut is_inexact_lt_midpoint,
-                        &mut is_inexact_gt_midpoint);
-                } else if ind <= 57 {
-                    P192.w[2] = R256.w[2];
-                    P192.w[1] = R256.w[1];
-                    P192.w[0] = R256.w[0];
-                    R192 = bid_round192_39_57(
-                        ind, x0, &P192,
-                        &mut incr_exp,
-                        &mut is_midpoint_lt_even,
-                        &mut is_midpoint_gt_even,
-                        &mut is_inexact_lt_midpoint,
-                        &mut is_inexact_gt_midpoint);
-                    R128.w[1] = R192.w[1];
-                    R128.w[0] = R192.w[0];
-                } else { // if (ind <= 68)
-                    R256 = bid_round256_58_76(
-                        ind, x0, &R256,
-                        &mut incr_exp,
-                        &mut is_midpoint_lt_even,
-                        &mut is_midpoint_gt_even,
-                        &mut is_inexact_lt_midpoint,
-                        &mut is_inexact_gt_midpoint);
-                    R128.w[1] = R256.w[1];
-                    R128.w[0] = R256.w[0];
-                }
-                // the rounded result has p34 = 34 digits
-                e4 = e4 + x0 + if incr_exp { 1 } else { 0 };
-
-                res.w[1] = R128.w[1];
-                res.w[0] = R128.w[0];
-
-                // avoid a double rounding error
-                if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
-                    // res = res - 1
-                    res.w[0] -= 1;
-                    if res.w[0] == 0xffffffffffffffffu64 {
-                        res.w[1] -= 1;
-                    }
-                    is_midpoint_lt_even    = false;
-                    is_inexact_lt_midpoint = true;
-                    // Note: a double rounding error upward is not possible; for this
-                    // the result after the first rounding would have to be 99...95
-                    // (35 digits in all), possibly followed by a number of zeros; this
-                    // not possible in Cases (2)-(6) or (15)-(17) which may get here
-                    // if this is 10^33 - 1 make it 10^34 - 1 and decrement exponent
-                    if res.w[1] == 0x0000314dc6448d93u64 && res.w[0] == 0x38c15b09ffffffffu64 { // 10^33 - 1
-                        res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
-                        res.w[0] = 0x378d8e63ffffffffu64;
-                        e4      -= 1;
-                    }
-                } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
-                    // res = res + 1
-                    res.w[0] += 1;
-                    if res.w[0] == 0 {
-                        res.w[1] += 1;
-                    }
-                    is_midpoint_gt_even    = false;
-                    is_inexact_gt_midpoint = true;
-                } else if !is_midpoint_lt_even && !is_midpoint_gt_even
-                       && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                    // if this second rounding was exact the result may still be
-                    // inexact because of the first rounding
-                    if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
-                        is_inexact_gt_midpoint = true;
-                    }
-                    if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
-                        is_inexact_lt_midpoint = true;
-                    }
-                } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
-                    // pu64ed up to a midpoint
-                    is_inexact_lt_midpoint = true;
+            match ind {
+                value if value < p34 => {
+                    // ;
+                },
+                value if value == p34 => {
+                    // the result rounded to the destination precision with
+                    // unbounded exponent
+                    // is (-1)^p_sign * R256 * 10^e4
+                    res.w[1] = R256.w[1];
+                    res.w[0] = R256.w[0];
+                },
+                _ => {
+                    // if (ind > p34)
+                    // if more than P digits, round to nearest to P digits
+                    // round R256 to p34 digits
+                    x0 = ind - p34; // 1 <= x0 <= 34 as 35 <= ind <= 68
+                    // save C3 rounding indicators to help avoid double rounding error
+                    is_inexact_lt_midpoint0 = is_inexact_lt_midpoint;
+                    is_inexact_gt_midpoint0 = is_inexact_gt_midpoint;
+                    is_midpoint_lt_even0    = is_midpoint_lt_even;
+                    is_midpoint_gt_even0    = is_midpoint_gt_even;
+                    // initialize rounding indicators
+                    is_inexact_lt_midpoint = false;
                     is_inexact_gt_midpoint = false;
                     is_midpoint_lt_even    = false;
                     is_midpoint_gt_even    = false;
-                } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
-                    // pu64ed down to a midpoint
-                    is_inexact_lt_midpoint = false;
-                    is_inexact_gt_midpoint = true;
-                    is_midpoint_lt_even    = false;
-                    is_midpoint_gt_even    = false;
-                } else {
-                    // ;
+                    // round to p34 digits; the result fits in 113 bits
+                    if ind <= 38 {
+                        P128.w[1] = R256.w[1];
+                        P128.w[0] = R256.w[0];
+                        R128 = bid_round128_19_38(
+                            ind, x0, &P128,
+                            &mut incr_exp,
+                            &mut is_midpoint_lt_even,
+                            &mut is_midpoint_gt_even,
+                            &mut is_inexact_lt_midpoint,
+                            &mut is_inexact_gt_midpoint);
+                    } else if ind <= 57 {
+                        P192.w[2] = R256.w[2];
+                        P192.w[1] = R256.w[1];
+                        P192.w[0] = R256.w[0];
+                        R192 = bid_round192_39_57(
+                            ind, x0, &P192,
+                            &mut incr_exp,
+                            &mut is_midpoint_lt_even,
+                            &mut is_midpoint_gt_even,
+                            &mut is_inexact_lt_midpoint,
+                            &mut is_inexact_gt_midpoint);
+                        R128.w[1] = R192.w[1];
+                        R128.w[0] = R192.w[0];
+                    } else { // if (ind <= 68)
+                        R256 = bid_round256_58_76(
+                            ind, x0, &R256,
+                            &mut incr_exp,
+                            &mut is_midpoint_lt_even,
+                            &mut is_midpoint_gt_even,
+                            &mut is_inexact_lt_midpoint,
+                            &mut is_inexact_gt_midpoint);
+                        R128.w[1] = R256.w[1];
+                        R128.w[0] = R256.w[0];
+                    }
+                    // the rounded result has p34 = 34 digits
+                    e4 = e4 + x0 + if incr_exp { 1 } else { 0 };
+
+                    res.w[1] = R128.w[1];
+                    res.w[0] = R128.w[0];
+
+                    // avoid a double rounding error
+                    if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
+                        // res = res - 1
+                        res.w[0] -= 1;
+                        if res.w[0] == 0xffffffffffffffffu64 {
+                            res.w[1] -= 1;
+                        }
+                        is_midpoint_lt_even    = false;
+                        is_inexact_lt_midpoint = true;
+                        // Note: a double rounding error upward is not possible; for this
+                        // the result after the first rounding would have to be 99...95
+                        // (35 digits in all), possibly followed by a number of zeros; this
+                        // not possible in Cases (2)-(6) or (15)-(17) which may get here
+                        // if this is 10^33 - 1 make it 10^34 - 1 and decrement exponent
+                        if res.w[1] == 0x0000314dc6448d93u64 && res.w[0] == 0x38c15b09ffffffffu64 { // 10^33 - 1
+                            res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
+                            res.w[0] = 0x378d8e63ffffffffu64;
+                            e4      -= 1;
+                        }
+                    } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
+                        // res = res + 1
+                        res.w[0] += 1;
+                        if res.w[0] == 0 {
+                            res.w[1] += 1;
+                        }
+                        is_midpoint_gt_even    = false;
+                        is_inexact_gt_midpoint = true;
+                    } else if !is_midpoint_lt_even && !is_midpoint_gt_even
+                           && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
+                        // if this second rounding was exact the result may still be
+                        // inexact because of the first rounding
+                        if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
+                            is_inexact_gt_midpoint = true;
+                        }
+                        if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                            is_inexact_lt_midpoint = true;
+                        }
+                    } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
+                        // pu64ed up to a midpoint
+                        is_inexact_lt_midpoint = true;
+                        is_inexact_gt_midpoint = false;
+                        is_midpoint_lt_even    = false;
+                        is_midpoint_gt_even    = false;
+                    } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
+                        // pu64ed down to a midpoint
+                        is_inexact_lt_midpoint = false;
+                        is_inexact_gt_midpoint = true;
+                        is_midpoint_lt_even    = false;
+                        is_midpoint_gt_even    = false;
+                    } else {
+                        // ;
+                    }
                 }
             }
 
@@ -3669,136 +3702,144 @@ pub (crate) fn bid128_ext_fma(
                 is_midpoint_lt_even     = false;
                 is_midpoint_gt_even     = false;
 
-                if x0 > ind {
-                    // nothing is left of res when moving the decimal point left x0 digits
-                    is_inexact_lt_midpoint = true;
-                    res.w[1]               = p_sign | 0x0000000000000000u64;
-                    res.w[0]               = 0x0000000000000000u64;
-                    e4                     = EXP_MIN_UNBIASED;
-                } else if x0 == ind { // 1 <= x0 = ind <= p34 = 34
-                    // this is <, =, or > 1/2 ulp
-                    // compare the ind-digit value in the significand of res with
-                    // 1/2 ulp = 5*10^(ind-1), i.e. determine whether it is
-                    // less than, equal to, or greater than 1/2 ulp (significand of res)
-                    R128.w[1] = res.w[1] & MASK_COEFF;
-                    R128.w[0] = res.w[0];
-                    if ind <= 19 {
-                        if R128.w[0] < bid_midpoint64[(ind - 1) as usize] {         // < 1/2 ulp
-                            lt_half_ulp            = true;
-                            is_inexact_lt_midpoint = true;
-                        } else if R128.w[0] == bid_midpoint64[(ind - 1) as usize] { // = 1/2 ulp
-                            eq_half_ulp         = true;
-                            is_midpoint_gt_even = true;
-                        } else { // > 1/2 ulp
-                            gt_half_ulp            = true;
-                            is_inexact_gt_midpoint = true;
+                match x0 {
+                    value if value > ind => {
+                        // nothing is left of res when moving the decimal point left x0 digits
+                        is_inexact_lt_midpoint = true;
+                        res.w[1]               = p_sign | 0x0000000000000000u64;
+                        res.w[0]               = 0x0000000000000000u64;
+                        e4                     = EXP_MIN_UNBIASED;
+                    },
+                    value if value == ind => { // 1 <= x0 = ind <= p34 = 34
+                        // this is <, =, or > 1/2 ulp
+                        // compare the ind-digit value in the significand of res with
+                        // 1/2 ulp = 5*10^(ind-1), i.e. determine whether it is
+                        // less than, equal to, or greater than 1/2 ulp (significand of res)
+                        R128.w[1] = res.w[1] & MASK_COEFF;
+                        R128.w[0] = res.w[0];
+                        if ind <= 19 {
+                            match bid_midpoint64[(ind - 1) as usize] {
+                                value if R128.w[0] < value => { // < 1/2 ulp
+                                    lt_half_ulp            = true;
+                                    is_inexact_lt_midpoint = true;
+                                },
+                                value if R128.w[0] == value => { // = 1/2 ulp
+                                    eq_half_ulp         = true;
+                                    is_midpoint_gt_even = true;
+                                },
+                                _ => { // > 1/2 ulp
+                                    gt_half_ulp            = true;
+                                    is_inexact_gt_midpoint = true;
+                                }
+                            }
+                        } else { // if (ind <= 38)
+                            if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
+                            || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
+                            &&  R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) {      // < 1/2 ulp
+                                lt_half_ulp            = true;
+                                is_inexact_lt_midpoint = true;
+                            } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
+                                   && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
+                                eq_half_ulp         = true;
+                                is_midpoint_gt_even = true;
+                            } else { // > 1/2 ulp
+                                gt_half_ulp            = true;
+                                is_inexact_gt_midpoint = true;
+                            }
                         }
-                    } else { // if (ind <= 38)
-                        if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
-                        || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                        &&  R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) {      // < 1/2 ulp
-                            lt_half_ulp            = true;
-                            is_inexact_lt_midpoint = true;
-                        } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                               && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
-                            eq_half_ulp         = true;
-                            is_midpoint_gt_even = true;
-                        } else { // > 1/2 ulp
-                            gt_half_ulp            = true;
-                            is_inexact_gt_midpoint = true;
+                        if lt_half_ulp || eq_half_ulp {
+                            // res = +0.0 * 10^EXP_MIN_UNBIASED
+                            res.w[1] = 0x0000000000000000u64;
+                            res.w[0] = 0x0000000000000000u64;
+                        } else { // if (gt_half_ulp)
+                            // res = +1 * 10^EXP_MIN_UNBIASED
+                            res.w[1] = 0x0000000000000000u64;
+                            res.w[0] = 0x0000000000000001u64;
                         }
-                    }
-                    if lt_half_ulp || eq_half_ulp {
-                        // res = +0.0 * 10^EXP_MIN_UNBIASED
-                        res.w[1] = 0x0000000000000000u64;
-                        res.w[0] = 0x0000000000000000u64;
-                    } else { // if (gt_half_ulp)
-                        // res = +1 * 10^EXP_MIN_UNBIASED
-                        res.w[1] = 0x0000000000000000u64;
-                        res.w[0] = 0x0000000000000001u64;
-                    }
-                    res.w[1] |= p_sign;
-                    e4        = EXP_MIN_UNBIASED;
-                } else { // if (1 <= x0 <= ind - 1 <= 33)
-                    // round the ind-digit result to ind - x0 digits
+                        res.w[1] |= p_sign;
+                        e4        = EXP_MIN_UNBIASED;
+                    },
+                    _ => { // if (1 <= x0 <= ind - 1 <= 33)
+                        // round the ind-digit result to ind - x0 digits
 
-                    if ind <= 18 { // 2 <= ind <= 18
-                        R64 = bid_round64_2_18(
-                            ind, x0, res.w[0],
-                            &mut incr_exp,
-                            &mut is_midpoint_lt_even,
-                            &mut is_midpoint_gt_even,
-                            &mut is_inexact_lt_midpoint,
-                            &mut is_inexact_gt_midpoint);
-                        res.w[1] = 0x0;
-                        res.w[0] = R64;
-                    } else if ind <= 38 {
-                        P128.w[1] = res.w[1] & MASK_COEFF;
-                        P128.w[0] = res.w[0];
-                        res = bid_round128_19_38(
-                            ind, x0, &P128,
-                            &mut incr_exp,
-                            &mut is_midpoint_lt_even,
-                            &mut is_midpoint_gt_even,
-                            &mut is_inexact_lt_midpoint,
-                            &mut is_inexact_gt_midpoint);
-                    }
-                    e4 += x0; // EXP_MIN_UNBIASED
-                    // we want the exponent to be EXP_MIN_UNBIASED, so if incr_exp = 1 then
-                    // multiply the rounded result by 10 - it will still fit in 113 bits
-                    if incr_exp {
-                        // 64 x 128 -> 128
-                        P128.w[1] = res.w[1] & MASK_COEFF;
-                        P128.w[0] = res.w[0];
-                        res = __mul_64x128_to_128(bid_ten2k64[1], &P128);
-                    }
-                    res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
-                    // avoid a double rounding error
-                    if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0)
-                     && is_midpoint_lt_even { // double rounding error upward
-                        // res = res - 1
-                        res.w[0] -= 1;
-                        if res.w[0] == 0xffffffffffffffffu64 {
-                            res.w[1] -= 1;
+                        if ind <= 18 { // 2 <= ind <= 18
+                            R64 = bid_round64_2_18(
+                                ind, x0, res.w[0],
+                                &mut incr_exp,
+                                &mut is_midpoint_lt_even,
+                                &mut is_midpoint_gt_even,
+                                &mut is_inexact_lt_midpoint,
+                                &mut is_inexact_gt_midpoint);
+                            res.w[1] = 0x0;
+                            res.w[0] = R64;
+                        } else if ind <= 38 {
+                            P128.w[1] = res.w[1] & MASK_COEFF;
+                            P128.w[0] = res.w[0];
+                            res = bid_round128_19_38(
+                                ind, x0, &P128,
+                                &mut incr_exp,
+                                &mut is_midpoint_lt_even,
+                                &mut is_midpoint_gt_even,
+                                &mut is_inexact_lt_midpoint,
+                                &mut is_inexact_gt_midpoint);
                         }
-                        // Note: a double rounding error upward is not possible; for this
-                        // the result after the first rounding would have to be 99...95
-                        // (35 digits in all), possibly followed by a number of zeros; this
-                        // not possible in this underflow case
-                        is_midpoint_lt_even    = false;
-                        is_inexact_lt_midpoint = true;
-                    } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
-                        // res = res + 1
-                        res.w[0] += 1;
-                        if res.w[0] == 0 {
-                            res.w[1] += 1;
+                        e4 += x0; // EXP_MIN_UNBIASED
+                        // we want the exponent to be EXP_MIN_UNBIASED, so if incr_exp = 1 then
+                        // multiply the rounded result by 10 - it will still fit in 113 bits
+                        if incr_exp {
+                            // 64 x 128 -> 128
+                            P128.w[1] = res.w[1] & MASK_COEFF;
+                            P128.w[0] = res.w[0];
+                            res = __mul_64x128_to_128(bid_ten2k64[1], &P128);
                         }
-                        is_midpoint_gt_even    = false;
-                        is_inexact_gt_midpoint = true;
-                    } else if !is_midpoint_lt_even    && !is_midpoint_gt_even
-                           && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                        // if this second rounding was exact the result may still be
-                        // inexact because of the first rounding
-                        if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
-                            is_inexact_gt_midpoint = true;
-                        }
-                        if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                        res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
+                        // avoid a double rounding error
+                        if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0)
+                         && is_midpoint_lt_even { // double rounding error upward
+                            // res = res - 1
+                            res.w[0] -= 1;
+                            if res.w[0] == 0xffffffffffffffffu64 {
+                                res.w[1] -= 1;
+                            }
+                            // Note: a double rounding error upward is not possible; for this
+                            // the result after the first rounding would have to be 99...95
+                            // (35 digits in all), possibly followed by a number of zeros; this
+                            // not possible in this underflow case
+                            is_midpoint_lt_even    = false;
                             is_inexact_lt_midpoint = true;
+                        } else if (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) && is_midpoint_gt_even { // double rounding error downward
+                            // res = res + 1
+                            res.w[0] += 1;
+                            if res.w[0] == 0 {
+                                res.w[1] += 1;
+                            }
+                            is_midpoint_gt_even    = false;
+                            is_inexact_gt_midpoint = true;
+                        } else if !is_midpoint_lt_even    && !is_midpoint_gt_even
+                               && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
+                            // if this second rounding was exact the result may still be
+                            // inexact because of the first rounding
+                            if is_inexact_gt_midpoint0 || is_midpoint_lt_even0 {
+                                is_inexact_gt_midpoint = true;
+                            }
+                            if is_inexact_lt_midpoint0 || is_midpoint_gt_even0 {
+                                is_inexact_lt_midpoint = true;
+                            }
+                        } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
+                            // pu64ed up to a midpoint
+                            is_inexact_lt_midpoint = true;
+                            is_inexact_gt_midpoint = false;
+                            is_midpoint_lt_even    = false;
+                            is_midpoint_gt_even    = false;
+                        } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
+                            // pu64ed down to a midpoint
+                            is_inexact_lt_midpoint = false;
+                            is_inexact_gt_midpoint = true;
+                            is_midpoint_lt_even    = false;
+                            is_midpoint_gt_even    = false;
+                        } else {
+                            // ;
                         }
-                    } else if is_midpoint_gt_even && (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) {
-                        // pu64ed up to a midpoint
-                        is_inexact_lt_midpoint = true;
-                        is_inexact_gt_midpoint = false;
-                        is_midpoint_lt_even    = false;
-                        is_midpoint_gt_even    = false;
-                    } else if is_midpoint_lt_even && (is_inexact_lt_midpoint0 || is_midpoint_gt_even0) {
-                        // pu64ed down to a midpoint
-                        is_inexact_lt_midpoint = false;
-                        is_inexact_gt_midpoint = true;
-                        is_midpoint_lt_even    = false;
-                        is_midpoint_gt_even    = false;
-                    } else {
-                        // ;
                     }
                 }
             }
@@ -4298,44 +4339,52 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
             is_midpoint_lt_even     = false;
             is_midpoint_gt_even     = false;
             // the number of decimal digits in res1 is q
-            if x0 < q { // 1 <= x0 <= q-1 => round res to q - x0 digits
-                // 2 <= q <= 16, 1 <= x0 <= 15
-                res1 = bid_round64_2_18(
-                    q, x0, res1, &mut incr_exp,
-                    &mut is_midpoint_lt_even, &mut is_midpoint_gt_even,
-                    &mut is_inexact_lt_midpoint, &mut is_inexact_gt_midpoint);
-                if incr_exp {
-                    // res1 = 10^(q-x0), 1 <= q - x0 <= q - 1, 1 <= q - x0 <= 15
-                    res1 = bid_ten2k64[(q - x0) as usize];
-                }
-                unbexp += x0; // EXP_MIN16_UNBIASED
-            } else if x0 == q {
-                // the second rounding is for 0.d(0)d(1)...d(q-1) * 10^emin
-                // determine relationship with 1/2 ulp
-                // q <= 16
-                if res1 < bid_midpoint64[(q - 1) as usize] {            // < 1/2 ulp
-                    lt_half_ulp            = true;
+            match x0 {
+                value if value < q => { // 1 <= x0 <= q-1 => round res to q - x0 digits
+                    // 2 <= q <= 16, 1 <= x0 <= 15
+                    res1 = bid_round64_2_18(
+                        q, x0, res1, &mut incr_exp,
+                        &mut is_midpoint_lt_even, &mut is_midpoint_gt_even,
+                        &mut is_inexact_lt_midpoint, &mut is_inexact_gt_midpoint);
+                    if incr_exp {
+                        // res1 = 10^(q-x0), 1 <= q - x0 <= q - 1, 1 <= q - x0 <= 15
+                        res1 = bid_ten2k64[(q - x0) as usize];
+                    }
+                    unbexp += x0; // EXP_MIN16_UNBIASED
+                },
+                value if value == q => {
+                    // the second rounding is for 0.d(0)d(1)...d(q-1) * 10^emin
+                    // determine relationship with 1/2 ulp
+                    // q <= 16
+                    match bid_midpoint64[(q - 1) as usize] {
+                        value if res1 < value => {  // < 1/2 ulp
+                            lt_half_ulp            = true;
+                            is_inexact_lt_midpoint = true;
+                        },
+                        value if res1 == value => { // = 1/2 ulp
+                            eq_half_ulp            = true;
+                            is_midpoint_gt_even    = true;
+                        },
+                        _ => { // > 1/2 ulp
+                            // gt_half_ulp = 1;
+                            is_inexact_gt_midpoint = true;
+                        }
+                    }
+                    res1 = if lt_half_ulp || eq_half_ulp {
+                        // res = +0.0 * 10^EXP_MIN16_UNBIASED
+                        0x0000000000000000u64
+                    } else { // if (gt_half_ulp)
+                        // res = +1 * 10^EXP_MIN16_UNBIASED
+                        0x0000000000000001u64
+                    };
+                    unbexp = EXP_MIN16_UNBIASED;
+                },
+                 _ => { // if (x0 > q)
+                    // the second rounding is for 0.0...d(0)d(1)...d(q-1) * 10^emin
+                    res1                   = 0x0000000000000000u64;
+                    unbexp                 = EXP_MIN16_UNBIASED;
                     is_inexact_lt_midpoint = true;
-                } else if res1 == bid_midpoint64[(q - 1) as usize] {    // = 1/2 ulp
-                    eq_half_ulp            = true;
-                    is_midpoint_gt_even    = true;
-                } else { // > 1/2 ulp
-                    // gt_half_ulp = 1;
-                    is_inexact_gt_midpoint = true;
                 }
-                if lt_half_ulp || eq_half_ulp {
-                    // res = +0.0 * 10^EXP_MIN16_UNBIASED
-                    res1 = 0x0000000000000000u64;
-                } else { // if (gt_half_ulp)
-                    // res = +1 * 10^EXP_MIN16_UNBIASED
-                    res1 = 0x0000000000000001u64;
-                }
-                unbexp = EXP_MIN16_UNBIASED;
-            } else { // if (x0 > q)
-                // the second rounding is for 0.0...d(0)d(1)...d(q-1) * 10^emin
-                res1                   = 0x0000000000000000u64;
-                unbexp                 = EXP_MIN16_UNBIASED;
-                is_inexact_lt_midpoint = true;
             }
             // avoid a double rounding error
             if (is_inexact_gt_midpoint0 || is_midpoint_lt_even0) && is_midpoint_lt_even { // double rounding error upward
