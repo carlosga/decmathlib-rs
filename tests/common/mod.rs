@@ -567,6 +567,17 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_quantum, $input1:expr, $exp:expr) => {
+        #[test]
+        fn $name() {
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let exp  = decmathlib_rs::d128::d128::from($exp);
+            let res1 = dec1.quantum();
+
+            assert_eq!(exp, res1);
+        }
+    };
+
     ($name:ident, bid128_negate, $input1:expr, $exp:expr) => {
         #[test]
         fn $name() {

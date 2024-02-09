@@ -37,6 +37,7 @@ use crate::bid128_nexttoward::bid128_nexttoward;
 use crate::bid128_noncomp::*;
 use crate::bid128_quantexp::bid128_quantexp;
 use crate::bid128_quantize::bid128_quantize;
+use crate::bid128_quantum::bid128_quantum;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
@@ -387,6 +388,12 @@ impl d128 {
     /// are infinite then the result is canonical infinity with the sign of x
     pub fn quantize(x: &Self, y: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_quantize(x, y, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// The quantumdN functions compute the quantum of a finite argument.
+    /// If x is infinite, the result is +Inf. If x is NaN, the result is NaN.
+    pub fn quantum(&self) -> Self {
+        bid128_quantum(self)
     }
 
     /// Returns x * 10^N
