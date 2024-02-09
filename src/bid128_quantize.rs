@@ -91,12 +91,10 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
                 return res;
-            } else {
-                if (x.w[1] & 0x7c00000000000000u64) <= 0x7800000000000000u64 {
-                    res.w[1] = CX.w[1] & QUIET_MASK64;
-                    res.w[0] = CX.w[0];
-                    return res;
-                }
+            } else if (x.w[1] & 0x7c00000000000000u64) <= 0x7800000000000000u64 {
+                res.w[1] = CX.w[1] & QUIET_MASK64;
+                res.w[0] = CX.w[0];
+                return res;
             }
         }
     }
@@ -148,7 +146,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
     if (total_digits as BID_UINT32) <= 34 {
         if expon_diff >= 0 {
             T   = &bid_power10_table_128[expon_diff as usize];
-            CX2 = __mul_128x128_low(&T, &CX);
+            CX2 = __mul_128x128_low(T, &CX);
             res = bid_get_BID128_very_fast(sign_x, exponent_y, &CX2);
             return res;
         }
@@ -174,26 +172,24 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
             CR = __shr_128(&CX2, amount);
         }
 
-        if rnd_mode == 0 {
-            if (CR.w[0] & 1) == 1 {
-                // check whether fractional part of initial_P/10^extra_digits is
-                // exactly .5 this is the same as fractional part of
-                // (initial_P + 0.5*10^extra_digits)/10^extra_digits is exactly zero
+        if rnd_mode == 0 && (CR.w[0] & 1) == 1 {
+            // check whether fractional part of initial_P/10^extra_digits is
+            // exactly .5 this is the same as fractional part of
+            // (initial_P + 0.5*10^extra_digits)/10^extra_digits is exactly zero
 
-                // get remainder
-                remainder_h = if amount >= 64 {
-                     CX2.w[0] | (CX2.w[1] << (128 - amount))
-                } else {
-                    CX2.w[0] << (64 - amount)
-                };
+            // get remainder
+            remainder_h = if amount >= 64 {
+                 CX2.w[0] | (CX2.w[1] << (128 - amount))
+            } else {
+                CX2.w[0] << (64 - amount)
+            };
 
-                // test whether fractional part is 0
-                if remainder_h == 0
-                && (CT.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
-                || (CT.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
-                 && CT.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
-                    CR.w[0] -= 1;
-                }
+            // test whether fractional part is 0
+            if remainder_h == 0
+            && (CT.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
+            || (CT.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
+             && CT.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
+                CR.w[0] -= 1;
             }
         }
 
@@ -232,11 +228,11 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
                 (Stemp.w[1], carry) = __add_carry_in_out(CT.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY64);
                 if amount < 64 {
                     C2N.w[1]   = 0;
-                    C2N.w[0]   = ((1 as BID_UINT64)) << amount;
+                    C2N.w[0]   = (1 as BID_UINT64) << amount;
                     REM_H.w[0] = REM_H.w[1] >> (64 - amount);
                     REM_H.w[1] = 0;
                 } else {
-                    C2N.w[1]     = ((1 as BID_UINT64)) << amount - 64;
+                    C2N.w[1]     = (1 as BID_UINT64) << (amount - 64);
                     C2N.w[0]     = 0;
                     REM_H.w[1] >>= 128 - amount;
                 }
@@ -274,5 +270,5 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
     __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
     res.w[1] = 0x7c00000000000000u64;
     res.w[0] = 0;
-    return res;
+    res
 }

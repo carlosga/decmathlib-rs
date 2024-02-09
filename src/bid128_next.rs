@@ -497,8 +497,8 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
             if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
@@ -522,8 +522,8 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
             if  ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (y.w[0] > 0x38c15b09ffffffffu64)) {
-                y.w[1] = y.w[1] & 0xffffc00000000000u64;
-                y.w[0] = 0x0u64;
+                y.w[1] &= 0xffffc00000000000u64;
+                y.w[0]  = 0x0u64;
             }
             if (y.w[1] & MASK_SNAN) == MASK_SNAN {	// y is SNAN
                 // set invalid flag
@@ -539,12 +539,12 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
             return res;
         } else {	// at least one is infinity
             if (x.w[1] & MASK_ANY_INF) == MASK_INF {	// x = inf
-                x.w[1] = x.w[1] & (MASK_SIGN | MASK_INF);
-                x.w[0] = 0x0u64;
+                x.w[1] &= MASK_SIGN | MASK_INF;
+                x.w[0]  = 0x0u64;
             }
             if (y.w[1] & MASK_ANY_INF) == MASK_INF {	// y = inf
-                y.w[1] = y.w[1] & (MASK_SIGN | MASK_INF);
-                y.w[0] = 0x0u64;
+                y.w[1] &= MASK_SIGN | MASK_INF;
+                y.w[0]  = 0x0u64;
             }
         }
     }
@@ -621,5 +621,5 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
         *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
     }
 
-    return res;
+    res
 }
