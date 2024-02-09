@@ -7,10 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-// #![allow(unused_assignments)]
-// #![allow(non_snake_case)]
-// #![allow(dead_code)]
-
 use crate::bid128_add::bid128_sub;
 use crate::bid128_compare::bid128_quiet_greater;
 use crate::bid_conf::BID_HIGH_128W;

@@ -22,6 +22,7 @@ use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid128_ldexp::bid128_ldexp;
+use crate::bid128_llquantexp::bid128_llquantexp;
 use crate::bid128_llrint::bid128_llrint;
 use crate::bid128_llround::bid128_llround;
 use crate::bid128_logb::bid128_logb;
@@ -34,6 +35,7 @@ use crate::bid128_nearbyint::bid128_nearbyint;
 use crate::bid128_next::{bid128_nextafter, bid128_nextdown, bid128_nextup};
 use crate::bid128_nexttoward::bid128_nexttoward;
 use crate::bid128_noncomp::*;
+use crate::bid128_quantexp::bid128_quantexp;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
@@ -256,6 +258,7 @@ impl d128 {
         bid128_fmod(self, rhs, pfpsf)
     }
 
+    /// Decomposes given decimal floating point value num into a normalized fraction and an integral power of two.
     pub fn frexp(&self, exp: i32) -> (Self, i32) {
         bid128_frexp(self, exp)
     }
@@ -263,6 +266,11 @@ impl d128 {
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
     pub fn ldexp(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_ldexp(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// The llquantexp() functions return the quantum exponent of x.
+    pub fn llquantexp(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+        bid128_llquantexp(self, pfpsf)
     }
 
     /// Returns the exponent e of x, a signed integral value, determined
@@ -358,6 +366,11 @@ impl d128 {
     /// compares greater than the operand
     pub fn nextup(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextup(self, pfpsf)
+    }
+
+    /// The quantexp() functions return the quantum exponent of x.
+    pub fn quantexp(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+        bid128_quantexp(self, pfpsf)
     }
 
     /// Returns x * 10^N
