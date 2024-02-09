@@ -32,6 +32,7 @@ use crate::bid128_modf::bid128_modf;
 use crate::bid128_mul::bid128_mul;
 use crate::bid128_nearbyint::bid128_nearbyint;
 use crate::bid128_next::{bid128_nextafter, bid128_nextdown, bid128_nextup};
+use crate::bid128_nexttoward::bid128_nexttoward;
 use crate::bid128_noncomp::*;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
@@ -346,6 +347,11 @@ impl d128 {
     /// compares less than the operand
     pub fn nextdown(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextdown(self, pfpsf)
+    }
+
+    /// Returns the next representable value after x in the direction of y.
+    pub fn nexttoward(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_nexttoward(x, y, pfpsf)
     }
 
     /// Returns the least 128-bit decimal floating-point number that
