@@ -41,10 +41,7 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     new_coeff.w[0] = coefficient_x;
     new_coeff.w[1] = 0;
 
-    bid_get_BID128_very_fast(
-        &mut res, sign_x,
-        exponent_x + DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS,
-        &new_coeff);
+    res = bid_get_BID128_very_fast(sign_x, exponent_x + DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS, &new_coeff);
 
     res
 }

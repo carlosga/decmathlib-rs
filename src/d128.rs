@@ -36,6 +36,7 @@ use crate::bid128_next::{bid128_nextafter, bid128_nextdown, bid128_nextup};
 use crate::bid128_nexttoward::bid128_nexttoward;
 use crate::bid128_noncomp::*;
 use crate::bid128_quantexp::bid128_quantexp;
+use crate::bid128_quantize::bid128_quantize;
 use crate::bid128_rem::bid128_rem;
 use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
@@ -371,6 +372,21 @@ impl d128 {
     /// The quantexp() functions return the quantum exponent of x.
     pub fn quantexp(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_quantexp(self, pfpsf)
+    }
+
+    /// Quantize(x, y) is a floating-point number in the same format that
+    /// has, if possible, the same numerical value as x and the same quantum
+    /// (unit-in-the-last-place) as y. If the exponent is being increased, rounding
+    /// according to the prevailing rounding-direction mode might occur: the result
+    /// is a different floating-point representation and inexact is signaled if the
+    /// result does not have the same numerical value as x. If the exponent is being
+    /// decreased and the significand of the result would have more than 34 digits,
+    /// invalid is signaled and the result is NaN. If one or both operands are NaN
+    /// the rules for NaNs are followed. Otherwise if only one operand is
+    /// infinite then invalid is signaled and the result is NaN. If both operands
+    /// are infinite then the result is canonical infinity with the sign of x
+    pub fn quantize(x: &Self, y: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128_quantize(x, y, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns x * 10^N

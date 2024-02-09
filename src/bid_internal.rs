@@ -678,15 +678,16 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
 
 /// No overflow/underflow checks
 /// No checking for coefficient == 10^34 (rounding artifact)
-pub (crate) fn bid_get_BID128_very_fast(pres: &mut BID_UINT128, sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
+pub (crate) fn bid_get_BID128_very_fast(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
     let mut tmp: BID_UINT64;
+    let mut res: BID_UINT128 = BID_UINT128::default();
 
-    pres.w[0] = coeff.w[0];
-    tmp       = expon as BID_UINT64;
-    tmp     <<= 49;
-    pres.w[1] = sgn | tmp | coeff.w[1];
+    res.w[0] = coeff.w[0];
+    tmp      = expon as BID_UINT64;
+    tmp    <<= 49;
+    res.w[1] = sgn | tmp | coeff.w[1];
 
-    *pres
+    res
 }
 
 /// General BID128 pack macro

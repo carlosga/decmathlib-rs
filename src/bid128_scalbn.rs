@@ -41,7 +41,7 @@ pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut
                 exp64 = DECIMAL_MAX_EXPON_128 as BID_SINT64;
             }
             exponent_x = exp64 as i32;
-            bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
+            res        = bid_get_BID128_very_fast(sign_x, exponent_x, &CX);
         }
         return res;
     }
@@ -50,7 +50,7 @@ pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut
     exponent_x = exp64 as i32;
 
     if (exponent_x as BID_UINT32) <= (DECIMAL_MAX_EXPON_128 as BID_UINT32) {
-      bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CX);
+      res = bid_get_BID128_very_fast(sign_x, exponent_x, &CX);
       return res;
     }
     // check for overflow
@@ -73,7 +73,7 @@ pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut
         }
       }
       if exp64 <= DECIMAL_MAX_EXPON_128 as i64 {
-        bid_get_BID128_very_fast (&mut res, sign_x, exponent_x, &CX);
+        res = bid_get_BID128_very_fast(sign_x, exponent_x, &CX);
         return res;
       } else {
         exponent_x = 0x7fffffff;	// overflow

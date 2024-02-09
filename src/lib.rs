@@ -31,6 +31,7 @@ mod bid128_next;
 mod bid128_nexttoward;
 mod bid128_noncomp;
 mod bid128_quantexp;
+mod bid128_quantize;
 mod bid128_rem;
 mod bid128_round_integral;
 mod bid128_scalbln;

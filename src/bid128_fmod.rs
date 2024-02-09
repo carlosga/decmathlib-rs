@@ -146,7 +146,7 @@ pub (crate) fn bid128_fmod(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_f
         P128.w[1] = P256.w[1];
         (CQ, CR)  = bid___div_128_by_128(&CX, &P128);
 
-        bid_get_BID128_very_fast(&mut res, sign_x, exponent_x, &CR);
+        res = bid_get_BID128_very_fast(sign_x, exponent_x, &CR);
         return res;
     }
     // 2^64
@@ -183,12 +183,12 @@ pub (crate) fn bid128_fmod(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_f
 
             // check for remainder == 0
             if CX.w[1] == 0 && CX.w[0] == 0 {
-                bid_get_BID128_very_fast(&mut res, sign_x, exponent_y, &CX);
+                res = bid_get_BID128_very_fast(sign_x, exponent_y, &CX);
                 return res;
             }
         }
     }
 
-    bid_get_BID128_very_fast(&mut res, sign_x, exponent_y, &CX);
+    res = bid_get_BID128_very_fast(sign_x, exponent_y, &CX);
     res
 }
