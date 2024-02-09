@@ -1092,6 +1092,7 @@ pub (crate) fn bid128_ext_fma(
                 tmp.d     = C1.w[1] as f64;             // exact conversion
                 x_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
+            let x_nr_di
             q1 = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
             if q1 == 0 {
                 q1 = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
