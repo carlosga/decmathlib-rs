@@ -9,23 +9,23 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid_internal::{__add_carry_in_out, __add_carry_out, __mul_128x128_to_256, __mul_64x128_to_192, __mul_64x128_to_256, __mul_64x192_to_256, __mul_64x256_to_256, __mul_64x256_to_320, __mul_64x320_to_512, __mul_64x64_to_128, __shr_128, __shr_256, __sub_borrow_in_out, __sub_borrow_out};
+use crate::bid_internal::*;
 use crate::d128::{BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT512, BID_UINT64};
 
 pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
-    let mut ARS: BID_UINT256 = BID_UINT256::default();
-    let mut ARS0: BID_UINT256 = BID_UINT256::default();
-    let mut AE0: BID_UINT256 = BID_UINT256::default();
+    let mut ARS: BID_UINT256;
+    let ARS0: BID_UINT256;
+    let AE0: BID_UINT256;
     let mut AE: BID_UINT256 = BID_UINT256::default();
     let mut S: BID_UINT256 = BID_UINT256::default();
-    let mut MY: BID_UINT64;
+    let MY: BID_UINT64;
     let mut ES: BID_UINT64;
     let mut CY: BID_UINT64;
-    let mut lx: f64;
-    let mut l64: f64;
+    let lx: f64;
+    let l64: f64;
     let mut f64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
     let mut ly: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut ey: i32;
+    let ey: i32;
     let mut k: i32;
 
     unsafe {
@@ -54,7 +54,7 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
             ARS.w[1] = ARS.w[2];
             k       -= 64;
         }
-        if k {
+        if k != 0 {
             ARS = __shr_256(&ARS, k);
         }
         ES = ARS.w[0];
@@ -92,34 +92,34 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
         }
         k -= 64;
     }
-    if k {
+    if k != 0 {
       S = __shr_256(&S, k);
     }
     return ((S.w[0] + 1) >> 1) as BID_UINT64;
 }
 
 pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
-    let mut ARS0: BID_UINT512 = BID_UINT512::default();
-    let mut ARS: BID_UINT512 = BID_UINT512::default();
+    let ARS0: BID_UINT512;
+    let ARS: BID_UINT512;
     let mut ARS00: BID_UINT256 = BID_UINT256::default();
-    let mut AE: BID_UINT256 = BID_UINT256::default();
-    let mut AE2: BID_UINT256 = BID_UINT256::default();
+    let AE: BID_UINT256;
+    let AE2: BID_UINT256;
     let mut S: BID_UINT256 = BID_UINT256::default();
     let mut ES: BID_UINT128 = BID_UINT128::default();
-    let mut ES2: BID_UINT128;
+    let ES2: BID_UINT128;
     let mut ARS1: BID_UINT128 = BID_UINT128::default();
-    let mut ES32: BID_UINT64;
+    let ES32: BID_UINT64;
     let mut CY: BID_UINT64;
-    let mut MY: BID_UINT64;
-    let mut l64: f64;
-    let mut l128: f64;
+    let MY: BID_UINT64;
+    let l64: f64;
+    let l128: f64;
     let mut lx: f64;
-    let mut l2: f64;
-    let mut l1: f64;
-    let mut l0: f64;
+    let l2: f64;
+    let l1: f64;
+    let l0: f64;
     let mut f64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
     let mut ly: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut ey: i32;
+    let ey: i32;
     let mut k: i32;
     let mut k2: i32;
 
@@ -169,7 +169,7 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     if (ES.w[1] as BID_SINT64) < 0 {
         ES.w[0] = -(ES.w[0] as BID_SINT64) as BID_UINT64;
         ES.w[1] = -(ES.w[1] as BID_SINT64) as BID_UINT64;
-        if ES.w[0] {
+        if ES.w[0] != 0 {
             ES.w[1] -= 1;
         }
 
@@ -210,7 +210,7 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
 
     // round to nearest
     S.w[0] += 1;
-    if !S.w[0] {
+    if S.w[0] == 0 {
         S.w[1] += 1;
     }
 
