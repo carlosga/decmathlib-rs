@@ -783,6 +783,17 @@ pub (crate) fn __shr_128(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 }
 
 #[inline(always)]
+pub (crate) fn __shr_256(A: &BID_UINT256, k: i32) -> BID_UINT256 {
+    let mut Q: BID_UINT256 = BID_UINT256::default();
+
+    Q.w[0]  = A.w[0] >> k;
+    Q.w[0] |= A.w[1] << (64 - k);
+    Q.w[1]  = A.w[1] >> k;
+
+    Q
+}
+
+#[inline(always)]
 pub (crate) fn __shr_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
     let mut Q: BID_UINT128 = BID_UINT128::default();
 
@@ -1166,6 +1177,21 @@ pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT
 }
 
 #[inline(always)]
+pub (crate) fn __mul_64x256_to_256(lA: BID_UINT64, lB: &BID_UINT256) -> BID_UINT256 {
+    let mut lC: BID_UINT64;
+    let mut lP: BID_UINT256 = BID_UINT256::default();
+    let lP0: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[0]);
+    let lP1: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[1]);
+    let lP2: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[2]);
+    lP.w[0]       = lP0.w[0];
+    (lP.w[1], lC) = __add_carry_out(lP1.w[0], lP0.w[1]);
+    (lP.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1], lC);
+    lP.w[3]       = lP2.w[1] + lC;
+
+    lP
+}
+
+#[inline(always)]
 pub (crate) fn __mul_128x64_to_128(A64: BID_UINT64, B128: &BID_UINT128) -> BID_UINT128 {
     let ALBH_L: BID_UINT64    = A64 * B128.w[1];
     let mut Q128: BID_UINT128 = __mul_64x64_to_128MACH(A64, B128.w[0]);
@@ -1221,6 +1247,24 @@ pub (crate) fn __mul_192x192_to_384(A: &BID_UINT192, B: &BID_UINT192) -> BID_UIN
     P.w[5] = P2.w[3] + CY;
 
     P
+}
+
+pub (crate) fn __mul_64x320_to_512(A: BID_UINT64, B: &BID_UINT512) -> BID_UINT512 {
+    let mut P: BID_UINT512 = BID_UINT512::default();
+    let mut lC: BID_UINT64 = 0;
+	let lP0: BID_UINT128 = __mul_64x64_to_128(A, (B).w[0]);
+	let lP1: BID_UINT128 = __mul_64x64_to_128(A, (B).w[1]);
+	let lP2: BID_UINT128 = __mul_64x64_to_128(A, (B).w[2]);
+	let lP3: BID_UINT128 = __mul_64x64_to_128(A, (B).w[3]);
+	let lP4: BID_UINT128 = __mul_64x64_to_128(A, (B).w[4]);
+	P.w[0] = lP0.w[0];
+	(P.w[1], lC) = __add_carry_out(lP1.w[0],lP0.w[1]);
+	(P.w[2], lC) = __add_carry_in_out(lP2.w[0],lP1.w[1],lC);
+	(P.w[3], lC) = __add_carry_in_out(lP3.w[0],lP2.w[1],lC);
+	(P.w[4], lC) = __add_carry_in_out(lP4.w[0],lP3.w[1],lC);
+	P.w[5]       = lP4.w[1] + lC;
+
+	P
 }
 
 #[inline(always)]
