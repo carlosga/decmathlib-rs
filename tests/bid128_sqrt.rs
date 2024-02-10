@@ -205,7 +205,7 @@ dec_test!(bid128_sqrt_193, bid128_sqrt, 4, 0x0001ed09bead87c0378d8e62ffffffffu12
 dec_test!(bid128_sqrt_194, bid128_sqrt, 4, 0x0001ed09bead87c0378d8e64ffffffffu128     , 0x18200000000000000000000000000000u128, 0x00);  // ulp=0.000000e-01
 dec_test!(bid128_sqrt_195, bid128_sqrt, 4, 0                                          , 0x30400000000000000000000000000000u128, 0x00);  // ulp=0.000000e-01
 dec_test!(bid128_sqrt_196, bid128_sqrt, 4, 0x05038de0f17e426d6b91004dfd53342cu128     , 0x1a808c0f7a9a44ff095082e7d6367a6bu128, 0x20);  // ulp=4.138959e-01
-dec_test!(bid128_sqrt_197, bid128_sqrt, 4, -0                                         , 0xb0400000000000000000000000000000u128, 0x00);  // ulp=0.000000e-01
+dec_test!(bid128_sqrt_197, bid128_sqrt, 4, "-0"                                       , 0xb0400000000000000000000000000000u128, 0x00);  // ulp=0.000000e-01
 dec_test!(bid128_sqrt_198, bid128_sqrt, 4, "+10.00000E0"                              , 0x2ffe9be98e340036baa9baf39995e44fu128, 0x20);  // ulp=-4.662804e-01
 dec_test!(bid128_sqrt_199, bid128_sqrt, 4, "+10001110.0110111111E0"                   , 0x30049bebc548e98eb8be0d51c2e22928u128, 0x20);  // ulp=-3.571008e-02
 dec_test!(bid128_sqrt_200, bid128_sqrt, 4, 0x145e0000000000000000000000000000u128     , 0x224e0000000000000000000000000000u128, 0x00);  // ulp=0.000000e-01

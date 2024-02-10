@@ -139,7 +139,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     bid_long_sqrt128(&mut CS, &C256);
     //printf("C256=%016I64x %016I64x %016I64x %016I64x, CS=%016I64x %016I64x \n",C256.w[3],C256.w[2],C256.w[1],C256.w[0],CS.w[1],CS.w[0]);
 
-    if ((rnd_mode) & 3) != 3 {
+    if ((rnd_mode) & 3) == 0 {
         // compare to midpoints
         CSM.w[1] = (CS.w[1] << 1) | (CS.w[0] >> 63);
         CSM.w[0] = (CS.w[0] + CS.w[0]) | 1;
@@ -166,7 +166,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
             (M256.w[0], Carry) = __sub_borrow_out(M256.w[0], C8.w[0]);
             (M256.w[1], Carry) = __sub_borrow_in_out(M256.w[1], C8.w[1], Carry);
             (M256.w[2], Carry) = __sub_borrow_in_out(M256.w[2], 0, Carry);
-            M256.w[3]          = M256.w[3] - Carry;
+            M256.w[3]         -= Carry;
 
             // if CSM' > C256, round up
             if  M256.w[3]  > C4.w[3]
@@ -197,7 +197,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
             (M256.w[0], Carry) = __sub_borrow_out(M256.w[0], C8.w[0]);
             (M256.w[1], Carry) = __sub_borrow_in_out(M256.w[1], C8.w[1], Carry);
             (M256.w[2], Carry) = __sub_borrow_in_out(M256.w[2], 0, Carry);
-            M256.w[3]          = M256.w[3] - Carry;
+            M256.w[3]         -= Carry;
             M256.w[0]         += 1;
             if M256.w[0] == 0 {
                 M256.w[1] += 1;
@@ -229,8 +229,8 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
         } else {
             (M256.w[0], Carry) = __add_carry_out(M256.w[0], C8.w[0]);
             (M256.w[1], Carry) = __add_carry_in_out(M256.w[1], C8.w[1], Carry);
-            (M256.w[1], Carry) = __add_carry_in_out(M256.w[2], 0, Carry);
-            M256.w[3]          = M256.w[3] + Carry;
+            (M256.w[2], Carry) = __add_carry_in_out(M256.w[2], 0, Carry);
+            M256.w[3]         += Carry;
             M256.w[0]         += 1;
             if M256.w[0] == 0 {
                 M256.w[1] += 1;
@@ -249,7 +249,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
             || (M256.w[1] == C256.w[1]
              && M256.w[0] <= C256.w[0]))))) {
                 CS.w[0] += 1;
-                if CS.w[0] == 0 {
+                if CS.w[0] != 0 {
                     CS.w[1] += 1;
                 }
             }
@@ -266,7 +266,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     __set_status_flags(pfpsf, StatusFlags::BID_INEXACT_EXCEPTION);
     let mut expon = (exponent_q + DECIMAL_EXPONENT_BIAS_128) >> 1;
     res = bid_get_BID128_fast(0, &mut expon, &mut CS);
-    return res;
+    res
 }
 
 /*
