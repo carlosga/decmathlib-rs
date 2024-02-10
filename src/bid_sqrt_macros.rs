@@ -95,7 +95,7 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
     if k != 0 {
       S = __shr_256(&S, k);
     }
-    return ((S.w[0] + 1) >> 1) as BID_UINT64;
+    ((S.w[0] + 1) >> 1) as BID_UINT64
 }
 
 pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
@@ -129,13 +129,13 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
         l64   = f64.d;
 
         l128 = l64 * l64;
-        lx = (C256.w[3] as f64) * l64 * l128;
-        l2 = (C256.w[2] as f64) * l128;
-        lx = lx + l2;
-        l1 = (C256.w[1] as f64) * l64;
-        lx = lx + l1;
-        l0 = C256.w[0] as f64;
-        lx = lx + l0;
+        lx   = (C256.w[3] as f64) * l64 * l128;
+        l2   = (C256.w[2] as f64) * l128;
+        lx  += l2;
+        l1   = (C256.w[1] as f64) * l64;
+        lx  += l1;
+        l0   = C256.w[0] as f64;
+        lx  += l0;
         // sqrt(C256)
         ly.d = 1.0 / lx.sqrt();
 
@@ -144,7 +144,7 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     }
 
     // A10*RS^2, scaled by 2^(2*ey+104)
-    ARS0 = __mul_64x256_to_320(MY, &C256);
+    ARS0 = __mul_64x256_to_320(MY, C256);
     ARS  = __mul_64x320_to_512(MY, &ARS0);
 
     // shr by k=(2*ey+104)-128

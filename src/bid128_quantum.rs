@@ -36,5 +36,5 @@ pub (crate) fn bid128_quantum(x: &BID_UINT128) -> BID_UINT128 {
     res.w[1] = (((int_exp as i64) << 49 ) + 0x3040000000000000i64) as BID_UINT64;
     res.w[0] = 0x0000000000000001u64;
 
-    return res;
+    res
 }

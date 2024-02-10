@@ -67,6 +67,7 @@ pub (crate) union BID_UI32FLOAT {
 }
 
 impl Default for BID_UI32FLOAT {
+    #[must_use]
     fn default() -> Self {
         Self {
             i: 0
@@ -80,6 +81,7 @@ pub (crate) union BID_UI64DOUBLE {
 }
 
 impl Default for BID_UI64DOUBLE {
+    #[must_use]
     fn default() -> Self {
         Self {
             i: 0
@@ -134,6 +136,7 @@ macro_rules! dec128 {
 }
 
 impl d128 {
+    #[must_use]
     pub (crate) fn new(h: u64, l: u64) -> Self {
         #[cfg(target_endian = "big")]
         return Self { w: [h, l] };
@@ -143,171 +146,204 @@ impl d128 {
     }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, changing the sign to positive
-    pub fn abs(&self) -> BID_UINT128 {
+    #[must_use]
+    pub fn abs(&self) -> Self {
         bid128_abs(self)
     }
 
     /// Tells which of the following ten classes x falls into (details in the IEEE Standard 754-2008):
     /// signalingNaN, quietNaN, negativeInfinity, negativeNormal, negativeSubnormal, negativeZero, positiveZero,
     /// positiveSubnormal, positiveNormal, positiveInfinity
+    #[must_use]
     pub fn class(&self) -> ClassTypes {
         bid128_class(self)
     }
 
     /// Copies a decimal floating-point operand x to a destination in the same format, with no change
+    #[must_use]
     pub fn copy(&self) -> Self { bid128_copy(self) }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format as x, but with the sign of y
+    #[must_use]
     pub fn copy_sign(&self, other: &Self) -> Self { bid128_copy_sign(self, other) }
 
+    #[must_use]
     pub fn infinity() -> Self {
         bid128_inf()
     }
 
     /// Return true if and only if x is a finite number, infinity, or NaN that is canonical
+    #[must_use]
     pub fn is_canonical(&self) -> bool {
         bid128_is_canonical(self)
     }
 
     /// Return true if and only if x is zero, subnormal or normal (not infinite or NaN)
+    #[must_use]
     pub fn is_finite(&self) -> bool {
         bid128_is_finite(self)
     }
 
     /// Return true if and only if x is infinite
+    #[must_use]
     pub fn is_infinity(&self) -> bool {
         bid128_is_inf(self)
     }
 
     /// Return true if and only if x is a NaN
+    #[must_use]
     pub fn is_nan(&self) -> bool {
         bid128_is_nan(self)
     }
 
     /// Return true if and only if x is normal (not zero, subnormal, infinite, or NaN)
+    #[must_use]
     pub fn is_normal(&self) -> bool {
         bid128_is_normal(self)
     }
 
     /// Return true if and only if x is a signaling NaN
+    #[must_use]
     pub fn is_signaling(&self) -> bool {
         bid128_is_signaling(self)
     }
 
     /// Return true if and only if x has negative sign
+    #[must_use]
     pub fn is_signed(&self) -> bool {
         bid128_is_signed(self)
     }
 
     /// Return true if and only if x is subnormal
+    #[must_use]
     pub fn is_subnormal(&self) -> bool {
         bid128_is_subnormal(self)
     }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, reversing the sign
+    #[must_use]
     pub fn is_zero(&self) -> bool {
         bid128_is_zero(self)
     }
 
+    #[must_use]
     pub fn negate(x: &Self) -> Self {
         bid128_negate(x)
     }
 
-    /// same_quantum(x, y) is true if the exponents of x and y are the same,
-    /// and false otherwise; same_quantum(NaN, NaN) and same_quantum(inf, inf) are
+    /// `same_quantum` is true if the exponents of x and y are the same,
+    /// and false otherwise; `same_quantum(NaN, NaN)` and `same_quantum(inf, inf)` are
     /// true; if exactly one operand is infinite or exactly one operand is NaN,
     /// sameQuantum is false
+    #[must_use]
     pub fn same_quantum(x: &Self, y: &Self) -> bool {
         bid128_same_quantum(x, y)
     }
 
     /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
+    #[must_use]
     pub fn total_order(x: &Self, y: &Self) -> bool {
         bid128_total_order(x, y)
     }
 
     /// Return true if the absolute values of x and y are ordered (see the IEEE Standard 754-2008)
+    #[must_use]
     pub fn total_order_mag(x: &Self, y: &Self) -> bool {
         bid128_total_order_mag(x, y)
     }
 
+    #[must_use]
     pub fn nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
         bid128_nan(tagp, pfpsf)
     }
 
     /// Convert a decimal floating-point value represented in string format
     /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
+    #[must_use]
     pub fn from_string(value: &str, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
+    #[must_use]
     pub fn from_decimal64(bid: d64, status: &mut _IDEC_flags) -> Self {
         bid64_to_bid128(bid.0, status)
     }
 
     /// fdim returns x - y if x > y, and +0 is x <= y
+    #[must_use]
     pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fdim(self, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Computes x * y + z as if to infinite precision and rounded only once to fit the result type.
+    #[must_use]
     pub fn fma(x: &Self, y: &Self, z: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fma(x, y, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Computes the decimal floating point remainder of the division operation x / y.
+    #[must_use]
     pub fn fmod(&self, rhs: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fmod(self, rhs, pfpsf)
     }
 
     /// Decomposes given decimal floating point value num into a normalized fraction and an integral power of two.
+    #[must_use]
     pub fn frexp(&self, exp: i32) -> (Self, i32) {
         bid128_frexp(self, exp)
     }
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
+    #[must_use]
     pub fn ldexp(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_ldexp(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
-    /// The llquantexp() functions return the quantum exponent of x.
+    /// The `llquantexp()` functions return the quantum exponent of x.
+    #[must_use]
     pub fn llquantexp(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_llquantexp(self, pfpsf)
     }
 
     /// Returns the exponent e of x, a signed integral value, determined
     /// as though x were represented with infinite range and minimum exponent
+    #[must_use]
     pub fn logb(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_logb(self, pfpsf)
     }
 
     /// The lrint function rounds its argument to the nearest integer value of
     /// type long int, rounding according to the current rounding direction.
+    #[must_use]
     pub fn lrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_lrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// The llrint function rounds its argument to the nearest integer value of
     /// type long long int, rounding according to the current rounding direction.
+    #[must_use]
     pub fn llrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_llrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// The lround function rounds its argument to the nearest integer value of
     /// type long int, using rounding to nearest-away
+    #[must_use]
     pub fn lround(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_lround(self, pfpsf)
     }
 
     /// The llround function rounds its argument to the nearest integer value of
     /// type long int, using rounding to nearest-away
+    #[must_use]
     pub fn llround(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_llround(self, pfpsf)
     }
 
     /// Returns the exponent e of x, a signed integral value, determined
     /// as though x were represented with infinite range and minimum exponent
+    #[must_use]
     pub fn ilogb(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_ilogb(self, pfpsf)
     }
@@ -315,68 +351,79 @@ impl d128 {
     /// Returns the canonicalized floating-point number y if x < y,
     /// x if y < x, the canonicalized floating-point number if one operand is a
     /// floating-point number and the other a quiet NaN.
-    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    #[must_use]
+    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_maxnum(x, y, pfpsf)
     }
 
     /// Returns the canonicalized floating-point number x if |x| > |y|,
-    /// y if |y| > |x|, otherwise this function is identical to __bid128_maxnum
-    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    /// y if |y| > |x|, otherwise this function is identical to `max`
+    #[must_use]
+    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_maxnum_mag(x, y, pfpsf)
     }
 
     /// Returns the canonicalized floating-point number x if x < y,
     /// y if y < x, the canonicalized floating-point number if one operand is
     /// a floating-point number and the other a quiet NaN. Otherwise it is either x or y, canonicalized.
-    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    #[must_use]
+    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_minnum(x, y, pfpsf)
     }
 
     /// Returns the canonicalized floating-point number x if |x| < |y|,
-    /// y if |y| < |x|, otherwise this function is identical to __bid64_minnum
-    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    /// y if |y| < |x|, otherwise this function is identical to `min`
+    #[must_use]
+    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_minnum_mag(x, y, pfpsf)
     }
 
     /// Decomposes given decimal floating point value num into integral and fractional parts,
+    #[must_use]
     pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
         bid128_modf(self, pfpsf)
     }
 
     /// Rounds the decimal floating-point value num to an integer value in deicmal floating-point format, using the given rounding mode.
+    #[must_use]
     pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns the next 128-bit decimal floating-point number that neighbors
     /// the first operand in the direction toward the second operand
+    #[must_use]
     pub fn nextafter(x: &Self, y:&Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextafter(x, y, pfpsf)
     }
 
     /// Returns the greatest 128-bit decimal floating-point number that
     /// compares less than the operand
+    #[must_use]
     pub fn nextdown(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextdown(self, pfpsf)
     }
 
     /// Returns the next representable value after x in the direction of y.
+    #[must_use]
     pub fn nexttoward(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nexttoward(x, y, pfpsf)
     }
 
     /// Returns the least 128-bit decimal floating-point number that
     /// compares greater than the operand
+    #[must_use]
     pub fn nextup(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextup(self, pfpsf)
     }
 
-    /// The quantexp() functions return the quantum exponent of x.
+    /// The `quantexp()` functions return the quantum exponent of x.
+    #[must_use]
     pub fn quantexp(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_quantexp(self, pfpsf)
     }
 
-    /// Quantize(x, y) is a floating-point number in the same format that
+    /// `quantize` is a floating-point number in the same format that
     /// has, if possible, the same numerical value as x and the same quantum
     /// (unit-in-the-last-place) as y. If the exponent is being increased, rounding
     /// according to the prevailing rounding-direction mode might occur: the result
@@ -387,196 +434,233 @@ impl d128 {
     /// the rules for NaNs are followed. Otherwise if only one operand is
     /// infinite then invalid is signaled and the result is NaN. If both operands
     /// are infinite then the result is canonical infinity with the sign of x
+    #[must_use]
     pub fn quantize(x: &Self, y: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_quantize(x, y, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
-    /// The quantumdN functions compute the quantum of a finite argument.
+    /// The `quantum` functions compute the quantum of a finite argument.
     /// If x is infinite, the result is +Inf. If x is NaN, the result is NaN.
+    #[must_use]
     pub fn quantum(&self) -> Self {
         bid128_quantum(self)
     }
 
     /// Returns x * 10^N
+    #[must_use]
     pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns x * 10^N
+    #[must_use]
     pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point square root
+    #[must_use]
     pub fn sqrt(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_sqrt(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
+    #[must_use]
     pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> d64 {
         d64(bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status))
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i32_rnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-even mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i32_xrnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-down mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i32_floor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-down mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-up mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i32_ceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-up mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i32_xceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-zero; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i32_int(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-zero; inexact exceptions signale
+    #[must_use]
     pub fn to_i32_xint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-away; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i32_rninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-away; inexact exceptions signaled
+    #[must_use]
     pub fn to_i32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xrninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-up mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i64_ceil(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-down mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i64_floor(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-to-zero; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i64_int(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i64_rnint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-away; inexact exceptions not signaled
+    #[must_use]
     pub fn to_i64_rninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-up mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i64_xceil(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-down mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i64_xfloor(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-to-zero; inexact exceptions signaled
+    #[must_use]
     pub fn to_i64_xint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
+    #[must_use]
     pub fn to_i64_xrnint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-away; inexact exceptions signaled
+    #[must_use]
     pub fn to_i64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrninta(self, pfpsf)
     }
 
+    #[must_use]
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    #[must_use]
     pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_div(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    #[must_use]
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    #[must_use]
     pub fn remainder(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> Self {
         bid128_rem(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_sub(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    #[must_use]
     pub fn quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_equal(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn quiet_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater_equal(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less_equal(lhs, rhs, status)
     }
 
+    #[must_use]
     pub fn quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_not_equal(lhs, rhs, status)
     }

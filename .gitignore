@@ -19,3 +19,6 @@ Cargo.lock
 # perf
 perf*.*
 perf.data.old
+
+# other
+**/*.sh
