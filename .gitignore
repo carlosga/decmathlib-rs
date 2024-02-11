@@ -20,5 +20,9 @@ Cargo.lock
 perf*.*
 perf.data.old
 
+#valgrind
+callgrind*.*
+
 # other
 **/*.sh
+
