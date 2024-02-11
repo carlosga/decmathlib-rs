@@ -547,12 +547,12 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_x.w[1] > 0x0001ed09bead87c0u64) ||
-        ((sig_x.w[1] == 0x0001ed09bead87c0u64) &&
-         (sig_x.w[0] > 0x378d8e63ffffffffu64))) &&
-        ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64)) ||
-        ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) ||
-        ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
+    if (((sig_x.w[1]  > 0x0001ed09bead87c0u64)
+     || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+      && (sig_x.w[0]  > 0x378d8e63ffffffffu64)))
+     && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
+     || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
+     || ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
         x_is_zero = true;
         // check for the case where the exponent is shifted right by 2 bits!
         if (x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {
@@ -569,12 +569,12 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_y.w[1]  > 0x0001ed09bead87c0u64) ||
-        ((sig_y.w[1] == 0x0001ed09bead87c0u64) &&
-         (sig_y.w[0]  > 0x378d8e63ffffffffu64))) &&
-        ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64)) ||
-        ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) ||
-        ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
+    if (((sig_y.w[1]  > 0x0001ed09bead87c0u64)
+     || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+      && (sig_y.w[0]  > 0x378d8e63ffffffffu64)))
+     && ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
+     || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
+     || ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
         y_is_zero = true;
         // check for the case where the exponent is shifted right by 2 bits!
         if (y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {
@@ -807,12 +807,12 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_y.w[1] > 0x0001ed09bead87c0u64) ||
-        ((sig_y.w[1] == 0x0001ed09bead87c0u64) &&
-            (sig_y.w[0] > 0x378d8e63ffffffffu64))) &&
-        ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64)) ||
-        ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) ||
-        ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
+    if (((sig_y.w[1] > 0x0001ed09bead87c0u64)
+     || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+      && (sig_y.w[0] > 0x378d8e63ffffffffu64)))
+     && ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
+     || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
+     || ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
         y_is_zero = true;
         // check for the case where the exponent is shifted right by 2 bits!
         if (y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {

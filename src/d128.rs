@@ -17,7 +17,7 @@ use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
-use crate::bid128_fma::bid128_fma;
+use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qqd_fma};
 use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
@@ -280,6 +280,24 @@ impl d128 {
     #[must_use]
     pub fn fma(x: &Self, y: &Self, z: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fma(x, y, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Decimal floating-point fused multiply-add, UINT64 * UINT64 + UINT64 -> UINT128
+    #[must_use]
+    pub fn ddd_fma(x: d64, y: d64, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128ddd_fma(x.0, y.0, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Decimal floating-point fused multiply-add d64 * d128 + d64 -> d128
+    #[must_use]
+    pub fn dqd_fma(x: d64, y: &Self, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128dqd_fma(x.0, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Decimal floating-point fused multiply-add, UINT128 * UINT128 + UINT64
+    #[must_use]
+    pub fn qqd_fma(x: &Self, y: &Self, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128qqd_fma(x, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Computes the decimal floating point remainder of the division operation x / y.

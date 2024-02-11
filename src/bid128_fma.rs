@@ -128,7 +128,7 @@ pub (crate) fn bid_rounding_correction(
     *ptrres = res;
 }
 
-pub(crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
+pub (crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x + yl assume the sum fits in 256 bits
     let mut x: BID_UINT256 = *x;
     let y: BID_UINT256 = *y;
@@ -158,7 +158,7 @@ pub(crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     z
 }
 
-pub(crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
+pub (crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x - y; assume x >= y
     let mut x: BID_UINT256 = *x;
     let mut z: BID_UINT256 = BID_UINT256::default();
@@ -3977,13 +3977,13 @@ pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_
 }
 
 pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut is_midpoint_lt_even    = false;
-    let mut is_midpoint_gt_even    = false;
-    let mut is_inexact_lt_midpoint = false;
-    let mut is_inexact_gt_midpoint = false;
+    let mut is_midpoint_lt_even: bool    = false;
+    let mut is_midpoint_gt_even: bool    = false;
+    let mut is_inexact_lt_midpoint: bool = false;
+    let mut is_inexact_gt_midpoint: bool = false;
 
-    let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
-    let z1: BID_UINT128  = bid64_to_bid128(z, pfpsf);
+    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
+    let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
     bid128_ext_fma(
         &mut is_midpoint_lt_even,

@@ -570,8 +570,8 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = BID_UINT128::default();
     let mut T33: BID_UINT128 = BID_UINT128::default();
-    let mut T34: &BID_UINT128;
-    let mut ex: BID_UINT64;
+    let T34: &BID_UINT128;
+    let ex: BID_UINT64;
 
     *psign_x = (x.w[BID_HIGH_128W]) & 0x8000000000000000u64;
 
@@ -628,7 +628,7 @@ pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &m
     ex           = (x.w[BID_HIGH_128W]) >> 49;
     *pexponent_x = (ex as i32) & EXPONENT_MASK128;
 
-    return coeff.w[BID_LOW_128W] | coeff.w[BID_HIGH_128W];
+    coeff.w[BID_LOW_128W] | coeff.w[BID_HIGH_128W]
 }
 
 ///  BID128 unpack, input passed by value
