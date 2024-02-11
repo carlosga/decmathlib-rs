@@ -11,6 +11,7 @@
 #![allow(dead_code)]
 #![allow(unused_assignments)]
 
+use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_decimal_data::{bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table, bid_round_const_table_128};
 use crate::constants::*;
 use crate::core::{RoundingMode, StatusFlags};
@@ -28,6 +29,7 @@ pub (crate) fn swap<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {
 //////////////////////////////////////////////
 
 ///  BID32 unpack, input pased by reference
+#[inline]
 pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {
     let tmp: BID_UINT32;
 
@@ -72,6 +74,7 @@ pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pco
 //////////////////////////////////////////////
 
 ///  BID64 unpack, input pased by reference
+#[inline]
 pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT64, x: BID_UINT64) -> BID_UINT64 {
     let tmp: BID_UINT64;
     let mut coeff: BID_UINT64;
@@ -114,6 +117,7 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
 }
 
 /// BID64 pack macro (general form)
+#[inline]
 pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
     let mut Stemp: BID_UINT128 = BID_UINT128::default();
     let Q_low: BID_UINT128;
@@ -291,6 +295,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
 
 ///   Macro for handling BID128 underflow
 ///         sticky bit given as additional argument
+#[inline]
 pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_UINT128, R: BID_UINT64, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T128: &BID_UINT128;
     let TP128: &BID_UINT128;
@@ -434,6 +439,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 }
 
 /// Macro for handling BID128 underflow
+#[inline]
 pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T128: BID_UINT128;
     let TP128: BID_UINT128;
@@ -559,7 +565,74 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
     pres
 }
 
+///  BID128 unpack, input passed by value  (used in transcendental functions only)
+#[inline]
+pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
+    let mut coeff: BID_UINT128 = BID_UINT128::default();
+    let mut T33: BID_UINT128 = BID_UINT128::default();
+    let mut T34: &BID_UINT128;
+    let mut ex: BID_UINT64;
+
+    *psign_x = (x.w[BID_HIGH_128W]) & 0x8000000000000000u64;
+
+    // special encodings
+    if (x.w[BID_HIGH_128W] & INFINITY_MASK64) >= SPECIAL_ENCODING_MASK64 {
+        if (x.w[BID_HIGH_128W] & INFINITY_MASK64) < INFINITY_MASK64 {
+            // non-canonical input
+            pcoefficient_x.w[BID_LOW_128W]  = 0;
+            pcoefficient_x.w[BID_HIGH_128W] = 0;
+            ex                              = (x.w[BID_HIGH_128W]) >> 47;
+            *pexponent_x                    = (ex as i32) & EXPONENT_MASK128;
+            return 0;
+        }
+        // 10^33
+        T33 = bid_power10_table_128[33];
+
+        pcoefficient_x.w[BID_LOW_128W]  = x.w[BID_LOW_128W];
+        pcoefficient_x.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W]) & 0x00003fffffffffffu64;
+
+	    if  (pcoefficient_x.w[BID_HIGH_128W]  > T33.w[1])
+	    || ((pcoefficient_x.w[BID_HIGH_128W] == T33.w[1])
+	     && (pcoefficient_x.w[BID_LOW_128W]  >= T33.w[0])) { // non-canonical
+            pcoefficient_x.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W]) & 0xfe00000000000000u64;
+            pcoefficient_x.w[BID_LOW_128W]  = 0;
+        } else {
+            pcoefficient_x.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W]) & 0xfe003fffffffffffu64;
+        }
+
+        if (x.w[BID_HIGH_128W] & NAN_MASK64) == INFINITY_MASK64 {
+            pcoefficient_x.w[BID_LOW_128W]  = 0;
+            pcoefficient_x.w[BID_HIGH_128W] = x.w[BID_HIGH_128W] & SINFINITY_MASK64;
+        }
+        *pexponent_x = 0;
+        return 0;	// NaN or Infinity
+    }
+
+    coeff.w[BID_LOW_128W]  = x.w[BID_LOW_128W];
+    coeff.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W]) & SMALL_COEFF_MASK128;
+
+    // 10^34
+    T34 = &bid_power10_table_128[34];
+
+    // check for non-canonical values
+    if  (coeff.w[BID_HIGH_128W]  > T34.w[1])
+    || ((coeff.w[BID_HIGH_128W] == T34.w[1])
+     && (coeff.w[BID_LOW_128W]  >= T34.w[0])) {
+	  coeff.w[BID_LOW_128W]  = 0;
+	  coeff.w[BID_HIGH_128W] = 0;
+    }
+
+    pcoefficient_x.w[BID_LOW_128W]  = coeff.w[BID_LOW_128W];
+    pcoefficient_x.w[BID_HIGH_128W] = coeff.w[BID_HIGH_128W];
+
+    ex           = (x.w[BID_HIGH_128W]) >> 49;
+    *pexponent_x = (ex as i32) & EXPONENT_MASK128;
+
+    return coeff.w[BID_LOW_128W] | coeff.w[BID_HIGH_128W];
+}
+
 ///  BID128 unpack, input passed by value
+#[inline]
 pub (crate) fn unpack_BID128_value(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = Default::default();
     let T33: &BID_UINT128;
@@ -624,6 +697,7 @@ pub (crate) fn unpack_BID128_value(psign_x: &mut BID_UINT64, pexponent_x: &mut i
 }
 
 ///  BID128 unpack, input pased by reference
+#[inline]
 pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, px: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = BID_UINT128::default();
     let T33: &BID_UINT128;
@@ -687,6 +761,20 @@ pub (crate) fn bid_get_BID128_very_fast(sgn: BID_UINT64, expon: i32, coeff: &BID
     tmp      = expon as BID_UINT64;
     tmp    <<= 49;
     res.w[1] = sgn | tmp | coeff.w[1];
+
+    res
+}
+
+// same as above, but for either endian mode
+#[inline]
+pub (crate) fn bid_get_BID128_very_fast_BLE(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
+    let mut tmp: BID_UINT64;
+    let mut res: BID_UINT128 = BID_UINT128::default();
+
+    res.w[BID_LOW_128W] = coeff.w[BID_LOW_128W];
+    tmp                 = expon as BID_UINT64;
+    tmp               <<= 49;
+    res.w[BID_HIGH_128W] = sgn | tmp | coeff.w[BID_HIGH_128W];
 
     res
 }
