@@ -1079,6 +1079,22 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128qdq_fma, $rnd_mode:expr, $input1:expr, $input2:expr, $input3:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let rnd_mode = Some($rnd_mode);
+            let x        = decmathlib_rs::d128::d128::from($input1);
+            let y        = decmathlib_rs::d64::d64($input2);
+            let z        = decmathlib_rs::d128::d128::from($input3);
+            let exp      = decmathlib_rs::d128::d128::from($exp);
+            let res1     = decmathlib_rs::d128::d128::qdq_fma(&x, y, &z, rnd_mode, &mut status);
+
+            assert_eq!(exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
     ($name:ident, bid128qqd_fma, $rnd_mode:expr, $input1:expr, $input2:expr, $input3:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {

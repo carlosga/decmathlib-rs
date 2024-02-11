@@ -17,7 +17,7 @@ use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
-use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qqd_fma};
+use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qdq_fma, bid128qqd_fma};
 use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
@@ -292,6 +292,12 @@ impl d128 {
     #[must_use]
     pub fn dqd_fma(x: d64, y: &Self, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128dqd_fma(x.0, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Decimal floating-point fused multiply-add, d128 * d64 + d128 -> d128
+    #[must_use]
+    pub fn qdq_fma(x: &Self, y: d64, z: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+        bid128qdq_fma(x, y.0, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point fused multiply-add, UINT128 * UINT128 + UINT64
