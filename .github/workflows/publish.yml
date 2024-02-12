@@ -1,0 +1,30 @@
+name: Publish Rust Crates
+
+on:
+  push:
+    tags:
+      - 'v*'  # Specify the tag pattern you want to trigger the workflow on
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build and test
+        run: |
+          cargo build --release
+          cargo test
+
+      - name: Publish crates to crates.io
+        uses: katyo/publish-crates@v2
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
