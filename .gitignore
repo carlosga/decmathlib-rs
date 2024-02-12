@@ -26,3 +26,5 @@ callgrind*.*
 # other
 **/*.sh
 
+# podman
+podman-compose.yaml
