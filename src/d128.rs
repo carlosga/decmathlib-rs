@@ -120,7 +120,7 @@ pub (crate) struct BID_UINT512 {
 }
 
 /// The 128-bit decimal type.
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 #[repr(align(16))]
 pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
@@ -134,6 +134,12 @@ macro_rules! dec128 {
         use std::str::FromStr;
         $crate::d128::d128::from_str(stringify!($t)).expect("Invalid decimal number literal")
     }}
+}
+
+impl Default for d128 {
+    fn default() -> Self {
+        Self::new(0x3040000000000000u64, 0x0)
+    }
 }
 
 impl d128 {
