@@ -131,6 +131,7 @@ pub (crate) type BID_UINT128 = d128;
 #[macro_export]
 macro_rules! dec128 {
     ($t:tt) => {{
+        use std::str::FromStr;
         $crate::d128::d128::from_str(stringify!($t)).expect("Invalid decimal number literal")
     }}
 }
@@ -951,7 +952,7 @@ impl AddAssign for d128 {
     /// ```
     fn add_assign(&mut self, rhs: Self) {
         let mut status: _IDEC_flags = 0;
-        let dec: BID_UINT128 = bid128_mul(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
+        let dec: BID_UINT128 = bid128_add(self, &rhs, DEFAULT_ROUNDING_MODE, &mut status);
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
@@ -1191,7 +1192,7 @@ struct Decimal128Visitor;
 impl<'de> serde::de::Visitor<'de> for Decimal128Visitor {
     type Value = d128;
 
-    fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn expecting(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "a d128 value")
     }
 
