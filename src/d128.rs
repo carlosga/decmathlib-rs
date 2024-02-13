@@ -13,6 +13,7 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign};
 use std::str::FromStr;
+
 use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
@@ -46,7 +47,8 @@ use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};use crate::convert::{bid128_to_bid64, bid64_to_bid128};
+use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
+use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
 use crate::d64::d64;
 
@@ -1174,38 +1176,5 @@ impl SubAssign for d128 {
 
         self.w[0] = dec.w[0];
         self.w[1] = dec.w[1];
-    }
-}
-
-#[cfg(feature = "serde")]
-impl serde::ser::Serialize for d128 {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::ser::Serializer {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-#[cfg(feature = "serde")]
-impl<'de> serde::de::Deserialize<'de> for d128 {
-    fn deserialize<D>(deserializer: D) -> Result<d128, D::Error> where D: serde::de::Deserializer<'de> {
-        deserializer.deserialize_str(Decimal128Visitor)
-    }
-}
-
-#[cfg(feature = "serde")]
-struct Decimal128Visitor;
-
-#[cfg(feature = "serde")]
-impl<'de> serde::de::Visitor<'de> for Decimal128Visitor {
-    type Value = d128;
-
-    fn expecting(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "a d128 value")
-    }
-
-    fn visit_str<E>(self, s: &str) -> Result<d128, E>
-        where E: serde::de::Error
-    {
-        use serde::de::Unexpected;
-        d128::from_str(s).map_err(|_| E::invalid_value(Unexpected::Str(s), &self))
     }
 }

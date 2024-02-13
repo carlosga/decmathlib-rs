@@ -56,3 +56,6 @@ mod convert;
 pub mod core;
 pub mod d64;
 pub mod d128;
+
+#[cfg(feature = "serde")]
+pub mod serde;
