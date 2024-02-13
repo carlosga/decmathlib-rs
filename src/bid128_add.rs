@@ -1771,8 +1771,6 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // the top 64 bits of the two operands
                     // The result cannot be zero, but it can overflow
                     x1 = delta + q2 - P34; // 1 <= x1 <= P34-1
-                // TODO: goto roundC2
-                // roundC2:
                     'roundC2: loop {
                         // Calculate C1 * 10^(e1-e2-x1) where 0 <= e1-e2-x1 <= P34 - 1
                         // scale = (int)(e1 >> 49) - (int)(e2 >> 49) - x1; 0 <= scale <= P34-1
@@ -2205,8 +2203,6 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     is_inexact_gt_midpoint = false;
                                     tmp_inexact            = false;
                                     second_pass            = true;
-                                    // TODO: goto roundC2
-                                    // goto roundC2; // else result has less than P34 digits
                                     continue 'roundC2;
                                 }
                             }
