@@ -11,3 +11,5 @@
 #![allow(non_camel_case_types)]
 #![allow(unused)]
 #![allow(dead_code)]
+
+// TODO: bid128_to_uint64
