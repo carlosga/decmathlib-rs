@@ -4,6 +4,8 @@
 /* -------------------------------------------------------------------------------------------------- */
 /* Licensed under the MIT license. See LICENSE file in the project root for full license information. */
 /* -------------------------------------------------------------------------------------------------- */
+/* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018 Intel Corp.                       */
+/* -------------------------------------------------------------------------------------------------- */
 
 macro_rules! std_op_test {
     ($name: ident, $op: tt, $input1: expr, $input2: expr, $exp: expr) => {
