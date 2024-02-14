@@ -997,7 +997,7 @@ impl Div for &d128 {
     /// ```
     fn div(self, rhs: Self) -> Self::Output {
         let mut status: _IDEC_flags = 0;
-        bid128_mul(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
+        bid128_div(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
     }
 }
 
