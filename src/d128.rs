@@ -130,6 +130,16 @@ pub struct d128 {
 
 pub (crate) type BID_UINT128 = d128;
 
+pub const MINUS_ONE: d128         = d128 { w: [0x0000000000000001u64, 0xb040000000000000u64] };
+pub const ZERO: d128              = d128 { w: [0x0000000000000000u64, 0x3040000000000000u64] };
+pub const ONE: d128               = d128 { w: [0x0000000000000001u64, 0x3040000000000000u64] };
+pub const NAN: d128               = d128 { w: [0x0000000000000000u64, 0x7c00000000000000u64] };
+pub const INFINITY: d128          = d128 { w: [0x0000000000000000u64, 0x7800000000000000u64] };
+pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF800000000000000u64] };
+// pub const MAX_VALUE: d128         = d128 { w: [0x378d8e63ffffffffu64, 0x5fffed09bead87c0u64] };
+// pub const MIN_EXPONENT: i32       = ((-6176i64 + 6176i64) << 49i64) as i32;
+// pub const MAX_EXPONENT: i32       = 0x5ffe;
+
 #[macro_export]
 macro_rules! dec128 {
     ($t:tt) => {{
