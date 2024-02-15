@@ -82,11 +82,11 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
         return str;
     } else { // x is not special and is not zero
         // unpack x
-        x_sign = x.w[1] & MASK_SIGN;// 0 for positive, MASK_SIGN for negative
-        x_exp  = x.w[1] & MASK_EXP;// biased and shifted left 49 bit positions
+        x_sign = x.w[1] & MASK_SIGN;            // 0 for positive, MASK_SIGN for negative
+        x_exp  = x.w[1] & MASK_EXP;             // biased and shifted left 49 bit positions
 
         if (x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {
-            x_exp = (x.w[1] << 2) & MASK_EXP;// biased and shifted left 49 bit positions
+            x_exp = (x.w[1] << 2) & MASK_EXP;   // biased and shifted left 49 bit positions
         }
 
         C1.w[1] = x.w[1] & MASK_COEFF;
