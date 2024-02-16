@@ -130,15 +130,50 @@ pub struct d128 {
 
 pub (crate) type BID_UINT128 = d128;
 
-pub const MINUS_ONE: d128         = d128 { w: [0x0000000000000001u64, 0xb040000000000000u64] };
-pub const ZERO: d128              = d128 { w: [0x0000000000000000u64, 0x3040000000000000u64] };
-pub const ONE: d128               = d128 { w: [0x0000000000000001u64, 0x3040000000000000u64] };
-pub const NAN: d128               = d128 { w: [0x0000000000000000u64, 0x7c00000000000000u64] };
-pub const INFINITY: d128          = d128 { w: [0x0000000000000000u64, 0x7800000000000000u64] };
+/// The number minus one (-1).
+pub const MINUS_ONE: d128 = d128 { w: [0x0000000000000001u64, 0xb040000000000000u64] };
+
+/// The number zero (0).
+pub const ZERO: d128 = d128 { w: [0x0000000000000000u64, 0x3040000000000000u64] };
+
+/// The number one (1).
+pub const ONE: d128 = d128 { w: [0x0000000000000001u64, 0x3040000000000000u64] };
+
+/// Not a Number (NaN)
+pub const NAN: d128 = d128 { w: [0x0000000000000000u64, 0x7c00000000000000u64] };
+
+/// Negative Not a Number (Nan)
+pub const NEG_NAN: d128 = d128 { w: [0x0000000000000000u64, 0xFC00000000000000u64] };
+
+/// Signaling Not a Number (Nan)
+pub const SNAN: d128 = d128 { w: [0x0000000000000000u64, 0x7E00000000000000u64] };
+
+/// Negative signaling Not a Number (Nan)
+pub const NEG_SNAN: d128 = d128 { w: [0x0000000000000000u64, 0xFE00000000000000u64] };
+
+/// Infinity
+pub const INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0x7800000000000000u64] };
+
+/// Negative Infinity
 pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF800000000000000u64] };
-// pub const MAX_VALUE: d128         = d128 { w: [0x378d8e63ffffffffu64, 0x5fffed09bead87c0u64] };
-// pub const MIN_EXPONENT: i32       = ((-6176i64 + 6176i64) << 49i64) as i32;
-// pub const MAX_EXPONENT: i32       = 0x5ffe;
+
+/// The number of digits in the coefficient.
+pub const MANTISSA_DIGITS: u32 = 34;
+
+/// The difference between 1 and the least value greater than 1 that is representable in the given floating point type.
+pub const EPSILON: d128 = d128 { w: [0x1u64, 0x2FFE000000000000u64] };
+
+/// Smallest finite d128 value.
+pub const MIN: d128 = d128 { w: [0x1u64, 0x42000000000000u64] };
+
+/// Largest finite value.
+pub const MAX: d128 = d128 { w: [0x378D8E63FFFFFFFFu64, 0x5FFFED09BEAD87C0u64] };
+
+/// The minimum exponent.
+pub const MIN_EXP: i32 = -6142;
+
+/// The maximum exponent.
+pub const MAX_EXP: i32 = 6145;
 
 #[macro_export]
 macro_rules! dec128 {
@@ -1188,3 +1223,14 @@ impl SubAssign for d128 {
         self.w[1] = dec.w[1];
     }
 }
+
+// #[cfg(test)]
+// mod test {
+//     use std::str::FromStr;
+//     #[test]
+//     fn xxxx() {
+//         let EPSILON = crate::d128::d128::from_str("1E-33");
+//
+//         println!("{}", 1);
+//     }
+// }
