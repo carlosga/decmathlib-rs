@@ -46,6 +46,7 @@ use crate::bid128_sqrt::bid128_sqrt;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
+use crate::bid128_to_uint32::bid128_to_uint32_rnint;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
@@ -687,6 +688,13 @@ impl d128 {
     #[must_use]
     pub fn to_i64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_ui32_rnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_rnint(self, pfpsf)
     }
 
     #[must_use]
