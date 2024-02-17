@@ -184,6 +184,7 @@ macro_rules! dec128 {
 }
 
 impl Default for d128 {
+    #[must_use]
     fn default() -> Self {
         Self::new(0x3040000000000000u64, 0x0)
     }
@@ -1223,14 +1224,3 @@ impl SubAssign for d128 {
         self.w[1] = dec.w[1];
     }
 }
-
-// #[cfg(test)]
-// mod test {
-//     use std::str::FromStr;
-//     #[test]
-//     fn xxxx() {
-//         let EPSILON = crate::d128::d128::from_str("1E-33");
-//
-//         println!("{}", 1);
-//     }
-// }
