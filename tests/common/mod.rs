@@ -434,13 +434,13 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let dec1     = decmathlib_rs::d128::d128::from($input1);
-            let exp1     = decmathlib_rs::d128::d128::from($exp1);
-            let exp2     = decmathlib_rs::d128::d128::from($exp2);
-            let (r2, r1) = decmathlib_rs::d128::d128::modf(&dec1, &mut status);
+            let dec1       = decmathlib_rs::d128::d128::from($input1);
+            let exp1       = decmathlib_rs::d128::d128::from($exp1);
+            let exp2       = decmathlib_rs::d128::d128::from($exp2);
+            let (int, fra) = decmathlib_rs::d128::d128::modf(&dec1, &mut status);
 
-            assert_eq!(exp1, r1);
-            assert_eq!(exp2, r2);
+            assert_eq!(exp1, int);
+            assert_eq!(exp2, fra);
             assert_eq!($exp_status, status)
         }
     };
