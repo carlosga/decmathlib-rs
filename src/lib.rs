@@ -5,6 +5,8 @@
 /* Licensed under the MIT license. See LICENSE file in the project root for full license information. */
 /* -------------------------------------------------------------------------------------------------- */
 
+#![allow(clippy::needless_late_init)]
+
 mod bid128;
 mod bid128_2_str_tables;
 mod bid128_2_str_macros;
