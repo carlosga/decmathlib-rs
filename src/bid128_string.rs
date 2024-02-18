@@ -243,9 +243,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     // eliminate leading white space
-    while (str.chars().nth(ps) == Some(' ')) || (str.chars().nth(ps) == Some('\t')) {
-        ps += 1;
-    }
+    // while (str.chars().nth(ps) == Some(' ')) || (str.chars().nth(ps) == Some('\t')) {
+    //     ps += 1;
+    // }
+
+    ps += str.chars().take_while(|c| *c == ' ' || *c == '\t').count();
 
     // c gets first character
     c = str.chars().nth(ps);
