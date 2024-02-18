@@ -916,7 +916,6 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
 
 /// Return the radix b of the format of x, 2 or 10
 pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
-    // // dummy test
     // (x.w[BID_LOW_128W]) { 10 } else { 10 }
     10
 }
