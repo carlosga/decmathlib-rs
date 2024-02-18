@@ -458,7 +458,7 @@ impl d128 {
         bid128_minnum_mag(x, y, pfpsf)
     }
 
-    /// Decomposes given decimal floating point value num into integral and fractional parts,
+    /// Decomposes given decimal floating point value num into integral and fractional parts.
     #[must_use]
     pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
         bid128_modf(self, pfpsf)
