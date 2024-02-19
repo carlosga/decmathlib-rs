@@ -13,6 +13,7 @@ use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::core::RoundingMode;
 use crate::d128::{_IDEC_flags, BID_UINT128};
 
+/// Decomposes given decimal floating point value num into integral and fractional parts.
 pub (crate) fn bid128_modf(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> (BID_UINT128, BID_UINT128) {
     let mut res: BID_UINT128;
     let mut xi: BID_UINT128 = bid128_round_integral_zero(x, pfpsf);

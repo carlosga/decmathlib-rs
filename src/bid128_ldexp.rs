@@ -14,6 +14,7 @@ use crate::constants::{DECIMAL_MAX_EXPON_128, QUIET_MASK64, SNAN_MASK64};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
 
+/// multiply a 128-bit decimal floating-point value by an integral power of 2.
 pub (crate) fn bid128_ldexp(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut CX2: BID_UINT128 = BID_UINT128::default();

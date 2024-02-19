@@ -16,6 +16,7 @@ use crate::bid128::bid_nr_digits;
 use crate::constants::{ MASK_COEFF, MASK_EXP, MASK_EXP2, MASK_SNAN, MASK_SPECIAL };
 use crate::d128::{ BID_UI64DOUBLE, BID_UINT128, BID_UINT64};
 
+/// Decomposes given decimal floating point value num into a normalized fraction and an integral power of two.
 pub (crate) fn bid128_frexp(x: &BID_UINT128, exp: i32) -> (BID_UINT128, i32) {
     /*
       If x is not a floating-point number, the results are unspecified (this
