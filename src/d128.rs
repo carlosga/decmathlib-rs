@@ -704,6 +704,13 @@ impl d128 {
         bid128_to_uint32_xrnint(self, pfpsf)
     }
 
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-down mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u32_floor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_floor(self, pfpsf)
+    }
+
     /// Decimal floating-point addition, d128 + d128 -> d128
     #[must_use]
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
