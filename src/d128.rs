@@ -464,7 +464,7 @@ impl d128 {
         bid128_modf(self, pfpsf)
     }
 
-    /// Rounds the decimal floating-point value num to an integer value in deicmal floating-point format, using the given rounding mode.
+    /// Rounds the decimal floating-point value num to an integer value in decicmal floating-point format, using the given rounding mode.
     #[must_use]
     pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
@@ -688,6 +688,13 @@ impl d128 {
     #[must_use]
     pub fn to_i64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-up mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u32_ceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
