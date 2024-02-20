@@ -2845,6 +2845,7 @@ pub (crate) fn bid128_to_uint32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
     let C: BID_UINT128;
     let mut Cstar: BID_UINT128 = BID_UINT128::default(); // C* represents up to 34 decimal digits ~ 113 bits
     let P256: BID_UINT256;
+
     // unpack x
     x_sign  = x.w[1] & MASK_SIGN;	// 0 for positive, MASK_SIGN for negative
     x_exp   = x.w[1] & MASK_EXP;	// biased and shifted left 49 bit positions
@@ -2854,7 +2855,7 @@ pub (crate) fn bid128_to_uint32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	    // x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
                 *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
@@ -2866,7 +2867,7 @@ pub (crate) fn bid128_to_uint32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
                 // return Integer Indefinite
                 res = 0x80000000;
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if x_sign == 0 {	// x is +inf
                 // set invalid flag
@@ -2879,7 +2880,7 @@ pub (crate) fn bid128_to_uint32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
                 // return Integer Indefinite
                 res = 0x80000000;
             }
-            return res;
+            res
         }
     }
     // check for non-canonical values (after the check for special values)
@@ -3058,10 +3059,10 @@ pub (crate) fn bid128_to_uint32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
                 // C1 = C1 + 1/2 * 10^ind where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
+                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
