@@ -48,7 +48,6 @@ use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
-use crate::constants::{MASK_COEFF, MASK_EXP };
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
 use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
 use crate::d64::d64;
@@ -538,51 +537,6 @@ impl d128 {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
-    #[must_use]
-    pub (crate) fn scale(&self) -> i32 {
-        let mut x_exp: BID_UINT64;
-        let mut exp: i32;   // unbiased exponent
-        let d0: u32;
-        let d123: u32;
-
-        #[cfg(target_endian = "big")]
-        let mut x = *x;
-
-        #[cfg(target_endian = "big")]
-        BID_SWAP128(&mut x);
-
-        if ((self.w[1] & MASK_COEFF) == 0x0u64) && (self.w[0] == 0x0u64) {
-            // extract the exponent and print
-            exp = (((self.w[1] & MASK_EXP) >> 49) - 6176) as i32;
-
-            if exp > (((0x5ffe) >> 1) - (6176)) {
-                exp = ((((self.w[1] << 2) & MASK_EXP) >> 49) as i32) - 6176;
-            }
-            return exp;
-        } else { // x is not special and is not zero
-            // unpack x
-            x_exp  = self.w[1] & MASK_EXP;             // biased and shifted left 49 bit positions
-
-            if (self.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64 {
-                x_exp = (self.w[1] << 2) & MASK_EXP;   // biased and shifted left 49 bit positions
-            }
-
-            exp = ((x_exp >> 49) - 6176) as i32;
-
-            if exp < 0 {
-                exp = -exp;
-            }
-
-            // determine exponent's representation as a decimal string
-            // d0 = exp / 1000;
-            // Use Property 1
-            d0   = ((exp * 0x418a) >> 24) as u32;  // 0x418a * 2^-24 = (10^(-3))RP,15
-            d123 = (exp - 1000 * (d0 as i32)) as u32;
-
-            return d123 as i32;
-        }
-    }
-
     /// Decimal floating-point square root
     #[must_use]
     pub fn sqrt(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
@@ -761,6 +715,13 @@ impl d128 {
     #[must_use]
     pub fn to_ui32_rnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-away; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_ui32_rninta(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
