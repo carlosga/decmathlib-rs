@@ -705,10 +705,10 @@ impl d128 {
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
-    /// integer in rounding-down mode; inexact exceptions signaled
+    /// integer in rounding-to-zero; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
-        bid128_to_uint32_xfloor(self, pfpsf)
+    pub fn to_u32_int(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
@@ -716,6 +716,20 @@ impl d128 {
     #[must_use]
     pub fn to_ui32_rnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-up mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xceil(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-down mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
