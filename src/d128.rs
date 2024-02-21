@@ -823,6 +823,13 @@ impl d128 {
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-to-nearest-away; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u64_rninta(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_rninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-up mode; inexact exceptions signaled
     #[must_use]
     pub fn to_u64_xceil(&self, pfpsf: &mut _IDEC_flags) -> u64 {
@@ -837,11 +844,26 @@ impl d128 {
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-to-zero; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u64_xint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_xint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
     #[must_use]
     pub fn to_u64_xrnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xrnint(self, pfpsf)
     }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-to-nearest-away; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_xrninta(self, pfpsf)
+    }
+
 
     /// Decimal floating-point addition, d128 + d128 -> d128
     #[must_use]
