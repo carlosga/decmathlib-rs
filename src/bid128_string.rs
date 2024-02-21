@@ -33,7 +33,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
     let mut exp: i32;   // unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let ind: i32;
-    let mut  C1: BID_UINT128 = BID_UINT128::default();
+    let mut C1: BID_UINT128 = BID_UINT128::default();
     let d0: u32;
     let d123: u32;
     let mut HI_18Dig: BID_UINT64;
@@ -582,23 +582,21 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                         carry = 0;
                         i    += 1;
                     }
-                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
+                    if buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
                         carry = 1;
                     }
                 }
             },
             RoundingMode::BID_ROUNDING_DOWN => {
-                if sign_x != 0 {
-                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
-                        carry = 1;
-                    }
+                if sign_x != 0
+                && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
+                    carry = 1;
                 }
             },
             RoundingMode::BID_ROUNDING_UP => {
-                if sign_x == 0 {
-                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
-                        carry = 1;
-                    }
+                if sign_x == 0
+                && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
+                    carry = 1;
                 }
             },
             RoundingMode::BID_ROUNDING_TO_ZERO => {
@@ -607,10 +605,9 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             RoundingMode::BID_ROUNDING_TIES_AWAY => {
                 let digit = char::to_digit(buffer[i], 10).unwrap() as i32;
                 carry = (((4 - digit) as u32) >> 31) as BID_UINT64;
-                if dec_expon < 0 {
-                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
-                        carry = 1;
-                    }
+                if dec_expon < 0
+                && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
+                    carry = 1;
                 }
             },
             _ => panic!("bid128_from_string::Unknown rounding mode")
