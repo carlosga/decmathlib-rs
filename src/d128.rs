@@ -809,10 +809,24 @@ impl d128 {
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-to-zero; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u64_int(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_int(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
     #[must_use]
     pub fn to_u64_rnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-up mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u64_xceil(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
