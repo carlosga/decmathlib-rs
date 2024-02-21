@@ -582,31 +582,22 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                         carry = 0;
                         i    += 1;
                     }
-                    for c in &buffer[i..ndigits_total] {
-                        if *c as i32 > '0' as i32 {
-                            carry = 1;
-                            break;
-                        }
+                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
+                        carry = 1;
                     }
                 }
             },
             RoundingMode::BID_ROUNDING_DOWN => {
                 if sign_x != 0 {
-                    for c in &buffer[i..ndigits_total] {
-                        if *c as i32 > '0' as i32 {
-                            carry = 1;
-                            break;
-                        }
+                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
+                        carry = 1;
                     }
                 }
             },
             RoundingMode::BID_ROUNDING_UP => {
                 if sign_x == 0 {
-                    for c in &buffer[i..ndigits_total] {
-                        if *c as i32 > '0' as i32 {
-                            carry = 1;
-                            break;
-                        }
+                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
+                        carry = 1;
                     }
                 }
             },
@@ -617,11 +608,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                 let digit = char::to_digit(buffer[i], 10).unwrap() as i32;
                 carry = (((4 - digit) as u32) >> 31) as BID_UINT64;
                 if dec_expon < 0 {
-                    for c in &buffer[i..ndigits_total] {
-                        if *c as i32 > '0' as i32 {
-                            carry = 1;
-                            break;
-                        }
+                    if buffer[i..ndigits_total].iter().position(|c| *c as i32 > '0' as i32) != None {
+                        carry = 1;
                     }
                 }
             },
