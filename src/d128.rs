@@ -560,7 +560,6 @@ impl d128 {
         }
     }
 
-
     /// Returns x * 10^N
     #[must_use]
     pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
@@ -800,6 +799,13 @@ impl d128 {
     #[must_use]
     pub fn to_u64_rnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 64-bit unsigned
+    /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u64_xrnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+        bid128_to_uint64_xrnint(self, pfpsf)
     }
 
     /// Decimal floating-point addition, d128 + d128 -> d128
