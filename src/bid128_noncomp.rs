@@ -148,8 +148,9 @@ pub (crate) fn bid128_is_subnormal(x: &BID_UINT128) -> bool {
         return false;
     }
     // test for non-canonical values of the argument x
-    if (((C1_hi > 0x0001ed09bead87c0u64)
-     || ((C1_hi == 0x0001ed09bead87c0u64) && (C1_lo > 0x378d8e63ffffffffu64)))
+    if (((C1_hi  > 0x0001ed09bead87c0u64)
+     || ((C1_hi == 0x0001ed09bead87c0u64)
+      && (C1_lo  > 0x378d8e63ffffffffu64)))
      && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
      || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
         return false;
@@ -785,9 +786,9 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_x.w[1] > 0x0001ed09bead87c0u64)
+    if (((sig_x.w[1]  > 0x0001ed09bead87c0u64)
      || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-      && (sig_x.w[0] > 0x378d8e63ffffffffu64)))
+      && (sig_x.w[0]  > 0x378d8e63ffffffffu64)))
      && ((x.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
      || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
      || ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
@@ -807,9 +808,9 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
     //     1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    if (((sig_y.w[1] > 0x0001ed09bead87c0u64)
+    if (((sig_y.w[1]  > 0x0001ed09bead87c0u64)
      || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-      && (sig_y.w[0] > 0x378d8e63ffffffffu64)))
+      && (sig_y.w[0]  > 0x378d8e63ffffffffu64)))
      && ((y.w[1] & 0x6000000000000000u64) != 0x6000000000000000u64))
      || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64)
      || ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
@@ -916,7 +917,6 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
 
 /// Return the radix b of the format of x, 2 or 10
 pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
-    // // dummy test
     // (x.w[BID_LOW_128W]) { 10 } else { 10 }
     10
 }

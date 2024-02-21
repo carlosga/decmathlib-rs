@@ -19,6 +19,8 @@ use crate::constants::QUIET_MASK64;
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT64};
 
+/// Returns the exponent e of x, a signed integral value, determined
+/// as though x were represented with infinite range and minimum exponent
 pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut exponent_x: i32 = 0;
     let mut sign_x: BID_UINT64 = 0;

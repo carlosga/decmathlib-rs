@@ -16,6 +16,7 @@ use crate::constants::{DECIMAL_EXPONENT_BIAS_128, QUIET_MASK64};
 use crate::core::{RoundingMode, StatusFlags};
 use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT64};
 
+/// Decimal floating-point square root, UINT128 -> UINT128
 pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut M256: BID_UINT256 = BID_UINT256::default();
     let C256: BID_UINT256;

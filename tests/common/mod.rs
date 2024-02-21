@@ -434,13 +434,13 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let dec1     = decmathlib_rs::d128::d128::from($input1);
-            let exp1     = decmathlib_rs::d128::d128::from($exp1);
-            let exp2     = decmathlib_rs::d128::d128::from($exp2);
-            let (r2, r1) = decmathlib_rs::d128::d128::modf(&dec1, &mut status);
+            let dec1       = decmathlib_rs::d128::d128::from($input1);
+            let exp1       = decmathlib_rs::d128::d128::from($exp1);
+            let exp2       = decmathlib_rs::d128::d128::from($exp2);
+            let (int, fra) = decmathlib_rs::d128::d128::modf(&dec1, &mut status);
 
-            assert_eq!(exp1, r1);
-            assert_eq!(exp2, r2);
+            assert_eq!(exp1, int);
+            assert_eq!(exp2, fra);
             assert_eq!($exp_status, status)
         }
     };
@@ -1009,6 +1009,126 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let res1 = dec1.to_i64_xrninta(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_ceil, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_ceil(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_floor, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_floor(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_int, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_int(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_rnint, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_ui32_rnint(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_rninta, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_ui32_rninta(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_xceil, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_xceil(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_xfloor, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_xfloor(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_xint, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_xint(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_xrnint, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_xrnint(&mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid128_to_uint32_xrninta, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let res1 = dec1.to_u32_xrninta(&mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)

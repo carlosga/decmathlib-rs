@@ -19,7 +19,6 @@ use crate::d128::{_IDEC_flags, BID_UINT128};
 ///    and the invalid exception is signaled
 ///  EXCEPTIONS SIGNALED:
 ///    invalid
-///
 pub (crate) fn bid128_lround(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> i64 {
 // #if BID_SIZE_LONG==4
 //   BID_SINT32 res;

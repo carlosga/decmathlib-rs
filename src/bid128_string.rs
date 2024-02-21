@@ -243,9 +243,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
     }
 
     // eliminate leading white space
-    while (str.chars().nth(ps) == Some(' ')) || (str.chars().nth(ps) == Some('\t')) {
-        ps += 1;
-    }
+    // while (str.chars().nth(ps) == Some(' ')) || (str.chars().nth(ps) == Some('\t')) {
+    //     ps += 1;
+    // }
+
+    ps += str.chars().take_while(|c| *c == ' ' || *c == '\t').count();
 
     // c gets first character
     c = str.chars().nth(ps);
@@ -449,8 +451,8 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             c   = str.chars().nth(ps);
 
             if c.is_some() && !char::is_digit(c.unwrap(), 10)
-                         && ((c != Some('+') && c != Some('-'))
-                         || !char::is_digit(str.chars().nth(ps + 1).unwrap(), 10)) {
+            && ((c != Some('+') && c != Some('-'))
+             || !char::is_digit(str.chars().nth(ps + 1).unwrap(), 10)) {
                 // return NaN
                 res.w[1] = 0x7c00000000000000u64;
                 res.w[0] = 0;
@@ -511,29 +513,27 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
             CX.w[1] = 0;
         } else if ndigits_total <= 19 {
             coeff_high = ((buffer[0] as i32) - ('0' as i32)) as BID_UINT64;
-            i          = 1;
-            while i < ndigits_total {
+            for c in &buffer[1..ndigits_total] {
                 coeff2     = coeff_high + coeff_high;
-                coeff_high = (coeff2 << 2) + coeff2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
-                i         += 1;
+                coeff_high = (coeff2 << 2) + coeff2 + (*c as BID_UINT64) - ('0' as BID_UINT64);
             }
             CX.w[0] = coeff_high;
             CX.w[1] = 0;
         } else {
             coeff_high = ((buffer[0] as i32) - ('0' as i32)) as BID_UINT64;
-            i          = 1;
-            while i < (ndigits_total - 17) {
+
+            for c in &buffer[1..ndigits_total - 17] {
                 coeff2     = coeff_high + coeff_high;
-                coeff_high = (coeff2 << 2) + coeff2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
-                i         += 1;
+                coeff_high = (coeff2 << 2) + coeff2 + (*c as BID_UINT64) - ('0' as BID_UINT64);
             }
-            coeff_low = ((buffer[i] as i32) - ('0' as i32)) as BID_UINT64;
-            i        += 1;
-            while i < ndigits_total {
+
+            coeff_low = ((buffer[ndigits_total - 17] as i32) - ('0' as i32)) as BID_UINT64;
+
+            for c in &buffer[ndigits_total - 16..ndigits_total] {
                 coeff_l2  = coeff_low + coeff_low;
-                coeff_low = (coeff_l2 << 2) + coeff_l2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
-                i        += 1;
+                coeff_low = (coeff_l2 << 2) + coeff_l2 + (*c as BID_UINT64) - ('0' as BID_UINT64);
             }
+
             // now form the coefficient as coeff_high*10^19+coeff_low+carry
             scale_high = 100000000000000000u64;
             CX         = __mul_64x64_to_128_fast(coeff_high, scale_high);
@@ -560,20 +560,19 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
 
         coeff_high = ((buffer[0] as i32) - ('0' as i32)) as BID_UINT64;
 
-        i = 1;
-        while i < MAX_FORMAT_DIGITS_128 - 17 {
+        for c in &buffer[1..MAX_FORMAT_DIGITS_128 - 17] {
             coeff2     = coeff_high + coeff_high;
-            coeff_high = (coeff2 << 2) + coeff2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
-            i         += 1;
+            coeff_high = (coeff2 << 2) + coeff2 + (*c as BID_UINT64) - ('0' as BID_UINT64);
         }
-        coeff_low = (buffer[i] as i32 - '0' as i32) as BID_UINT64;
 
-        i += 1;
-        while i < MAX_FORMAT_DIGITS_128 {
+        coeff_low = (buffer[MAX_FORMAT_DIGITS_128 - 17] as i32 - '0' as i32) as BID_UINT64;
+
+        for c in &buffer[MAX_FORMAT_DIGITS_128 - 16..MAX_FORMAT_DIGITS_128] {
             coeff_l2  = coeff_low + coeff_low;
-            coeff_low = (coeff_l2 << 2) + coeff_l2 + (buffer[i] as BID_UINT64) - ('0' as BID_UINT64);
-            i        += 1;
+            coeff_low = (coeff_l2 << 2) + coeff_l2 + (*c as BID_UINT64) - ('0' as BID_UINT64);
         }
+
+        i = MAX_FORMAT_DIGITS_128;
 
         match rnd_mode {
             RoundingMode::BID_ROUNDING_TO_NEAREST => {
@@ -583,34 +582,31 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                         carry = 0;
                         i    += 1;
                     }
-                    while i < ndigits_total {
-                        if buffer[i] > '0' {
+                    for c in &buffer[i..ndigits_total] {
+                        if *c as i32 > '0' as i32 {
                             carry = 1;
                             break;
                         }
-                        i += 1;
                     }
                 }
             },
             RoundingMode::BID_ROUNDING_DOWN => {
                 if sign_x != 0 {
-                    while i < ndigits_total {
-                        if buffer[i] > '0' {
+                    for c in &buffer[i..ndigits_total] {
+                        if *c as i32 > '0' as i32 {
                             carry = 1;
                             break;
                         }
-                        i += 1;
                     }
                 }
             },
             RoundingMode::BID_ROUNDING_UP => {
                 if sign_x == 0 {
-                    while i < ndigits_total {
-                        if buffer[i] > '0' {
+                    for c in &buffer[i..ndigits_total] {
+                        if *c as i32 > '0' as i32 {
                             carry = 1;
                             break;
                         }
-                        i += 1;
                     }
                 }
             },
@@ -621,12 +617,11 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                 let digit = char::to_digit(buffer[i], 10).unwrap() as i32;
                 carry = (((4 - digit) as u32) >> 31) as BID_UINT64;
                 if dec_expon < 0 {
-                    while i < ndigits_total {
-                        if buffer[i] > '0' {
+                    for c in &buffer[i..ndigits_total] {
+                        if *c as i32 > '0' as i32 {
                             carry = 1;
                             break;
                         }
-                        i += 1;
                     }
                 }
             },

@@ -12,6 +12,7 @@
 use crate::bid128_scalbn::bid128_scalbn;
 use crate::d128::{_IDEC_flags, BID_UINT128};
 
+/// Returns x * 10^N
 pub (crate) fn bid128_scalbln(x: &BID_UINT128, n: i64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut n1: i32 = n as i32;
     n1 = match n1 as i64 {

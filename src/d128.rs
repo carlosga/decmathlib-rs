@@ -12,9 +12,8 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign};
-use std::str::FromStr;
+use std::str::FromStr;use crate::bid128_add::{bid128_add, bid128_sub};
 
-use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
@@ -46,6 +45,7 @@ use crate::bid128_sqrt::bid128_sqrt;
 use crate::bid128_string::{bid128_from_string, bid128_to_string};
 use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
+use crate::bid128_to_uint32::*;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
 use crate::convert::{bid128_to_bid64, bid64_to_bid128};
@@ -184,6 +184,7 @@ macro_rules! dec128 {
 }
 
 impl Default for d128 {
+    #[must_use]
     fn default() -> Self {
         Self::new(0x3040000000000000u64, 0x0)
     }
@@ -456,13 +457,13 @@ impl d128 {
         bid128_minnum_mag(x, y, pfpsf)
     }
 
-    /// Decomposes given decimal floating point value num into integral and fractional parts,
+    /// Decomposes given decimal floating point value num into integral and fractional parts.
     #[must_use]
     pub fn modf(&self, pfpsf: &mut _IDEC_flags) -> (Self, Self) {
         bid128_modf(self, pfpsf)
     }
 
-    /// Rounds the decimal floating-point value num to an integer value in deicmal floating-point format, using the given rounding mode.
+    /// Rounds the decimal floating-point value num to an integer value in decicmal floating-point format, using the given rounding mode.
     #[must_use]
     pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
@@ -688,56 +689,143 @@ impl d128 {
         bid128_to_int64_xrninta(self, pfpsf)
     }
 
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-up mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u32_ceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_ceil(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-down mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u32_floor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_floor(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-zero; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_u32_int(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_int(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_ui32_rnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_rnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-away; inexact exceptions not signaled
+    #[must_use]
+    pub fn to_ui32_rninta(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_rninta(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-up mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xceil(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-down mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xfloor(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-zero; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xrnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xrnint(self, pfpsf)
+    }
+
+    /// Convert 128-bit decimal floating-point value to 32-bit unsigned
+    /// integer in rounding-to-nearest-away; inexact exceptions signaled
+    #[must_use]
+    pub fn to_u32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+        bid128_to_uint32_xrninta(self, pfpsf)
+    }
+
+    /// Decimal floating-point addition, d128 + d128 -> d128
     #[must_use]
     pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    /// Decimal floating-point division, d128 / d128 -> d128
     #[must_use]
     pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_div(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    /// Decimal floating-point multiplication, d128 / d128 -> d128
     #[must_use]
     pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    /// Decimal floating-point remainder
     #[must_use]
     pub fn remainder(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> Self {
         bid128_rem(lhs, rhs, status)
     }
 
+    /// Decimal floating-point subtraction, d128 - d128 -> d128
     #[must_use]
     pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
         bid128_sub(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_equal(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater_equal(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less_equal(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
     #[must_use]
     pub fn quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_not_equal(lhs, rhs, status)
@@ -1223,14 +1311,3 @@ impl SubAssign for d128 {
         self.w[1] = dec.w[1];
     }
 }
-
-// #[cfg(test)]
-// mod test {
-//     use std::str::FromStr;
-//     #[test]
-//     fn xxxx() {
-//         let EPSILON = crate::d128::d128::from_str("1E-33");
-//
-//         println!("{}", 1);
-//     }
-// }

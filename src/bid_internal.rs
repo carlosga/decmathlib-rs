@@ -213,7 +213,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                             }
                         },
                         _ => { // round up
-                            (Stemp.w[0], CY) = __add_carry_out(Q_low.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
+                            (Stemp.w[0], CY)    = __add_carry_out(Q_low.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
                             (Stemp.w[1], carry) = __add_carry_in_out(Q_low.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY);
                             if (remainder_h >> (64 - amount)) + carry >= ((1u64) << amount) {
                                 status = StatusFlags::BID_EXACT_STATUS;
@@ -311,8 +311,8 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     let CY: BID_UINT64;
     let ed2: i32;
     let amount: i32;
-    let mut rmode;
-    let mut status;
+    let mut rmode: u32;
+    let mut status: _IDEC_flags;
     let mut CQ: BID_UINT128 = *CQ;
     let mut pres: BID_UINT128 = BID_UINT128::default();
 
@@ -330,9 +330,9 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
     // CQ *= 10
     CQ2.w[1] = (CQ.w[1] << 1) | (CQ.w[0] >> 63);
-    CQ2.w[0] = CQ.w[0] << 1;
+    CQ2.w[0] =  CQ.w[0] << 1;
     CQ8.w[1] = (CQ.w[1] << 3) | (CQ.w[0] >> 61);
-    CQ8.w[0] = CQ.w[0] << 3;
+    CQ8.w[0] =  CQ.w[0] << 3;
 
     CQ = __add_128_128(&CQ2, &CQ8);
 
@@ -505,7 +505,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
          && Qh1.w[0] == 0
         && (Ql.w[1]  < bid_reciprocals10_128[ed2 as usize].w[1]
         || (Ql.w[1] == bid_reciprocals10_128[ed2 as usize].w[1]
-        && Ql.w[0] < bid_reciprocals10_128[ed2 as usize].w[0])) {
+         && Ql.w[0]  < bid_reciprocals10_128[ed2 as usize].w[0])) {
             CQ.w[0] -= 1;
         }
     }
