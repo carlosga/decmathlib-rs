@@ -532,8 +532,6 @@ impl d128 {
     pub (crate) fn scale(&self) -> i32 {
         let mut x_exp: BID_UINT64;
         let mut exp: i32;   // unbiased exponent
-        let d0: u32;
-        let d123: u32;
 
         #[cfg(target_endian = "big")]
         let mut x = *x;
