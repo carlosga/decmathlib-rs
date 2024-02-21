@@ -558,23 +558,7 @@ impl d128 {
                 x_exp = (self.w[1] << 2) & MASK_EXP;   // biased and shifted left 49 bit positions
             }
 
-            exp = ((x_exp >> 49) - 6176) as i32;
-
-            // if exp < 0 {
-            //     exp = -exp;
-            // }
-
-            // determine exponent's representation as a decimal string
-            // d0 = exp / 1000;
-            // Use Property 1
-            d0   = ((exp * 0x418a) >> 24) as u32;  // 0x418a * 2^-24 = (10^(-3))RP,15
-            d123 = (exp - 1000 * (d0 as i32)) as u32;
-
-            if d0 != 0 {
-                d0 as i32
-            } else {
-                d123 as i32
-            }
+            ((x_exp >> 49) - 6176) as i32
         }
     }
 
