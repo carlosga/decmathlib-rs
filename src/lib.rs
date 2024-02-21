@@ -6,6 +6,7 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(clippy::needless_late_init)]
+#![allow(clippy::redundant_guards)]
 
 mod bid128;
 mod bid128_2_str_tables;
