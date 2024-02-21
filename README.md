@@ -7,6 +7,8 @@ Rust learning project.
 ## Badges
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/carlosga/decmathlib-rs/rust.yml)](https://github.com/carlosga/decmathlib-rs/actions)
+[![GitHub last commit](https://img.shields.io/github/last-commit/carlosga/decmathlib-rs)](https://github.com/carlosga/decmathlib-rs)
 
 ## Acknowledgements
 
