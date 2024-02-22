@@ -27,7 +27,7 @@ const MAX_STRING_DIGITS_128: usize = 100;
 // const MAX_SEARCH: usize            = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
 
 /// Convert 128-bit decimal floating-point value (binary encoding) to string format
-pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
+pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
     let x_sign: BID_UINT64;
     let mut x_exp: BID_UINT64;
     let mut exp: i32;   // unbiased exponent
@@ -66,7 +66,11 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
         };
     } else if ((x.w[1] & MASK_COEFF) == 0x0u64) && (x.w[0] == 0x0u64) {
         //determine if +/-
-        str.push_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0E" } else { "+0E" });
+        if upperExp {
+            str.push_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0E" } else { "+0E" });
+        } else {
+            str.push_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0e" } else { "+0e" });
+        }
 
         // extract the exponent and print
         exp = (((x.w[1] & MASK_EXP) >> 49) - 6176) as i32;
@@ -99,9 +103,9 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
         // determine coefficient's representation as a decimal string
 
         // if zero or non-canonical, set coefficient to '0'
-        if (C1.w[1] > 0x0001ed09bead87c0u64)
+        if (C1.w[1]  > 0x0001ed09bead87c0u64)
         || (C1.w[1] == 0x0001ed09bead87c0u64 && (C1.w[0] > 0x378d8e63ffffffffu64))
-        || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) || ((C1.w[1] == 0) && (C1.w[0] == 0)) {
+        || ((x.w[1]  & 0x6000000000000000u64) == 0x6000000000000000u64) || ((C1.w[1] == 0) && (C1.w[0] == 0)) {
             str.push('0');
         } else {
             /* ****************************************************
@@ -163,7 +167,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128) -> String {
         }
 
         // print E and sign of exponent
-        str.push('E');
+        str.push(if upperExp { 'E' } else { 'e' });
         if exp < 0 {
             exp = -exp;
             str.push('-');

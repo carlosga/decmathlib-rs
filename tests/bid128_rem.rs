@@ -9,6 +9,37 @@
 
 mod common;
 
+#[test]
+fn rem_binop() {
+    let a= decmathlib_rs::d128::d128::from(12);
+    let b= decmathlib_rs::d128::d128::from(10);
+    let e= decmathlib_rs::d128::d128::from(2);
+
+    assert_eq!(a % b  , e);
+    assert_eq!(&a % b , e);
+    assert_eq!(a % &b , e);
+    assert_eq!(&a % &b, e);
+}
+
+#[test]
+fn rem_assign_op() {
+    let mut a1 = decmathlib_rs::d128::d128::from(12);
+    let mut a2 = decmathlib_rs::d128::d128::from(12);
+    let mut a3 = decmathlib_rs::d128::d128::from(12);
+    let mut a4 = decmathlib_rs::d128::d128::from(12);
+    let b = decmathlib_rs::d128::d128::from(10);
+    let e = decmathlib_rs::d128::d128::from(2);
+
+    a1 %= b;
+    assert_eq!(e, a1);
+    a2 %= b;
+    assert_eq!(e, a2);
+    a3 %= b;
+    assert_eq!(e, a3);
+    a4 %= b;
+    assert_eq!(e, a4);
+}
+
 dec_test!(bid128_rem_001, bid128_rem, 0, 0x00000080024520145e7ff56d67eb67a5u128, 0x000000c100000020d277330430a0ee20u128, 0x80000040fdbae00c73f73d96c8b5867bu128, 0x00);
 dec_test!(bid128_rem_002, bid128_rem, 0, 0x0001ed09bead87c0378d8e62ffffffffu128, 0x0001ed09bead87c0378d8e62ffffffffu128, 0x00000000000000000000000000000000u128, 0x00);
 dec_test!(bid128_rem_003, bid128_rem, 0, 0x0001ed09bead87c0378d8e62ffffffffu128, 0x0001ed09bead87c0378d8e64ffffffffu128, 0x7c000000000000000000000000000000u128, 0x01);

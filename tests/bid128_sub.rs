@@ -9,6 +9,37 @@
 
 mod common;
 
+#[test]
+fn sub_binop() {
+    let a = decmathlib_rs::d128::d128::from(2);
+    let b = decmathlib_rs::d128::ONE;
+    let e = decmathlib_rs::d128::ONE;
+
+    assert_eq!(a - b  , e);
+    assert_eq!(&a - b , e);
+    assert_eq!(a - &b , e);
+    assert_eq!(&a - &b, e);
+}
+
+#[test]
+fn sub_assign_op() {
+    let mut a1 = decmathlib_rs::d128::d128::from(2);
+    let mut a2 = decmathlib_rs::d128::d128::from(2);
+    let mut a3 = decmathlib_rs::d128::d128::from(2);
+    let mut a4 = decmathlib_rs::d128::d128::from(2);
+    let b      = decmathlib_rs::d128::ONE;
+    let e      = decmathlib_rs::d128::ONE;
+
+    a1 -= b;
+    assert_eq!(e, a1);
+    a2 -= b;
+    assert_eq!(e, a2);
+    a3 -= b;
+    assert_eq!(e, a3);
+    a4 -= b;
+    assert_eq!(e, a4);
+}
+
 dec_test!(bid128_sub_001, bid128_sub, 0, 0x0000000000000000572997bd3b8d4dc5u128             , 0x00020000000000005e53d92fd7bfde90u128            , 0x8000000000000003581ce42131f163dbu128, 0x00);
 dec_test!(bid128_sub_002, bid128_sub, 0, 0x00004000000000000004000840000400u128             , 0x00200000000000000603d836132873c6u128            , 0x800095b244d383528ff810d5e245fc00u128, 0x00);
 dec_test!(bid128_sub_003, bid128_sub, 0, 0x000040800080001000c0004003044a00u128             , 0x00004e208a0002002000000200000000u128            , 0x80000da0898001f01f3fffc1fcfbb600u128, 0x00);

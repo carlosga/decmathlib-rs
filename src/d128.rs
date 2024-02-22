@@ -10,11 +10,12 @@
 #![allow(non_camel_case_types)]
 
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter, LowerExp, UpperExp};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign};
 use std::str::FromStr;
-use crate::bid128_add::{bid128_add, bid128_sub};
+use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 
+use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
@@ -125,7 +126,7 @@ pub (crate) struct BID_UINT512 {
 }
 
 /// The 128-bit decimal type.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 #[repr(align(16))]
 pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
@@ -986,9 +987,27 @@ impl PartialOrd for d128 {
     }
 }
 
+impl Debug for d128 {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", bid128_to_string(self, true))
+    }
+}
+
 impl Display for d128 {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", bid128_to_string(self))
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", bid128_to_string(self, true))
+    }
+}
+
+impl LowerExp for d128 {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", bid128_to_string(self, false))
+    }
+}
+
+impl UpperExp for d128 {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", bid128_to_string(self, true))
     }
 }
 
@@ -1130,28 +1149,15 @@ impl Neg for d128 {
     /// ```
     /// use std::ops::Neg;
     /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let neg  = dec1.neg();
+    /// let neg1 = -dec1;
+    /// let neg2 = -&dec1;
     /// ```
     fn neg(self) -> Self::Output {
         bid128_negate(&self)
     }
 }
 
-impl Neg for &d128 {
-    type Output = d128;
-
-    /// Performs the unary - operation
-    /// # Examples
-    ///
-    /// ```
-    /// use std::ops::Neg;
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let neg  = &dec1.neg();
-    /// ```
-    fn neg(self) -> Self::Output {
-        bid128_negate(self)
-    }
-}
+forward_ref_unop! { impl Neg, neg for d128 }
 
 impl Add for d128 {
     type Output = Self;
@@ -1170,22 +1176,7 @@ impl Add for d128 {
     }
 }
 
-impl Add for &d128 {
-    type Output = d128;
-
-    /// Performs the + operation.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let dec2 = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// let res  = &dec1 + &dec2;
-    /// ```
-    fn add(self, rhs: Self) -> Self::Output {
-        let mut status: _IDEC_flags = 0;
-        bid128_add(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
-    }
-}
+forward_ref_binop!(impl Add, add for d128, d128);
 
 impl AddAssign for d128 {
     /// Performs the += operation.
@@ -1206,6 +1197,8 @@ impl AddAssign for d128 {
     }
 }
 
+forward_ref_op_assign! { impl AddAssign, add_assign for d128, d128 }
+
 impl Div for d128 {
     type Output = Self;
 
@@ -1223,22 +1216,7 @@ impl Div for d128 {
     }
 }
 
-impl Div for &d128 {
-    type Output = d128;
-
-    /// Performs the / operation.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let dec2 = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// let res  = &dec1 / &dec2;
-    /// ```
-    fn div(self, rhs: Self) -> Self::Output {
-        let mut status: _IDEC_flags = 0;
-        bid128_div(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
-    }
-}
+forward_ref_binop!(impl Div, div for d128, d128);
 
 impl DivAssign for d128 {
     /// Performs the /= operation.
@@ -1259,6 +1237,8 @@ impl DivAssign for d128 {
     }
 }
 
+forward_ref_op_assign! { impl DivAssign, div_assign for d128, d128 }
+
 impl Mul for d128 {
     type Output = Self;
 
@@ -1276,22 +1256,7 @@ impl Mul for d128 {
     }
 }
 
-impl Mul for &d128 {
-    type Output = d128;
-
-    /// Performs the * operation.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let dec2 = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// let res  = &dec1 * &dec2;
-    /// ```
-    fn mul(self, rhs: Self) -> Self::Output {
-        let mut status: _IDEC_flags = 0;
-        bid128_mul(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
-    }
-}
+forward_ref_binop!(impl Mul, mul for d128, d128);
 
 impl MulAssign for d128 {
     /// Performs the *= operation.
@@ -1312,6 +1277,8 @@ impl MulAssign for d128 {
     }
 }
 
+forward_ref_op_assign! { impl MulAssign, mul_assign for d128, d128 }
+
 impl Rem for d128 {
     type Output = Self;
 
@@ -1329,22 +1296,7 @@ impl Rem for d128 {
     }
 }
 
-impl Rem for &d128 {
-    type Output = d128;
-
-    /// Performs the % operation.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let dec2 = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// let res  = &dec1 % &dec2;
-    /// ```
-    fn rem(self, rhs: Self) -> Self::Output {
-        let mut status: _IDEC_flags = 0;
-        bid128_rem(self, rhs, &mut status)
-    }
-}
+forward_ref_binop!(impl Rem, rem for d128, d128);
 
 impl RemAssign for d128 {
     /// Performs the %= operation.
@@ -1365,6 +1317,8 @@ impl RemAssign for d128 {
     }
 }
 
+forward_ref_op_assign! { impl RemAssign, rem_assign for d128, d128 }
+
 impl Sub for d128 {
     type Output = Self;
 
@@ -1382,22 +1336,7 @@ impl Sub for d128 {
     }
 }
 
-impl Sub for &d128 {
-    type Output = d128;
-
-    /// Performs the - operation.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
-    /// let dec2 = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
-    /// let res  = &dec1 - &dec2;
-    /// ```
-    fn sub(self, rhs: Self) -> Self::Output {
-        let mut status: _IDEC_flags = 0;
-        bid128_sub(self, rhs, DEFAULT_ROUNDING_MODE, &mut status)
-    }
-}
+forward_ref_binop!(impl Sub, sub for d128, d128);
 
 impl SubAssign for d128 {
     /// Performs the *= operation.
@@ -1417,3 +1356,31 @@ impl SubAssign for d128 {
         self.w[1] = dec.w[1];
     }
 }
+
+forward_ref_op_assign! { impl SubAssign, sub_assign for d128, d128 }
+
+impl std::iter::Sum for d128 {
+    fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
+        iter.fold(ZERO, |a, b| a + b)
+    }
+}
+
+impl std::iter::Product for d128 {
+    fn product<I: Iterator<Item=Self>>(iter: I) -> Self {
+        iter.fold(ONE,|a, b| a * b)
+    }
+}
+
+impl<'a> std::iter::Sum<&'a d128> for d128 {
+    fn sum<I: Iterator<Item=&'a Self>>(iter: I) -> Self {
+        iter.fold(ZERO, |a, b| a + b)
+    }
+}
+
+impl<'a> std::iter::Product<&'a d128> for d128 {
+    fn product<I: Iterator<Item=&'a Self>>(iter: I) -> Self {
+        iter.fold(ONE, |a, b| a * b)
+    }
+}
+
+// #[rustc_inherit_overflow_checks]

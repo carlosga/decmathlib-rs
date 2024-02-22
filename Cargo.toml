@@ -18,6 +18,7 @@ serde = ["serde/default", "serde_json/default"]
 sqlx = ["sqlx/default", "sqlx/postgres", "byteorder/default"]
 
 [dependencies]
+forward_ref = { version = "1.0.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.113"
 sqlx = { version = "0.7", features = [ "postgres", "runtime-async-std", "runtime-async-std-rustls" ] }
