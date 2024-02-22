@@ -14,15 +14,15 @@ use crate::bid128_2_str_tables::*;
 use crate::d128::{BID_UINT32, BID_UINT64};
 
 pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
-    let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + bid_Twoto60_m_10to18;
-    if (L0_tmp & bid_Twoto60) == bid_Twoto60 {
+    let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + BID_TWOTO60_M_10TO18;
+    if (L0_tmp & BID_TWOTO60) == BID_TWOTO60 {
         *X_hi += 1 ;
         *X_lo  = (L0_tmp << 4) >> 4;
     }
 }
 
 pub (crate) fn __L0_Normalize_10to9(X_hi: &mut BID_UINT32, X_lo: &mut BID_UINT32) {
-    let L0_tmp: BID_UINT32 = *X_lo + bid_Twoto30_m_10to9;
+    let L0_tmp: BID_UINT32 = *X_lo + BID_TWOTO30_M_10TO9;
     if (L0_tmp & 0x40000000) == 0x40000000 {
         *X_hi += 1;
         *X_lo  = (L0_tmp << 2) >> 2;
@@ -72,11 +72,11 @@ pub (crate) fn __L0_Split_MiDi_3(X: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
 }
 
 pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
-    let mut  L1_Xhi_64: BID_UINT64 = ((X >> 28) * (bid_Inv_Tento9 as BID_UINT64)) >> 33;
-    let mut  L1_Xlo_64: BID_UINT64 = X as BID_UINT64 - L1_Xhi_64 * (bid_Tento9 as BID_UINT64);
+    let mut  L1_Xhi_64: BID_UINT64 = ((X >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
+    let mut  L1_Xlo_64: BID_UINT64 = X as BID_UINT64 - L1_Xhi_64 * (BID_TENTO9 as BID_UINT64);
 
-    if L1_Xlo_64 >= (bid_Tento9 as BID_UINT64) {
-        L1_Xlo_64 -= bid_Tento9 as BID_UINT64;
+    if L1_Xlo_64 >= (BID_TENTO9 as BID_UINT64) {
+        L1_Xlo_64 -= BID_TENTO9 as BID_UINT64;
         L1_Xhi_64 += 1;
     }
 
@@ -93,22 +93,22 @@ pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) 
     let mut L1_Xhi_64: BID_UINT64;
     let mut L1_Xlo_64: BID_UINT64;
 
-    if X >= (bid_Tento9 as BID_UINT64) {
-        L1_Xhi_64 = ((X >> 28) * (bid_Inv_Tento9 as BID_UINT64)) >> 33;
-        L1_Xlo_64 = X - L1_Xhi_64 * bid_Tento9 as BID_UINT64;
+    if X >= (BID_TENTO9 as BID_UINT64) {
+        L1_Xhi_64 = ((X >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
+        L1_Xlo_64 = X - L1_Xhi_64 * BID_TENTO9 as BID_UINT64;
 
-        if L1_Xlo_64 >= (bid_Tento9 as BID_UINT64) {
-            L1_Xlo_64 -= bid_Tento9 as BID_UINT64;
+        if L1_Xlo_64 >= (BID_TENTO9 as BID_UINT64) {
+            L1_Xlo_64 -= BID_TENTO9 as BID_UINT64;
             L1_Xhi_64 += 1;
         }
 
         L1_X_hi = L1_Xhi_64 as BID_UINT32;
         L1_X_lo = L1_Xlo_64 as BID_UINT32;
 
-        if L1_X_hi >= bid_Tento6 {
+        if L1_X_hi >= BID_TENTO6 {
             __L0_Split_MiDi_3(L1_X_hi, vec);
             __L0_Split_MiDi_3(L1_X_lo, vec);
-        } else if L1_X_hi >= bid_Tento3 {
+        } else if L1_X_hi >= BID_TENTO3 {
             __L0_Split_MiDi_2(L1_X_hi, vec);
             __L0_Split_MiDi_3(L1_X_lo, vec);
         } else {
@@ -117,9 +117,9 @@ pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) 
         }
     } else {
         L1_X_lo = X as BID_UINT32;
-        if L1_X_lo >= bid_Tento6 {
+        if L1_X_lo >= BID_TENTO6 {
             __L0_Split_MiDi_3(L1_X_lo, vec);
-        } else if L1_X_lo >= bid_Tento3 {
+        } else if L1_X_lo >= BID_TENTO3 {
             __L0_Split_MiDi_2(L1_X_lo, vec);
         } else {
             vec.push(L1_X_lo);
@@ -128,15 +128,15 @@ pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) 
 }
 
 pub (crate) fn __L0_MiDi2Str(X: BID_UINT32, str: &mut String) {
-    str.push_str(bid_midi_tbl[X as usize]);
+    str.push_str(BID_MIDI_TBL[X as usize]);
 }
 
 pub (crate) fn __L0_MiDi2Str_Lead(X: BID_UINT32, str: &mut String) {
     if X >= 100 {
-        str.push_str(bid_midi_tbl[X as usize]);
+        str.push_str(BID_MIDI_TBL[X as usize]);
     } else if X >= 10 {
-        str.push_str(&bid_midi_tbl[X as usize][1..]);
+        str.push_str(&BID_MIDI_TBL[X as usize][1..]);
     } else {
-        str.push_str(&bid_midi_tbl[X as usize][2..]);
+        str.push_str(&BID_MIDI_TBL[X as usize][2..]);
     }
 }

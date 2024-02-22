@@ -7,17 +7,14 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
-#![allow(unused_variables)]
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 
-use crate::bid128::bid_nr_digits;
+use crate::bid128::BID_NR_DIGITS;
 use crate::constants::{ MASK_COEFF, MASK_EXP, MASK_EXP2, MASK_SNAN, MASK_SPECIAL };
 use crate::d128::{ BID_UI64DOUBLE, BID_UINT128, BID_UINT64};
 
 /// Decomposes given decimal floating point value num into a normalized fraction and an integral power of two.
-pub (crate) fn bid128_frexp(x: &BID_UINT128, exp: i32) -> (BID_UINT128, i32) {
+pub (crate) fn bid128_frexp(x: &BID_UINT128) -> (BID_UINT128, i32) {
     /*
       If x is not a floating-point number, the results are unspecified (this
       implementation returns x and *exp = 0). Otherwise, the frexp function
@@ -32,7 +29,7 @@ pub (crate) fn bid128_frexp(x: &BID_UINT128, exp: i32) -> (BID_UINT128, i32) {
     let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
     let x_nr_bits: usize;
     let mut q: i32;
-    let mut exp = exp;
+    let exp: i32;
 
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // if NaN or infinity
@@ -99,12 +96,12 @@ pub (crate) fn bid128_frexp(x: &BID_UINT128, exp: i32) -> (BID_UINT128, i32) {
                 x_nr_bits = (64 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
             }
         }
-        q = bid_nr_digits[x_nr_bits].digits as i32;
+        q = BID_NR_DIGITS[x_nr_bits].digits as i32;
         if q == 0 {
-            q = bid_nr_digits[x_nr_bits].digits1 as i32;
-            if  sig_x.w[1]  > bid_nr_digits[x_nr_bits].threshold_hi
-            || (sig_x.w[1] == bid_nr_digits[x_nr_bits].threshold_hi
-             && sig_x.w[0] >= bid_nr_digits[x_nr_bits].threshold_lo) {
+            q = BID_NR_DIGITS[x_nr_bits].digits1 as i32;
+            if  sig_x.w[1]  > BID_NR_DIGITS[x_nr_bits].threshold_hi
+            || (sig_x.w[1] == BID_NR_DIGITS[x_nr_bits].threshold_hi
+             && sig_x.w[0] >= BID_NR_DIGITS[x_nr_bits].threshold_lo) {
                 q += 1;
             }
         }

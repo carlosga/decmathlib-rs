@@ -373,8 +373,8 @@ impl d128 {
 
     /// Decomposes given decimal floating point value num into a normalized fraction and an integral power of two.
     #[must_use]
-    pub fn frexp(&self, exp: i32) -> (Self, i32) {
-        bid128_frexp(self, exp)
+    pub fn frexp(&self) -> (Self, i32) {
+        bid128_frexp(self)
     }
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.

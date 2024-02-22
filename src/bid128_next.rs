@@ -9,7 +9,7 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
+use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_not_equal};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_internal::{__mul_128x64_to_128, __mul_64x64_to_128MACH};
@@ -145,12 +145,12 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
                     x_nr_bits = (65 + (((tmp1.i >> 52) & 0x7ff) - 0x3ff)) as usize;
                 }
             }
-            q1 = bid_nr_digits[x_nr_bits - 1].digits as i32;
+            q1 = BID_NR_DIGITS[x_nr_bits - 1].digits as i32;
             if q1 == 0 {
-                q1 = bid_nr_digits[x_nr_bits - 1].digits1 as i32;
-                if  C1.w[1] > bid_nr_digits[x_nr_bits - 1].threshold_hi
-                || (C1.w[1] == bid_nr_digits[x_nr_bits - 1].threshold_hi
-                 && C1.w[0] >= bid_nr_digits[x_nr_bits - 1].threshold_lo) {
+                q1 = BID_NR_DIGITS[x_nr_bits - 1].digits1 as i32;
+                if  C1.w[1] > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+                || (C1.w[1] == BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+                 && C1.w[0] >= BID_NR_DIGITS[x_nr_bits - 1].threshold_lo) {
                     q1 += 1;
                 }
             }
@@ -165,22 +165,22 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
                         // 64-bit C1
                         C1 = if ind <= 19 {
                             // 64-bit 10^ind and 64-bit C1
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 128-bit 10^ind and 64-bit C1
-                            __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize])
+                            __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize])
                         };
                     } else {
                         // C1 is (most likely) 128-bit
                         C1 = if ind <= 14 {
                             // 64-bit 10^ind and 128-bit C1 (most likely)
-                            __mul_128x64_to_128(bid_ten2k64[ind as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[ind as usize], &C1)
                         } else if ind <= 19 {
                             // 64-bit 10^ind and 64-bit C1 (q1 <= 19)
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 128-bit 10^ind and 64-bit C1 (C1 must be 64-bit)
-                            __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize])
+                            __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize])
                         };
                     }
                     x_exp -= (ind as BID_UINT64) << 49;
@@ -192,15 +192,15 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
                         // 1 <= P34 - q1 <= 19 <=> 15 <= q1 <= 33
                         C1 = if q1 <= 19 {
                             // 64-bit C1, 64-bit 10^ind
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 20 <= q1 <= 33 => 128-bit C1, 64-bit 10^ind
-                            __mul_128x64_to_128(bid_ten2k64[ind as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[ind as usize], &C1)
                         };
                     } else {
                         // if 20 <= P34 - q1 <= 33 <=> 1 <= q1 <= 14 =>
                         // 64-bit C1, 128-bit 10^ind
-                        C1 = __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize]);
+                        C1 = __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize]);
                     }
                     x_exp = EXP_MIN;
                 }
@@ -370,12 +370,12 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
                     x_nr_bits = (65 + (((tmp1.i >> 52) & 0x7ff) - 0x3ff)) as usize;
                 }
             }
-            q1 = bid_nr_digits[x_nr_bits - 1].digits as i32;
+            q1 = BID_NR_DIGITS[x_nr_bits - 1].digits as i32;
             if q1 == 0 {
-                q1 = bid_nr_digits[x_nr_bits - 1].digits1 as i32;
-                if  C1.w[1]  > bid_nr_digits[x_nr_bits - 1].threshold_hi
-                || (C1.w[1] == bid_nr_digits[x_nr_bits - 1].threshold_hi
-                 && C1.w[0] >= bid_nr_digits[x_nr_bits - 1].threshold_lo)
+                q1 = BID_NR_DIGITS[x_nr_bits - 1].digits1 as i32;
+                if  C1.w[1]  > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+                || (C1.w[1] == BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+                 && C1.w[0] >= BID_NR_DIGITS[x_nr_bits - 1].threshold_lo)
                 {
                     q1 += 1;
                 }
@@ -391,22 +391,22 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
                         // 64-bit C1
                         C1 = if ind <= 19 {
                             // 64-bit 10^ind and 64-bit C1
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 128-bit 10^ind and 64-bit C1
-                            __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize])
+                            __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize])
                         };
                     } else {
                         // C1 is (most likely) 128-bit
                         C1 = if ind <= 14 {
                             // 64-bit 10^ind and 128-bit C1 (most likely)
-                            __mul_128x64_to_128(bid_ten2k64[ind as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[ind as usize], &C1)
                         } else if ind <= 19 {
                             // 64-bit 10^ind and 64-bit C1 (q1 <= 19)
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 128-bit 10^ind and 64-bit C1 (C1 must be 64-bit)
-                            __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize])
+                            __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize])
                         };
                     }
                     x_exp -= (ind as BID_UINT64) << 49;
@@ -418,15 +418,15 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
                         // 1 <= P34 - q1 <= 19 <=> 15 <= q1 <= 33
                         C1 = if q1 <= 19 {
                             // 64-bit C1, 64-bit 10^ind
-                            __mul_64x64_to_128MACH(C1.w[0], bid_ten2k64[ind as usize])
+                            __mul_64x64_to_128MACH(C1.w[0], BID_TEN2K64[ind as usize])
                         } else {
                             // 20 <= q1 <= 33 => 128-bit C1, 64-bit 10^ind
-                            __mul_128x64_to_128(bid_ten2k64[ind as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[ind as usize], &C1)
                         };
                     } else {
                         // if 20 <= P34 - q1 <= 33 <=> 1 <= q1 <= 14 =>
                         // 64-bit C1, 128-bit 10^ind
-                        C1 = __mul_128x64_to_128(C1.w[0], &bid_ten2k128[(ind - 20) as usize]);
+                        C1 = __mul_128x64_to_128(C1.w[0], &BID_TEN2K128[(ind - 20) as usize]);
                     };
                     x_exp = EXP_MIN;
                 }

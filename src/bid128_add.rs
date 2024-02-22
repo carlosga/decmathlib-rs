@@ -391,12 +391,12 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         y_nr_bits = (64 + ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                     }
                 }
-                q2 = bid_nr_digits[y_nr_bits as usize].digits as i32;
+                q2 = BID_NR_DIGITS[y_nr_bits as usize].digits as i32;
                 if q2 == 0 {
-                    q2 = bid_nr_digits[y_nr_bits as usize].digits1 as i32;
-                    if  C2_hi  > bid_nr_digits[y_nr_bits as usize].threshold_hi
-                    || (C2_hi == bid_nr_digits[y_nr_bits as usize].threshold_hi
-                     && C2_lo >= bid_nr_digits[y_nr_bits as usize].threshold_lo) {
+                    q2 = BID_NR_DIGITS[y_nr_bits as usize].digits1 as i32;
+                    if  C2_hi  > BID_NR_DIGITS[y_nr_bits as usize].threshold_hi
+                    || (C2_hi == BID_NR_DIGITS[y_nr_bits as usize].threshold_hi
+                     && C2_lo >= BID_NR_DIGITS[y_nr_bits as usize].threshold_lo) {
                         q2 += 1;
                     }
                 }
@@ -413,18 +413,18 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 } else if q2 <= 19 { // y fits in 64 bits
                     res = if scale <= 19 {
                         // 10^scale fits in 64 bits
-                        // 64 x 64 C2_lo * bid_ten2k64[scale as usize]
-                        __mul_64x64_to_128MACH(C2_lo, bid_ten2k64[scale as usize])
+                        // 64 x 64 C2_lo * BID_TEN2K64[scale as usize]
+                        __mul_64x64_to_128MACH(C2_lo, BID_TEN2K64[scale as usize])
                     } else {
                         // 10^scale fits in 128 bits
-                        // 64 x 128 C2_lo * bid_ten2k128[(scale - 20) as usize]
-                        __mul_128x64_to_128(C2_lo, &bid_ten2k128[(scale - 20) as usize])
+                        // 64 x 128 C2_lo * BID_TEN2K128[(scale - 20) as usize]
+                        __mul_128x64_to_128(C2_lo, &BID_TEN2K128[(scale - 20) as usize])
                     };
                 } else { // y fits in 128 bits, but 10^scale must fit in 64 bits
-                    // 64 x 128 bid_ten2k64[scale as usize] * C2
+                    // 64 x 128 BID_TEN2K64[scale as usize] * C2
                     C2.w[1] = C2_hi;
                     C2.w[0] = C2_lo;
-                    res     = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C2);
+                    res     = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C2);
                 }
                 // subtract scale from the exponent
                 y_exp   -= (scale as BID_UINT64) << 49;
@@ -464,12 +464,12 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     x_nr_bits = (64 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             }
-            q1 = bid_nr_digits[x_nr_bits as usize].digits as i32;
+            q1 = BID_NR_DIGITS[x_nr_bits as usize].digits as i32;
             if q1 == 0 {
-                q1 = bid_nr_digits[x_nr_bits as usize].digits1 as i32;
-                if  C1_hi  > bid_nr_digits[x_nr_bits as usize].threshold_hi
-                || (C1_hi == bid_nr_digits[x_nr_bits as usize].threshold_hi
-                 && C1_lo >= bid_nr_digits[x_nr_bits as usize].threshold_lo) {
+                q1 = BID_NR_DIGITS[x_nr_bits as usize].digits1 as i32;
+                if  C1_hi  > BID_NR_DIGITS[x_nr_bits as usize].threshold_hi
+                || (C1_hi == BID_NR_DIGITS[x_nr_bits as usize].threshold_hi
+                 && C1_lo >= BID_NR_DIGITS[x_nr_bits as usize].threshold_lo) {
                     q1 += 1;
                 }
             }
@@ -486,18 +486,18 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             } else if q1 <= 19 { // x fits in 64 bits
                 res = if scale <= 19 {
                     // 10^scale fits in 64 bits
-                    // 64 x 64 C1_lo * bid_ten2k64[scale as usize]
-                    __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                    // 64 x 64 C1_lo * BID_TEN2K64[scale as usize]
+                    __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                 } else {
                     // 10^scale fits in 128 bits
-                    // 64 x 128 C1_lo * bid_ten2k128[(scale - 20) as usize]
-                    __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize])
+                    // 64 x 128 C1_lo * BID_TEN2K128[(scale - 20) as usize]
+                    __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize])
                 };
             } else { // x fits in 128 bits, but 10^scale must fit in 64 bits
-                // 64 x 128 bid_ten2k64[scale as usize] * C1
+                // 64 x 128 BID_TEN2K64[scale as usize] * C1
                 C1.w[1] = C1_hi;
                 C1.w[0] = C1_lo;
-                res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1);
+                res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1);
             }
             // subtract scale from the exponent
             x_exp   -= (scale as BID_UINT64) << 49;
@@ -544,12 +544,12 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             }
         }
 
-        q1 = bid_nr_digits[x_nr_bits as usize].digits as i32;
+        q1 = BID_NR_DIGITS[x_nr_bits as usize].digits as i32;
         if q1 == 0 {
-            q1 = bid_nr_digits[x_nr_bits as usize].digits1 as i32;
-            if C1_hi  > bid_nr_digits[x_nr_bits as usize].threshold_hi
-            || (C1_hi == bid_nr_digits[x_nr_bits as usize].threshold_hi
-             && C1_lo >= bid_nr_digits[x_nr_bits as usize].threshold_lo) {
+            q1 = BID_NR_DIGITS[x_nr_bits as usize].digits1 as i32;
+            if C1_hi  > BID_NR_DIGITS[x_nr_bits as usize].threshold_hi
+            || (C1_hi == BID_NR_DIGITS[x_nr_bits as usize].threshold_hi
+             && C1_lo >= BID_NR_DIGITS[x_nr_bits as usize].threshold_lo) {
                  q1 += 1;
             }
         }
@@ -571,12 +571,12 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
             }
         }
 
-        q2 = bid_nr_digits[y_nr_bits as usize].digits as i32;
+        q2 = BID_NR_DIGITS[y_nr_bits as usize].digits as i32;
         if q2 == 0 {
-            q2 = bid_nr_digits[y_nr_bits as usize].digits1 as i32;
-            if C2_hi  > bid_nr_digits[y_nr_bits as usize].threshold_hi
-            || (C2_hi == bid_nr_digits[y_nr_bits as usize].threshold_hi
-             && C2_lo >= bid_nr_digits[y_nr_bits as usize].threshold_lo) {
+            q2 = BID_NR_DIGITS[y_nr_bits as usize].digits1 as i32;
+            if C2_hi  > BID_NR_DIGITS[y_nr_bits as usize].threshold_hi
+            || (C2_hi == BID_NR_DIGITS[y_nr_bits as usize].threshold_hi
+             && C2_lo >= BID_NR_DIGITS[y_nr_bits as usize].threshold_lo) {
                 q2 += 1;
             }
         }
@@ -599,19 +599,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     if q1 <= 19 { // C1 fits in 64 bits
                         // 1 <= q1 <= 19 => 15 <= scale <= 33
                         C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                            __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                            __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                         } else { // if 20 <= scale <= 33
                             // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                             // (C1 * 10^(scale-19)) fits in 64 bits
-                            C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                            __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                            C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                            __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                         };
                     } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                         // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                         C1.w[1] = C1_hi;
                         C1.w[0] = C1_lo;
-                        // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                        C1      = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                        // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                        C1      = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                     }
                     x_exp -= (scale as BID_UINT64) << 49;
                     C1_hi = C1.w[1];
@@ -625,10 +625,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST
                   || rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY) && delta == (P34 + 1)
                   && C1_hi == 0x0000314dc6448d93u64 && C1_lo == 0x38c15b0a00000000u64 && x_sign != y_sign
-                  && ((q2 <= 19 && C2_lo > bid_midpoint64[(q2 - 1) as usize])
-                   || (q2 >= 20 && (C2_hi > bid_midpoint128[(q2 - 20) as usize].w[1]
-                   || (C2_hi == bid_midpoint128[(q2 - 20) as usize].w[1]
-                    && C2_lo  > bid_midpoint128[(q2 - 20) as usize].w[0])))) {
+                  && ((q2 <= 19 && C2_lo > BID_MIDPOINT64[(q2 - 1) as usize])
+                   || (q2 >= 20 && (C2_hi > BID_MIDPOINT128[(q2 - 20) as usize].w[1]
+                   || (C2_hi == BID_MIDPOINT128[(q2 - 20) as usize].w[1]
+                    && C2_lo  > BID_MIDPOINT128[(q2 - 20) as usize].w[0])))) {
                     // C1 = 10^34 - 1 and decrement x_exp by 1 (no underflow possible)
                     C1_hi  = 0x0001ed09bead87c0u64;
                     C1_lo  = 0x378d8e63ffffffffu64;
@@ -690,14 +690,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 // however, the case C1 = 10^(q1-1) and x_sign != y_sign is special due
                 // to accuracy loss after subtraction, and will be treated separately
                 if x_sign == y_sign
-                || (q1 <= 20 && (C1_hi != 0 || C1_lo != bid_ten2k64[(q1 - 1) as usize]))
-                || (q1 >= 21 && (C1_hi != bid_ten2k128[(q1 - 21) as usize].w[1]
-                 || C1_lo != bid_ten2k128[(q1 - 21) as usize].w[0])) {
+                || (q1 <= 20 && (C1_hi != 0 || C1_lo != BID_TEN2K64[(q1 - 1) as usize]))
+                || (q1 >= 21 && (C1_hi != BID_TEN2K128[(q1 - 21) as usize].w[1]
+                 || C1_lo != BID_TEN2K128[(q1 - 21) as usize].w[0])) {
                     // if x_sign == y_sign or C1 != 10^(q1-1)
                     // compare C2 with 1/2 ulp = 5 * 10^(q2-1), the latter read from table
                     // Note: cases q1<=19 and q1>=20 can be coalesced at some latency cost
                     if q2 <= 19 {                         // C2 and 5*10^(q2-1) both fit in 64 bits
-                        halfulp64 = bid_midpoint64[(q2 - 1) as usize]; // 5 * 10^(q2-1)
+                        halfulp64 = BID_MIDPOINT64[(q2 - 1) as usize]; // 5 * 10^(q2-1)
                         if C2_lo < halfulp64 {            // n2 < 1/2 ulp (n1)
                             // for RN the result is the operand with the larger magnitude,
                             // possibly scaled up by 10^(P34-q1)
@@ -709,19 +709,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1 = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 x_exp -= (scale as BID_UINT64) << 49;
                                 C1_hi  = C1.w[1];
@@ -789,19 +789,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1 = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 x_exp -= (scale as BID_UINT64) << 49;
                                 C1_hi  = C1.w[1];
@@ -871,19 +871,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1 = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 x_exp -= (scale as BID_UINT64) << 49;
                                 C1_hi  = C1.w[1];
@@ -947,7 +947,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         }
                     } else { // if q2 >= 20 then 5*10^(q2-1) and C2 (the latter in
                         // most cases) fit only in more than 64 bits
-                        halfulp128 = &bid_midpoint128[(q2 - 20) as usize]; // 5 * 10^(q2-1)
+                        halfulp128 = &BID_MIDPOINT128[(q2 - 20) as usize]; // 5 * 10^(q2-1)
                         if (C2_hi < halfulp128.w[1]) || (C2_hi == halfulp128.w[1] && C2_lo < halfulp128.w[0]) {
                             // n2 < 1/2 ulp (n1)
                             // the result is the operand with the larger magnitude,
@@ -960,19 +960,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1 = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 C1_hi  = C1.w[1];
                                 C1_lo  = C1.w[0];
@@ -1042,19 +1042,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1 = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1 = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 x_exp -= (scale as BID_UINT64) << 49;
                                 C1_hi  = C1.w[1];
@@ -1124,19 +1124,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 if q1 <= 19 { // C1 fits in 64 bits
                                     // 1 <= q1 <= 19 => 15 <= scale <= 33
                                     C1 = if scale <= 19 { // 10^scale fits in 64 bits
-                                        __mul_64x64_to_128MACH(bid_ten2k64[scale as usize], C1_lo)
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[scale as usize], C1_lo)
                                     } else { // if 20 <= scale <= 33
                                         // C1 * 10^scale = (C1 * 10^(scale-19)) * 10^19 where
                                         // (C1 * 10^(scale-19)) fits in 64 bits
-                                        C1_lo *= bid_ten2k64[(scale - 19) as usize];
-                                        __mul_64x64_to_128MACH(bid_ten2k64[19], C1_lo)
+                                        C1_lo *= BID_TEN2K64[(scale - 19) as usize];
+                                        __mul_64x64_to_128MACH(BID_TEN2K64[19], C1_lo)
                                     };
                                 } else { // if 20 <= q1 <= 33=P34-1 then C1 fits only in 128 bits
                                     // => 1 <= P34 - q1 <= 14 so 10^(P34-q1) fits in 64 bits
                                     C1.w[1] = C1_hi;
                                     C1.w[0] = C1_lo;
-                                    // C1 = bid_ten2k64[(P34 - q1) as usize] * C1
-                                    C1      = __mul_128x64_to_128(bid_ten2k64[(P34 - q1) as usize], &C1);
+                                    // C1 = BID_TEN2K64[(P34 - q1) as usize] * C1
+                                    C1      = __mul_128x64_to_128(BID_TEN2K64[(P34 - q1) as usize], &C1);
                                 }
                                 C1_hi  = C1.w[1];
                                 C1_lo  = C1.w[0];
@@ -1213,15 +1213,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // either C1 or 10^(e1-e2-x1) may not fit is 64 bits,
                     // but their product fits with certainty in 128 bits
                     C1 = if scale >= 20 { // 10^(e1-e2-x1) doesn't fit in 64 bits, but C1 does
-                        __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize])
+                        __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize])
                     } else { // if (scale >= 1
                         // if 1 <= scale <= 19 then 10^(e1-e2-x1) fits in 64 bits
                         if q1 <= 19 { // C1 fits in 64 bits
-                            __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                            __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                         } else { // q1 >= 20
                             C1.w[1] = C1_hi;
                             C1.w[0] = C1_lo;
-                            __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1)
                         }
                     };
                     tmp64 = C1.w[0]; // C1.w[1], C1.w[0] contains C1 * 10^(e1-e2-x1)
@@ -1233,25 +1233,25 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         C2.w[0] = C2_lo;
                         C2.w[1] = C2_hi;
                         if ind <= 18 {
-                            C2.w[0] += bid_midpoint64[ind as usize];
+                            C2.w[0] += BID_MIDPOINT64[ind as usize];
                             if C2.w[0] < C2_lo {
                                 C2.w[1] += 1;
                             }
                         } else { // 19 <= ind <= 32
-                            C2.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
-                            C2.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
+                            C2.w[0] += BID_MIDPOINT128[(ind - 19) as usize].w[0];
+                            C2.w[1] += BID_MIDPOINT128[(ind - 19) as usize].w[1];
                             if C2.w[0] < C2_lo {
                                 C2.w[1] += 1;
                             }
                         }
                         // the approximation of 10^(-x1) was rounded up to 118 bits
-                        R256 = __mul_128x128_to_256(&C2, &bid_ten2mk128[ind as usize]); // R256 = C2*, f2*
+                        R256 = __mul_128x128_to_256(&C2, &BID_TEN2MK128[ind as usize]); // R256 = C2*, f2*
                         // calculate C2* and f2*
                         // C2* is actually floor(C2*) in this case
                         // C2* and f2* need shifting and masking, as shown by
-                        // bid_shiftright128[] and bid_maskhigh128[]
-                        // the top Ex bits of 10^(-x1) are T* = bid_ten2mk128trunc[(ind) as usize], e.g.
-                        // if x1=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                        // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
+                        // the top Ex bits of 10^(-x1) are T* = BID_TEN2MK128TRUNC[(ind) as usize], e.g.
+                        // if x1=1, T*=BID_TEN2MK128TRUNC[0]=0x19999999999999999999999999999999
                         // if (0 < f2* < 10^(-x1)) then
                         //   if floor(C1+C2*) is even then C2* = floor(C2*) - logical right
                         //       shift; C2* has p decimal digits, correct by Prop. 1)
@@ -1267,14 +1267,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             highf2star.w[0] = 0x0; // low f2* ok
                         } else if ind <= 21 {
                             highf2star.w[1] = 0x0;
-                            highf2star.w[0] = R256.w[2] & bid_maskhigh128[ind as usize]; // low f2* ok
+                            highf2star.w[0] = R256.w[2] & BID_MASKHIGH128[ind as usize]; // low f2* ok
                         } else {
-                            highf2star.w[1] = R256.w[3] & bid_maskhigh128[ind as usize];
+                            highf2star.w[1] = R256.w[3] & BID_MASKHIGH128[ind as usize];
                             highf2star.w[0] = R256.w[2]; // low f2* is ok
                         }
-                        // shift right C2* by Ex-128 = bid_shiftright128[(ind) as usize]
+                        // shift right C2* by Ex-128 = BID_SHIFTRIGHT128[(ind) as usize]
                         if ind >= 3 {
-                            shift = bid_shiftright128[ind as usize];
+                            shift = BID_SHIFTRIGHT128[ind as usize];
                             if shift < 64 { // 3 <= shift <= 63
                                 R256.w[2]   = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
                                 R256.w[3] >>= shift;
@@ -1298,9 +1298,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             if R256.w[1] > 0x8000000000000000u64 || (R256.w[1] == 0x8000000000000000u64 && R256.w[0] > 0x0u64) {
                                 // f2* > 1/2 and the result may be exact
                                 tmp64A = R256.w[1] - 0x8000000000000000u64; // f* - 1/2
-                                if tmp64A      > bid_ten2mk128trunc[ind as usize].w[1]
-                                || (tmp64A    == bid_ten2mk128trunc[ind as usize].w[1]
-                                 && R256.w[0] >= bid_ten2mk128trunc[ind as usize].w[0]) {
+                                if tmp64A      > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                || (tmp64A    == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                 && R256.w[0] >= BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                     // set the inexact flag
                                     *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                     // this rounding is applied to C2 only!
@@ -1316,19 +1316,19 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 is_inexact_lt_midpoint = true;
                             }
                         } else if ind <= 21 { // if 3 <= ind <= 21
-                            if highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > bid_onehalf128[ind as usize])
-                            || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == bid_onehalf128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
+                            if highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > BID_ONEHALF128[ind as usize])
+                            || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == BID_ONEHALF128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
                                 // f2* > 1/2 and the result may be exact
                                 // Calculate f2* - 1/2
-                                tmp64A = highf2star.w[0] - bid_onehalf128[ind as usize];
+                                tmp64A = highf2star.w[0] - BID_ONEHALF128[ind as usize];
                                 tmp64B = highf2star.w[1];
                                 if tmp64A > highf2star.w[0] {
                                     tmp64B -= 1;
                                 }
                                 if  tmp64B != 0 || tmp64A != 0
-                                 || R256.w[1]  > bid_ten2mk128trunc[ind as usize].w[1]
-                                || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                 && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                 || R256.w[1]  > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                 && R256.w[0]  > BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                     // set the inexact flag
                                     *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                     // this rounding is applied to C2 only!
@@ -1343,17 +1343,17 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 is_inexact_lt_midpoint = true;
                             }
                         } else { // if 22 <= ind <= 33
-                            if  highf2star.w[1]  > bid_onehalf128[ind as usize]
-                            || (highf2star.w[1] == bid_onehalf128[ind as usize]
+                            if  highf2star.w[1]  > BID_ONEHALF128[ind as usize]
+                            || (highf2star.w[1] == BID_ONEHALF128[ind as usize]
                             && (highf2star.w[0] != 0 || R256.w[1] != 0 || R256.w[0] != 0)) {
                                 // f2* > 1/2 and the result may be exact
                                 // Calculate f2* - 1/2
                                 // tmp64A = highf2star.w[0];
-                                tmp64B = highf2star.w[1] - bid_onehalf128[ind as usize];
+                                tmp64B = highf2star.w[1] - BID_ONEHALF128[ind as usize];
                                 if  tmp64B != 0 || highf2star.w[0] != 0
-                                 || R256.w[1]  > bid_ten2mk128trunc[ind as usize].w[1]
-                                || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                 && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                 || R256.w[1]  > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                 && R256.w[0]  > BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                     // set the inexact flag
                                     *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                     // this rounding is applied to C2 only!
@@ -1370,9 +1370,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         }
                         // check for midpoints after determining inexactness
                         if (R256.w[1] != 0 || R256.w[0] != 0) && (highf2star.w[1] == 0) && (highf2star.w[0] == 0)
-                        && (R256.w[1]  < bid_ten2mk128trunc[ind as usize].w[1]
-                        || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                         && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
+                        && (R256.w[1]  < BID_TEN2MK128TRUNC[ind as usize].w[1]
+                        || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                         && R256.w[0] <= BID_TEN2MK128TRUNC[ind as usize].w[0])) {
                             // the result is a midpoint
                             if ((tmp64 + R256.w[2]) & 0x01) == 0x01 { // MP in [EVEN, ODD]
                                 // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
@@ -1483,17 +1483,17 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     scale = delta - q1 + q2; // scale = (int)(e1 >> 49) - (int)(e2 >> 49)
 
                     if scale >= 20 { // 10^(e1-e2) does not fit in 64 bits, but C1 does
-                        C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
+                        C1 = __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize]);
                         C1_hi = C1.w[1];
                         C1_lo = C1.w[0];
                     } else if scale >= 1 {
                         // if 1 <= scale <= 19 then 10^(e1-e2) fits in 64 bits
                         C1 = if q1 <= 19 { // C1 fits in 64 bits
-                            __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                            __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                         } else { // q1 >= 20
                             C1.w[1] = C1_hi;
                             C1.w[0] = C1_lo;
-                            __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1)
                         };
                         C1_hi = C1.w[1];
                         C1_lo = C1.w[0];
@@ -1550,15 +1550,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                     // but their product fits with certainty in 128 bits (actually in 113)
                     scale = delta - q1 + q2; // scale = (int)(e1 >> 49) - (int)(e2 >> 49)
                     if scale >= 20 {       // 10^(e1-e2) does not fit in 64 bits, but C1 does
-                        C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
+                        C1 = __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize]);
                     } else if scale >= 1 {
                         // if 1 <= scale <= 19 then 10^(e1-e2) fits in 64 bits
                         C1 = if q1 <= 19 { // C1 fits in 64 bits
-                            __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                            __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                         } else { // q1 >= 20
                             C1.w[1] = C1_hi;
                             C1.w[0] = C1_lo;
-                            __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                            __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1)
                         };
                     } else { // if (scale == 0) C1 is unchanged
                         C1.w[1] = C1_hi;
@@ -1778,15 +1778,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                         // either C1 or 10^(e1-e2-x1) may not fit is 64 bits,
                         // but their product fits with certainty in 128 bits (actually in 113)
                         if scale >= 20 { // 10^(e1-e2-x1) doesn't fit in 64 bits, but C1 does
-                            C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
+                            C1 = __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize]);
                         } else if scale >= 1 {
                             // if 1 <= scale <= 19 then 10^(e1-e2-x1) fits in 64 bits
                             C1 = if q1 <= 19 { // C1 fits in 64 bits
-                                __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                                __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                             } else { // q1 >= 20
                                 C1.w[1] = C1_hi;
                                 C1.w[0] = C1_lo;
-                                __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                                __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1)
                             };
                         } else { // if (scale == 0) C1 is unchanged
                             C1.w[1] = C1_hi;
@@ -1804,25 +1804,25 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             C2.w[0] = C2_lo;
                             C2.w[1] = C2_hi;
                             if ind <= 18 {
-                                C2.w[0] += bid_midpoint64[ind as usize];
+                                C2.w[0] += BID_MIDPOINT64[ind as usize];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
                             } else { // 19 <= ind <= 32
-                                C2.w[0] += bid_midpoint128[(ind - 19) as usize].w[0];
-                                C2.w[1] += bid_midpoint128[(ind - 19) as usize].w[1];
+                                C2.w[0] += BID_MIDPOINT128[(ind - 19) as usize].w[0];
+                                C2.w[1] += BID_MIDPOINT128[(ind - 19) as usize].w[1];
                                 if C2.w[0] < C2_lo {
                                     C2.w[1] += 1;
                                 }
                             }
                             // the approximation of 10^(-x1) was rounded up to 118 bits
-                            R256 = __mul_128x128_to_256(&C2, &bid_ten2mk128[ind as usize]); // R256 = C2*, f2*
+                            R256 = __mul_128x128_to_256(&C2, &BID_TEN2MK128[ind as usize]); // R256 = C2*, f2*
                             // calculate C2* and f2*
                             // C2* is actually floor(C2*) in this case
                             // C2* and f2* need shifting and masking, as shown by
-                            // bid_shiftright128[] and bid_maskhigh128[]
-                            // the top Ex bits of 10^(-x1) are T* = bid_ten2mk128trunc[(ind) as usize], e.g.
-                            // if x1=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                            // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
+                            // the top Ex bits of 10^(-x1) are T* = BID_TEN2MK128TRUNC[(ind) as usize], e.g.
+                            // if x1=1, T*=BID_TEN2MK128TRUNC[0]=0x19999999999999999999999999999999
                             // if (0 < f2* < 10^(-x1)) then
                             //   if floor(C1+C2*) is even then C2* = floor(C2*) - logical right
                             //       shift; C2* has p decimal digits, correct by Prop. 1)
@@ -1838,14 +1838,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 highf2star.w[0] = 0x0; // low f2* ok
                             } else if ind <= 21 {
                                 highf2star.w[1] = 0x0;
-                                highf2star.w[0] = R256.w[2] & bid_maskhigh128[ind as usize]; // low f2* ok
+                                highf2star.w[0] = R256.w[2] & BID_MASKHIGH128[ind as usize]; // low f2* ok
                             } else {
-                                highf2star.w[1] = R256.w[3] & bid_maskhigh128[ind as usize];
+                                highf2star.w[1] = R256.w[3] & BID_MASKHIGH128[ind as usize];
                                 highf2star.w[0] = R256.w[2]; // low f2* is ok
                             }
-                            // shift right C2* by Ex-128 = bid_shiftright128[(ind) as usize]
+                            // shift right C2* by Ex-128 = BID_SHIFTRIGHT128[(ind) as usize]
                             if ind >= 3 {
-                                shift = bid_shiftright128[ind as usize];
+                                shift = BID_SHIFTRIGHT128[ind as usize];
                                 if shift < 64 { // 3 <= shift <= 63
                                     R256.w[2]   = (R256.w[2] >> shift) | (R256.w[3] << (64 - shift));
                                     R256.w[3] >>= shift;
@@ -1873,9 +1873,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                  && R256.w[0]  > 0x0u64) {
                                     // f2* > 1/2 and the result may be exact
                                     tmp64A = R256.w[1] - 0x8000000000000000u64; // f* - 1/2
-                                    if  tmp64A      > bid_ten2mk128trunc[ind as usize].w[1]
-                                     || (tmp64A    == bid_ten2mk128trunc[ind as usize].w[1]
-                                      && R256.w[0] >= bid_ten2mk128trunc[ind as usize].w[0]) {
+                                    if  tmp64A      > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                     || (tmp64A    == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                      && R256.w[0] >= BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                         // set the inexact flag
                                         // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                         tmp_inexact = true; // may be set again during a second pass
@@ -1900,18 +1900,18 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     }
                                 }
                             } else if ind <= 21 { // if 3 <= ind <= 21
-                                if  highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > bid_onehalf128[ind as usize])
-                                || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == bid_onehalf128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
+                                if  highf2star.w[1]  > 0x0 || (highf2star.w[1] == 0x0 && highf2star.w[0] > BID_ONEHALF128[ind as usize])
+                                || (highf2star.w[1] == 0x0 &&  highf2star.w[0] == BID_ONEHALF128[ind as usize] && (R256.w[1] != 0 || R256.w[0] != 0)) {
                                     // f2* > 1/2 and the result may be exact
                                     // Calculate f2* - 1/2
-                                    tmp64A = highf2star.w[0] - bid_onehalf128[ind as usize];
+                                    tmp64A = highf2star.w[0] - BID_ONEHALF128[ind as usize];
                                     tmp64B = highf2star.w[1];
                                     if tmp64A > highf2star.w[0] {
                                         tmp64B -= 1;
                                     }
-                                    if  tmp64B != 0 || tmp64A!= 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
-                                    || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                     && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                    if  tmp64B != 0 || tmp64A!= 0 || R256.w[1] > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                    || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                     && R256.w[0]  > BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                         // set the inexact flag
                                         // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                         tmp_inexact = true; // may be set again during a second pass
@@ -1935,16 +1935,16 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     }
                                 }
                             } else { // if 22 <= ind <= 33
-                                if  highf2star.w[1]  > bid_onehalf128[ind as usize]
-                                || (highf2star.w[1] == bid_onehalf128[ind as usize]
+                                if  highf2star.w[1]  > BID_ONEHALF128[ind as usize]
+                                || (highf2star.w[1] == BID_ONEHALF128[ind as usize]
                                 && (highf2star.w[0] != 0 || R256.w[1] != 0 || R256.w[0] != 0)) {
                                     // f2* > 1/2 and the result may be exact
                                     // Calculate f2* - 1/2
                                     // tmp64A = highf2star.w[0];
-                                    tmp64B = highf2star.w[1] - bid_onehalf128[ind as usize];
-                                    if tmp64B != 0 || highf2star.w[0] != 0 || R256.w[1] > bid_ten2mk128trunc[ind as usize].w[1]
-                                    || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                                     && R256.w[0]  > bid_ten2mk128trunc[ind as usize].w[0]) {
+                                    tmp64B = highf2star.w[1] - BID_ONEHALF128[ind as usize];
+                                    if tmp64B != 0 || highf2star.w[0] != 0 || R256.w[1] > BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                    || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                                     && R256.w[0]  > BID_TEN2MK128TRUNC[ind as usize].w[0]) {
                                         // set the inexact flag
                                         // *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION;
                                         tmp_inexact = true; // may be set again during a second pass
@@ -1972,9 +1972,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             if (R256.w[1] != 0 || R256.w[0] != 0)
                             && (highf2star.w[1] == 0)
                             && (highf2star.w[0] == 0)
-                            && (R256.w[1]  < bid_ten2mk128trunc[ind as usize].w[1]
-                            || (R256.w[1] == bid_ten2mk128trunc[ind as usize].w[1]
-                             && R256.w[0] <= bid_ten2mk128trunc[ind as usize].w[0])) {
+                            && (R256.w[1]  < BID_TEN2MK128TRUNC[ind as usize].w[1]
+                            || (R256.w[1] == BID_TEN2MK128TRUNC[ind as usize].w[1]
+                             && R256.w[0] <= BID_TEN2MK128TRUNC[ind as usize].w[0])) {
                                 // the result is a midpoint
                                 if (tmp64 + R256.w[2]) & 0x01 == 0x01 { // MP in [EVEN, ODD]
                                     // if floor(C2*) is odd C = floor(C2*) - 1; the result may be 0
@@ -2039,10 +2039,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     C1.w[0] += 5;
                                 }
                                 // the approximation of 10^(-1) was rounded up to 118 bits
-                                Q256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[0]); // Q256 = C1*, f1*
+                                Q256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[0]); // Q256 = C1*, f1*
                                 // C1* is actually floor(C1*) in this case
                                 // the top 128 bits of 10^(-1) are
-                                // T* = bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                                // T* = BID_TEN2MK128TRUNC[0]=0x19999999999999999999999999999999
                                 // if (0 < f1* < 10^(-1)) then
                                 //   if floor(C1*) is even then C1* = floor(C1*) - logical right
                                 //       shift; C1* has p decimal digits, correct by Prop. 1)
@@ -2053,9 +2053,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 //       correct by Property 1)
                                 // n = C1* * 10^(e2+x1+1)
                                 if (Q256.w[1] != 0 || Q256.w[0] != 0)
-                                && (Q256.w[1]  < bid_ten2mk128trunc[0].w[1]
-                                || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
-                                 && Q256.w[0] <= bid_ten2mk128trunc[0].w[0])) {
+                                && (Q256.w[1]  < BID_TEN2MK128TRUNC[0].w[1]
+                                || (Q256.w[1] == BID_TEN2MK128TRUNC[0].w[1]
+                                 && Q256.w[0] <= BID_TEN2MK128TRUNC[0].w[0])) {
                                     // the result is a midpoint
                                     if is_inexact_lt_midpoint { // for the 1st rounding
                                         is_inexact_gt_midpoint = true;
@@ -2106,9 +2106,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     if Q256.w[1] > 0x8000000000000000u64 || (Q256.w[1] == 0x8000000000000000u64 && Q256.w[0] > 0x0u64) {
                                         // f1* > 1/2 and the result may be exact
                                         Q256.w[1] -= 0x8000000000000000u64; // f1* - 1/2
-                                        if  Q256.w[1]  > bid_ten2mk128trunc[0].w[1]
-                                        || (Q256.w[1] == bid_ten2mk128trunc[0].w[1]
-                                         && Q256.w[0]  > bid_ten2mk128trunc[0].w[0]) {
+                                        if  Q256.w[1]  > BID_TEN2MK128TRUNC[0].w[1]
+                                        || (Q256.w[1] == BID_TEN2MK128TRUNC[0].w[1]
+                                         && Q256.w[0]  > BID_TEN2MK128TRUNC[0].w[0]) {
                                             is_inexact_gt_midpoint = false;
                                             is_inexact_lt_midpoint = true;
                                             is_midpoint_gt_even    = false;
@@ -2305,15 +2305,15 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                 //   1 - P34 - P34 + 1 <= e1-e2 <= P34 - 1 - 1 => 0 <= e1-e2 <= P34 - 2
                 scale = delta - q1 + q2; // scale = (int)(e1 >> 49) - (int)(e2 >> 49)
                 if scale >= 20 {         // 10^(e1-e2) does not fit in 64 bits, but C1 does
-                    C1 = __mul_128x64_to_128(C1_lo, &bid_ten2k128[(scale - 20) as usize]);
+                    C1 = __mul_128x64_to_128(C1_lo, &BID_TEN2K128[(scale - 20) as usize]);
                 } else if scale >= 1 {
                     // if 1 <= scale <= 19 then 10^(e1-e2) fits in 64 bits
                     C1 = if q1 <= 19 { // C1 fits in 64 bits
-                        __mul_64x64_to_128MACH(C1_lo, bid_ten2k64[scale as usize])
+                        __mul_64x64_to_128MACH(C1_lo, BID_TEN2K64[scale as usize])
                     } else { // q1 >= 20
                         C1.w[1] = C1_hi;
                         C1.w[0] = C1_lo;
-                        __mul_128x64_to_128(bid_ten2k64[scale as usize], &C1)
+                        __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C1)
                     };
                 } else { // if (scale == 0) C1 is unchanged
                     C1.w[1] = C1_hi;

@@ -10,7 +10,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-use crate::bid_decimal_data::{bid_estimate_decimal_digits, bid_power10_index_binexp_128, bid_power10_table_128};
+use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128, BID_POWER10_TABLE_128};
 use crate::bid_div_macros::bid___div_128_by_128;
 use crate::bid_internal::{
     __mul_128x128_low,
@@ -139,7 +139,7 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
             return res;
         }
         // set exponent of y to exponent_x, scale coefficient_y
-        T    = &bid_power10_table_128[diff_expon as usize];
+        T    = &BID_POWER10_TABLE_128[diff_expon as usize];
         P256 = __mul_128x128_to_256(&CY, T);
 
         if P256.w[2] != 0 || P256.w[3] != 0 {
@@ -186,10 +186,10 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
             // fx ~ CX
             fx.d         = (CX.w[1] as f32) * f64.d + (CX.w[0] as f32);
             bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
-            scale        = scale0 - bid_estimate_decimal_digits[bin_expon_cx as usize];
+            scale        = scale0 - BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
             // scale = 38-estimate_decimal_digits[bin_expon_cx];
-            D            = (CX.w[1] - bid_power10_index_binexp_128[bin_expon_cx as usize].w[1]) as BID_SINT64;
-            if D > 0 || (D == 0 && CX.w[0] >= bid_power10_index_binexp_128[bin_expon_cx as usize].w[0]) {
+            D            = (CX.w[1] - BID_POWER10_INDEX_BINEXP_128[bin_expon_cx as usize].w[1]) as BID_SINT64;
+            if D > 0 || (D == 0 && CX.w[0] >= BID_POWER10_INDEX_BINEXP_128[bin_expon_cx as usize].w[0]) {
                 scale -= 1;
             }
         }
@@ -201,7 +201,7 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
             diff_expon = 0;
         }
 
-        T   = &bid_power10_table_128[scale as usize];
+        T   = &BID_POWER10_TABLE_128[scale as usize];
         CXS = __mul_128x128_low(&CX, T);
 
         (CQ, CX) = bid___div_128_by_128(&CXS, &CY);

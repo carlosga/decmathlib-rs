@@ -7,7 +7,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-use crate::bid128::{bid_ten2k128, bid_ten2k64};
+use crate::bid128::{BID_TEN2K128, BID_TEN2K64};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
 use crate::constants::{MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_STEERING_BITS};
 use crate::core::StatusFlags;
@@ -217,7 +217,7 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
             return res;
         }
         if diff > 19 { //128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
             // if postitive, return whichever significand is larger
             // (converse if negative)
             res = if (((sig_n_prime256.w[3]  > 0)
@@ -227,7 +227,7 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
                      && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { y } else { x };
             return res;
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         res = if ((sig_n_prime192.w[2]  > 0)
@@ -244,7 +244,7 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
     }
     if diff > 19 { //128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         res = if (sig_n_prime256.w[3] != 0
@@ -255,7 +255,7 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
         return res;
     }
     // adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
     // if postitive, return whichever significand is larger (converse if negative)
     res = if (sig_n_prime192.w[2] != 0
            || (sig_n_prime192.w[1] > sig_x.w[1]
@@ -454,7 +454,7 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
             return res;
         }
         if diff > 19 { //128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
             // if positive, return whichever significand is larger
             // (converse if negative)
             if  sig_n_prime256.w[3] == 0
@@ -471,7 +471,7 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
                     && sig_n_prime256.w[0] > sig_y.w[0]) { y } else { x };
             return res;
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
         // if positive, return whichever significand is larger
         // (converse if negative)
         if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0]) {
@@ -493,7 +493,7 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     }
     if diff > 19 { //128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
         // if positive, return whichever significand is larger
         // (converse if negative)
         if  sig_n_prime256.w[3] == 0
@@ -512,7 +512,7 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         return res;
     }
     // adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
     // if positive, return whichever significand is larger (converse if negative)
     if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0]) {
         // if = in magnitude, return +, if possible)
@@ -725,7 +725,7 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
             return res;
         }
         if diff > 19 { //128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
             // if postitive, return whichever significand is larger
             // (converse if negative)
             res = if (((sig_n_prime256.w[3]  > 0)
@@ -735,7 +735,7 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
                       && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
             return res;
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         res = if ((sig_n_prime192.w[2]  > 0)
@@ -752,7 +752,7 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
     }
     if diff > 19 { //128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         res = if (sig_n_prime256.w[3] != 0
@@ -763,7 +763,7 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
         return res;
     }
     // adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
     // if postitive, return whichever significand is larger (converse if negative)
     res = if (sig_n_prime192.w[2] != 0
           || (sig_n_prime192.w[1]  > sig_x.w[1]
@@ -962,7 +962,7 @@ pub (crate) fn bid128_maxnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
             return res;
         }
         if diff > 19 { //128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
             // if postitive, return whichever significand is larger
             // (converse if negative)
             if  sig_n_prime256.w[3] == 0
@@ -979,7 +979,7 @@ pub (crate) fn bid128_maxnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
                     && sig_n_prime256.w[0] > sig_y.w[0]) { x } else { y };
             return res;
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
         // if postitive, return whichever significand is larger (converse if negative)
         if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0]) {
             // if equal, return positive magnitude
@@ -1000,7 +1000,7 @@ pub (crate) fn bid128_maxnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     }
     if diff > 19 { //128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         if  sig_n_prime256.w[3] == 0
@@ -1018,7 +1018,7 @@ pub (crate) fn bid128_maxnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         return res;
     }
     // adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
     // if postitive, return whichever significand is larger (converse if negative)
     if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0]) {
         // if equal, return positive (if possible)

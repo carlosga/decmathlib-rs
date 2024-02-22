@@ -14,9 +14,9 @@
 //    BID128_to_string
 //////////////////////////////////////////////
 
-use crate::bid128::{bid_char_table2, bid_char_table3};
+use crate::bid128::{BID_CHAR_TABLE2, BID_CHAR_TABLE3};
 use crate::bid128_2_str_macros::*;
-use crate::bid128_2_str_tables::mod10_18_tbl;
+use crate::bid128_2_str_tables::MOD10_18_TBL;
 use crate::bid_internal::{__mul_64x64_to_128_fast, __set_status_flags, bid_get_BID128};
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
 use crate::core::{RoundingMode, StatusFlags};
@@ -145,9 +145,9 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
                 midi_ind   = Tmp as i32 & 0x000000000000003fi32;
                 midi_ind <<= 1;
                 Tmp      >>= 6;
-                HI_18Dig  += mod10_18_tbl[k_lcv][midi_ind as usize];
+                HI_18Dig  += MOD10_18_TBL[k_lcv][midi_ind as usize];
                 midi_ind  += 1;
-                LO_18Dig  += mod10_18_tbl[k_lcv][midi_ind as usize];
+                LO_18Dig  += MOD10_18_TBL[k_lcv][midi_ind as usize];
                 k_lcv     += 1;
                 __L0_Normalize_10to18(&mut HI_18Dig, &mut LO_18Dig);
             }
@@ -185,9 +185,9 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
             // 1000 <= exp <= 6144 => 4 digits to return
             str.push(char::from_digit(d0, 10).unwrap());     // ASCII for decimal digit d0
             ind = (3 * d123) as i32;
-            str.push(bid_char_table3[ind as usize]);
-            str.push(bid_char_table3[(ind + 1) as usize]);
-            str.push(bid_char_table3[(ind + 2) as usize]);
+            str.push(BID_CHAR_TABLE3[ind as usize]);
+            str.push(BID_CHAR_TABLE3[(ind + 1) as usize]);
+            str.push(BID_CHAR_TABLE3[(ind + 2) as usize]);
         } else {
             // 0 <= exp <= 999 => d0 = 0
             if d123 < 10 {
@@ -196,14 +196,14 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
             } else if d123 < 100 {
                 // 10 <= exp <= 99 => 2 digits to return
                 ind = (2 * (d123 - 10)) as i32;
-                str.push(bid_char_table2[ind as usize]);
-                str.push(bid_char_table2[(ind + 1) as usize]);
+                str.push(BID_CHAR_TABLE2[ind as usize]);
+                str.push(BID_CHAR_TABLE2[(ind + 1) as usize]);
             } else {
                 // 100 <= exp <= 999 => 3 digits to return
                 ind = (3 * d123) as i32;
-                str.push(bid_char_table3[ind as usize]);
-                str.push(bid_char_table3[(ind + 1) as usize]);
-                str.push(bid_char_table3[(ind + 2) as usize]);
+                str.push(BID_CHAR_TABLE3[ind as usize]);
+                str.push(BID_CHAR_TABLE3[(ind + 1) as usize]);
+                str.push(BID_CHAR_TABLE3[(ind + 2) as usize]);
             }
         }
     }

@@ -7,19 +7,17 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_upper_case_globals)]
-
 use crate::d128::{BID_UINT32, BID_UINT64};
 
-pub (crate) const bid_Twoto60_m_10to18: BID_UINT64 = 152921504606846976u64;
-pub (crate) const bid_Twoto60: BID_UINT64          = 0x1000000000000000u64;
-pub (crate) const bid_Inv_Tento9: BID_UINT32       = 2305843009u32;	/* floor(2^61/10^9) */
-pub (crate) const bid_Twoto30_m_10to9: BID_UINT32  = 73741824u32;
-pub (crate) const bid_Tento9: BID_UINT32           = 1000000000u32;
-pub (crate) const bid_Tento6: BID_UINT32           = 1000000u32;
-pub (crate) const bid_Tento3: BID_UINT32           = 1000u32;
+pub (crate) const BID_TWOTO60_M_10TO18: BID_UINT64 = 152921504606846976u64;
+pub (crate) const BID_TWOTO60: BID_UINT64          = 0x1000000000000000u64;
+pub (crate) const BID_INV_TENTO9: BID_UINT32       = 2305843009u32;	/* floor(2^61/10^9) */
+pub (crate) const BID_TWOTO30_M_10TO9: BID_UINT32  = 73741824u32;
+pub (crate) const BID_TENTO9: BID_UINT32           = 1000000000u32;
+pub (crate) const BID_TENTO6: BID_UINT32           = 1000000u32;
+pub (crate) const BID_TENTO3: BID_UINT32           = 1000u32;
 
-pub (crate) const bid_midi_tbl: [&str; 1000] = [  // [1000][3] = {
+pub (crate) const BID_MIDI_TBL: [&str; 1000] = [  // [1000][3] = {
     "000", "001", "002", "003", "004", "005", "006", "007", "008", "009",
     "010", "011", "012", "013", "014", "015", "016", "017", "018", "019",
     "020", "021", "022", "023", "024", "025", "026", "027", "028", "029",
@@ -122,7 +120,7 @@ pub (crate) const bid_midi_tbl: [&str; 1000] = [  // [1000][3] = {
     "990", "991", "992", "993", "994", "995", "996", "997", "998", "999"
 ];
 
-pub (crate) const mod10_18_tbl: [[u64; 128]; 9] = [
+pub (crate) const MOD10_18_TBL: [[u64; 128]; 9] = [
     // 2^59 = 576460752303423488, A and B breakdown, where data = A*10^18 + B
     [
         0u64, 0u64, 0u64, 576460752303423488u64,

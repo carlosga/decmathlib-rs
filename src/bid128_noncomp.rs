@@ -35,7 +35,7 @@
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
 
-use crate::bid128::{bid_nr_digits, bid_ten2k128, bid_ten2k64};
+use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_string::bid128_from_string;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
@@ -104,12 +104,12 @@ pub (crate) fn bid128_is_normal(x: &BID_UINT128) -> bool {
             x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
-    q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
+    q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
     if q == 0 {
-        q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-        if  C1_hi  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-        || (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-         && C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+        q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits1 as i32;
+        if  C1_hi  > BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+        || (C1_hi == BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+         && C1_lo >= BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_lo) {
             q += 1;
         }
     }
@@ -174,12 +174,12 @@ pub (crate) fn bid128_is_subnormal(x: &BID_UINT128) -> bool {
             x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
-    q = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
+    q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
     if q == 0 {
-        q = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-        if  C1_hi  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-        || (C1_hi == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-         && C1_lo >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+        q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits1 as i32;
+        if  C1_hi  > BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+        || (C1_hi == BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+         && C1_lo >= BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_lo) {
             q += 1;
         }
     }
@@ -334,7 +334,7 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
     //  if (exp_x - 6176 < -6143)
     if exp_x < 33 {	// sig_x * 10^exp_x
         if exp_x > 19 {
-            sig_x_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(exp_x - 20) as usize]);
+            sig_x_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(exp_x - 20) as usize]);
             // 10^33 = 0x0000314dc6448d93_38c15b0a00000000
             if (sig_x_prime256.w[3] == 0) && (sig_x_prime256.w[2] == 0)
                 && ((sig_x_prime256.w[1] < 0x0000314dc6448d93u64) || ((sig_x_prime256.w[1] == 0x0000314dc6448d93u64)
@@ -346,7 +346,7 @@ pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
                 };
             }
         } else {
-            sig_x_prime192 = __mul_64x128_to_192(bid_ten2k64[exp_x as usize], &sig_x);
+            sig_x_prime192 = __mul_64x128_to_192(BID_TEN2K64[exp_x as usize], &sig_x);
             // 10^33 = 0x0000314dc6448d93_38c15b0a00000000
             if (sig_x_prime192.w[2] == 0)
                 && ((sig_x_prime192.w[1] < 0x0000314dc6448d93u64) || ((sig_x_prime192.w[1] == 0x0000314dc6448d93u64)
@@ -621,7 +621,7 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
         }
         // otherwise adjust the x significand upwards
         if exp_x - exp_y > 19 {
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(exp_x - exp_y - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(exp_x - exp_y - 20) as usize]);
             // the compensated significands are equal (ie "x and y represent the same
             // entities") return 1 if (negative && expx > expy) ||
             // (positive && expx < expy)
@@ -638,7 +638,7 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                 || (sig_n_prime256.w[1] == sig_y.w[1]
                 && sig_n_prime256.w[0] < sig_y.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_x - exp_y) as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[(exp_x - exp_y) as usize], &sig_x);
         // if positive, return whichever significand is larger
         // (converse if negative)
         if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0]) {
@@ -656,7 +656,7 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     }
     if exp_y - exp_x > 19 {
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(exp_y - exp_x - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(exp_y - exp_x - 20) as usize]);
         // if x and y represent the same entities and both are negative
         // return true iff exp_x <= exp_y
         if (sig_n_prime256.w[3] == 0)
@@ -676,7 +676,7 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
             (sig_n_prime256.w[1] == sig_x.w[1]
                 && sig_n_prime256.w[0] > sig_x.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
     }
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[(exp_y - exp_x) as usize], &sig_y);
     if (sig_n_prime192.w[2] == 0) && (sig_n_prime192.w[1] == sig_x.w[1])
         && (sig_n_prime192.w[0] == sig_x.w[0]) {
         return (exp_x <= exp_y) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
@@ -855,7 +855,7 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
         }
         // otherwise adjust the x significand upwards
         if exp_x - exp_y > 19 {
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(exp_x - exp_y - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(exp_x - exp_y - 20) as usize]);
             // the compensated significands are equal (ie "x and y represent the same
             // entities") return 1 if (negative && expx > expy) ||
             // (positive && expx < expy)
@@ -871,7 +871,7 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
                 && ((sig_n_prime256.w[1] < sig_y.w[1])
                 || (sig_n_prime256.w[1] == sig_y.w[1] && sig_n_prime256.w[0] < sig_y.w[0]));
         }
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_x - exp_y) as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[(exp_x - exp_y) as usize], &sig_x);
         // if positive, return whichever significand is larger
         // (converse if negative)
         if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0]) {
@@ -888,7 +888,7 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
     } // from this point on 0 <= exp_y - exp_x <= 32
     if exp_y - exp_x > 19 {
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(exp_y - exp_x - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(exp_y - exp_x - 20) as usize]);
         if (sig_n_prime256.w[3] == 0) && (sig_n_prime256.w[2] == 0)
             && (sig_n_prime256.w[1] == sig_x.w[1])
             && (sig_n_prime256.w[0] == sig_x.w[0]) {
@@ -904,7 +904,7 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
             // if compensated y is bigger, y is bigger
             (sig_n_prime256.w[1] == sig_x.w[1] && sig_n_prime256.w[0] > sig_x.w[0]);
     } // from this point on 0 <= exp_y - exp_x <= 19
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[(exp_y - exp_x) as usize], &sig_y);
     if (sig_n_prime192.w[2] == 0) && (sig_n_prime192.w[1] == sig_x.w[1]) && (sig_n_prime192.w[0] == sig_x.w[0]) {
         return true; // res = (exp_x <= exp_y); but 0 <= exp_y - exp_x <= 19 in this case
     }

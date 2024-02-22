@@ -9,7 +9,7 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid_decimal_data::{bid_estimate_decimal_digits, bid_power10_index_binexp_128, bid_power10_table_128};
+use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128, BID_POWER10_TABLE_128};
 use crate::bid_internal::*;
 use crate::bid_sqrt_macros::{bid_long_sqrt128, short_sqrt128};
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, QUIET_MASK64};
@@ -86,7 +86,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
         // fx ~ CX
         fx.d         = (CX.w[1] as f32) * f64.d + (CX.w[0] as f32);
         bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
-        digits       = bid_estimate_decimal_digits[bin_expon_cx as usize];
+        digits       = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
     }
 
     A10 = CX;
@@ -110,8 +110,8 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
         }
     }
     // get number of digits in CX
-    D = (CX.w[1] - bid_power10_index_binexp_128[bin_expon_cx as usize].w[1]) as BID_SINT64;
-    if D > 0 || (D == 0 && CX.w[0] >= bid_power10_index_binexp_128[bin_expon_cx as usize].w[0]) {
+    D = (CX.w[1] - BID_POWER10_INDEX_BINEXP_128[bin_expon_cx as usize].w[1]) as BID_SINT64;
+    if D > 0 || (D == 0 && CX.w[0] >= BID_POWER10_INDEX_BINEXP_128[bin_expon_cx as usize].w[0]) {
         digits += 1;
     }
 
@@ -121,13 +121,13 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     scale     += exponent_q & 1; // exp. bias is even
 
     if scale > 38 {
-        T128 = &bid_power10_table_128[(scale - 37) as usize];
+        T128 = &BID_POWER10_TABLE_128[(scale - 37) as usize];
         CX1  = __mul_128x128_low(&CX, T128);
 
-        TP128 = &bid_power10_table_128[37];
+        TP128 = &BID_POWER10_TABLE_128[37];
         C256  = __mul_128x128_to_256(&CX1, TP128);
     } else {
-        T128 = &bid_power10_table_128[scale as usize];
+        T128 = &BID_POWER10_TABLE_128[scale as usize];
         C256 = __mul_128x128_to_256(&CX, T128);
     }
 
@@ -297,7 +297,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
                 __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
     #endif
             res.w[0] = (CX.w[0] & 0x0003ffffffffffffu64);
-            __mul_64x64_to_128 (res, res.w[0], bid_power10_table_128[18].w[0]);
+            __mul_64x64_to_128 (res, res.w[0], BID_POWER10_TABLE_128[18].w[0]);
             res.w[1] |= ((CX.w[0]) & 0xfc00000000000000u64);
             return res;
         }
@@ -342,7 +342,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     // fx ~ CX
     fx.d = (float) CX.w[1] * f64.d + (float) CX.w[0];
     bin_expon_cx = ((fx.i >> 23) & 0xff) - 0x7f;
-    digits = bid_estimate_decimal_digits[bin_expon_cx];
+    digits = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx];
 
     A10 = CX;
     if (exponent_x & 1) {
@@ -369,9 +369,9 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
         }
     }
     // get number of digits in CX
-    D = CX.w[1] - bid_power10_index_binexp_128[bin_expon_cx].w[1];
+    D = CX.w[1] - BID_POWER10_INDEX_BINEXP_128[bin_expon_cx].w[1];
     if (D > 0
-    || (!D && CX.w[0] >= bid_power10_index_binexp_128[bin_expon_cx].w[0]))
+    || (!D && CX.w[0] >= BID_POWER10_INDEX_BINEXP_128[bin_expon_cx].w[0]))
     digits++;
 
     // if exponent is odd, scale coefficient by 10
@@ -380,13 +380,13 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     scale += (exponent_q & 1);	// exp. bias is even
 
     if (scale > 38) {
-        T128 = bid_power10_table_128[scale - 37];
+        T128 = BID_POWER10_TABLE_128[scale - 37];
         __mul_128x128_low (CX1, CX, T128);
 
-        TP128 = bid_power10_table_128[37];
+        TP128 = BID_POWER10_TABLE_128[37];
         __mul_128x128_to_256 (C256, CX1, TP128);
     } else {
-    T128 = bid_power10_table_128[scale];
+    T128 = BID_POWER10_TABLE_128[scale];
     __mul_128x128_to_256 (C256, CX, T128);
     }
 

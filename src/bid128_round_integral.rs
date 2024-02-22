@@ -9,7 +9,7 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid128::{bid_nr_digits, bid_shiftright128, bid_ten2mk128};
+use crate::bid128::{BID_NR_DIGITS, BID_SHIFTRIGHT128, BID_TEN2MK128};
 use crate::bid_internal::__mul_128x128_to_256;
 use crate::constants::{MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
 use crate::core::StatusFlags;
@@ -131,12 +131,12 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
         }
     }
 
-    q = bid_nr_digits[x_nr_bits - 1].digits as i32;
+    q = BID_NR_DIGITS[x_nr_bits - 1].digits as i32;
     if q == 0 {
-        q = bid_nr_digits[x_nr_bits - 1].digits1 as i32;
-        if  C1.w[1]  > bid_nr_digits[x_nr_bits - 1].threshold_hi
-        || (C1.w[1] == bid_nr_digits[x_nr_bits - 1].threshold_hi
-         && C1.w[0] >= bid_nr_digits[x_nr_bits - 1].threshold_lo) {
+        q = BID_NR_DIGITS[x_nr_bits - 1].digits1 as i32;
+        if  C1.w[1]  > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+        || (C1.w[1] == BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+         && C1.w[0] >= BID_NR_DIGITS[x_nr_bits - 1].threshold_lo) {
             q += 1;
         }
     }
@@ -157,31 +157,31 @@ pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_fla
         // FOR ROUND_TO_NEGATIVE_INFINITY, WE TRUNCATE, THEN ADD 1 IF NEGATIVE
         //tmp64 = C1.w[0];
         // if (ind <= 19) {
-        //   C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+        //   C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
         // } else {
-        //   C1.w[0] = C1.w[0] + bid_midpoint128[ind - 20].w[0];
-        //   C1.w[1] = C1.w[1] + bid_midpoint128[ind - 20].w[1];
+        //   C1.w[0] = C1.w[0] + BID_MIDPOINT128[ind - 20].w[0];
+        //   C1.w[1] = C1.w[1] + BID_MIDPOINT128[ind - 20].w[1];
         // }
         // if (C1.w[0] < tmp64) C1.w[1]++;
         // if carry-out from C1.w[0], increment C1.w[1]
         // calculate C* and f*
         // C* is actually floor(C*) in this case
         // C* and f* need shifting and masking, as shown by
-        // bid_shiftright128[] and bid_maskhigh128[]
+        // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
         // 1 <= x <= 34
-        // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+        // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
         // C* = (C1 + 1/2 * 10^x) * 10^(-x)
         // the approximation of 10^(-x) was rounded up to 118 bits
-        P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+        P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
         if ind - 1 <= 2 {	// 0 <= ind - 1 <= 2 => shift = 0
           res.w[1] = P256.w[3];
           res.w[0] = P256.w[2];
         } else if ind - 1 <= 21 {	// 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-          shift = bid_shiftright128[(ind - 1) as usize];	// 3 <= shift <= 63
+          shift = BID_SHIFTRIGHT128[(ind - 1) as usize];	// 3 <= shift <= 63
           res.w[1] = P256.w[3] >> shift;
           res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
         } else {	// 22 <= ind - 1 <= 33
-          shift = bid_shiftright128[(ind - 1) as usize] - 64;	// 2 <= shift <= 38
+          shift = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;	// 2 <= shift <= 38
           res.w[1] = 0;
           res.w[0] = P256.w[3] >> shift;
         }

@@ -9,7 +9,7 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid_decimal_data::{bid_estimate_decimal_digits, bid_power10_table_128, bid_recip_scale, bid_reciprocals10_128, bid_round_const_table_128};
+use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE_128};
 use crate::bid_internal::{__add_128_128, __add_carry_in_out, __add_carry_out, __mul_128x128_low, __mul_128x128_to_256, __set_status_flags, __shr_128, __unsigned_compare_ge_128, bid_get_BID128_very_fast, unpack_BID128_value};
 use crate::constants::{QUIET_MASK64, SNAN_MASK64};
 use crate::core::{RoundingMode, StatusFlags};
@@ -133,10 +133,10 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
         }
     }
 
-    digits_x = bid_estimate_decimal_digits[bin_expon_cx as usize];
-    if CX.w[1]   > bid_power10_table_128[digits_x as usize].w[1]
-    || (CX.w[1] == bid_power10_table_128[digits_x as usize].w[1]
-     && CX.w[0] >= bid_power10_table_128[digits_x as usize].w[0]) {
+    digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
+    if CX.w[1]   > BID_POWER10_TABLE_128[digits_x as usize].w[1]
+    || (CX.w[1] == BID_POWER10_TABLE_128[digits_x as usize].w[1]
+     && CX.w[0] >= BID_POWER10_TABLE_128[digits_x as usize].w[0]) {
         digits_x += 1;
     }
 
@@ -145,7 +145,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
 
     if (total_digits as BID_UINT32) <= 34 {
         if expon_diff >= 0 {
-            T   = &bid_power10_table_128[expon_diff as usize];
+            T   = &BID_POWER10_TABLE_128[expon_diff as usize];
             CX2 = __mul_128x128_low(T, &CX);
             res = bid_get_BID128_very_fast(sign_x, exponent_y, &CX2);
             return res;
@@ -156,13 +156,13 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
         }
         // must round off -expon_diff digits
         extra_digits = -expon_diff;
-        CX           = __add_128_128(&CX, &bid_round_const_table_128[rmode as usize][extra_digits as usize]);
+        CX           = __add_128_128(&CX, &BID_ROUND_CONST_TABLE_128[rmode as usize][extra_digits as usize]);
 
         // get P*(2^M[extra_digits])/10^extra_digits
-        CT = __mul_128x128_to_256(&CX, &bid_reciprocals10_128[extra_digits as usize]);
+        CT = __mul_128x128_to_256(&CX, &BID_RECIPROCALS10_128[extra_digits as usize]);
 
         // now get P/10^extra_digits: shift C64 right by M[extra_digits]-128
-        amount   = bid_recip_scale[extra_digits as usize];
+        amount   = BID_RECIP_SCALE[extra_digits as usize];
         CX2.w[0] = CT.w[2];
         CX2.w[1] = CT.w[3];
         if amount >= 64 {
@@ -186,9 +186,9 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
 
             // test whether fractional part is 0
             if remainder_h == 0
-            && (CT.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
-            || (CT.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
-             && CT.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
+            && (CT.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+            || (CT.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+             && CT.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
                 CR.w[0] -= 1;
             }
         }
@@ -208,24 +208,24 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
             RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
                 // test whether fractional part is 0
                 if REM_H.w[1] == 0x8000000000000000u64 && REM_H.w[0] == 0
-                && (CT.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
-                || (CT.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
-                 && CT.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
+                && (CT.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+                || (CT.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+                 && CT.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
                     status = StatusFlags::BID_EXACT_STATUS;
                  }
             },
             RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => {
                 if (REM_H.w[1] | REM_H.w[0]) == 0
-                && (CT.w[1]  < bid_reciprocals10_128[extra_digits as usize].w[1]
-                || (CT.w[1] == bid_reciprocals10_128[extra_digits as usize].w[1]
-                 && CT.w[0]  < bid_reciprocals10_128[extra_digits as usize].w[0])) {
+                && (CT.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+                || (CT.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
+                 && CT.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },
             _ => {
                 // round up
-                (Stemp.w[0], CY64)  = __add_carry_out(CT.w[0], bid_reciprocals10_128[extra_digits as usize].w[0]);
-                (Stemp.w[1], carry) = __add_carry_in_out(CT.w[1], bid_reciprocals10_128[extra_digits as usize].w[1], CY64);
+                (Stemp.w[0], CY64)  = __add_carry_out(CT.w[0], BID_RECIPROCALS10_128[extra_digits as usize].w[0]);
+                (Stemp.w[1], carry) = __add_carry_in_out(CT.w[1], BID_RECIPROCALS10_128[extra_digits as usize].w[1], CY64);
                 if amount < 64 {
                     C2N.w[1]   = 0;
                     C2N.w[0]   = (1 as BID_UINT64) << amount;

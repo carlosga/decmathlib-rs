@@ -9,7 +9,7 @@
 
 #![allow(non_snake_case)]
 
-use crate::bid128::{bid_maskhigh128, bid_midpoint128, bid_midpoint64, bid_nr_digits, bid_shiftright128, bid_ten2mk128};
+use crate::bid128::{BID_MASKHIGH128, BID_MIDPOINT128, BID_MIDPOINT64, BID_NR_DIGITS, BID_SHIFTRIGHT128, BID_TEN2MK128};
 use crate::bid_internal::__mul_128x128_to_256;
 use crate::constants::{MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
 use crate::core::{RoundingMode, StatusFlags};
@@ -179,12 +179,12 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
         }
     }
 
-    q = bid_nr_digits[x_nr_bits - 1].digits as i32;
+    q = BID_NR_DIGITS[x_nr_bits - 1].digits as i32;
     if q == 0 {
-        q = bid_nr_digits[x_nr_bits - 1].digits1 as i32;
-        if  C1.w[1]  > bid_nr_digits[x_nr_bits - 1].threshold_hi
-        || (C1.w[1] == bid_nr_digits[x_nr_bits - 1].threshold_hi
-         && C1.w[0] >= bid_nr_digits[x_nr_bits - 1].threshold_lo) {
+        q = BID_NR_DIGITS[x_nr_bits - 1].digits1 as i32;
+        if  C1.w[1]  > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+        || (C1.w[1] == BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+         && C1.w[0] >= BID_NR_DIGITS[x_nr_bits - 1].threshold_lo) {
             q += 1;
         }
     }
@@ -205,10 +205,10 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // C1 = C1 + 1/2 * 10^x where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += BID_MIDPOINT64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += BID_MIDPOINT128[(ind - 20) as usize].w[0];
+                    C1.w[1] += BID_MIDPOINT128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
@@ -216,16 +216,16 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // calculate C* and f*
                 // C* is actually floor(C*) in this case
                 // C* and f* need shifting and masking, as shown by
-                // bid_shiftright128[] and bid_maskhigh128[]
+                // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
                 // 1 <= x <= 34
-                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
                 // C* = (C1 + 1/2 * 10^x) * 10^(-x)
                 // the approximation of 10^(-x) was rounded up to 118 bits
-                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+                P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
                 // determine the value of res and fstar
 
                 if ind - 1 <= 2 {       // 0 <= ind - 1 <= 2 => shift = 0
-                    // redundant shift = bid_shiftright128[(ind - 1) as usize]; // shift = 0
+                    // redundant shift = BID_SHIFTRIGHT128[(ind - 1) as usize]; // shift = 0
                     res.w[1] = P256.w[3];
                     res.w[0] = P256.w[2];
                     // redundant fstar.w[3] = 0;
@@ -234,49 +234,49 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                     fstar.w[0] = P256.w[0];
                     // fraction f* < 10^(-x) <=> midpoint
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     // if 0 < fstar < 10^(-x), subtract 1 if odd (for rounding to even)
                     if (res.w[0] & 0x0000000000000001u64) == 0x0000000000000001u64  // is result odd and from a midpoint?
-                    && ((fstar.w[1]  < (bid_ten2mk128[(ind - 1) as usize].w[1]))
-                    || ((fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1])
-                     && (fstar.w[0]  < bid_ten2mk128[(ind - 1) as usize].w[0]))) {
+                    && ((fstar.w[1]  < (BID_TEN2MK128[(ind - 1) as usize].w[1]))
+                    || ((fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1])
+                     && (fstar.w[0]  < BID_TEN2MK128[(ind - 1) as usize].w[0]))) {
                         // subtract 1 to make even
                         res.w[0] -= 1;
                     }
                 } else if ind - 1 <= 21 {       // 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-                    shift    = bid_shiftright128[(ind - 1) as usize]; // 3 <= shift <= 63
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize]; // 3 <= shift <= 63
                     res.w[1] = P256.w[3] >> shift;
                     res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
                     // redundant fstar.w[3] = 0;
-                    fstar.w[2] = P256.w[2] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[2] = P256.w[2] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // fraction f* < 10^(-x) <=> midpoint
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if (res.w[0] & 0x0000000000000001u64) == 0x0000000000000001u64  // is result odd and from a midpoint?
-                     && fstar.w[2] == 0 && (fstar.w[1] < bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0]  < bid_ten2mk128[(ind - 1) as usize].w[0])) {
+                     && fstar.w[2] == 0 && (fstar.w[1] < BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0]  < BID_TEN2MK128[(ind - 1) as usize].w[0])) {
                         // subtract 1 to make even
                         res.w[0] -= 1;
                     }
                 } else {  // 22 <= ind - 1 <= 33
-                    shift      = bid_shiftright128[(ind - 1) as usize] - 64;        // 2 <= shift <= 38
+                    shift      = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;        // 2 <= shift <= 38
                     res.w[1]   = 0;
                     res.w[0]   = P256.w[3] >> shift;
-                    fstar.w[3] = P256.w[3] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[3] = P256.w[3] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[2] = P256.w[2];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // fraction f* < 10^(-x) <=> midpoint
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if (res.w[0] & 0x0000000000000001u64) == 0x0000000000000001u64  // is result odd and from a midpoint?
                      && fstar.w[3] == 0 && fstar.w[2] == 0
-                    && (fstar.w[1]  < bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0]  < bid_ten2mk128[(ind - 1) as usize].w[0])) {
+                    && (fstar.w[1]  < BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0]  < BID_TEN2MK128[(ind - 1) as usize].w[0])) {
                         // subtract 1 to make even
                         res.w[0] -= 1;
                     }
@@ -298,10 +298,10 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // C1 = C1 + 1/2 * 10^x where the result C1 fits in 127 bits
                 tmp64 = C1.w[0];
                 if ind <= 19 {
-                    C1.w[0] += bid_midpoint64[(ind - 1) as usize];
+                    C1.w[0] += BID_MIDPOINT64[(ind - 1) as usize];
                 } else {
-                    C1.w[0] += bid_midpoint128[(ind - 20) as usize].w[0];
-                    C1.w[1] += bid_midpoint128[(ind - 20) as usize].w[1];
+                    C1.w[0] += BID_MIDPOINT128[(ind - 20) as usize].w[0];
+                    C1.w[1] += BID_MIDPOINT128[(ind - 20) as usize].w[1];
                 }
                 if C1.w[0] < tmp64 {
                     C1.w[1] += 1;
@@ -309,14 +309,14 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // calculate C* and f*
                 // C* is actually floor(C*) in this case
                 // C* and f* need shifting and masking, as shown by
-                // bid_shiftright128[] and bid_maskhigh128[]
+                // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
                 // 1 <= x <= 34
-                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
                 // C* = (C1 + 1/2 * 10^x) * 10^(-x)
                 // the approximation of 10^(-x) was rounded up to 118 bits
-                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
-                // the top Ex bits of 10^(-x) are T* = bid_ten2mk128trunc[ind], e.g.
-                // if x=1, T*=bid_ten2mk128trunc[0]=0x19999999999999999999999999999999
+                P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
+                // the top Ex bits of 10^(-x) are T* = BID_TEN2MK128TRUNC[ind], e.g.
+                // if x=1, T*=BID_TEN2MK128TRUNC[0]=0x19999999999999999999999999999999
                 // if (0 < f* < 10^(-x)) then the result is a midpoint
                 //   if floor(C*) is even then C* = floor(C*) - logical right
                 //       shift; C* has p decimal digits, correct by Prop. 1)
@@ -328,18 +328,18 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // n = C* * 10^(e+x)
 
                 if ind - 1 <= 2 {       // 0 <= ind - 1 <= 2 => shift = 0
-                    // redundant shift = bid_shiftright128[(ind - 1) as usize]; // shift = 0
+                    // redundant shift = BID_SHIFTRIGHT128[(ind - 1) as usize]; // shift = 0
                     res.w[1] = P256.w[3];
                     res.w[0] = P256.w[2];
                     // redundant fstar.w[3] = 0;
                     // redundant fstar.w[2] = 0;
                 } else if ind - 1 <= 21 {       // 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-                    shift    = bid_shiftright128[(ind - 1) as usize]; // 3 <= shift <= 63
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize]; // 3 <= shift <= 63
                     res.w[1] = P256.w[3] >> shift;
                     res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
                     // redundant fstar.w[3] = 0;
                 } else {                  // 22 <= ind - 1 <= 33
-                    shift    = bid_shiftright128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
                     res.w[1] = 0;
                     res.w[0] = P256.w[3] >> shift;
                 }
@@ -365,22 +365,22 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // FOR ROUND_TO_NEGATIVE_INFINITY, WE TRUNCATE, THEN ADD 1 IF NEGATIVE
                 // tmp64 = C1.w[0];
                 // if (ind <= 19) {
-                //   C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
                 // } else {
-                //   C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                //   C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT128[(ind - 20) as usize].w[0];
+                //   C1.w[1] = C1.w[1] + BID_MIDPOINT128[(ind - 20) as usize].w[1];
                 // }
                 // if (C1.w[0] < tmp64) C1.w[1]++;
                 // if carry-out from C1.w[0], increment C1.w[1]
                 // calculate C* and f*
                 // C* is actually floor(C*) in this case
                 // C* and f* need shifting and masking, as shown by
-                // bid_shiftright128[] and bid_maskhigh128[]
+                // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
                 // 1 <= x <= 34
-                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
                 // C* = (C1 + 1/2 * 10^x) * 10^(-x)
                 // the approximation of 10^(-x) was rounded up to 118 bits
-                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+                P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
                 if ind - 1 <= 2 {       // 0 <= ind - 1 <= 2 => shift = 0
                     res.w[1] = P256.w[3];
                     res.w[0] = P256.w[2];
@@ -389,10 +389,10 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                     // redundant fstar.w[1] = P256.w[1];
                     // redundant fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
-                    if (P256.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1])
-                    || (P256.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                    && (P256.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0])) {
+                    // 10^(-x) from BID_TEN2MK128[]
+                    if (P256.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1])
+                    || (P256.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    && (P256.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0])) {
                         // if positive, the truncated value is already the correct result
                         if x_sign != 0 {         // if negative
                             res.w[0] += 1;
@@ -405,19 +405,19 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                         }
                     }
                 } else if ind - 1 <= 21 {       // 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-                    shift    = bid_shiftright128[(ind - 1) as usize]; // 0 <= shift <= 102
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize]; // 0 <= shift <= 102
                     res.w[1] = P256.w[3] >> shift;
                     res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
                     // redundant fstar.w[3] = 0;
-                    fstar.w[2] = P256.w[2] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[2] = P256.w[2] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if  fstar.w[2] != 0
-                    ||  fstar.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0]) {
+                    ||  fstar.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0]) {
                         // if positive, the truncated value is already the correct result
                         if x_sign != 0 {         // if negative
                             res.w[0] += 1;
@@ -430,19 +430,19 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                         }
                     }
                 } else {    // 22 <= ind - 1 <= 33
-                    shift      = bid_shiftright128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
+                    shift      = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
                     res.w[1]   = 0;
                     res.w[0]   = P256.w[3] >> shift;
-                    fstar.w[3] = P256.w[3] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[3] = P256.w[3] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[2] = P256.w[2];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if  fstar.w[3] != 0 || fstar.w[2] != 0
-                    ||  fstar.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0]) {
+                    ||  fstar.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0]) {
                         // if positive, the truncated value is already the correct result
                         if x_sign != 0 {         // if negative
                             res.w[0] += 1;
@@ -480,22 +480,22 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // FOR ROUND_TO_NEGATIVE_INFINITY, WE TRUNCATE, THEN ADD 1 IF NEGATIVE
                 // tmp64 = C1.w[0];
                 // if (ind <= 19) {
-                //   C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
                 // } else {
-                //   C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                //   C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT128[(ind - 20) as usize].w[0];
+                //   C1.w[1] = C1.w[1] + BID_MIDPOINT128[(ind - 20) as usize].w[1];
                 // }
                 // if (C1.w[0] < tmp64) C1.w[1]++;
                 // if carry-out from C1.w[0], increment C1.w[1]
                 // calculate C* and f*
                 // C* is actually floor(C*) in this case
                 // C* and f* need shifting and masking, as shown by
-                // bid_shiftright128[] and bid_maskhigh128[]
+                // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
                 // 1 <= x <= 34
-                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
                 // C* = C1 * 10^(-x)
                 // the approximation of 10^(-x) was rounded up to 118 bits
-                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+                P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
                 if ind - 1 <= 2 {       // 0 <= ind - 1 <= 2 => shift = 0
                     res.w[1] = P256.w[3];
                     res.w[0] = P256.w[2];
@@ -504,10 +504,10 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                     // redundant fstar.w[1] = P256.w[1];
                     // redundant fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
-                    if (P256.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1])
-                    || (P256.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                    && (P256.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0])) {
+                    // 10^(-x) from BID_TEN2MK128[]
+                    if (P256.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1])
+                    || (P256.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    && (P256.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0])) {
                         // if negative, the truncated value is already the correct result
                         if x_sign == 0 {        // if positive
                             res.w[0] += 1;
@@ -520,19 +520,19 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                         }
                     }
                 } else if ind - 1 <= 21 {                               // 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-                    shift    = bid_shiftright128[(ind - 1) as usize];   // 3 <= shift <= 63
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize];   // 3 <= shift <= 63
                     res.w[1] = P256.w[3] >> shift;
                     res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
                     // redundant fstar.w[3] = 0;
-                    fstar.w[2] = P256.w[2] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[2] = P256.w[2] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if  fstar.w[2] != 0
-                     || fstar.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0]) {
+                     || fstar.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0]) {
                         // if negative, the truncated value is already the correct result
                         if x_sign == 0 {        // if positive
                             res.w[0] += 1;
@@ -545,19 +545,19 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                         }
                     }
                 } else {                                                        // 22 <= ind - 1 <= 33
-                    shift      = bid_shiftright128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
+                    shift      = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
                     res.w[1]   = 0;
                     res.w[0]   = P256.w[3] >> shift;
-                    fstar.w[3] = P256.w[3] & bid_maskhigh128[(ind - 1) as usize];
+                    fstar.w[3] = P256.w[3] & BID_MASKHIGH128[(ind - 1) as usize];
                     fstar.w[2] = P256.w[2];
                     fstar.w[1] = P256.w[1];
                     fstar.w[0] = P256.w[0];
                     // f* is in the right position to be compared with
-                    // 10^(-x) from bid_ten2mk128[]
+                    // 10^(-x) from BID_TEN2MK128[]
                     if  fstar.w[3] != 0 || fstar.w[2] != 0
-                     || fstar.w[1]  > bid_ten2mk128[(ind - 1) as usize].w[1]
-                    || (fstar.w[1] == bid_ten2mk128[(ind - 1) as usize].w[1]
-                     && fstar.w[0] >= bid_ten2mk128[(ind - 1) as usize].w[0]) {
+                     || fstar.w[1]  > BID_TEN2MK128[(ind - 1) as usize].w[1]
+                    || (fstar.w[1] == BID_TEN2MK128[(ind - 1) as usize].w[1]
+                     && fstar.w[0] >= BID_TEN2MK128[(ind - 1) as usize].w[0]) {
                         // if negative, the truncated value is already the correct result
                         if x_sign == 0 {        // if positive
                             res.w[0] += 1;
@@ -595,22 +595,22 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 // FOR ROUND_TO_NEGATIVE_INFINITY, WE TRUNCATE, THEN ADD 1 IF NEGATIVE
                 //tmp64 = C1.w[0];
                 // if (ind <= 19) {
-                //   C1.w[0] = C1.w[0] + bid_midpoint64[(ind - 1) as usize];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
                 // } else {
-                //   C1.w[0] = C1.w[0] + bid_midpoint128[(ind - 20) as usize].w[0];
-                //   C1.w[1] = C1.w[1] + bid_midpoint128[(ind - 20) as usize].w[1];
+                //   C1.w[0] = C1.w[0] + BID_MIDPOINT128[(ind - 20) as usize].w[0];
+                //   C1.w[1] = C1.w[1] + BID_MIDPOINT128[(ind - 20) as usize].w[1];
                 // }
                 // if (C1.w[0] < tmp64) C1.w[1]++;
                 // if carry-out from C1.w[0], increment C1.w[1]
                 // calculate C* and f*
                 // C* is actually floor(C*) in this case
                 // C* and f* need shifting and masking, as shown by
-                // bid_shiftright128[] and bid_maskhigh128[]
+                // BID_SHIFTRIGHT128[] and BID_MASKHIGH128[]
                 // 1 <= x <= 34
-                // kx = 10^(-x) = bid_ten2mk128[(ind - 1) as usize]
+                // kx = 10^(-x) = BID_TEN2MK128[(ind - 1) as usize]
                 // C* = (C1 + 1/2 * 10^x) * 10^(-x)
                 // the approximation of 10^(-x) was rounded up to 118 bits
-                P256 = __mul_128x128_to_256(&C1, &bid_ten2mk128[(ind - 1) as usize]);
+                P256 = __mul_128x128_to_256(&C1, &BID_TEN2MK128[(ind - 1) as usize]);
                 if ind - 1 <= 2 {       // 0 <= ind - 1 <= 2 => shift = 0
                     res.w[1] = P256.w[3];
                     res.w[0] = P256.w[2];
@@ -619,12 +619,12 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                     // redundant fstar.w[1] = P256.w[1];
                     // redundant fstar.w[0] = P256.w[0];
                 } else if ind - 1 <= 21 {       // 3 <= ind - 1 <= 21 => 3 <= shift <= 63
-                    shift    = bid_shiftright128[(ind - 1) as usize]; // 3 <= shift <= 63
+                    shift    = BID_SHIFTRIGHT128[(ind - 1) as usize]; // 3 <= shift <= 63
                     res.w[1] = P256.w[3] >> shift;
                     res.w[0] = (P256.w[3] << (64 - shift)) | (P256.w[2] >> shift);
                     // redundant fstar.w[3] = 0;
                 } else {                  // 22 <= ind - 1 <= 33
-                    shift = bid_shiftright128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
+                    shift = BID_SHIFTRIGHT128[(ind - 1) as usize] - 64;    // 2 <= shift <= 38
                     res.w[1] = 0;
                     res.w[0] = P256.w[3] >> shift;
                 }

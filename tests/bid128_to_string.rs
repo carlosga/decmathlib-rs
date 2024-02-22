@@ -9,6 +9,34 @@
 
 mod common;
 
+#[test]
+fn to_debug_string_001() {
+    let dec1 = decmathlib_rs::d128::d128::from(0x0001ed09bead87c0378d8e62ffffffffu128);
+
+    assert_eq!("+9999999999999999999999995705032703E-6176", format!("{dec1:?}"));
+}
+
+#[test]
+fn to_display_string_001() {
+    let dec1 = decmathlib_rs::d128::d128::from(0x0001ed09bead87c0378d8e62ffffffffu128);
+
+    assert_eq!("+9999999999999999999999995705032703E-6176", format!("{dec1}"));
+}
+
+#[test]
+fn to_lower_exp_string_001() {
+    let dec1 = decmathlib_rs::d128::d128::from(0x0001ed09bead87c0378d8e62ffffffffu128);
+
+    assert_eq!("+9999999999999999999999995705032703e-6176", format!("{dec1:e}"));
+}
+
+#[test]
+fn to_upper_exp_string_001() {
+    let dec1 = decmathlib_rs::d128::d128::from(0x0001ed09bead87c0378d8e62ffffffffu128);
+
+    assert_eq!("+9999999999999999999999995705032703E-6176", format!("{dec1:E}"));
+}
+
 dec_test!(bid128_to_string_001, bid128_to_string, /*0,*/ 0x0001ed09bead87c0378d8e62ffffffffu128, "+9999999999999999999999995705032703E-6176");
 dec_test!(bid128_to_string_002, bid128_to_string, /*0,*/ 0x0001ed09bead87c0378d8e64ffffffffu128, "+0E-6176");
 dec_test!(bid128_to_string_003, bid128_to_string, /*0,*/ 0x30400000000000000000000000000010u128, "+16E+0");

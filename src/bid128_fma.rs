@@ -193,21 +193,21 @@ pub (crate) fn bid_bid_nr_digits256(R256: &BID_UINT256) -> i32 {
     // determine the number of decimal digits in r256
     if R256.w[3] == 0x0 && R256.w[2] == 0x0 && R256.w[1] == 0x0 {
         // between 1 and 19 digits
-        ind = bid_ten2k64[1..=19]
+        ind = BID_TEN2K64[1..=19]
             .iter().enumerate()
             .take_while(|&(_, x)| R256.w[0] < *x)
             .count() as i32;
         ind += 1;
         // ind digits
     } else if R256.w[3]  == 0x0 && R256.w[2] == 0x0
-           && (R256.w[1]  < bid_ten2k128[0].w[1]
-           || (R256.w[1] == bid_ten2k128[0].w[1]
-            && R256.w[0]  < bid_ten2k128[0].w[0])) {
+           && (R256.w[1]  < BID_TEN2K128[0].w[1]
+           || (R256.w[1] == BID_TEN2K128[0].w[1]
+            && R256.w[0]  < BID_TEN2K128[0].w[0])) {
         // 20 digits
         ind = 20;
     } else if R256.w[3] == 0x0 && R256.w[2] == 0x0 {
         // between 21 and 38 digits
-        ind = bid_ten2k128[1..=18]
+        ind = BID_TEN2K128[1..=18]
             .iter().enumerate()
             .take_while(|&(_, d)|
                 !(R256.w[1] < d.w[1] || (R256.w[1] == d.w[1] && R256.w[0] < d.w[0]))
@@ -216,17 +216,17 @@ pub (crate) fn bid_bid_nr_digits256(R256: &BID_UINT256) -> i32 {
         // ind + 20 digits
         ind += 20;
     } else if R256.w[3] == 0x0 &&
-             (R256.w[2]  < bid_ten2k256[0].w[2] ||
-             (R256.w[2] == bid_ten2k256[0].w[2] &&
-              R256.w[1]  < bid_ten2k256[0].w[1]) ||
-             (R256.w[2] == bid_ten2k256[0].w[2] &&
-              R256.w[1] == bid_ten2k256[0].w[1] &&
-              R256.w[0]  < bid_ten2k256[0].w[0])) {
+             (R256.w[2]  < BID_TEN2K256[0].w[2] ||
+             (R256.w[2] == BID_TEN2K256[0].w[2] &&
+              R256.w[1]  < BID_TEN2K256[0].w[1]) ||
+             (R256.w[2] == BID_TEN2K256[0].w[2] &&
+              R256.w[1] == BID_TEN2K256[0].w[1] &&
+              R256.w[0]  < BID_TEN2K256[0].w[0])) {
         // 39 digits
         ind = 39;
     } else {
         // between 40 and 68 digits
-        ind = bid_ten2k256[1..=29usize]
+        ind = BID_TEN2K256[1..=29usize]
             .iter().enumerate()
             .take_while(|&(_, d)|
                 !(R256.w[3]  < d.w[3]
@@ -301,10 +301,10 @@ pub (crate) fn bid_add_and_round(
         R256.w[0] = C3.w[0];
     } else if scale <= 19 { // 10^scale fits in 64 bits
         P128.w[1] = 0;
-        P128.w[0] = bid_ten2k64[scale as usize];
+        P128.w[0] = BID_TEN2K64[scale as usize];
         R256      = __mul_128x128_to_256(&P128, C3);
     } else if scale <= 38 { // 10^scale fits in 128 bits
-        R256 = __mul_128x128_to_256(&bid_ten2k128[(scale - 20) as usize], C3);
+        R256 = __mul_128x128_to_256(&BID_TEN2K128[(scale - 20) as usize], C3);
     } else if scale <= 57 { // 39 <= scale <= 57
         // 10^scale fits in 192 bits but C3 * 10^scale fits in 223 or 230 bits
         // (10^67 has 223 bits; 10^69 has 230 bits);
@@ -312,9 +312,9 @@ pub (crate) fn bid_add_and_round(
         // 10^scale * C3 = 10*38 * 10^(scale-38) * C3 where 10^38 takes 127
         // bits and so 10^(scale-38) * C3 fits in 128 bits with certainty
         // Note that 1 <= scale - 38 <= 19 => 10^(scale-38) fits in 64 bits
-        R128 = __mul_64x128_to_128(bid_ten2k64[(scale - 38) as usize], C3);
+        R128 = __mul_64x128_to_128(BID_TEN2K64[(scale - 38) as usize], C3);
         // now multiply R128 by 10^38
-        R256 = __mul_128x128_to_256(&R128, &bid_ten2k128[18]);
+        R256 = __mul_128x128_to_256(&R128, &BID_TEN2K128[18]);
     } else { // 58 <= scale <= 66
         // 10^scale takes between 193 and 220 bits,
         // and C3 * 10^scale fits in 223 bits (10^67/10^69 has 223/230 bits)
@@ -324,9 +324,9 @@ pub (crate) fn bid_add_and_round(
         // Note that 20 <= scale - 38 <= 30 => 10^(scale-38) fits in 128 bits
         // Calculate first 10^(scale-38) * C3, which fits in 128 bits; because
         // 10^(scale-38) takes more than 64 bits, C3 will take less than 64
-        R128 = __mul_64x128_to_128(C3.w[0], &bid_ten2k128[(scale - 58) as usize]);
+        R128 = __mul_64x128_to_128(C3.w[0], &BID_TEN2K128[(scale - 58) as usize]);
         // now calculate 10*38 * 10^(scale-38) * C3
-        R256 = __mul_128x128_to_256(&R128, &bid_ten2k128[18]);
+        R256 = __mul_128x128_to_256(&R128, &BID_TEN2K128[18]);
     }
     // C3 * 10^scale is now in R256
 
@@ -520,7 +520,7 @@ pub (crate) fn bid_add_and_round(
                 R128.w[1] = res.w[1] & MASK_COEFF;
                 R128.w[0] = res.w[0];
                 if ind <= 19 {
-                    match bid_midpoint64[(ind - 1) as usize] {
+                    match BID_MIDPOINT64[(ind - 1) as usize] {
                         value if R128.w[0] < value => { // < 1/2 ulp
                             lt_half_ulp            = true;
                             is_inexact_lt_midpoint = true;
@@ -535,13 +535,13 @@ pub (crate) fn bid_add_and_round(
                         }
                     }
                 } else { // if (ind <= 38) {
-                    if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
-                    || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                     && R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) { // < 1/2 ulp
+                    if  R128.w[1]  < BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                    || (R128.w[1] == BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                     && R128.w[0]  < BID_MIDPOINT128[(ind - 20) as usize].w[0]) { // < 1/2 ulp
                         lt_half_ulp            = true;
                         is_inexact_lt_midpoint = true;
-                    } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                           && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
+                    } else if R128.w[1] == BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                           && R128.w[0] == BID_MIDPOINT128[(ind - 20) as usize].w[0] { // = 1/2 ulp
                         eq_half_ulp         = true;
                         is_midpoint_gt_even = true;
                     } else { // > 1/2 ulp
@@ -590,7 +590,7 @@ pub (crate) fn bid_add_and_round(
                     // 64 x 128 -> 128
                     P128.w[1] = res.w[1] & MASK_COEFF;
                     P128.w[0] = res.w[0];
-                    res       = __mul_64x128_to_128(bid_ten2k64[1], &P128);
+                    res       = __mul_64x128_to_128(BID_TEN2K64[1], &P128);
                 }
                 res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
                 // avoid a double rounding error
@@ -1092,12 +1092,12 @@ pub (crate) fn bid128_ext_fma(
                 tmp.d     = C1.w[1] as f64;             // exact conversion
                 x_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
-            q1 = bid_nr_digits[(x_nr_bits - 1) as usize].digits as i32;
+            q1 = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
             if q1 == 0 {
-                q1 = bid_nr_digits[(x_nr_bits - 1) as usize].digits1 as i32;
-                if C1.w[1]  > bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-               || (C1.w[1] == bid_nr_digits[(x_nr_bits - 1) as usize].threshold_hi
-                && C1.w[0] >= bid_nr_digits[(x_nr_bits - 1) as usize].threshold_lo) {
+                q1 = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits1 as i32;
+                if C1.w[1]  > BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+               || (C1.w[1] == BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_hi
+                && C1.w[0] >= BID_NR_DIGITS[(x_nr_bits - 1) as usize].threshold_lo) {
                     q1 += 1;
                 }
             }
@@ -1119,12 +1119,12 @@ pub (crate) fn bid128_ext_fma(
                 tmp.d     = C2.w[1] as f64;           // exact conversion
                 y_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
-            q2 = bid_nr_digits[(y_nr_bits - 1) as usize].digits as i32;
+            q2 = BID_NR_DIGITS[(y_nr_bits - 1) as usize].digits as i32;
             if q2 == 0 {
-                q2 = bid_nr_digits[(y_nr_bits - 1) as usize].digits1 as i32;
-                if  C2.w[1]  > bid_nr_digits[(y_nr_bits - 1) as usize].threshold_hi
-                || (C2.w[1] == bid_nr_digits[(y_nr_bits - 1) as usize].threshold_hi
-                 && C2.w[0] >= bid_nr_digits[(y_nr_bits - 1) as usize].threshold_lo) {
+                q2 = BID_NR_DIGITS[(y_nr_bits - 1) as usize].digits1 as i32;
+                if  C2.w[1]  > BID_NR_DIGITS[(y_nr_bits - 1) as usize].threshold_hi
+                || (C2.w[1] == BID_NR_DIGITS[(y_nr_bits - 1) as usize].threshold_hi
+                 && C2.w[0] >= BID_NR_DIGITS[(y_nr_bits - 1) as usize].threshold_lo) {
                     q2 += 1;
                 }
             }
@@ -1146,12 +1146,12 @@ pub (crate) fn bid128_ext_fma(
                 tmp.d     = C3.w[1] as f64;          // exact conversion
                 z_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
-            q3 = bid_nr_digits[(z_nr_bits - 1) as usize].digits as i32;
+            q3 = BID_NR_DIGITS[(z_nr_bits - 1) as usize].digits as i32;
             if q3 == 0 {
-                q3 = bid_nr_digits[(z_nr_bits - 1) as usize].digits1 as i32;
-                if C3.w[1]  > bid_nr_digits[(z_nr_bits - 1) as usize].threshold_hi
-               || (C3.w[1] == bid_nr_digits[(z_nr_bits - 1) as usize].threshold_hi
-                && C3.w[0] >= bid_nr_digits[(z_nr_bits - 1) as usize].threshold_lo) {
+                q3 = BID_NR_DIGITS[(z_nr_bits - 1) as usize].digits1 as i32;
+                if C3.w[1]  > BID_NR_DIGITS[(z_nr_bits - 1) as usize].threshold_hi
+               || (C3.w[1] == BID_NR_DIGITS[(z_nr_bits - 1) as usize].threshold_hi
+                && C3.w[0] >= BID_NR_DIGITS[(z_nr_bits - 1) as usize].threshold_lo) {
                     q3 += 1;
                 }
             }
@@ -1179,15 +1179,15 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = z.w[0];
             } else if q3 <= 19 {  // z fits in 64 bits
                 if scale <= 19 {    // 10^scale fits in 64 bits
-                    // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                    res = __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize]);
+                    // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                    res = __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize]);
                 } else { // 10^scale fits in 128 bits
-                    // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                    res = __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize]);
+                    // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                    res = __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize]);
                 }
             } else { // z fits in 128 bits, but 10^scale must fit in 64 bits
-                // 64 x 128 bid_ten2k64[scale as usize] * C3
-                res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3);
             }
             // subtract scale from the exponent
             z_exp    -= (scale as BID_UINT64) << 49;
@@ -1223,7 +1223,7 @@ pub (crate) fn bid128_ext_fma(
     if q1 + q2 <= 19 { // if 2 <= q1 + q2 <= 19, C4 = C1 * C2 fits in 64 bits
         C4.w[0] = C1.w[0] * C2.w[0];
         // if C4 < 10^(q1+q2-1) then q4 = q1 + q2 - 1 else q4 = q1 + q2
-        q4 = if C4.w[0] < bid_ten2k64[(q1 + q2 - 1) as usize] {
+        q4 = if C4.w[0] < BID_TEN2K64[(q1 + q2 - 1) as usize] {
             q1 + q2 - 1 // q4 in [1, 18]
         } else {
             q1 + q2     // q4 in [2, 19]
@@ -1235,7 +1235,7 @@ pub (crate) fn bid128_ext_fma(
         C4.w[0] = tmp.w[0];
         C4.w[1] = tmp.w[1];
         // if C4 < 10^(q1+q2-1) = 10^19 then q4 = q1+q2-1 = 19 else q4 = q1+q2 = 20
-        q4 = if C4.w[1] == 0 && C4.w[0] < bid_ten2k64[19] { // 19 = q1+q2-1
+        q4 = if C4.w[1] == 0 && C4.w[0] < BID_TEN2K64[19] { // 19 = q1+q2-1
             // length of C1 * C2 rounded up to a multiple of 64 bits is len = 64;
             19 // 19 = q1 + q2 - 1
         } else {
@@ -1259,9 +1259,9 @@ pub (crate) fn bid128_ext_fma(
             C4.w[1] = tmp.w[1];
         }
         // if C4 < 10^(q1+q2-1) then q4 = q1 + q2 - 1 else q4 = q1 + q2
-        q4 = if C4.w[1]  < bid_ten2k128[(q1 + q2 - 21) as usize].w[1]
-            || (C4.w[1] == bid_ten2k128[(q1 + q2 - 21) as usize].w[1]
-             && C4.w[0]  < bid_ten2k128[(q1 + q2 - 21) as usize].w[0]) {
+        q4 = if C4.w[1]  < BID_TEN2K128[(q1 + q2 - 21) as usize].w[1]
+            || (C4.w[1] == BID_TEN2K128[(q1 + q2 - 21) as usize].w[1]
+             && C4.w[0]  < BID_TEN2K128[(q1 + q2 - 21) as usize].w[0]) {
             // if (C4.w[1] == 0) // q4 = 20, necessarily
             //   length of C1 * C2 rounded up to a multiple of 64 bits is len = 64;
             // else
@@ -1277,9 +1277,9 @@ pub (crate) fn bid128_ext_fma(
         C4 = __mul_128x128_to_256(&C1, &C2); // C4.w[3] is 0
         // if C4 < 10^(q1+q2-1) = 10^38 then q4 = q1+q2-1 = 38 else q4 = q1+q2 = 39
         q4 = if C4.w[2] == 0
-            && (C4.w[1]  < bid_ten2k128[18].w[1]
-            || (C4.w[1] == bid_ten2k128[18].w[1]
-             && C4.w[0]  < bid_ten2k128[18].w[0])) {
+            && (C4.w[1]  < BID_TEN2K128[18].w[1]
+            || (C4.w[1] == BID_TEN2K128[18].w[1]
+             && C4.w[0]  < BID_TEN2K128[18].w[0])) {
             // 18 = 38 - 20 = q1+q2-1 - 20
             // length of C1 * C2 rounded up to a multiple of 64 bits is len = 128;
             38 // 38 = q1 + q2 - 1
@@ -1312,11 +1312,11 @@ pub (crate) fn bid128_ext_fma(
             C4 = __mul_128x128_to_256(&C1, &C2); // C4.w[3] = 0
         }
         // if C4 < 10^(q1+q2-1) then q4 = q1 + q2 - 1 else q4 = q1 + q2
-        q4 = if C4.w[2]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[2]
-            || (C4.w[2] == bid_ten2k256[(q1 + q2 - 40) as usize].w[2]
-            && (C4.w[1]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[1]
-            || (C4.w[1] == bid_ten2k256[(q1 + q2 - 40) as usize].w[1]
-             && C4.w[0]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[0]))) {
+        q4 = if C4.w[2]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[2]
+            || (C4.w[2] == BID_TEN2K256[(q1 + q2 - 40) as usize].w[2]
+            && (C4.w[1]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[1]
+            || (C4.w[1] == BID_TEN2K256[(q1 + q2 - 40) as usize].w[1]
+             && C4.w[0]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[0]))) {
             // if (C4.w[2] == 0) // q4 = 39, necessarily
             //   length of C1 * C2 rounded up to a multiple of 64 bits is len = 128;
             // else
@@ -1334,11 +1334,11 @@ pub (crate) fn bid128_ext_fma(
         C4 = __mul_128x128_to_256(&C1, &C2);
         // if C4 < 10^(q1+q2-1) = 10^57 then q4 = q1+q2-1 = 57 else q4 = q1+q2 = 58
         q4 = if C4.w[3] == 0
-            && (C4.w[2]  < bid_ten2k256[18].w[2]
-            || (C4.w[2] == bid_ten2k256[18].w[2]
-            && (C4.w[1]  < bid_ten2k256[18].w[1]
-            || (C4.w[1] == bid_ten2k256[18].w[1]
-            && C4.w[0]   < bid_ten2k256[18].w[0])))) {
+            && (C4.w[2]  < BID_TEN2K256[18].w[2]
+            || (C4.w[2] == BID_TEN2K256[18].w[2]
+            && (C4.w[1]  < BID_TEN2K256[18].w[1]
+            || (C4.w[1] == BID_TEN2K256[18].w[1]
+            && C4.w[0]   < BID_TEN2K256[18].w[0])))) {
             // 18 = 57 - 39 = q1+q2-1 - 39
             // length of C1 * C2 rounded up to a multiple of 64 bits is len = 192;
             57 // 57 = q1 + q2 - 1
@@ -1357,13 +1357,13 @@ pub (crate) fn bid128_ext_fma(
         // may use __mul_128x128_to_192 (C4.w[2], C4.w[0], C2.w[0], C1);
         C4 = __mul_128x128_to_256(&C1, &C2); // C4.w[3] = 0
         // if C4 < 10^(q1+q2-1) then q4 = q1 + q2 - 1 else q4 = q1 + q2
-        q4 = if C4.w[3]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[3]
-            || (C4.w[3] == bid_ten2k256[(q1 + q2 - 40) as usize].w[3]
-            && (C4.w[2]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[2]
-            || (C4.w[2] == bid_ten2k256[(q1 + q2 - 40) as usize].w[2]
-            && (C4.w[1]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[1]
-            || (C4.w[1] == bid_ten2k256[(q1 + q2 - 40) as usize].w[1]
-            &&  C4.w[0]  < bid_ten2k256[(q1 + q2 - 40) as usize].w[0]))))) {
+        q4 = if C4.w[3]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[3]
+            || (C4.w[3] == BID_TEN2K256[(q1 + q2 - 40) as usize].w[3]
+            && (C4.w[2]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[2]
+            || (C4.w[2] == BID_TEN2K256[(q1 + q2 - 40) as usize].w[2]
+            && (C4.w[1]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[1]
+            || (C4.w[1] == BID_TEN2K256[(q1 + q2 - 40) as usize].w[1]
+            &&  C4.w[0]  < BID_TEN2K256[(q1 + q2 - 40) as usize].w[0]))))) {
             // if (C4.w[3] == 0) // q4 = 58, necessarily
             //   length of C1 * C2 rounded up to a multiple of 64 bits is len = 192;
             // else
@@ -1439,16 +1439,16 @@ pub (crate) fn bid128_ext_fma(
                 // res = (C4 * 10^scale) * 10^EXP_MAX_UNBIASED
                 if q4 <= 19 { // C4 fits in 64 bits
                     if scale <= 19 { // 10^scale fits in 64 bits
-                        // 64 x 64 C4.w[0] * bid_ten2k64[scale as usize]
-                        res = __mul_64x64_to_128MACH(C4.w[0], bid_ten2k64[scale as usize]);
+                        // 64 x 64 C4.w[0] * BID_TEN2K64[scale as usize]
+                        res = __mul_64x64_to_128MACH(C4.w[0], BID_TEN2K64[scale as usize]);
                     } else { // 10^scale fits in 128 bits
-                        // 64 x 128 C4.w[0] * bid_ten2k128[(scale - 20) as usize]
-                        res = __mul_128x64_to_128(C4.w[0], &bid_ten2k128[(scale - 20) as usize]);
+                        // 64 x 128 C4.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                        res = __mul_128x64_to_128(C4.w[0], &BID_TEN2K128[(scale - 20) as usize]);
                     }
                 } else { // C4 fits in 128 bits, but 10^scale must fit in 64 bits
-                    // 64 x 128 bid_ten2k64[scale as usize] * CC43
+                    // 64 x 128 BID_TEN2K64[scale as usize] * CC43
                     let tmp = BID_UINT128 { w: [C4.w[0], C4.w[1]] };
-                    res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &tmp);
+                    res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &tmp);
                 }
                 e4 -= scale; // EXP_MAX_UNBIASED
                 q4 += scale;
@@ -1517,7 +1517,7 @@ pub (crate) fn bid128_ext_fma(
 
                             if incr_exp {
                                 // R64 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 17
-                                R64 = bid_ten2k64[(q4 - x0) as usize];
+                                R64 = BID_TEN2K64[(q4 - x0) as usize];
                             }
                             // res.w[1] = 0; (from above)
                             res.w[0] = R64;
@@ -1537,10 +1537,10 @@ pub (crate) fn bid128_ext_fma(
                                 // R128 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 37
                                 if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
                                     // res.w[1] = 0;
-                                    res.w[0] = bid_ten2k64[(q4 - x0) as usize];
+                                    res.w[0] = BID_TEN2K64[(q4 - x0) as usize];
                                 } else { // 20 <= q4 - x0 <= 37
-                                    res.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
-                                    res.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                                    res.w[0] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[0];
+                                    res.w[1] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[1];
                                 }
                             }
                         }
@@ -1550,7 +1550,7 @@ pub (crate) fn bid128_ext_fma(
                         // the second rounding is for 0.d(0)d(1)...d(q4-1) * 10^emin
                         // determine relationship with 1/2 ulp
                         if q4 <= 19 {
-                            match bid_midpoint64[(q4 - 1) as usize] {
+                            match BID_MIDPOINT64[(q4 - 1) as usize] {
                                 value if res.w[0] < value => { // < 1/2 ulp
                                     lt_half_ulp            = true;
                                     is_inexact_lt_midpoint = true;
@@ -1565,13 +1565,13 @@ pub (crate) fn bid128_ext_fma(
                                 }
                             }
                         } else { // if (q4 <= 34)
-                            if res.w[1]  < bid_midpoint128[(q4 - 20) as usize].w[1]
-                           || (res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                            && res.w[0]  < bid_midpoint128[(q4 - 20) as usize].w[0]) { // < 1/2 ulp
+                            if res.w[1]  < BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                           || (res.w[1] == BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                            && res.w[0]  < BID_MIDPOINT128[(q4 - 20) as usize].w[0]) { // < 1/2 ulp
                                 lt_half_ulp            = true;
                                 is_inexact_lt_midpoint = true;
-                            } else if res.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                                   && res.w[0] == bid_midpoint128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
+                            } else if res.w[1] == BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                                   && res.w[0] == BID_MIDPOINT128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
                                 eq_half_ulp         = true;
                                 is_midpoint_gt_even = true;
                             } else { // > 1/2 ulp
@@ -1657,15 +1657,15 @@ pub (crate) fn bid128_ext_fma(
                         // res and e4 are unchanged
                     } else if q4 <= 19 { // C4 fits in 64 bits
                         if scale <= 19 { // 10^scale fits in 64 bits
-                            // 64 x 64 res.w[0] * bid_ten2k64[scale as usize]
-                            res = __mul_64x64_to_128MACH(res.w[0], bid_ten2k64[scale as usize]);
+                            // 64 x 64 res.w[0] * BID_TEN2K64[scale as usize]
+                            res = __mul_64x64_to_128MACH(res.w[0], BID_TEN2K64[scale as usize]);
                         } else { // 10^scale fits in 128 bits
-                            // 64 x 128 res.w[0] * bid_ten2k128[(scale - 20) as usize]
-                            res = __mul_128x64_to_128(res.w[0], &bid_ten2k128[(scale - 20) as usize]);
+                            // 64 x 128 res.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                            res = __mul_128x64_to_128(res.w[0], &BID_TEN2K128[(scale - 20) as usize]);
                         }
                     } else { // res fits in 128 bits, but 10^scale must fit in 64 bits
-                        // 64 x 128 bid_ten2k64[scale as usize] * C3
-                        res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &res);
+                        // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                        res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &res);
                     }
                     // subtract scale from the exponent
                     e4 -= scale;
@@ -1753,16 +1753,16 @@ pub (crate) fn bid128_ext_fma(
                     // leave res unchanged
                 } else if q4 <= 19 { // x * y fits in 64 bits
                     res = if scale <= 19 { // 10^scale fits in 64 bits
-                        // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                        __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize])
+                        // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                        __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize])
                     } else { // 10^scale fits in 128 bits
-                        // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                        __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
+                        // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                        __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize])
                     };
                     res.w[1] |= p_sign | (p_exp & MASK_EXP);
                 } else { // x * y fits in 128 bits, but 10^scale must fit in 64 bits
-                    // 64 x 128 bid_ten2k64[scale as usize] * C3
-                    res       = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                    // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                    res       = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3);
                     res.w[1] |= p_sign | (p_exp & MASK_EXP);
                 }
             } // else leave the result as it is, because p_exp <= z_exp
@@ -1810,15 +1810,15 @@ pub (crate) fn bid128_ext_fma(
                     } else {
                         res = if q3 <= 19 { // C3 fits in 64 bits
                             if scale <= 19 { // 10^scale fits in 64 bits
-                                // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                                __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize])
+                                // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                                __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize])
                             } else { // 10^scale fits in 128 bits
-                                // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                                __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
+                                // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                                __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize])
                             }
                         } else { // C3 fits in 128 bits, but 10^scale must fit in 64 bits
-                            // 64 x 128 bid_ten2k64[scale as usize] * C3
-                            __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3)
+                            // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                            __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3)
                         }
                         // the coefficient in res has q3 + scale = p34 digits
                     }
@@ -1855,15 +1855,15 @@ pub (crate) fn bid128_ext_fma(
                     res.w[0] = C3.w[0];
                 } else if q3 <= 19 { // z fits in 64 bits
                     res = if scale <= 19 { // 10^scale fits in 64 bits
-                        // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                        __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize])
+                        // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                        __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize])
                     } else { // 10^scale fits in 128 bits
-                        // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                        __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
+                        // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                        __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize])
                     };
                 } else { // z fits in 128 bits, but 10^scale must fit in 64 bits
-                    // 64 x 128 bid_ten2k64[scale as usize] * C3
-                    res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                    // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                    res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3);
                 }
                 // the coefficient in res has q3 + scale digits
                 // subtract scale from the exponent
@@ -1888,10 +1888,10 @@ pub (crate) fn bid128_ext_fma(
             if (p_sign != z_sign) && (delta == (q3 + scale + 1)) {
                 // there is a gap of exactly one digit between the scaled C3 and C4
                 // C3 * 10^ scale = 10^(q3+scale-1) <=> C3 = 10^(q3-1) is a special case
-                if (q3 <= 19 && C3.w[0] != bid_ten2k64[(q3 - 1) as usize])
-                || (q3 == 20 && (C3.w[1] != 0 || C3.w[0] != bid_ten2k64[19]))
-                || (q3 >= 21 && (C3.w[1] != bid_ten2k128[(q3 - 21) as usize].w[1]
-                 || C3.w[0] != bid_ten2k128[(q3 - 21) as usize].w[0])) {
+                if (q3 <= 19 && C3.w[0] != BID_TEN2K64[(q3 - 1) as usize])
+                || (q3 == 20 && (C3.w[1] != 0 || C3.w[0] != BID_TEN2K64[19]))
+                || (q3 >= 21 && (C3.w[1] != BID_TEN2K128[(q3 - 21) as usize].w[1]
+                 || C3.w[0] != BID_TEN2K128[(q3 - 21) as usize].w[0])) {
                     // C3 * 10^ scale != 10^(q3-1)
                     // if ((res.w[1] & MASK_COEFF) != 0x0000314dc6448d93u64 ||
                     // res.w[0] != 0x38c15b0a00000000u64) { // C3 * 10^scale != 10^33
@@ -1970,10 +1970,10 @@ pub (crate) fn bid128_ext_fma(
                         // result decremented is 10^(q3+scale) - 1
                         if q3 + scale <= 19 {
                             res.w[1] = 0;
-                            res.w[0] = bid_ten2k64[(q3 + scale) as usize];
+                            res.w[0] = BID_TEN2K64[(q3 + scale) as usize];
                         } else { // if ((q3 + scale + 1) <= 35)
-                            res.w[1] = bid_ten2k128[(q3 + scale - 20) as usize].w[1];
-                            res.w[0] = bid_ten2k128[(q3 + scale - 20) as usize].w[0];
+                            res.w[1] = BID_TEN2K128[(q3 + scale - 20) as usize].w[1];
+                            res.w[0] = BID_TEN2K128[(q3 + scale - 20) as usize].w[0];
                         }
                         res.w[0] -= 1; // borrow never occurs
                         z_exp    -= EXP_P1;
@@ -2032,30 +2032,30 @@ pub (crate) fn bid128_ext_fma(
             if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
                 // determine if C4 > 5 * 10^(q4-1)
                 if q4 <= 19 {
-                    C4gt5toq4m1 = C4.w[0] > bid_midpoint64[(q4 - 1) as usize];
+                    C4gt5toq4m1 = C4.w[0] > BID_MIDPOINT64[(q4 - 1) as usize];
                 } else if q4 <= 38 {
-                    C4gt5toq4m1 = C4.w[1]  > bid_midpoint128[(q4 - 1) as usize].w[1]
-                              || (C4.w[1] == bid_midpoint128[(q4 - 1) as usize].w[1]
-                               && C4.w[0]  > bid_midpoint128[(q4 - 1) as usize].w[0]);
+                    C4gt5toq4m1 = C4.w[1]  > BID_MIDPOINT128[(q4 - 1) as usize].w[1]
+                              || (C4.w[1] == BID_MIDPOINT128[(q4 - 1) as usize].w[1]
+                               && C4.w[0]  > BID_MIDPOINT128[(q4 - 1) as usize].w[0]);
                 } else if q4 <= 58 {
-                    C4gt5toq4m1 = C4.w[2]  > bid_midpoint192[(q4 - 1) as usize].w[2]
-                              || (C4.w[2] == bid_midpoint192[(q4 - 1) as usize].w[2]
-                              && C4.w[1]   > bid_midpoint192[(q4 - 1) as usize].w[1])
-                              || (C4.w[2] == bid_midpoint192[(q4 - 1) as usize].w[2]
-                               && C4.w[1] == bid_midpoint192[(q4 - 1) as usize].w[1]
-                               && C4.w[0]  > bid_midpoint192[(q4 - 1) as usize].w[0]);
+                    C4gt5toq4m1 = C4.w[2]  > BID_MIDPOINT192[(q4 - 1) as usize].w[2]
+                              || (C4.w[2] == BID_MIDPOINT192[(q4 - 1) as usize].w[2]
+                              && C4.w[1]   > BID_MIDPOINT192[(q4 - 1) as usize].w[1])
+                              || (C4.w[2] == BID_MIDPOINT192[(q4 - 1) as usize].w[2]
+                               && C4.w[1] == BID_MIDPOINT192[(q4 - 1) as usize].w[1]
+                               && C4.w[0]  > BID_MIDPOINT192[(q4 - 1) as usize].w[0]);
                 } else { // if (q4 <= 68)
                     C4gt5toq4m1 =
-                         C4.w[3]  > bid_midpoint256[(q4 - 1) as usize].w[3] ||
-                        (C4.w[3] == bid_midpoint256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2]  > bid_midpoint256[(q4 - 1) as usize].w[2]) ||
-                        (C4.w[3] == bid_midpoint256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2] == bid_midpoint256[(q4 - 1) as usize].w[2] &&
-                         C4.w[1]  > bid_midpoint256[(q4 - 1) as usize].w[1]) ||
-                        (C4.w[3] == bid_midpoint256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2] == bid_midpoint256[(q4 - 1) as usize].w[2] &&
-                         C4.w[1] == bid_midpoint256[(q4 - 1) as usize].w[1] &&
-                         C4.w[0]  > bid_midpoint256[(q4 - 1) as usize].w[0]);
+                         C4.w[3]  > BID_MIDPOINT256[(q4 - 1) as usize].w[3] ||
+                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
+                         C4.w[2]  > BID_MIDPOINT256[(q4 - 1) as usize].w[2]) ||
+                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
+                         C4.w[2] == BID_MIDPOINT256[(q4 - 1) as usize].w[2] &&
+                         C4.w[1]  > BID_MIDPOINT256[(q4 - 1) as usize].w[1]) ||
+                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
+                         C4.w[2] == BID_MIDPOINT256[(q4 - 1) as usize].w[2] &&
+                         C4.w[1] == BID_MIDPOINT256[(q4 - 1) as usize].w[1] &&
+                         C4.w[0]  > BID_MIDPOINT256[(q4 - 1) as usize].w[0]);
                 }
 
                 if (e3 == EXP_MIN_UNBIASED && (q3 + scale) < p34)
@@ -2107,15 +2107,15 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = C3.w[0];
             } else if q3 <= 19 { // z fits in 64 bits
                 res = if scale <= 19 { // 10^scale fits in 64 bits
-                    // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                    __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize])
+                    // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                    __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize])
                 } else { // 10^scale fits in 128 bits
-                    // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                    __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
+                    // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                    __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize])
                 };
             } else { // z fits in 128 bits, but 10^scale must fit in 64 bits
-                // 64 x 128 bid_ten2k64[scale as usize] * C3
-                res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3);
             }
             // subtract scale from the exponent
             z_exp -= (scale as BID_UINT64) << 49;
@@ -2125,7 +2125,7 @@ pub (crate) fn bid128_ext_fma(
             // determine whether x * y is less than, equal to, or greater than
             // 1/2 ulp (z)
             if q4 <= 19 {
-                match bid_midpoint64[(q4 - 1) as usize] {
+                match BID_MIDPOINT64[(q4 - 1) as usize] {
                     value if C4.w[0] < value => { // < 1/2 ulp
                         lt_half_ulp = true;
                     },
@@ -2137,49 +2137,49 @@ pub (crate) fn bid128_ext_fma(
                     }
                 }
             } else if q4 <= 38 {
-                if C4.w[2] == 0 && (C4.w[1] < bid_midpoint128[(q4 - 20) as usize].w[1]
-               || (C4.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                && C4.w[0]  < bid_midpoint128[(q4 - 20) as usize].w[0])) { // < 1/2 ulp
+                if C4.w[2] == 0 && (C4.w[1] < BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+               || (C4.w[1] == BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                && C4.w[0]  < BID_MIDPOINT128[(q4 - 20) as usize].w[0])) { // < 1/2 ulp
                     lt_half_ulp = true;
                 } else if C4.w[2] == 0
-                       && C4.w[1] == bid_midpoint128[(q4 - 20) as usize].w[1]
-                       && C4.w[0] == bid_midpoint128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
+                       && C4.w[1] == BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                       && C4.w[0] == BID_MIDPOINT128[(q4 - 20) as usize].w[0] { // = 1/2 ulp
                     eq_half_ulp = true;
                 } else { // > 1/2 ulp
                     gt_half_ulp = true;
                 }
             } else if q4 <= 58 {
-                if C4.w[3] == 0 && (C4.w[2] < bid_midpoint192[(q4 - 39) as usize].w[2]
-               || (C4.w[2] == bid_midpoint192[(q4 - 39) as usize].w[2]
-                && C4.w[1]  < bid_midpoint192[(q4 - 39) as usize].w[1])
-               || (C4.w[2] == bid_midpoint192[(q4 - 39) as usize].w[2]
-                && C4.w[1] == bid_midpoint192[(q4 - 39) as usize].w[1]
-                && C4.w[0]  < bid_midpoint192[(q4 - 39) as usize].w[0])) { // < 1/2 ulp
+                if C4.w[3] == 0 && (C4.w[2] < BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+               || (C4.w[2] == BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                && C4.w[1]  < BID_MIDPOINT192[(q4 - 39) as usize].w[1])
+               || (C4.w[2] == BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                && C4.w[1] == BID_MIDPOINT192[(q4 - 39) as usize].w[1]
+                && C4.w[0]  < BID_MIDPOINT192[(q4 - 39) as usize].w[0])) { // < 1/2 ulp
                     lt_half_ulp = true;
                 } else if C4.w[3] == 0
-                       && C4.w[2] == bid_midpoint192[(q4 - 39) as usize].w[2]
-                       && C4.w[1] == bid_midpoint192[(q4 - 39) as usize].w[1]
-                       && C4.w[0] == bid_midpoint192[(q4 - 39) as usize].w[0] { // = 1/2 ulp
+                       && C4.w[2] == BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                       && C4.w[1] == BID_MIDPOINT192[(q4 - 39) as usize].w[1]
+                       && C4.w[0] == BID_MIDPOINT192[(q4 - 39) as usize].w[0] { // = 1/2 ulp
                     eq_half_ulp = true;
                 } else { // > 1/2 ulp
                     gt_half_ulp = true;
                 }
             } else {
-                if C4.w[3]  < bid_midpoint256[(q4 - 59) as usize].w[3]
-               || (C4.w[3] == bid_midpoint256[(q4 - 59) as usize].w[3]
-                && C4.w[2]  < bid_midpoint256[(q4 - 59) as usize].w[2])
-               || (C4.w[3] == bid_midpoint256[(q4 - 59) as usize].w[3]
-                && C4.w[2] == bid_midpoint256[(q4 - 59) as usize].w[2]
-                && C4.w[1]  < bid_midpoint256[(q4 - 59) as usize].w[1])
-               || (C4.w[3] == bid_midpoint256[(q4 - 59) as usize].w[3]
-                && C4.w[2] == bid_midpoint256[(q4 - 59) as usize].w[2]
-                && C4.w[1] == bid_midpoint256[(q4 - 59) as usize].w[1]
-                && C4.w[0]  < bid_midpoint256[(q4 - 59) as usize].w[0]) { // < 1/2 ulp
+                if C4.w[3]  < BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                && C4.w[2]  < BID_MIDPOINT256[(q4 - 59) as usize].w[2])
+               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                && C4.w[1]  < BID_MIDPOINT256[(q4 - 59) as usize].w[1])
+               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
+                && C4.w[0]  < BID_MIDPOINT256[(q4 - 59) as usize].w[0]) { // < 1/2 ulp
                     lt_half_ulp = true;
-                } else if C4.w[3] == bid_midpoint256[(q4 - 59) as usize].w[3]
-                       && C4.w[2] == bid_midpoint256[(q4 - 59) as usize].w[2]
-                       && C4.w[1] == bid_midpoint256[(q4 - 59) as usize].w[1]
-                       && C4.w[0] == bid_midpoint256[(q4 - 59) as usize].w[0] { // = 1/2 ulp
+                } else if C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                       && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                       && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
+                       && C4.w[0] == BID_MIDPOINT256[(q4 - 59) as usize].w[0] { // = 1/2 ulp
                     eq_half_ulp = true;
                 } else { // > 1/2 ulp
                     gt_half_ulp = true;
@@ -2534,16 +2534,16 @@ pub (crate) fn bid128_ext_fma(
                 scale = q3 - delta - q4; // 1 <= scale <= 33
                 P128 = if q4 <= 19 { // 1 <= scale <= 19; C4 fits in 64 bits
                     if scale <= 19 { // 10^scale fits in 64 bits
-                        // 64 x 64 C4.w[0] * bid_ten2k64[scale as usize]
-                        __mul_64x64_to_128MACH(C4.w[0], bid_ten2k64[scale as usize])
+                        // 64 x 64 C4.w[0] * BID_TEN2K64[scale as usize]
+                        __mul_64x64_to_128MACH(C4.w[0], BID_TEN2K64[scale as usize])
                     } else { // 10^scale fits in 128 bits
-                        // 64 x 128 C4.w[0] * bid_ten2k128[(scale - 20) as usize]
-                        __mul_128x64_to_128(C4.w[0], &bid_ten2k128[(scale - 20) as usize])
+                        // 64 x 128 C4.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                        __mul_128x64_to_128(C4.w[0], &BID_TEN2K128[(scale - 20) as usize])
                     }
                 } else { // C4 fits in 128 bits, but 10^scale must fit in 64 bits
-                    // 64 x 128 bid_ten2k64[scale as usize] * C4
+                    // 64 x 128 BID_TEN2K64[scale as usize] * C4
                     let tmp: BID_UINT128 = BID_UINT128 { w: [C4.w[0], C4.w[1]] };
-                    __mul_128x64_to_128(bid_ten2k64[scale as usize], &tmp)
+                    __mul_128x64_to_128(BID_TEN2K64[scale as usize], &tmp)
                 };
                 C4.w[0] = P128.w[0];
                 C4.w[1] = P128.w[1];
@@ -2573,15 +2573,15 @@ pub (crate) fn bid128_ext_fma(
                 res.w[0] = C3.w[0];
             } else if q3 <= 19 { // 1 <= scale <= 19; z fits in 64 bits
                 res = if scale <= 19 { // 10^scale fits in 64 bits
-                    // 64 x 64 C3.w[0] * bid_ten2k64[scale as usize]
-                    __mul_64x64_to_128MACH(C3.w[0], bid_ten2k64[scale as usize])
+                    // 64 x 64 C3.w[0] * BID_TEN2K64[scale as usize]
+                    __mul_64x64_to_128MACH(C3.w[0], BID_TEN2K64[scale as usize])
                 } else { // 10^scale fits in 128 bits
-                    // 64 x 128 C3.w[0] * bid_ten2k128[(scale - 20) as usize]
-                    __mul_128x64_to_128(C3.w[0], &bid_ten2k128[(scale - 20) as usize])
+                    // 64 x 128 C3.w[0] * BID_TEN2K128[(scale - 20) as usize]
+                    __mul_128x64_to_128(C3.w[0], &BID_TEN2K128[(scale - 20) as usize])
                 }
             } else { // z fits in 128 bits, but 10^scale must fit in 64 bits
-                // 64 x 128 bid_ten2k64[scale as usize] * C3
-                res = __mul_128x64_to_128(bid_ten2k64[scale as usize], &C3);
+                // 64 x 128 BID_TEN2K64[scale as usize] * C3
+                res = __mul_128x64_to_128(BID_TEN2K64[scale as usize], &C3);
             }
             // e3 is already calculated
             e3 -= scale;
@@ -2610,7 +2610,7 @@ pub (crate) fn bid128_ext_fma(
                     &mut is_inexact_gt_midpoint);
                 if incr_exp {
                     // R64 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 17
-                    R64 = bid_ten2k64[(q4 - x0) as usize];
+                    R64 = BID_TEN2K64[(q4 - x0) as usize];
                 }
                 R128.w[1] = 0;
                 R128.w[0] = R64;
@@ -2628,11 +2628,11 @@ pub (crate) fn bid128_ext_fma(
                 if incr_exp {
                     // R128 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 1, 1 <= q4 - x0 <= 37
                     if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
-                        R128.w[0] = bid_ten2k64[(q4 - x0) as usize];
+                        R128.w[0] = BID_TEN2K64[(q4 - x0) as usize];
                         // R128.w[1] stays 0
                     } else { // 20 <= q4 - x0 <= 37
-                        R128.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
-                        R128.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                        R128.w[0] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[0];
+                        R128.w[1] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[1];
                     }
                 }
             } else if q4 <= 57 {
@@ -2651,12 +2651,12 @@ pub (crate) fn bid128_ext_fma(
                 if incr_exp {
                     // R192 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 5, 1 <= q4 - x0 <= 52
                     if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
-                        R192.w[0] = bid_ten2k64[(q4 - x0) as usize];
+                        R192.w[0] = BID_TEN2K64[(q4 - x0) as usize];
                         // R192.w[1] stays 0
                         // R192.w[2] stays 0
                     } else { // 20 <= q4 - x0 <= 33
-                        R192.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
-                        R192.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                        R192.w[0] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[0];
+                        R192.w[1] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[1];
                         // R192.w[2] stays 0
                     }
                 }
@@ -2675,13 +2675,13 @@ pub (crate) fn bid128_ext_fma(
                 if incr_exp {
                     // R256 = 10^(q4-x0), 1 <= q4 - x0 <= q4 - 25, 1 <= q4 - x0 <= 43
                     if q4 - x0 <= 19 { // 1 <= q4 - x0 <= 19
-                        R256.w[0] = bid_ten2k64[(q4 - x0) as usize];
+                        R256.w[0] = BID_TEN2K64[(q4 - x0) as usize];
                         // R256.w[1] stays 0
                         // R256.w[2] stays 0
                         // R256.w[3] stays 0
                     } else { // 20 <= q4 - x0 <= 33
-                        R256.w[0] = bid_ten2k128[(q4 - x0 - 20) as usize].w[0];
-                        R256.w[1] = bid_ten2k128[(q4 - x0 - 20) as usize].w[1];
+                        R256.w[0] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[0];
+                        R256.w[1] = BID_TEN2K128[(q4 - x0 - 20) as usize].w[1];
                         // R256.w[2] stays 0
                         // R256.w[3] stays 0
                     }
@@ -2962,19 +2962,19 @@ pub (crate) fn bid128_ext_fma(
                     // determine the number of decimal digits in res
                     if res.w[1] == 0x0 {
                         // between 1 and 19 digits
-                        ind = bid_ten2k64[1..=19]
+                        ind = BID_TEN2K64[1..=19]
                             .iter().enumerate()
                             .take_while(|&(_, x)| R256.w[0] < *x)
                             .count() as i32;
                         ind += 1;
                         // ind digits
-                    } else if res.w[1] < bid_ten2k128[0].w[1]
-                          || (res.w[1] == bid_ten2k128[0].w[1]
-                           && res.w[0] < bid_ten2k128[0].w[0]) {
+                    } else if res.w[1] < BID_TEN2K128[0].w[1]
+                          || (res.w[1] == BID_TEN2K128[0].w[1]
+                           && res.w[0] < BID_TEN2K128[0].w[0]) {
                         // 20 digits
                         ind = 20;
                     } else { // between 21 and 38 digits
-                        ind = bid_ten2k128[1..=18]
+                        ind = BID_TEN2K128[1..=18]
                             .iter().enumerate()
                             .take_while(|&(_, d)|
                                     res.w[1]  < d.w[1] || (res.w[1] == d.w[1] && res.w[0]  < d.w[0])
@@ -3011,7 +3011,7 @@ pub (crate) fn bid128_ext_fma(
 
                         if incr_exp {
                             // R64 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 17
-                            R64 = bid_ten2k64[(ind - x0) as usize];
+                            R64 = BID_TEN2K64[(ind - x0) as usize];
                         }
                         res.w[1] = 0;
                         res.w[0] = R64;
@@ -3029,11 +3029,11 @@ pub (crate) fn bid128_ext_fma(
                         if incr_exp {
                             // R128 = 10^(ind-x0), 1 <= ind - x0 <= ind - 1, 1 <= ind - x0 <= 37
                             if ind - x0 <= 19 { // 1 <= ind - x0 <= 19
-                                res.w[0] = bid_ten2k64[(ind - x0) as usize];
+                                res.w[0] = BID_TEN2K64[(ind - x0) as usize];
                                 // res.w[1] stays 0
                             } else { // 20 <= ind - x0 <= 37
-                                res.w[0] = bid_ten2k128[(ind - x0 - 20) as usize].w[0];
-                                res.w[1] = bid_ten2k128[(ind - x0 - 20) as usize].w[1];
+                                res.w[0] = BID_TEN2K128[(ind - x0 - 20) as usize].w[0];
+                                res.w[1] = BID_TEN2K128[(ind - x0 - 20) as usize].w[1];
                             }
                         }
                     }
@@ -3256,7 +3256,7 @@ pub (crate) fn bid128_ext_fma(
                             is_inexact_gt_midpoint = true;
                         } else { // if (delta == p34 + 1)
                             if q3 <= 19 {
-                                match bid_midpoint64[(q3 - 1) as usize] {
+                                match BID_MIDPOINT64[(q3 - 1) as usize] {
                                     value if C3.w[0] < value => { // C3 < 1/2 ulp
                                         // res = 10^33, unchanged
                                         is_inexact_gt_midpoint = true;
@@ -3265,7 +3265,7 @@ pub (crate) fn bid128_ext_fma(
                                         // res = 10^33, unchanged
                                         is_midpoint_lt_even = true;
                                     },
-                                    _ => { // if (C3.w[0] > bid_midpoint64[q3-1]), C3 > 1/2 ulp
+                                    _ => { // if (C3.w[0] > BID_MIDPOINT64[q3-1]), C3 > 1/2 ulp
                                         res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
                                         res.w[0] = 0x378d8e63ffffffffu64;
                                         e4      -= 1;
@@ -3273,16 +3273,16 @@ pub (crate) fn bid128_ext_fma(
                                     }
                                 }
                             } else { // if (20 <= q3 <=34)
-                                if  C3.w[1]  < bid_midpoint128[(q3 - 20) as usize].w[1]
-                                || (C3.w[1] == bid_midpoint128[(q3 - 20) as usize].w[1]
-                                 && C3.w[0]  < bid_midpoint128[(q3 - 20) as usize].w[0]) { // C3 < 1/2 ulp
+                                if  C3.w[1]  < BID_MIDPOINT128[(q3 - 20) as usize].w[1]
+                                || (C3.w[1] == BID_MIDPOINT128[(q3 - 20) as usize].w[1]
+                                 && C3.w[0]  < BID_MIDPOINT128[(q3 - 20) as usize].w[0]) { // C3 < 1/2 ulp
                                     // res = 10^33, unchanged
                                     is_inexact_gt_midpoint = true;
-                                } else if C3.w[1] == bid_midpoint128[(q3 - 20) as usize].w[1]
-                                       && C3.w[0] == bid_midpoint128[(q3 - 20) as usize].w[0] { // C3 = 1/2 ulp
+                                } else if C3.w[1] == BID_MIDPOINT128[(q3 - 20) as usize].w[1]
+                                       && C3.w[0] == BID_MIDPOINT128[(q3 - 20) as usize].w[0] { // C3 = 1/2 ulp
                                     // res = 10^33, unchanged
                                     is_midpoint_lt_even = true;
-                                } else { // if (C3 > bid_midpoint128[q3-20]), C3 > 1/2 ulp
+                                } else { // if (C3 > BID_MIDPOINT128[q3-20]), C3 > 1/2 ulp
                                     res.w[1] = 0x0001ed09bead87c0u64; // 10^34 - 1
                                     res.w[0] = 0x378d8e63ffffffffu64;
                                     e4      -= 1;
@@ -3434,7 +3434,7 @@ pub (crate) fn bid128_ext_fma(
                 // 64 x 128 -> 128
                 P128.w[1] = C3.w[1];
                 P128.w[0] = C3.w[0];
-                C3        = __mul_64x128_to_128(bid_ten2k64[1], &P128);
+                C3        = __mul_64x128_to_128(BID_TEN2K64[1], &P128);
             }
             e3 += x0; // this is e4
             // now add/subtract the 256-bit C4 and the new (and shorter) 128-bit C3;
@@ -3718,7 +3718,7 @@ pub (crate) fn bid128_ext_fma(
                         R128.w[1] = res.w[1] & MASK_COEFF;
                         R128.w[0] = res.w[0];
                         if ind <= 19 {
-                            match bid_midpoint64[(ind - 1) as usize] {
+                            match BID_MIDPOINT64[(ind - 1) as usize] {
                                 value if R128.w[0] < value => { // < 1/2 ulp
                                     lt_half_ulp            = true;
                                     is_inexact_lt_midpoint = true;
@@ -3733,13 +3733,13 @@ pub (crate) fn bid128_ext_fma(
                                 }
                             }
                         } else { // if (ind <= 38)
-                            if  R128.w[1]  < bid_midpoint128[(ind - 20) as usize].w[1]
-                            || (R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                            &&  R128.w[0]  < bid_midpoint128[(ind - 20) as usize].w[0]) {      // < 1/2 ulp
+                            if  R128.w[1]  < BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                            || (R128.w[1] == BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                            &&  R128.w[0]  < BID_MIDPOINT128[(ind - 20) as usize].w[0]) {      // < 1/2 ulp
                                 lt_half_ulp            = true;
                                 is_inexact_lt_midpoint = true;
-                            } else if R128.w[1] == bid_midpoint128[(ind - 20) as usize].w[1]
-                                   && R128.w[0] == bid_midpoint128[(ind - 20) as usize].w[0] { // = 1/2 ulp
+                            } else if R128.w[1] == BID_MIDPOINT128[(ind - 20) as usize].w[1]
+                                   && R128.w[0] == BID_MIDPOINT128[(ind - 20) as usize].w[0] { // = 1/2 ulp
                                 eq_half_ulp         = true;
                                 is_midpoint_gt_even = true;
                             } else { // > 1/2 ulp
@@ -3790,7 +3790,7 @@ pub (crate) fn bid128_ext_fma(
                             // 64 x 128 -> 128
                             P128.w[1] = res.w[1] & MASK_COEFF;
                             P128.w[0] = res.w[0];
-                            res = __mul_64x128_to_128(bid_ten2k64[1], &P128);
+                            res = __mul_64x128_to_128(BID_TEN2K64[1], &P128);
                         }
                         res.w[1] = p_sign | (((e4 + 6176) as BID_UINT64) << 49) | (res.w[1] & MASK_COEFF);
                         // avoid a double rounding error
@@ -4232,12 +4232,12 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
             nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
-    q = bid_nr_digits[(nr_bits - 1) as usize].digits as i32;
+    q = BID_NR_DIGITS[(nr_bits - 1) as usize].digits as i32;
     if q == 0 {
-        q = bid_nr_digits[(nr_bits - 1) as usize].digits1 as i32;
-        if C.w[1]  > bid_nr_digits[(nr_bits - 1) as usize].threshold_hi
-       || (C.w[1] == bid_nr_digits[(nr_bits - 1) as usize].threshold_hi
-        && C.w[0] >= bid_nr_digits[(nr_bits - 1) as usize].threshold_lo) {
+        q = BID_NR_DIGITS[(nr_bits - 1) as usize].digits1 as i32;
+        if C.w[1]  > BID_NR_DIGITS[(nr_bits - 1) as usize].threshold_hi
+       || (C.w[1] == BID_NR_DIGITS[(nr_bits - 1) as usize].threshold_hi
+        && C.w[0] >= BID_NR_DIGITS[(nr_bits - 1) as usize].threshold_lo) {
             q += 1;
         }
     }
@@ -4319,7 +4319,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
         // not overflow; the result must be exact, and we can multiply res1 by
         // 10^(unbexp - EXP_MAX16_UNBIASED) and the product will fit in 16 decimal digits
         scale  = unbexp - EXP_MAX16_UNBIASED;
-        res1  *= bid_ten2k64[scale as usize];   // res1 * 10^scale
+        res1  *= BID_TEN2K64[scale as usize];   // res1 * 10^scale
         unbexp = EXP_MAX16_UNBIASED;                      // unbexp - scale
     } else {
         // continue
@@ -4348,7 +4348,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                         &mut is_inexact_lt_midpoint, &mut is_inexact_gt_midpoint);
                     if incr_exp {
                         // res1 = 10^(q-x0), 1 <= q - x0 <= q - 1, 1 <= q - x0 <= 15
-                        res1 = bid_ten2k64[(q - x0) as usize];
+                        res1 = BID_TEN2K64[(q - x0) as usize];
                     }
                     unbexp += x0; // EXP_MIN16_UNBIASED
                 },
@@ -4356,7 +4356,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
                     // the second rounding is for 0.d(0)d(1)...d(q-1) * 10^emin
                     // determine relationship with 1/2 ulp
                     // q <= 16
-                    match bid_midpoint64[(q - 1) as usize] {
+                    match BID_MIDPOINT64[(q - 1) as usize] {
                         value if res1 < value => {  // < 1/2 ulp
                             lt_half_ulp            = true;
                             is_inexact_lt_midpoint = true;

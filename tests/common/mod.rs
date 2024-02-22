@@ -141,10 +141,12 @@ macro_rules! dec_test {
     ($name:ident, bid128_frexp, $rnd_mode:expr, $input1:expr, $input2:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {
-            let dec1      = decmathlib_rs::d128::d128::from($input1);
-            let exp       = decmathlib_rs::d128::d128::from($exp);
-            let (res1, _) = decmathlib_rs::d128::d128::frexp(&dec1, $input2);
+            let dec1         = decmathlib_rs::d128::d128::from($input1);
+            let exp_exp      = $input2;
+            let exp          = decmathlib_rs::d128::d128::from($exp);
+            let (res1, rexp) = decmathlib_rs::d128::d128::frexp(&dec1);
 
+            assert_eq!(exp_exp, rexp);
             assert_eq!(exp, res1);
         }
     };

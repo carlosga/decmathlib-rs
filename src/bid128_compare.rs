@@ -10,7 +10,7 @@
 #![allow(unused_assignments)]
 #![allow(dead_code)]
 
-use crate::bid128::{bid_ten2k128, bid_ten2k64};
+use crate::bid128::{BID_TEN2K128, BID_TEN2K64};
 use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, swap};
 use crate::constants::{MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN};
 use crate::core::StatusFlags;
@@ -131,7 +131,7 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
 
     if exp_y - exp_x > 19 {
         // recalculate y's significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(exp_y - exp_x - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(exp_y - exp_x - 20) as usize]);
         {
             res =  (sig_n_prime256.w[3] == 0)
                 && (sig_n_prime256.w[2] == 0)
@@ -142,7 +142,7 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     }
     // else{
     //  recalculate y's significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[(exp_y - exp_x) as usize], &sig_y);
 
     res =  (sig_n_prime192.w[2] == 0)
         && (sig_n_prime192.w[1] == sig_x.w[1])
@@ -301,7 +301,7 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -322,7 +322,7 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -349,7 +349,7 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -371,7 +371,7 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to_192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -533,7 +533,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -554,7 +554,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -581,7 +581,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -603,7 +603,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -768,7 +768,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -789,7 +789,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -816,7 +816,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -838,7 +838,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1001,7 +1001,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -1022,7 +1022,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1049,7 +1049,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1071,7 +1071,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1235,7 +1235,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -1256,7 +1256,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1283,7 +1283,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1305,7 +1305,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192= __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192= __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1467,7 +1467,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
         } // difference cannot be greater than 10^33
 
         if diff > 19 { // 128 by 128 bit multiply -> 256 bits
-            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &bid_ten2k128[(diff - 20) as usize]);
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
@@ -1488,7 +1488,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
             }
         }
         // else { //128 by 64 bit multiply -> 192 bits
-        sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_x);
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1515,7 +1515,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
 
     if diff > 19 { // 128 by 128 bit multiply -> 256 bits
         // adjust the y significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(diff - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1537,7 +1537,7 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
     }
     // else { //128 by 64 bit multiply -> 192 bits
     //  adjust the y significand upwards
-    sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[diff as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1672,7 +1672,7 @@ pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
 
     if exp_y - exp_x > 19 {
         // recalculate y's significand upwards
-        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &bid_ten2k128[(exp_y - exp_x - 20) as usize]);
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(exp_y - exp_x - 20) as usize]);
         {
             res = (sig_n_prime256.w[3] != 0)
                 || (sig_n_prime256.w[2] != 0)
@@ -1683,7 +1683,7 @@ pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
     }
     // else{
     //  recalculate y's significand upwards
-    sig_n_prime192 = __mul_64x128_to192(bid_ten2k64[(exp_y - exp_x) as usize], &sig_y);
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[(exp_y - exp_x) as usize], &sig_y);
     {
         res = (sig_n_prime192.w[2] != 0) || (sig_n_prime192.w[1] != sig_x.w[1]) || (sig_n_prime192.w[0] != sig_x.w[0]);
         res
@@ -1834,7 +1834,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -1851,7 +1851,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1877,7 +1877,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -1895,7 +1895,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -2057,7 +2057,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -2074,7 +2074,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2100,7 +2100,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2118,7 +2118,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -2321,7 +2321,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -2338,7 +2338,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to_192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to_192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2364,7 +2364,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2382,7 +2382,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to_192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to_192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -2541,7 +2541,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -2558,7 +2558,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2584,7 +2584,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2602,7 +2602,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -2759,7 +2759,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -2776,7 +2776,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2802,7 +2802,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -2820,7 +2820,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -2979,7 +2979,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -2996,7 +2996,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3022,7 +3022,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3040,7 +3040,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -3197,7 +3197,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -3214,7 +3214,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3240,7 +3240,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3258,7 +3258,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -3416,7 +3416,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -3433,7 +3433,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3459,7 +3459,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3477,7 +3477,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger (converse if negative)
 if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0])) {
@@ -3633,7 +3633,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -3650,7 +3650,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3676,7 +3676,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3694,7 +3694,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger
 // (converse if negative)
@@ -3854,7 +3854,7 @@ if (diff > 0) { // to simplify the loop below,
     } // difference cannot be greater than 10^33
 
     if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, bid_ten2k128[(diff - 20) as usize]);
+        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
@@ -3871,7 +3871,7 @@ if (diff > 0) { // to simplify the loop below,
         }
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_x);
+    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3897,7 +3897,7 @@ if (diff > 33) {
 
 if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
     // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, bid_ten2k128[(diff - 20) as usize]);
+    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
@@ -3915,7 +3915,7 @@ if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
 }
 // else { //128 by 64 bit multiply -> 192 bits
 //  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, bid_ten2k64[diff as usize], sig_y);
+__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
 
 // if postitive, return whichever significand is larger (converse if negative)
 if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0])) {

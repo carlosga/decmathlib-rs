@@ -7,11 +7,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_upper_case_globals)]
-
 use crate::d128::{BID_UINT128, BID_UINT64};
 
-pub (crate) const bid_round_const_table: [[u64; 19]; 5] = [
+pub (crate) const BID_ROUND_CONST_TABLE: [[u64; 19]; 5] = [
     [	// RN
         0u64,	// 0 extra digits
         5u64,	// 1 extra digits
@@ -119,7 +117,7 @@ pub (crate) const bid_round_const_table: [[u64; 19]; 5] = [
     ]
 ];
 
-pub (crate) const bid_round_const_table_128: [[BID_UINT128; 36]; 5] = [
+pub (crate) const BID_ROUND_CONST_TABLE_128: [[BID_UINT128; 36]; 5] = [
     [	//RN
         BID_UINT128 { w: [0u64, 0u64] },// 0 extra digits
         BID_UINT128 { w: [5u64, 0u64] }, // 1 extra digits
@@ -312,7 +310,7 @@ pub (crate) const bid_round_const_table_128: [[BID_UINT128; 36]; 5] = [
     ]
 ];
 
-pub (crate) const bid_reciprocals10_128: [BID_UINT128; 36] = [
+pub (crate) const BID_RECIPROCALS10_128: [BID_UINT128; 36] = [
     BID_UINT128{ w: [0u64, 0u64] },	                                    // 0 extra digits
     BID_UINT128{ w: [0x3333333333333334u64, 0x3333333333333333u64] },	// 1 extra digit
     BID_UINT128{ w: [0x51eb851eb851eb86u64, 0x051eb851eb851eb8u64] },	// 2 extra digits
@@ -351,7 +349,7 @@ pub (crate) const bid_reciprocals10_128: [BID_UINT128; 36] = [
     BID_UINT128{ w: [0x0f2abc9d8c9689d1u64, 0x01a95a5b7f87a0efu64] },	// 35 extra digits
 ];
 
-pub(crate) const bid_power10_table_128: [BID_UINT128; 39] = [
+pub(crate) const BID_POWER10_TABLE_128: [BID_UINT128; 39] = [
     BID_UINT128 { w: [0x0000000000000001u64, 0x0000000000000000u64] },	// 10^0
     BID_UINT128 { w: [0x000000000000000au64, 0x0000000000000000u64] },	// 10^1
     BID_UINT128 { w: [0x0000000000000064u64, 0x0000000000000000u64] },	// 10^2
@@ -393,7 +391,7 @@ pub(crate) const bid_power10_table_128: [BID_UINT128; 39] = [
     BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] },	// 10^38
 ];
 
-pub (crate) const bid_recip_scale: [i32; 36] = [
+pub (crate) const BID_RECIP_SCALE: [i32; 36] = [
     129 - 128,	// 1
     129 - 128,	// 1/10
     129 - 128,	// 1/10^2
@@ -434,7 +432,7 @@ pub (crate) const bid_recip_scale: [i32; 36] = [
 ];
 
 /// tables used in computation
-pub (crate) const bid_estimate_decimal_digits: [i32; 129] = [
+pub (crate) const BID_ESTIMATE_DECIMAL_DIGITS: [i32; 129] = [
     1,	//2^0 =1     < 10^0
     1,	//2^1 =2     < 10^1
     1,	//2^2 =4     < 10^1
@@ -572,7 +570,7 @@ pub (crate) const bid_estimate_decimal_digits: [i32; 129] = [
     39	// 2^128
 ];
 
-pub (crate) const bid_power10_index_binexp_128: [BID_UINT128; 125] = [
+pub (crate) const BID_POWER10_INDEX_BINEXP_128: [BID_UINT128; 125] = [
     BID_UINT128 { w: [0x000000000000000au64, 0x0000000000000000u64] },
     BID_UINT128 { w: [0x000000000000000au64, 0x0000000000000000u64] },
     BID_UINT128 { w: [0x000000000000000au64, 0x0000000000000000u64] },
@@ -700,7 +698,7 @@ pub (crate) const bid_power10_index_binexp_128: [BID_UINT128; 125] = [
     BID_UINT128 { w: [0x098a224000000000u64, 0x4b3b4ca85a86c47au64] },	// 10^38
 ];
 
-pub (crate) const bid_short_recip_scale: [i32; 18] = [
+pub (crate) const BID_SHORT_RECIP_SCALE: [i32; 18] = [
     1,
     65 - 64,
     69 - 64,
@@ -722,7 +720,7 @@ pub (crate) const bid_short_recip_scale: [i32; 18] = [
 ];
 
 
-pub (crate) const bid_reciprocals10_64: [BID_UINT64; 18] = [
+pub (crate) const BID_RECIPROCALS10_64: [BID_UINT64; 18] = [
     1u64,	                // dummy value for 0 extra digits
     0x3333333333333334u64,	// 1 extra digit
     0x51eb851eb851eb86u64,

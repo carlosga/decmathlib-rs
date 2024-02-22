@@ -7,10 +7,8 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_upper_case_globals)]
-
-/// bid_convert_table[j][k][i] = digit i (base 10^8) of k*2^(26+7*j)
-pub (crate) const bid_convert_table: [[[u32;2]; 128]; 5] = [
+/// BID_CONVERT_TABLE[j][k][i] = digit i (base 10^8) of k*2^(26+7*j)
+pub (crate) const BID_CONVERT_TABLE: [[[u32;2]; 128]; 5] = [
   [[0, 0]
    , [67108864, 0]
    , [34217728, 1]
@@ -796,11 +794,11 @@ pub (crate) const bid_convert_table: [[[u32;2]; 128]; 5] = [
    ]
 ];
 
-// for j>=min_j[i+1], there is k s.t. bid_convert_table[i][j][k]>0
+// for j>=min_j[i+1], there is k s.t. BID_CONVERT_TABLE[i][j][k]>0
 // int min_j[] = { 0, 0, 0, 3 };
 
-// for even k, ((bid_packed_10000_zeros[k>>3])>>(k&7))&3)=greatest(i) s.t. 10^i divides k
-pub (crate) const bid_packed_10000_zeros: [u8; 1250] = [
+// for even k, ((BID_PACKED_10000_ZEROS[k>>3])>>(k&7))&3)=greatest(i) s.t. 10^i divides k
+pub (crate) const BID_PACKED_10000_ZEROS: [u8; 1250] = [
   0x3, 0x4, 0x10, 0x40, 0x0, 0x1, 0x4, 0x10, 0x40, 0x0, 0x1, 0x4, 0x20, 0x40, 0x0, 0x1,
   0x4, 0x10, 0x40, 0x0, 0x1, 0x4, 0x10, 0x40, 0x0, 0x2, 0x4, 0x10, 0x40,
   0x0, 0x1, 0x4,
@@ -959,7 +957,7 @@ pub (crate) const bid_packed_10000_zeros: [u8; 1250] = [
   0x40, 0x0,
 ];
 
-pub (crate) const bid_factors: [[i32; 2]; 1024] = [
+pub (crate) const BID_FACTORS: [[i32; 2]; 1024] = [
   [0, 0],
   [1, 0],
   [0, 0],
