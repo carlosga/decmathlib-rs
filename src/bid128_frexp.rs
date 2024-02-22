@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid128::BID_NR_DIGITS;
 use crate::constants::{ MASK_COEFF, MASK_EXP, MASK_EXP2, MASK_SNAN, MASK_SPECIAL };
 use crate::d128::{ BID_UI64DOUBLE, BID_UINT128, BID_UINT64};

@@ -7,12 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
-/*
- Exceptions signaled: invalid
- */
-
 use crate::constants::{MASK_SPECIAL, MASK_STEERING_BITS};
 use crate::core::StatusFlags;
 use crate::d128::{_IDEC_flags, BID_UINT128};

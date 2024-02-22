@@ -6,9 +6,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 
 use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128, BID_POWER10_TABLE_128};
 use crate::bid_div_macros::bid___div_128_by_128;
@@ -29,14 +27,14 @@ use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT2
 
 /// Decimal floating-point remainder
 pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut P256: BID_UINT256 = BID_UINT256::default();
+    let P256: BID_UINT256;
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut CY: BID_UINT128 = BID_UINT128::default();
     let mut CX2: BID_UINT128 = BID_UINT128::default();
     let mut CQ: BID_UINT128 = BID_UINT128::default();
-    let mut CR: BID_UINT128 = BID_UINT128::default();
+    let mut CR: BID_UINT128;
     let mut T: &BID_UINT128;
-    let mut CXS: BID_UINT128 = BID_UINT128::default();
+    let mut CXS: BID_UINT128;
     let mut P128: BID_UINT128 = BID_UINT128::default();
     let mut res: BID_UINT128 = BID_UINT128::default();
     let mut sign_x: BID_UINT64 = 0;
@@ -46,12 +44,10 @@ pub (crate) fn bid128_rem(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_fl
     let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
     let mut exponent_x: i32 = 0;
     let mut exponent_y: i32 = 0;
-    let mut diff_expon: i32 = 0;
-    let mut bin_expon_cx: i32 = 0;
-    let mut scale: i32 = 0;
-    let mut scale0: i32 = 0;
-
-    // BID_OPT_SAVE_BINARY_FLAGS()
+    let mut diff_expon: i32;
+    let mut bin_expon_cx: i32;
+    let mut scale: i32;
+    let mut scale0: i32;
 
     // unpack arguments, check for NaN or Infinity
 

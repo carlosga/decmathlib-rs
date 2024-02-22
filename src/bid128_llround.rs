@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid128_to_int64::bid128_to_int64_rninta;
 use crate::d128::{_IDEC_flags, BID_UINT128};
 
