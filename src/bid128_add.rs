@@ -18,10 +18,8 @@ use crate::bid128::*;
 use crate::bid128_fma::bid64qqq_fma;
 use crate::bid64_to_bid128::bid64_to_bid128;
 use crate::bid_conf::BID_HIGH_128W;
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
-use crate::constants::*;
-use crate::d128::StatusFlags;
-use crate::d128::{_IDEC_flags, RoundingMode};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, EXP_MAX_P1, EXP_P1, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34};
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /////////////////////////////////////
 /// BID64/BID128 add

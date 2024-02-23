@@ -7,8 +7,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-use crate::bid_internal::BID_UINT64;
-use crate::constants::{MASK_ANY_INF, MASK_INF, MASK_STEERING_BITS, NAN_MASK64, QUIET_MASK64};
+use crate::bid_internal::{BID_UINT64, MASK_ANY_INF, MASK_INF, MASK_STEERING_BITS, NAN_MASK64, QUIET_MASK64};
 use crate::bid_internal::BID_UINT128;
 
 /// The quantumdN functions compute the quantum of a finite argument.

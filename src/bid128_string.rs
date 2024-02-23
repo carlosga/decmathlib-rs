@@ -17,8 +17,7 @@
 use crate::bid128::{BID_CHAR_TABLE2, BID_CHAR_TABLE3};
 use crate::bid128_2_str_macros::*;
 use crate::bid128_2_str_tables::MOD10_18_TBL;
-use crate::bid_internal::{__mul_64x64_to_128_fast, __set_status_flags, bid_get_BID128, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
-use crate::constants::{DECIMAL_EXPONENT_BIAS_128, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
+use crate::bid_internal::{__mul_64x64_to_128_fast, __set_status_flags, bid_get_BID128, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64, DECIMAL_EXPONENT_BIAS_128, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
 use crate::d128::StatusFlags;
 use crate::d128::{_IDEC_flags,  RoundingMode};
 

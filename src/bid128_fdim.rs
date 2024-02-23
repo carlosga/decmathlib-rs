@@ -10,8 +10,7 @@
 use crate::bid128_add::bid128_sub;
 use crate::bid128_compare::bid128_quiet_greater;
 use crate::bid_conf::BID_HIGH_128W;
-use crate::bid_internal::BID_UINT128;
-use crate::constants::MASK_NAN;
+use crate::bid_internal::{MASK_NAN, BID_UINT128};
 use crate::d128::_IDEC_flags;
 
 /// fdim returns x - y if x > y, and +0 is x <= y

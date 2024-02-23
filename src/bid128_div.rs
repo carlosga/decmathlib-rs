@@ -13,10 +13,7 @@ use crate::bid_convert_data::{BID_CONVERT_TABLE, BID_FACTORS, BID_PACKED_10000_Z
 use crate::bid_decimal_data::*;
 use crate::bid_div_macros::{bid___div_128_by_128, bid___div_256_by_128};
 use crate::bid_internal::*;
-use crate::bid_internal::{BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT32, BID_UINT64};
-use crate::constants::{DECIMAL_EXPONENT_BIAS_128, DECIMAL_MAX_EXPON_128, QUIET_MASK64};
-use crate::d128::StatusFlags;
-use crate::d128::{_IDEC_flags,  RoundingMode};
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Decimal floating-point division
 pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

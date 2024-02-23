@@ -14,8 +14,6 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid_decimal_data::*;
 use crate::bid_internal::*;
-use crate::bid_internal::BID_UINT128;
-use crate::constants::*;
 use crate::d128::StatusFlags;
 use crate::d128::{_IDEC_flags,  RoundingMode};
 

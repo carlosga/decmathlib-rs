@@ -55,7 +55,6 @@ mod bid_from_int;
 mod bid_internal;
 mod bid_round;
 mod bid_sqrt_macros;
-mod constants;
 pub mod d64;
 pub mod d128;
 

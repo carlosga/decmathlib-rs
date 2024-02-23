@@ -9,8 +9,7 @@
 
 #![allow(overflowing_literals)]
 
-use crate::bid_internal::BID_UINT128;
-use crate::constants::{MASK_SPECIAL, MASK_STEERING_BITS};
+use crate::bid_internal::{BID_UINT128, MASK_SPECIAL, MASK_STEERING_BITS};
 use crate::d128::StatusFlags;
 use crate::d128::_IDEC_flags;
 
