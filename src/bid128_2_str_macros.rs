@@ -8,10 +8,9 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 
 use crate::bid128_2_str_tables::*;
-use crate::d128::{BID_UINT32, BID_UINT64};
+use crate::bid_internal::{BID_UINT32, BID_UINT64};
 
 pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
     let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + BID_TWOTO60_M_10TO18;

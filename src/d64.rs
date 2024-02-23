@@ -7,7 +7,7 @@
 
 #![allow(non_camel_case_types)]
 
-use crate::d128::BID_UINT64;
+use crate::bid_internal::BID_UINT64;
 
 #[derive(Copy, Clone, Debug, Default)]
 #[repr(transparent)]

@@ -7,7 +7,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-use crate::d128::{BID_UINT128, BID_UINT64};
+use crate::bid_internal::{BID_UINT64, BID_UINT128};
 
 pub (crate) const BID_ROUND_CONST_TABLE: [[u64; 19]; 5] = [
     [	// RN

@@ -7,6 +7,7 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
+#![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_assignments)]
@@ -14,8 +15,75 @@
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_decimal_data::{BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE, BID_ROUND_CONST_TABLE_128};
 use crate::constants::*;
-use crate::core::{RoundingMode, StatusFlags};
-use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT32, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::d128::{_IDEC_flags, RoundingMode, StatusFlags};
+
+pub (crate) type BID_UINT32 = u32;
+
+pub (crate) type BID_SINT64 = i64;
+
+pub (crate) type BID_UINT64 = u64;
+
+pub (crate) type BID_UINT128 = crate::d128::d128;
+
+#[derive(Debug, Copy, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT192 {
+    pub (crate) w: [BID_UINT64; 3]
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT256 {
+    pub (crate) w: [BID_UINT64; 4]
+}
+
+#[derive(Debug, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT384 {
+    pub (crate) w: [BID_UINT64; 6]
+}
+
+#[derive(Debug, Clone, Default)]
+#[repr(align(16))]
+pub (crate) struct BID_UINT512 {
+    pub (crate) w: [BID_UINT64; 8]
+}
+
+#[derive(Debug, Clone)]
+pub (crate) struct DEC_DIGITS {
+    pub (crate) digits: u32,
+    pub (crate) threshold_hi: BID_UINT64,
+    pub (crate) threshold_lo: BID_UINT64,
+    pub (crate) digits1: u32
+}
+
+pub (crate) union BID_UI32FLOAT {
+    pub (crate) i: BID_UINT32,
+    pub (crate) d: f32
+}
+
+impl Default for BID_UI32FLOAT {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            i: 0
+        }
+    }
+}
+
+pub (crate) union BID_UI64DOUBLE {
+    pub (crate) i: BID_UINT64,
+    pub (crate) d: f64
+}
+
+impl Default for BID_UI64DOUBLE {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            i: 0
+        }
+    }
+}
 
 #[inline]
 pub (crate) fn swap<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {

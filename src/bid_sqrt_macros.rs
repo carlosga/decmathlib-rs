@@ -10,7 +10,6 @@
 #![allow(non_snake_case)]
 
 use crate::bid_internal::*;
-use crate::d128::{BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT512, BID_UINT64};
 
 pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
     let mut ARS: BID_UINT256;

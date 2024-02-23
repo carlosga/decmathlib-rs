@@ -7,9 +7,10 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
+use crate::bid_internal::BID_UINT128;
 use crate::constants::{MASK_SPECIAL, MASK_STEERING_BITS};
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_UINT128};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// The bid128_llquantexp() functions return the quantum exponent of x.
 pub (crate) fn bid128_llquantexp(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> i64 {

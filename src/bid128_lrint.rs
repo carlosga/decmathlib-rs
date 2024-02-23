@@ -8,8 +8,9 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 use crate::bid128_to_int64::{bid128_to_int64_xceil, bid128_to_int64_xfloor, bid128_to_int64_xint, bid128_to_int64_xrnint, bid128_to_int64_xrninta};
-use crate::core::RoundingMode;
-use crate::d128::{_IDEC_flags, BID_UINT128};
+use crate::bid_internal::BID_UINT128;
+use crate::d128::RoundingMode;
+use crate::d128::_IDEC_flags;
 
 /// DESCRIPTION:
 ///   The lrint function rounds its argument to the nearest integer value of

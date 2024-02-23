@@ -8,6 +8,7 @@
 #![allow(clippy::needless_late_init)]
 #![allow(clippy::redundant_guards)]
 
+mod bid64_to_bid128;
 mod bid128;
 mod bid128_2_str_tables;
 mod bid128_2_str_macros;
@@ -55,8 +56,6 @@ mod bid_internal;
 mod bid_round;
 mod bid_sqrt_macros;
 mod constants;
-mod convert;
-pub mod core;
 pub mod d64;
 pub mod d128;
 

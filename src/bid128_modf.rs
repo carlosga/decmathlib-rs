@@ -10,8 +10,9 @@
 use crate::bid128_add::bid128_sub;
 use crate::bid128_round_integral::bid128_round_integral_zero;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::core::RoundingMode;
-use crate::d128::{_IDEC_flags, BID_UINT128};
+use crate::bid_internal::BID_UINT128;
+use crate::d128::RoundingMode;
+use crate::d128::_IDEC_flags;
 
 /// Decomposes given decimal floating point value num into integral and fractional parts.
 pub (crate) fn bid128_modf(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> (BID_UINT128, BID_UINT128) {

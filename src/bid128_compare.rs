@@ -11,10 +11,10 @@
 #![allow(dead_code)]
 
 use crate::bid128::{BID_TEN2K128, BID_TEN2K64};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, swap};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to192, __mul_64x128_to_192, BID_UINT128, BID_UINT192, BID_UINT256, swap};
 use crate::constants::{MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN};
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Compare 128-bit decimal floating-point numbers for specified relation;
 /// do not signal invalid exception for quiet NaNs

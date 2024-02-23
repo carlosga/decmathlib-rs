@@ -11,10 +11,10 @@
 #![allow(overflowing_literals)]
 
 use crate::bid128::*;
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
 use crate::constants::{MASK_COEFF, MASK_EXP, MASK_SIGN, MASK_SPECIAL};
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Convert 128-bit decimal floating-point value to 64-bit unsigned
 /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled

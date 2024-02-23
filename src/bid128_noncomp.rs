@@ -38,10 +38,10 @@ use crate::bid_conf::BID_SWAP128;
 use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_string::bid128_from_string;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
 use crate::constants::*;
-use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE};
-use crate::d128::{_IDEC_flags, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64};
+use crate::d128::DEFAULT_ROUNDING_MODE;
+use crate::d128::{_IDEC_flags, ClassTypes};
 
 /// Return true if and only if x has negative sign
 pub (crate) fn bid128_is_signed(x: &BID_UINT128) -> bool {

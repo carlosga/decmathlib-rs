@@ -7,8 +7,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-use crate::bid128_to_int64::{bid128_to_int64_rninta};
-use crate::d128::{_IDEC_flags, BID_UINT128};
+use crate::bid128_to_int64::bid128_to_int64_rninta;
+use crate::bid_internal::BID_UINT128;
+use crate::d128::_IDEC_flags;
 
 ///  DESCRIPTION:
 ///    The lround function rounds its argument to the nearest integer value of

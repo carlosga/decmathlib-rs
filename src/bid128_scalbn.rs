@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 #![allow(overflowing_literals)]
 
-use crate::bid_internal::{__add_128_128, __set_status_flags, bid_get_BID128, bid_get_BID128_very_fast, unpack_BID128_value};
+use crate::bid_internal::{__add_128_128, __set_status_flags, bid_get_BID128, bid_get_BID128_very_fast, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64, unpack_BID128_value};
 use crate::constants::{DECIMAL_MAX_EXPON_128, QUIET_MASK64, SNAN_MASK64};
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Returns x * 10^N
 pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

@@ -94,8 +94,7 @@
  ****************************************************************************/
 
 use crate::bid128::*;
-use crate::bid_internal::{__mul_128x128_to_256, __mul_192x192_to_384, __mul_256x256_to_512, __mul_64x64_to_128MACH};
-use crate::d128::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT384, BID_UINT512, BID_UINT64};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_192x192_to_384, __mul_256x256_to_512, __mul_64x64_to_128MACH, BID_UINT192, BID_UINT128, BID_UINT256, BID_UINT384, BID_UINT512, BID_UINT64};
 
 pub (crate) fn bid_round64_2_18(
     q: i32,

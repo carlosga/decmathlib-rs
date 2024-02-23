@@ -8,16 +8,16 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid_decimal_data::*;
 use crate::bid_internal::*;
+use crate::bid_internal::BID_UINT128;
 use crate::constants::*;
-use crate::core::{RoundingMode, StatusFlags};
-use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::{_IDEC_flags,  RoundingMode};
 
 /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
@@ -32,8 +32,7 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
             __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
         }
         res.w[0] = coefficient_x & 0x0003ffffffffffffu64;
-        let cx = res.w[0];
-        res = __mul_64x64_to_128(cx, BID_POWER10_TABLE_128[18].w[0]);
+        res = __mul_64x64_to_128(res.w[0], BID_POWER10_TABLE_128[18].w[0]);
         res.w[1] |= (coefficient_x) & 0xfc00000000000000u64;
         return res;
     }

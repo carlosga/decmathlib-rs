@@ -10,7 +10,6 @@
 #![allow(non_snake_case)]
 
 use crate::bid_internal::*;
-use crate::d128::{BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64};
 
 pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID_UINT128, BID_UINT128){
     let mut CY36: BID_UINT128 = BID_UINT128::default();

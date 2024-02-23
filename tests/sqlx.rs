@@ -48,7 +48,7 @@ macro_rules! sqlx_test {
                 .fetch_one(&pool)
                 .await?;
 
-            // assert_eq!(dec1.to_string(), result.value.to_string());
+            assert_eq!(dec1, result.value);
 
             Ok(())
         }

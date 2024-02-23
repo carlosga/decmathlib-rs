@@ -49,80 +49,85 @@ use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid128_to_uint64::*;
+use crate::bid64_to_bid128::{bid128_to_bid64, bid64_to_bid128};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
-use crate::constants::{MASK_COEFF, MASK_EXP };
-use crate::convert::{bid128_to_bid64, bid64_to_bid128};
-use crate::core::{ClassTypes, DEFAULT_ROUNDING_MODE, StatusFlags};
+use crate::bid_internal::{BID_UINT128, BID_UINT64};
+use crate::constants::{DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL, MASK_COEFF, MASK_EXP};
 use crate::d64::d64;
+
+/// A classification of decimal floating point numbers.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ClassTypes {
+    /// Signaling NaN (not a number).
+    SignalingNaN,
+
+    /// Quiet NaN (not a number).
+    QuietNaN,
+
+    /// Negative infinity.
+    NegativeInfinity,
+
+    /// Negative normal.
+    NegativeNormal,
+
+    /// Negative subnormal.
+    NegativeSubnormal,
+
+    /// Negative zero.
+    NegativeZero,
+
+    /// Positive zero.
+    PositiveZero,
+
+    /// Positive subnormal.
+    PositiveSubnormal,
+
+    /// Positive normal.
+    PositiveNormal,
+
+    /// Positive infinity.
+    PositiveInfinity
+}
+
+/// Rounding mode.
+pub struct RoundingMode;
+
+impl RoundingMode {
+    /// Rounding towards nearest representable value.
+    pub const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
+
+    /// Rounding towards negative infinity.
+    pub const BID_ROUNDING_DOWN: u32        = 0x00001;
+
+    /// Rounding towards positive infinity.
+    pub const BID_ROUNDING_UP: u32          = 0x00002;
+
+    /// Rounding towards zero.
+    pub const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
+
+    /// Rounding towards the nearest value, breaks ties by rounding away from zero.
+    pub const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
+}
+
+pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST;
+
+/// Status flags.
+pub struct StatusFlags;
 
 // BID_FPSC
 pub type _IDEC_flags = u32;
 
-#[derive(Debug, Clone)]
-pub (crate) struct DEC_DIGITS {
-    pub (crate) digits: u32,
-    pub (crate) threshold_hi: BID_UINT64,
-    pub (crate) threshold_lo: BID_UINT64,
-    pub (crate) digits1: u32
-}
-
-pub (crate) union BID_UI32FLOAT {
-    pub (crate) i: BID_UINT32,
-    pub (crate) d: f32
-}
-
-impl Default for BID_UI32FLOAT {
-    #[must_use]
-    fn default() -> Self {
-        Self {
-            i: 0
-        }
-    }
-}
-
-pub (crate) union BID_UI64DOUBLE {
-    pub (crate) i: BID_UINT64,
-    pub (crate) d: f64
-}
-
-impl Default for BID_UI64DOUBLE {
-    #[must_use]
-    fn default() -> Self {
-        Self {
-            i: 0
-        }
-    }
-}
-
-pub (crate) type BID_UINT32 = u32;
-
-pub (crate) type BID_SINT64 = i64;
-
-pub (crate) type BID_UINT64 = u64;
-
-#[derive(Debug, Copy, Clone, Default)]
-#[repr(align(16))]
-pub (crate) struct BID_UINT192 {
-    pub (crate) w: [BID_UINT64; 3]
-}
-
-#[derive(Debug, Copy, Clone, Default)]
-#[repr(align(16))]
-pub (crate) struct BID_UINT256 {
-    pub (crate) w: [BID_UINT64; 4]
-}
-
-#[derive(Debug, Clone, Default)]
-#[repr(align(16))]
-pub (crate) struct BID_UINT384 {
-    pub (crate) w: [BID_UINT64; 6]
-}
-
-#[derive(Debug, Clone, Default)]
-#[repr(align(16))]
-pub (crate) struct BID_UINT512 {
-    pub (crate) w: [BID_UINT64; 8]
+impl StatusFlags {
+    pub const BID_INEXACT_EXCEPTION: _IDEC_flags            = DEC_FE_INEXACT;
+    pub const BID_UNDERFLOW_EXCEPTION: _IDEC_flags          = DEC_FE_UNDERFLOW;
+    pub const BID_OVERFLOW_EXCEPTION: _IDEC_flags           = DEC_FE_OVERFLOW;
+    pub const BID_ZERO_DIVIDE_EXCEPTION: _IDEC_flags        = DEC_FE_DIVBYZERO;
+    pub const BID_DENORMAL_EXCEPTION: _IDEC_flags           = DEC_FE_UNNORMAL;
+    pub const BID_INVALID_EXCEPTION: _IDEC_flags            = DEC_FE_INVALID;
+    pub const BID_UNDERFLOW_INEXACT_EXCEPTION: _IDEC_flags  = DEC_FE_UNDERFLOW | DEC_FE_INEXACT;
+    pub const BID_OVERFLOW_INEXACT_EXCEPTION: _IDEC_flags   = DEC_FE_OVERFLOW | DEC_FE_INEXACT;
+    pub const BID_EXACT_STATUS:_IDEC_flags                  = 0x00000000;
 }
 
 /// The 128-bit decimal type.
@@ -131,8 +136,6 @@ pub (crate) struct BID_UINT512 {
 pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
 }
-
-pub (crate) type BID_UINT128 = d128;
 
 /// The number minus one (-1).
 pub const MINUS_ONE: d128 = d128 { w: [0x0000000000000001u64, 0xb040000000000000u64] };
@@ -529,6 +532,7 @@ impl d128 {
         bid128_quantum(self)
     }
 
+    #[allow(unused)]
     #[must_use]
     pub (crate) fn scale(&self) -> i32 {
         let mut x_exp: BID_UINT64;
@@ -1183,7 +1187,7 @@ impl AddAssign for d128 {
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::core::RoundingMode;
+    /// use decmathlib_rs::d128::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
     /// dec1        += dec2;
@@ -1223,7 +1227,7 @@ impl DivAssign for d128 {
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::core::RoundingMode;
+    /// use decmathlib_rs::d128::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
     /// dec1        /= dec2;
@@ -1263,7 +1267,7 @@ impl MulAssign for d128 {
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::core::RoundingMode;
+    /// use decmathlib_rs::d128::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
     /// dec1        *= dec2;
@@ -1303,7 +1307,7 @@ impl RemAssign for d128 {
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::core::RoundingMode;
+    /// use decmathlib_rs::d128::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
     /// dec1        %= dec2;
@@ -1343,7 +1347,7 @@ impl SubAssign for d128 {
     /// # Examples
     ///
     /// ```
-    /// use decmathlib_rs::core::RoundingMode;
+    /// use decmathlib_rs::d128::RoundingMode;
     /// let mut dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// let dec2     = decmathlib_rs::d128::d128::from(0xc47aef17e9919a5569aaaf503275e8f4u128);
     /// dec1        -= dec2;
@@ -1382,5 +1386,3 @@ impl<'a> std::iter::Product<&'a d128> for d128 {
         iter.fold(ONE, |a, b| a * b)
     }
 }
-
-// #[rustc_inherit_overflow_checks]

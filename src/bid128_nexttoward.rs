@@ -8,7 +8,8 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 use crate::bid128_next::bid128_nextafter;
-use crate::d128::{_IDEC_flags, BID_UINT128};
+use crate::bid_internal::BID_UINT128;
+use crate::d128::_IDEC_flags;
 
 /// Returns the next representable value after x in the direction of y.
 pub (crate) fn bid128_nexttoward(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

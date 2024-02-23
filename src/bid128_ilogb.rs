@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 
 use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128};
-use crate::bid_internal::{__set_status_flags, unpack_BID128_value};
+use crate::bid_internal::{__set_status_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64, unpack_BID128_value};
 use crate::constants::DECIMAL_EXPONENT_BIAS_128;
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Returns the exponent e of x, a signed integral value, determined
 /// as though x were represented with infinite range and minimum exponent

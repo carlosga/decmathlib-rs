@@ -13,8 +13,8 @@ use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BIN
 use crate::bid_internal::*;
 use crate::bid_sqrt_macros::{bid_long_sqrt128, short_sqrt128};
 use crate::constants::{DECIMAL_EXPONENT_BIAS_128, QUIET_MASK64};
-use crate::core::{RoundingMode, StatusFlags};
-use crate::d128::{_IDEC_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::{_IDEC_flags, RoundingMode};
 
 /// Decimal floating-point square root, UINT128 -> UINT128
 pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

@@ -10,7 +10,7 @@
 #![allow(unused)]
 
 use std::convert::From;
-use decmathlib_rs::core::ClassTypes;
+use decmathlib_rs::d128::ClassTypes;
 
 mod common;
 

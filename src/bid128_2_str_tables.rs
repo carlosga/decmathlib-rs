@@ -7,7 +7,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-use crate::d128::{BID_UINT32, BID_UINT64};
+#![allow(dead_code)]
+
+use crate::bid_internal::{BID_UINT32, BID_UINT64};
 
 pub (crate) const BID_TWOTO60_M_10TO18: BID_UINT64 = 152921504606846976u64;
 pub (crate) const BID_TWOTO60: BID_UINT64          = 0x1000000000000000u64;

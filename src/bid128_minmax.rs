@@ -8,10 +8,10 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 use crate::bid128::{BID_TEN2K128, BID_TEN2K64};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192};
+use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192, BID_UINT128, BID_UINT192, BID_UINT256};
 use crate::constants::{MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_STEERING_BITS};
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT192, BID_UINT256};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Returns the canonicalized floating-point number x if x < y,
 /// y if y < x, the canonicalized floating-point number if one operand is

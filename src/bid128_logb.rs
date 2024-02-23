@@ -14,10 +14,10 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{__set_status_flags, unpack_BID128_value};
+use crate::bid_internal::{__set_status_flags, BID_UINT128, BID_UINT64, unpack_BID128_value};
 use crate::constants::QUIET_MASK64;
-use crate::core::StatusFlags;
-use crate::d128::{_IDEC_flags, BID_UINT128, BID_UINT64};
+use crate::d128::StatusFlags;
+use crate::d128::_IDEC_flags;
 
 /// Returns the exponent e of x, a signed integral value, determined
 /// as though x were represented with infinite range and minimum exponent
