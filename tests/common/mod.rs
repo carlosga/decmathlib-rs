@@ -34,7 +34,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -82,7 +82,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -97,7 +97,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -112,7 +112,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let x        = decmathlib_rs::d128::d128::from($input1);
             let y        = decmathlib_rs::d128::d128::from($input2);
             let z        = decmathlib_rs::d128::d128::from($input3);
@@ -165,7 +165,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec = decmathlib_rs::d128::d128::from_string($input1, rnd_mode, &mut status);
             let exp = decmathlib_rs::d128::d128::from($expected);
 
@@ -291,7 +291,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
             let res1     = dec1.ldexp($n, rnd_mode, &mut status);
@@ -317,7 +317,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let res1     = dec1.llrint(rnd_mode, &mut status);
 
@@ -355,7 +355,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let res1     = dec1.lrint(rnd_mode, &mut status);
 
@@ -451,7 +451,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -478,7 +478,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
             let res1     = decmathlib_rs::d128::d128::nearbyint(&dec1, rnd_mode, &mut status);
@@ -558,7 +558,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -673,7 +673,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            // let rnd_mode = Some($rnd_mode);
+            // let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -699,7 +699,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let dec2     = decmathlib_rs::d128::d128::from($input2);
             let exp      = decmathlib_rs::d128::d128::from($exp);
@@ -714,7 +714,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
             let res1     = dec1.scalbn($n, rnd_mode, &mut status);
@@ -728,7 +728,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
             let res1     = dec1.scalbln($n, rnd_mode, &mut status);
@@ -742,7 +742,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
             let res1     = dec1.sqrt(rnd_mode, &mut status);
@@ -756,7 +756,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let res1     = dec1.to_decimal64(rnd_mode, &mut status);
 
@@ -1293,7 +1293,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let x        = decmathlib_rs::d64::d64($input1);
             let y        = decmathlib_rs::d64::d64($input2);
             let z        = decmathlib_rs::d64::d64($input3);
@@ -1309,7 +1309,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let x        = decmathlib_rs::d64::d64($input1);
             let y        = decmathlib_rs::d128::d128::from($input2);
             let z        = decmathlib_rs::d64::d64($input3);
@@ -1325,7 +1325,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let x        = decmathlib_rs::d128::d128::from($input1);
             let y        = decmathlib_rs::d64::d64($input2);
             let z        = decmathlib_rs::d128::d128::from($input3);
@@ -1341,7 +1341,7 @@ macro_rules! dec_test {
         #[test]
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
-            let rnd_mode = Some($rnd_mode);
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let x        = decmathlib_rs::d128::d128::from($input1);
             let y        = decmathlib_rs::d128::d128::from($input2);
             let z        = decmathlib_rs::d64::d64($input3);

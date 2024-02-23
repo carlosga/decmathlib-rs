@@ -21,7 +21,7 @@ use crate::d128::_IDEC_flags;
 ///    and the invalid exception is signaled
 ///  EXCEPTIONS SIGNALED:
 ///    invalid and inexact
-pub (crate) fn bid128_llrint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> i64 {
+pub (crate) fn bid128_llrint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> i64 {
     match rnd_mode {
         RoundingMode::BID_ROUNDING_TO_NEAREST => bid128_to_int64_xrnint(x, pfpsf),
         RoundingMode::BID_ROUNDING_TIES_AWAY  => bid128_to_int64_xrninta(x, pfpsf),

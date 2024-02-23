@@ -10,10 +10,10 @@
 #![allow(non_snake_case)]
 
 use crate::bid_internal::{__add_128_128, __set_status_flags, bid_get_BID128, bid_get_BID128_very_fast, BID_SINT64, BID_UINT128, BID_UINT32, BID_UINT64, DECIMAL_MAX_EXPON_128, QUIET_MASK64, SNAN_MASK64, unpack_BID128_value};
-use crate::d128::{_IDEC_flags, StatusFlags};
+use crate::d128::{_IDEC_flags, RoundingMode, StatusFlags};
 
 /// multiply a 128-bit decimal floating-point value by an integral power of 2.
-pub (crate) fn bid128_ldexp(x: &BID_UINT128, n: i32, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_ldexp(x: &BID_UINT128, n: i32, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut CX2: BID_UINT128 = BID_UINT128::default();
     let mut CBID_X8: BID_UINT128 = BID_UINT128::default();

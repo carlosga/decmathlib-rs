@@ -11,11 +11,11 @@ use crate::bid128_add::bid128_sub;
 use crate::bid128_compare::bid128_quiet_greater;
 use crate::bid_conf::BID_HIGH_128W;
 use crate::bid_internal::{MASK_NAN, BID_UINT128};
-use crate::d128::_IDEC_flags;
+use crate::d128::{_IDEC_flags, RoundingMode};
 
 /// fdim returns x - y if x > y, and +0 is x <= y
 /// Exceptions: P, O, I (U could only be unmasked, which is not supported)
-pub (crate) fn bid128_fdim(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_fdim(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let tmp_fpsf: _IDEC_flags = *pfpsf; // dummy fpsf for calls to comparison functions
     let cmpres: bool          = bid128_quiet_greater(x, y, pfpsf);
 

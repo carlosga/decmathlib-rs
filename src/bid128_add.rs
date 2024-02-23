@@ -25,19 +25,19 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 /// BID64/BID128 add
 /////////////////////////////////////
 
-pub (crate) fn bid64dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
     let res: BID_UINT64 = bid64qq_add(&x1, y, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid64qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
     let res: BID_UINT64 = bid64qq_add(x, &y1, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let one: BID_UINT128 = BID_UINT128::new(0x0000000000000001u64, 0x3040000000000000u64);
     // Swapped on ::new
     // BID_SWAP128(one);
@@ -45,20 +45,20 @@ pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
     res
 }
 
-pub (crate) fn bid128dd_add(x: BID_UINT64, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dd_add(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
     let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
     let res: BID_UINT128 = bid128_add(&x1, &y1, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid128dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
     let res: BID_UINT128 = bid128_add(&x1, y, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
     let res: BID_UINT128 = bid128_add(x, &y1, rnd_mode, pfpsf);
     res
@@ -70,19 +70,19 @@ pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf
 /// BID64/BID128 sub
 /////////////////////////////////////
 
-pub (crate) fn bid64dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
     let res: BID_UINT64 = bid64qq_sub(&x1, y, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid64qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
     let res: BID_UINT64 = bid64qq_sub(x, &y1, rnd_mode, pfpsf);
     res
 }
 
-pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let one: BID_UINT128   = BID_UINT128::new(0x0000000000000001u64, 0x3040000000000000u64);
     let mut y: BID_UINT128 = *y;
     // swapped on ::new
@@ -100,20 +100,20 @@ pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfps
     bid64qqq_fma(&one, x, &y, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128dd_sub(x: BID_UINT64, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dd_sub(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
     bid128_sub(&x1, &y1, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
 
     bid128_sub(&x1, y, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
     bid128_sub(x, &y1, rnd_mode, pfpsf)
@@ -126,7 +126,7 @@ pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: u32, pfpsf
 /////////////////////////////////////
 
 /// Decimal floating-point subtraction
-pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut y: BID_UINT128 = *y;
     if (y.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN {
         // y is not NAN
@@ -146,7 +146,7 @@ pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 /////////////////////////////////////
 
 /// Decimal floating-point addition
-pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
     let mut x_sign: BID_UINT64;
     let mut y_sign: BID_UINT64;
@@ -806,9 +806,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 C1_lo  = C1.w[0];
                             }
                             if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign == y_sign && (C1_lo & 0x01) == 0x01)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0) {
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign == y_sign)
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign == 0 && y_sign == 0)
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign != 0 && y_sign != 0) {
                                 // add 1 ulp and then check for overflow
                                 C1_lo += 1;
                                 if C1_lo == 0 { // rounding overflow in the low 64 bits
@@ -828,9 +828,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                     }
                                 }
                             } else if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign != y_sign && (C1_lo & 0x01) == 0x01)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign == 0 && y_sign != 0)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign != 0 && y_sign == 0)
-                                    || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign == 0 && y_sign != 0)
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign != 0 && y_sign == 0)
+                                   || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
                                 // subtract 1 ulp from C1
                                 // Note: because delta >= P34 + 1 the result cannot be zero
                                 C1_lo -= 1;
@@ -978,7 +978,7 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             }
                             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN && x_sign != 0 && y_sign != 0)
-                                 || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
+                                || (rnd_mode == RoundingMode::BID_ROUNDING_UP   && x_sign == 0 && y_sign == 0) {
                                     // add 1 ulp and then check for overflow
                                     C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
@@ -1060,8 +1060,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                             }
                             if rnd_mode != RoundingMode::BID_ROUNDING_TO_NEAREST {
                                 if (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY && x_sign == y_sign)
-                                 || (rnd_mode == RoundingMode::BID_ROUNDING_UP        && x_sign == 0 && y_sign == 0)
-                                 || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN      && x_sign != 0 && y_sign != 0) {
+                                || (rnd_mode == RoundingMode::BID_ROUNDING_UP        && x_sign == 0 && y_sign == 0)
+                                || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN      && x_sign != 0 && y_sign != 0) {
                                     // add 1 ulp and then check for overflow
                                     C1_lo += 1;
                                     if C1_lo == 0 { // rounding overflow in the low 64 bits
@@ -1081,8 +1081,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                         }
                                     }
                                 } else if (rnd_mode == RoundingMode::BID_ROUNDING_DOWN    && x_sign == 0 && y_sign != 0)
-                                        || (rnd_mode == RoundingMode::BID_ROUNDING_UP      && x_sign != 0 && y_sign == 0)
-                                        || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
+                                       || (rnd_mode == RoundingMode::BID_ROUNDING_UP      && x_sign != 0 && y_sign == 0)
+                                       || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO && x_sign != y_sign) {
                                     // subtract 1 ulp from C1
                                     // Note: because delta >= P34 + 1 the result cannot be zero
                                     C1_lo -= 1;
@@ -1141,10 +1141,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
                                 x_exp -= (scale as BID_UINT64) << 49;
                             }
                             if (rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && x_sign != y_sign)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign != y_sign && (C2_hi != halfulp128.w[1] || C2_lo != halfulp128.w[0]))
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign == 0 && y_sign != 0)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign != 0 && y_sign == 0)
-                             || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY  && x_sign != y_sign && (C2_hi != halfulp128.w[1] || C2_lo != halfulp128.w[0]))
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_DOWN       && x_sign == 0 && y_sign != 0)
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_UP         && x_sign != 0 && y_sign == 0)
+                            || (rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO    && x_sign != y_sign) {
                                 // the result is x - 1
                                 // for RN n1 * n2 < 0; underflow not possible
                                 C1_lo -= 1;

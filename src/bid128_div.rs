@@ -16,7 +16,7 @@ use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Decimal floating-point division
-pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CA4: BID_UINT256;
     let mut CA4r: BID_UINT256 = BID_UINT256::default();
     let P256: BID_UINT256;
@@ -60,7 +60,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
     let mut j: i32;
     let mut k: i32;
     let d5: i32;
-    let mut rmode: u32;
+    let mut rmode: RoundingMode;
     let valid_y: BID_UINT64 = unpack_BID128_value(&mut sign_y, &mut exponent_y, &mut CY, y);
 
     // unpack arguments, check for NaN or Infinity
@@ -379,8 +379,8 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf
 
     if diff_expon >= 0 {
         rmode = rnd_mode;
-        if (sign_x ^ sign_y) != 0 && ((rmode - 1) < 2) {
-            rmode = 3 - rmode;
+        if (sign_x ^ sign_y) != 0 && ((rmode as u32 - 1u32) < 2) {
+            rmode = RoundingMode::from(3 - (rmode as u32));
         }
         match rmode {
             RoundingMode::BID_ROUNDING_TO_NEAREST =>  { // round to nearest code

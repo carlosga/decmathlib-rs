@@ -26,7 +26,7 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 //////////////////////////////////////////////
 
 pub (crate) fn bid_rounding_correction(
-    rnd_mode: u32,
+    rnd_mode: RoundingMode,
     is_inexact_lt_midpoint: bool,
     is_inexact_gt_midpoint: bool,
     is_midpoint_lt_even: bool,
@@ -62,7 +62,7 @@ pub (crate) fn bid_rounding_correction(
     if (sign == 0
     && ((rnd_mode == RoundingMode::BID_ROUNDING_UP && is_inexact_lt_midpoint)
     || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
-     || rnd_mode == RoundingMode::BID_ROUNDING_UP) && is_midpoint_gt_even)))
+      || rnd_mode == RoundingMode::BID_ROUNDING_UP) && is_midpoint_gt_even)))
     || (sign != 0 && ((rnd_mode == RoundingMode::BID_ROUNDING_DOWN && is_inexact_lt_midpoint)
      || ((rnd_mode == RoundingMode::BID_ROUNDING_TIES_AWAY
        || rnd_mode == RoundingMode::BID_ROUNDING_DOWN) && is_midpoint_gt_even))) {
@@ -252,7 +252,7 @@ pub (crate) fn bid_add_and_round(
     p_sign: BID_UINT64,
     C3: &BID_UINT128,
     C4: &BID_UINT256,
-    rnd_mode: u32,
+    rnd_mode: RoundingMode,
     ptr_is_midpoint_lt_even: &mut bool,
     ptr_is_midpoint_gt_even: &mut bool,
     ptr_is_inexact_lt_midpoint: &mut bool,
@@ -675,7 +675,7 @@ pub (crate) fn bid128_ext_fma(
     x: &BID_UINT128,
     y: &BID_UINT128,
     z: &BID_UINT128,
-    rnd_mode: u32,
+    rnd_mode: RoundingMode,
     pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 
     let mut res: BID_UINT128 = BID_UINT128 { w: [0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64] };
@@ -3922,7 +3922,7 @@ pub (crate) fn bid128_ext_fma(
     res
 }
 
-pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;
     let mut is_inexact_lt_midpoint: bool = false;
@@ -3937,7 +3937,7 @@ pub (crate) fn bid128_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even: bool    = false;
     let mut is_midpoint_gt_even: bool    = false;
     let mut is_inexact_lt_midpoint: bool = false;
@@ -3956,7 +3956,7 @@ pub (crate) fn bid128ddd_fma(x: BID_UINT64, y: BID_UINT64, z: BID_UINT64, rnd_mo
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even    = false;
     let mut is_midpoint_gt_even    = false;
     let mut is_inexact_lt_midpoint = false;
@@ -3974,7 +3974,7 @@ pub (crate) fn bid128ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even: bool    = false;
     let mut is_midpoint_gt_even: bool    = false;
     let mut is_inexact_lt_midpoint: bool = false;
@@ -3992,7 +3992,7 @@ pub (crate) fn bid128dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even    = false;
     let mut is_midpoint_gt_even    = false;
     let mut is_inexact_lt_midpoint = false;
@@ -4009,7 +4009,7 @@ pub (crate) fn bid128dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rn
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even    = false;
     let mut is_midpoint_gt_even    = false;
     let mut is_inexact_lt_midpoint = false;
@@ -4027,7 +4027,7 @@ pub (crate) fn bid128qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even    = false;
     let mut is_midpoint_gt_even    = false;
     let mut is_inexact_lt_midpoint = false;
@@ -4044,7 +4044,7 @@ pub (crate) fn bid128qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rn
         rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut is_midpoint_lt_even    = false;
     let mut is_midpoint_gt_even    = false;
     let mut is_inexact_lt_midpoint = false;
@@ -4065,46 +4065,46 @@ pub (crate) fn bid128qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rn
 
 // Note: bid64ddd_fma is represented by bid64_fma
 
-pub (crate) fn bid64ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64ddq_fma(x: BID_UINT64, y: BID_UINT64, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
     bid64qqq_fma(&x1, &y1, z, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64dqd_fma(x: BID_UINT64, y: &BID_UINT128, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
     let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
     bid64qqq_fma(&x1, y, &z1, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64dqq_fma(x: BID_UINT64, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
 
     bid64qqq_fma(&x1, y, z, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qdd_fma(x: &BID_UINT128, y: BID_UINT64, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
     let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
     bid64qqq_fma(x, &y1, &z1, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qdq_fma(x: &BID_UINT128, y: BID_UINT64, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
 
     bid64qqq_fma(x, &y1, z, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qqd_fma(x: &BID_UINT128, y: &BID_UINT128, z: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let z1: BID_UINT128 = bid64_to_bid128(z, pfpsf);
 
     bid64qqq_fma(x, y, &z1, rnd_mode, pfpsf)
 }
 
-pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let mut is_midpoint_lt_even0: bool = false;
     let mut is_midpoint_gt_even0: bool = false;
     let mut is_inexact_lt_midpoint0: bool = false;

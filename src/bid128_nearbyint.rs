@@ -14,7 +14,7 @@ use crate::bid_internal::{__mul_128x128_to_256, BID_UI64DOUBLE, BID_UINT128, BID
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Rounds the decimal floating-point value num to an integer value in decicmal floating-point format, using the given rounding mode.
-pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128::new(0xbaddbaddbaddbaddu64, 0xbaddbaddbaddbaddu64);
     let x_sign: BID_UINT64;
     let x_exp: BID_UINT64;
@@ -155,8 +155,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 res.w[0] = 0x0000000000000000u64;
                 return res;
             }
-        },
-        _ => {}
+        }
     }
 
     unsafe {
@@ -196,7 +195,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
     // exp < 0
     match rnd_mode {
         RoundingMode::BID_ROUNDING_TO_NEAREST => {
-            return if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
+            if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
                 // chop off ind digits from the lower part of C1
@@ -289,7 +288,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
             }
         },
         RoundingMode::BID_ROUNDING_TIES_AWAY => {
-            return if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
+            if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
                 // chop off ind digits from the lower part of C1
@@ -352,7 +351,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
             }
         },
         RoundingMode::BID_ROUNDING_DOWN => {
-            return if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
+            if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
                 // (number of digits to be chopped off)
@@ -467,7 +466,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
             }
         },
         RoundingMode::BID_ROUNDING_UP => {
-            return if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
+            if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
                 // (number of digits to be chopped off)
@@ -582,7 +581,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
             }
         },
         RoundingMode::BID_ROUNDING_TO_ZERO => {
-            return if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
+            if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
                 // (number of digits to be chopped off)
@@ -634,8 +633,5 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDE
                 res
             }
         }
-        _ => {}
     }
-
-    res
 }

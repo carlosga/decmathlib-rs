@@ -90,26 +90,38 @@ pub enum ClassTypes {
 }
 
 /// Rounding mode.
-pub struct RoundingMode;
-
-impl RoundingMode {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum RoundingMode {
     /// Rounding towards nearest representable value.
-    pub const BID_ROUNDING_TO_NEAREST: u32  = 0x00000;
+    BID_ROUNDING_TO_NEAREST  = 0x00000,
 
     /// Rounding towards negative infinity.
-    pub const BID_ROUNDING_DOWN: u32        = 0x00001;
+    BID_ROUNDING_DOWN        = 0x00001,
 
     /// Rounding towards positive infinity.
-    pub const BID_ROUNDING_UP: u32          = 0x00002;
+    BID_ROUNDING_UP          = 0x00002,
 
     /// Rounding towards zero.
-    pub const BID_ROUNDING_TO_ZERO: u32     = 0x00003;
+    BID_ROUNDING_TO_ZERO     = 0x00003,
 
     /// Rounding towards the nearest value, breaks ties by rounding away from zero.
-    pub const BID_ROUNDING_TIES_AWAY: u32   = 0x00004;
+    BID_ROUNDING_TIES_AWAY   = 0x00004
 }
 
-pub const DEFAULT_ROUNDING_MODE: u32 = RoundingMode::BID_ROUNDING_TO_NEAREST;
+impl From<u32> for RoundingMode {
+    fn from(value: u32) -> Self {
+        match value {
+            0x00000 => RoundingMode::BID_ROUNDING_TO_NEAREST,
+            0x00001 => RoundingMode::BID_ROUNDING_DOWN,
+            0x00002 => RoundingMode::BID_ROUNDING_UP,
+            0x00003 => RoundingMode::BID_ROUNDING_TO_ZERO,
+            0x00004 => RoundingMode::BID_ROUNDING_TIES_AWAY,
+            _ => panic!("Unknown rounding mode")
+        }
+    }
+}
+
+pub const DEFAULT_ROUNDING_MODE: RoundingMode = RoundingMode::BID_ROUNDING_TO_NEAREST;
 
 /// Status flags.
 pub struct StatusFlags;
@@ -321,7 +333,7 @@ impl d128 {
     /// Convert a decimal floating-point value represented in string format
     /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
     #[must_use]
-    pub fn from_string(value: &str, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn from_string(value: &str, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -333,37 +345,37 @@ impl d128 {
 
     /// fdim returns x - y if x > y, and +0 is x <= y
     #[must_use]
-    pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fdim(self, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Computes x * y + z as if to infinite precision and rounded only once to fit the result type.
     #[must_use]
-    pub fn fma(x: &Self, y: &Self, z: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn fma(x: &Self, y: &Self, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fma(x, y, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point fused multiply-add, UINT64 * UINT64 + UINT64 -> UINT128
     #[must_use]
-    pub fn ddd_fma(x: d64, y: d64, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn ddd_fma(x: d64, y: d64, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128ddd_fma(x.0, y.0, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point fused multiply-add d64 * d128 + d64 -> d128
     #[must_use]
-    pub fn dqd_fma(x: d64, y: &Self, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn dqd_fma(x: d64, y: &Self, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128dqd_fma(x.0, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point fused multiply-add, d128 * d64 + d128 -> d128
     #[must_use]
-    pub fn qdq_fma(x: &Self, y: d64, z: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn qdq_fma(x: &Self, y: d64, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128qdq_fma(x, y.0, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point fused multiply-add, UINT128 * UINT128 + UINT64
     #[must_use]
-    pub fn qqd_fma(x: &Self, y: &Self, z: d64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn qqd_fma(x: &Self, y: &Self, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128qqd_fma(x, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -381,7 +393,7 @@ impl d128 {
 
     /// multiply a 128-bit decimal floating-point value by an integral power of 2.
     #[must_use]
-    pub fn ldexp(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn ldexp(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_ldexp(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -401,14 +413,14 @@ impl d128 {
     /// The lrint function rounds its argument to the nearest integer value of
     /// type long int, rounding according to the current rounding direction.
     #[must_use]
-    pub fn lrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn lrint(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_lrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// The llrint function rounds its argument to the nearest integer value of
     /// type long long int, rounding according to the current rounding direction.
     #[must_use]
-    pub fn llrint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn llrint(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_llrint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -471,7 +483,7 @@ impl d128 {
 
     /// Rounds the decimal floating-point value num to an integer value in decicmal floating-point format, using the given rounding mode.
     #[must_use]
-    pub fn nearbyint(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn nearbyint(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nearbyint(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -520,7 +532,7 @@ impl d128 {
     /// infinite then invalid is signaled and the result is NaN. If both operands
     /// are infinite then the result is canonical infinity with the sign of x
     #[must_use]
-    pub fn quantize(x: &Self, y: &Self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn quantize(x: &Self, y: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_quantize(x, y, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -566,25 +578,25 @@ impl d128 {
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scalbn(&self, n: i32, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scalbn(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scalbln(&self, n: i64, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scalbln(&self, n: i64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Decimal floating-point square root
     #[must_use]
-    pub fn sqrt(&self, rnd_mode: Option<u32>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn sqrt(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_sqrt(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
     #[must_use]
-    pub fn to_decimal64(&self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> d64 {
+    pub fn to_decimal64(&self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> d64 {
         d64(bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status))
     }
 
@@ -871,19 +883,19 @@ impl d128 {
 
     /// Decimal floating-point addition, d128 + d128 -> d128
     #[must_use]
-    pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+    pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     /// Decimal floating-point division, d128 / d128 -> d128
     #[must_use]
-    pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+    pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_div(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     /// Decimal floating-point multiplication, d128 / d128 -> d128
     #[must_use]
-    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
@@ -895,7 +907,7 @@ impl d128 {
 
     /// Decimal floating-point subtraction, d128 - d128 -> d128
     #[must_use]
-    pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<u32>, status: &mut _IDEC_flags) -> Self {
+    pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_sub(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 

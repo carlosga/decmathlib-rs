@@ -15,7 +15,7 @@ use crate::bid_sqrt_macros::{bid_long_sqrt128, short_sqrt128};
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Decimal floating-point square root, UINT128 -> UINT128
-pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut M256: BID_UINT256 = BID_UINT256::default();
     let C256: BID_UINT256;
     let mut C4: BID_UINT256 = BID_UINT256::default();
@@ -138,7 +138,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flag
     bid_long_sqrt128(&mut CS, &C256);
     //printf("C256=%016I64x %016I64x %016I64x %016I64x, CS=%016I64x %016I64x \n",C256.w[3],C256.w[2],C256.w[1],C256.w[0],CS.w[1],CS.w[0]);
 
-    if ((rnd_mode) & 3) == 0 {
+    if ((rnd_mode as u32) & 3) == 0 {
         // compare to midpoints
         CSM.w[1] = (CS.w[1] << 1) | (CS.w[0] >> 63);
         CSM.w[0] = (CS.w[0] + CS.w[0]) | 1;

@@ -43,7 +43,7 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 }
 
 /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
-pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
     let mut CX: BID_UINT128    = BID_UINT128::default();
     let mut T128: BID_UINT128;
     let TP128: BID_UINT128;
@@ -65,7 +65,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
     let mut extra_digits: i32;
     let amount: i32;
     let bin_expon_cx: i32;
-    let mut rmode: u32;
+    let mut rmode: RoundingMode;
     let mut status: u32;
     let mut uf_check= 0;
 
@@ -125,8 +125,8 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
         exponent_x += extra_digits;
 
         rmode = rnd_mode;
-        if sign_x != 0 && ((rmode as i32 - 1) as u32) < 2 {
-            rmode = 3 - rmode;
+        if sign_x != 0 && ((rmode as u32 - 1u32) < 2) {
+            rmode = RoundingMode::from(3 - (rmode as u32));
         }
 
         if exponent_x < DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS {
@@ -165,7 +165,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC
             CX = __shr_128(&Qh, amount);
         }
 
-        if rmode == 0 && (CX.w[0] & 1) == 1 {
+        if rmode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CX.w[0] & 1) == 1 {
             // check whether fractional part of initial_P/10^ed1 is exactly .5
 
             // get remainder

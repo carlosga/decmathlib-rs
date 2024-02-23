@@ -24,7 +24,7 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 /// the rules for NaNs are followed. Otherwise if only one operand is
 /// infinite then invalid is signaled and the result is NaN. If both operands
 /// are infinite then the result is canonical infinity with the sign of x
-pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let CT: BID_UINT256;
     let mut CX: BID_UINT128 = BID_UINT128::default();
     let mut CY: BID_UINT128 = BID_UINT128::default();
@@ -50,7 +50,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
     let expon_diff: i32;
     let total_digits: i32;
     let bin_expon_cx: i32;
-    let mut rmode: i32;
+    let mut rmode: RoundingMode;
     let mut status: _IDEC_flags;
 
     // BID_OPT_SAVE_BINARY_FLAGS()
@@ -132,7 +132,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
     }
 
     digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
-    if CX.w[1]   > BID_POWER10_TABLE_128[digits_x as usize].w[1]
+    if  CX.w[1]  > BID_POWER10_TABLE_128[digits_x as usize].w[1]
     || (CX.w[1] == BID_POWER10_TABLE_128[digits_x as usize].w[1]
      && CX.w[0] >= BID_POWER10_TABLE_128[digits_x as usize].w[0]) {
         digits_x += 1;
@@ -148,9 +148,9 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
             res = bid_get_BID128_very_fast(sign_x, exponent_y, &CX2);
             return res;
         }
-        rmode = rnd_mode as i32;
-        if sign_x != 0 && ((rmode - 1) as u32) < 2 {
-            rmode = 3 - rmode;
+        rmode = rnd_mode;
+        if sign_x != 0 && ((rmode as u32 - 1u32) < 2) {
+            rmode = RoundingMode::from(3 - (rmode as u32));
         }
         // must round off -expon_diff digits
         extra_digits = -expon_diff;
@@ -170,7 +170,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
             CR = __shr_128(&CX2, amount);
         }
 
-        if rnd_mode == 0 && (CR.w[0] & 1) == 1 {
+        if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CR.w[0] & 1) == 1 {
             // check whether fractional part of initial_P/10^extra_digits is
             // exactly .5 this is the same as fractional part of
             // (initial_P + 0.5*10^extra_digits)/10^extra_digits is exactly zero
@@ -202,7 +202,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
             REM_H.w[0] = 0;
         }
 
-        match rmode as u32 {
+        match rmode {
             RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
                 // test whether fractional part is 0
                 if REM_H.w[1] == 0x8000000000000000u64 && REM_H.w[0] == 0
@@ -253,11 +253,11 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: u32, 
     if total_digits < 0 {
         CR.w[1] = 0;
         CR.w[0] = 0;
-        rmode   = rnd_mode as i32;
-        if sign_x != 0 && ((rmode - 1) < 2) {
-            rmode = 3 - rmode;
+        rmode   = rnd_mode;
+        if sign_x != 0 && ((rmode as u32 - 1u32) < 2) {
+            rmode = RoundingMode::from(3 - (rmode as u32));
         }
-        if (rmode as u32) == RoundingMode::BID_ROUNDING_UP {
+        if rmode == RoundingMode::BID_ROUNDING_UP {
             CR.w[0] = 1;
         }
         __set_status_flags(pfpsf, StatusFlags::BID_INEXACT_EXCEPTION);

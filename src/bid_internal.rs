@@ -335,7 +335,7 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
 
 /// BID64 pack macro (general form)
 #[inline]
-pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
+pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
     let mut Stemp: BID_UINT128 = BID_UINT128::default();
     let Q_low: BID_UINT128;
     let QH: BID_UINT64;
@@ -370,8 +370,8 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                 // result is 0
                 return sgn;
             }
-            if sgn != 0 && (rmode - 1) < 2 {
-                rmode = 3 - rmode;
+            if sgn != 0 && ((rmode as u32 - 1u32) < 2) {
+                rmode = RoundingMode::from(3 - (rmode as u32));
             }
 
             // get digits to be shifted out
@@ -513,7 +513,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
 ///   Macro for handling BID128 underflow
 ///         sticky bit given as additional argument
 #[inline]
-pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_UINT128, R: BID_UINT64, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_UINT128, R: BID_UINT64, rnd_mode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T128: &BID_UINT128;
     let TP128: &BID_UINT128;
     let mut Qh: BID_UINT128;
@@ -528,7 +528,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     let CY: BID_UINT64;
     let ed2: i32;
     let amount: i32;
-    let mut rmode: u32;
+    let mut rmode: RoundingMode;
     let mut status: _IDEC_flags;
     let mut CQ: BID_UINT128 = *CQ;
     let mut pres: BID_UINT128 = BID_UINT128::default();
@@ -561,8 +561,8 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     ed2 = 1 - expon;
     // add rounding constant to CQ
     rmode = rnd_mode;
-    if sgn != 0 && ((rmode - 1) < 2) {
-        rmode = 3 - rmode;
+    if sgn != 0 && ((rmode as u32 - 1u32) < 2) {
+        rmode = RoundingMode::from(3 - (rmode as u32));
     }
     T128             = &BID_ROUND_CONST_TABLE_128[rmode as usize][ed2 as usize];
     (CQ.w[0], carry) = __add_carry_out(T128.w[0], CQ.w[0]);
@@ -582,7 +582,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
     // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
     // #ifndef IEEE_ROUND_NEAREST
-    if rnd_mode == 0 && (CQ.w[0] & 1) == 1{
+    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CQ.w[0] & 1) == 1{
         // check whether fractional part of initial_P/10^ed1 is exactly .5
 
         // get remainder
@@ -657,7 +657,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
 /// Macro for handling BID128 underflow
 #[inline]
-pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_mode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T128: BID_UINT128;
     let TP128: BID_UINT128;
     let mut Qh: BID_UINT128;
@@ -670,7 +670,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
     let CY: BID_UINT64;
     let ed2: i32;
     let amount: i32;
-    let mut rmode: u32;
+    let mut rmode: RoundingMode;
     let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
     let mut pres: BID_UINT128 = BID_UINT128::default();
     let mut CQ: BID_UINT128 = *CQ;
@@ -692,8 +692,8 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 
     // add rounding constant to CQ
     rmode = rnd_mode;
-    if sgn != 0&& ((rmode - 1) < 2) {
-        rmode = 3 - rmode;
+    if sgn != 0 && ((rmode as u32 - 1u32) < 2) {
+        rmode = RoundingMode::from(3 - (rmode as u32));
     }
 
     T128             = BID_ROUND_CONST_TABLE_128[rmode as usize][ed2 as usize];
@@ -712,7 +712,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 
     expon = 0;
 
-    if rnd_mode == 0 && (CQ.w[0] & 1) == 1 {
+    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CQ.w[0] & 1) == 1 {
         // check whether fractional part of initial_P/10^ed1 is exactly .5
 
         // get remainder
@@ -1017,7 +1017,7 @@ pub (crate) fn bid_get_BID128_fast(sgn: BID_UINT64, expon: &mut i32, coeff: &mut
 }
 
 /// General BID128 pack macro
-pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, rnd_mode: u32, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, rnd_mode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT128 {
     let T: &BID_UINT128;
     let mut tmp: BID_UINT64;
     let mut tmp2: BID_UINT64;

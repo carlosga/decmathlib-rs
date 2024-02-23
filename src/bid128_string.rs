@@ -211,7 +211,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
 
 /// Convert a decimal floating-point value represented in string format
 /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
-pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CX: BID_UINT128  = BID_UINT128::default();
     let mut res: BID_UINT128 = BID_UINT128::default();
     let mut coeff_high: BID_UINT64;
@@ -611,8 +611,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: u32, pfpsf: &mut _IDEC_fl
                 && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
                     carry = 1;
                 }
-            },
-            _ => panic!("bid128_from_string::Unknown rounding mode")
+            }
         }
     }
 
