@@ -19,11 +19,11 @@ sqlx = ["sqlx/default", "sqlx/postgres", "byteorder/default", "async-std/default
 
 [dependencies]
 forward_ref = { version = "1.0.0" }
-byteorder = { version = "1.5", features = ["default"], optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json = { version = "1.0.113", optional = true }
-sqlx = { version = "0.7", features = [ "postgres", "runtime-async-std", "runtime-async-std-rustls" ], optional = true }
-async-std = { version = "1.12.0", features = ["default"], optional = true }
+byteorder = { version = "1.5", features = ["default"], default-features = false, optional = true }
+serde = { version = "1.0", features = ["derive"], default-features = false,optional = true }
+serde_json = { version = "1.0.113", default-features = false,optional = true }
+sqlx = { version = "0.7", features = [ "postgres", "runtime-async-std", "runtime-async-std-rustls" ], default-features = false,optional = true }
+async-std = { version = "1.12.0", features = ["default"], default-features = false,optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"]  }
