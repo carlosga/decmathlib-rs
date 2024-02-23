@@ -14,8 +14,7 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid_decimal_data::*;
 use crate::bid_internal::*;
-use crate::d128::StatusFlags;
-use crate::d128::{_IDEC_flags,  RoundingMode};
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

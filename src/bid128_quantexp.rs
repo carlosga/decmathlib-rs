@@ -10,8 +10,7 @@
 #![allow(overflowing_literals)]
 
 use crate::bid_internal::{BID_UINT128, MASK_SPECIAL, MASK_STEERING_BITS};
-use crate::d128::StatusFlags;
-use crate::d128::_IDEC_flags;
+use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// The quantexp() functions return the quantum exponent of x.
 pub (crate) fn bid128_quantexp(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> i32 {

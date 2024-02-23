@@ -9,24 +9,20 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 use crate::d128::d128;
 
-#[cfg(feature = "serde")]
 impl serde::ser::Serialize for d128 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::ser::Serializer {
         serializer.serialize_str(&self.to_string())
     }
 }
 
-#[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for d128 {
     fn deserialize<D>(deserializer: D) -> Result<d128, D::Error> where D: serde::de::Deserializer<'de> {
         deserializer.deserialize_str(Decimal128Visitor)
     }
 }
 
-#[cfg(feature = "serde")]
 struct Decimal128Visitor;
 
-#[cfg(feature = "serde")]
 impl<'de> serde::de::Visitor<'de> for Decimal128Visitor {
     type Value = d128;
 

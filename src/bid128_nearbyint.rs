@@ -11,8 +11,7 @@
 
 use crate::bid128::{BID_MASKHIGH128, BID_MIDPOINT128, BID_MIDPOINT64, BID_NR_DIGITS, BID_SHIFTRIGHT128, BID_TEN2MK128};
 use crate::bid_internal::{__mul_128x128_to_256, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, MASK_COEFF, MASK_EXP, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
-use crate::d128::StatusFlags;
-use crate::d128::{_IDEC_flags, RoundingMode};
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Rounds the decimal floating-point value num to an integer value in decicmal floating-point format, using the given rounding mode.
 pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: u32, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
