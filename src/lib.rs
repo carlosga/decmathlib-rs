@@ -5,6 +5,8 @@
 /* Licensed under the MIT license. See LICENSE file in the project root for full license information. */
 /* -------------------------------------------------------------------------------------------------- */
 
+//! Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.
+
 #![allow(clippy::needless_late_init)]
 #![allow(clippy::redundant_guards)]
 

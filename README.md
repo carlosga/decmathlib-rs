@@ -46,3 +46,9 @@ To run tests, run the following command
 ```bash
   cargo test
 ```
+
+To include the serde serialization/deserialization tests, run the following command
+
+```bash
+  cargo test --features serde
+```

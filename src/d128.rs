@@ -7,6 +7,8 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
+//! A 128-bit decimal floating point type (IEEE Standard 754-2008 compliant).
+
 #![allow(non_camel_case_types)]
 
 use std::cmp::Ordering;
@@ -157,22 +159,22 @@ pub const ZERO: d128 = d128 { w: [0x0000000000000000u64, 0x3040000000000000u64] 
 /// The number one (1).
 pub const ONE: d128 = d128 { w: [0x0000000000000001u64, 0x3040000000000000u64] };
 
-/// Not a Number (NaN)
+/// Not a Number (NaN).
 pub const NAN: d128 = d128 { w: [0x0000000000000000u64, 0x7c00000000000000u64] };
 
-/// Negative Not a Number (Nan)
+/// Negative Not a Number (Nan).
 pub const NEG_NAN: d128 = d128 { w: [0x0000000000000000u64, 0xFC00000000000000u64] };
 
-/// Signaling Not a Number (Nan)
+/// Signaling Not a Number (Nan).
 pub const SNAN: d128 = d128 { w: [0x0000000000000000u64, 0x7E00000000000000u64] };
 
-/// Negative signaling Not a Number (Nan)
+/// Negative signaling Not a Number (Nan).
 pub const NEG_SNAN: d128 = d128 { w: [0x0000000000000000u64, 0xFE00000000000000u64] };
 
-/// Infinity
+/// Infinity.
 pub const INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0x7800000000000000u64] };
 
-/// Negative Infinity
+/// Negative Infinity.
 pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF800000000000000u64] };
 
 /// The number of digits in the coefficient.
@@ -193,6 +195,7 @@ pub const MIN_EXP: i32 = -6142;
 /// The maximum exponent.
 pub const MAX_EXP: i32 = 6145;
 
+/// Macro to simplify the creation of instances of 128-bit decimal floating point numbers.
 #[macro_export]
 macro_rules! dec128 {
     ($t:tt) => {{
@@ -202,6 +205,7 @@ macro_rules! dec128 {
 }
 
 impl Default for d128 {
+    /// Returns the default value of 0.
     #[must_use]
     fn default() -> Self {
         Self::new(0x3040000000000000u64, 0x0)
@@ -1395,5 +1399,37 @@ impl<'a> std::iter::Sum<&'a d128> for d128 {
 impl<'a> std::iter::Product<&'a d128> for d128 {
     fn product<I: Iterator<Item=&'a Self>>(iter: I) -> Self {
         iter.fold(ONE, |a, b| a * b)
+    }
+}
+
+impl std::hash::Hash for d128 {
+    /// Computes the hash of a decimal floating point number.
+    /// ```
+    /// use std::hash::{DefaultHasher, Hash, Hasher};
+    ///
+    /// let mut hasher = DefaultHasher::new();
+    /// decmathlib_rs::dec128!(7920).hash(&mut hasher);
+    /// assert_eq!(6912922690305470905, hasher.finish());
+    /// ```
+    #[inline]
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        state.write_u64(self.w[0]);
+        state.write_u64(self.w[1]);
+    }
+
+    /// Computes the hash of a sequence of decimal floating point numbers.
+    /// ```
+    /// use std::hash::{DefaultHasher, Hash, Hasher};
+    ///
+    /// let mut hasher = DefaultHasher::new();
+    /// let numbers = [decmathlib_rs::dec128!(6), decmathlib_rs::dec128!(28), decmathlib_rs::dec128!(496), decmathlib_rs::dec128!(8128)];
+    /// Hash::hash_slice(&numbers, &mut hasher);
+    /// assert_eq!(16555189424726162492, hasher.finish());
+    /// ```
+    #[inline]
+    fn hash_slice<H: std::hash::Hasher>(data: &[d128], state: &mut H) {
+        let newlen: usize  = std::mem::size_of_val(data);
+        let ptr: *const u8 = data.as_ptr() as *const u8;
+        state.write(unsafe { std::slice::from_raw_parts(ptr, newlen) })
     }
 }
