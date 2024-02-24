@@ -7,135 +7,134 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
+use std::fmt::Formatter;
 use crate::bid128_2_str_tables::*;
 use crate::bid_internal::{BID_UINT32, BID_UINT64};
 
-pub (crate) fn __L0_Normalize_10to18(X_hi: &mut BID_UINT64, X_lo: &mut BID_UINT64) {
-    let L0_tmp: BID_UINT64 = *X_lo as BID_UINT64 + BID_TWOTO60_M_10TO18;
-    if (L0_tmp & BID_TWOTO60) == BID_TWOTO60 {
-        *X_hi += 1 ;
-        *X_lo  = (L0_tmp << 4) >> 4;
+pub (crate) fn __l0_normalize_10to18(x_hi: &mut BID_UINT64, x_lo: &mut BID_UINT64) {
+    let l0_tmp: BID_UINT64 = *x_lo as BID_UINT64 + BID_TWOTO60_M_10TO18;
+    if (l0_tmp & BID_TWOTO60) == BID_TWOTO60 {
+        *x_hi += 1 ;
+        *x_lo  = (l0_tmp << 4) >> 4;
     }
 }
 
-pub (crate) fn __L0_Normalize_10to9(X_hi: &mut BID_UINT32, X_lo: &mut BID_UINT32) {
-    let L0_tmp: BID_UINT32 = *X_lo + BID_TWOTO30_M_10TO9;
-    if (L0_tmp & 0x40000000) == 0x40000000 {
-        *X_hi += 1;
-        *X_lo  = (L0_tmp << 2) >> 2;
+pub (crate) fn __l0_normalize_10to9(x_hi: &mut BID_UINT32, x_lo: &mut BID_UINT32) {
+    let l0_tmp: BID_UINT32 = *x_lo + BID_TWOTO30_M_10TO9;
+    if (l0_tmp & 0x40000000) == 0x40000000 {
+        *x_hi += 1;
+        *x_lo  = (l0_tmp << 2) >> 2;
     }
 }
 
-pub (crate) fn __L0_Split_MiDi_2(X: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
-    let mut L0_head: BID_UINT32 = X >> 10;
-    let mut L0_tail: BID_UINT32 = (X & (0x03FF)) + (L0_head << 5) - (L0_head << 3);
-    let L0_tmp: BID_UINT32      = L0_tail >> 10;
-    L0_head                    += L0_tmp;
-    L0_tail                     = (L0_tail & (0x03FF)) + (L0_tmp<<5) - (L0_tmp << 3);
+pub (crate) fn __l0_split_midi_2(x: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
+    let mut l0_head: BID_UINT32 = x >> 10;
+    let mut l0_tail: BID_UINT32 = (x & (0x03FF)) + (l0_head << 5) - (l0_head << 3);
+    let l0_tmp: BID_UINT32      = l0_tail >> 10;
+    l0_head                    += l0_tmp;
+    l0_tail                     = (l0_tail & (0x03FF)) + (l0_tmp <<5) - (l0_tmp << 3);
 
-    if L0_tail > 999 {
-        L0_tail -= 1000;
-        L0_head += 1;
+    if l0_tail > 999 {
+        l0_tail -= 1000;
+        l0_head += 1;
     }
 
-    vec.push(L0_head);
-    vec.push(L0_tail);
+    vec.push(l0_head);
+    vec.push(l0_tail);
 }
 
-pub (crate) fn __L0_Split_MiDi_3(X: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
-    let mut L0_X: BID_UINT32    = X as BID_UINT32;
-    let mut L0_head: BID_UINT32 = ((L0_X >> 17) * 34359) >> 18;
-    L0_X                       -= L0_head * 1000000;
+pub (crate) fn __l0_split_midi_3(x: BID_UINT32, vec: &mut Vec<BID_UINT32>) {
+    let mut l0_x: BID_UINT32    = x as BID_UINT32;
+    let mut l0_head: BID_UINT32 = ((l0_x >> 17) * 34359) >> 18;
+    l0_x                       -= l0_head * 1000000;
 
-    if L0_X >= 1000000 {
-        L0_X    -= 1000000;
-        L0_head += 1;
+    if l0_x >= 1000000 {
+        l0_x    -= 1000000;
+        l0_head += 1;
     }
 
-    let mut L0_mid: BID_UINT32  = L0_X >> 10;
-    let mut L0_tail: BID_UINT32 = (L0_X & (0x03FF)) + (L0_mid << 5) - (L0_mid << 3);
-    let L0_tmp: BID_UINT32      = (L0_tail) >> 10;
-    L0_mid                     += L0_tmp;
-    L0_tail                     = (L0_tail & (0x3FF)) + (L0_tmp << 5) - (L0_tmp << 3);
+    let mut l0_mid: BID_UINT32  = l0_x >> 10;
+    let mut l0_tail: BID_UINT32 = (l0_x & (0x03FF)) + (l0_mid << 5) - (l0_mid << 3);
+    let l0_tmp: BID_UINT32      = (l0_tail) >> 10;
+    l0_mid                     += l0_tmp;
+    l0_tail                     = (l0_tail & (0x3FF)) + (l0_tmp << 5) - (l0_tmp << 3);
 
-    if L0_tail > 999 {
-        L0_tail -= 1000;
-        L0_mid  += 1;
+    if l0_tail > 999 {
+        l0_tail -= 1000;
+        l0_mid  += 1;
     }
 
-    vec.push(L0_head);
-    vec.push(L0_mid);
-    vec.push(L0_tail);
+    vec.push(l0_head);
+    vec.push(l0_mid);
+    vec.push(l0_tail);
 }
 
-pub (crate) fn __L1_Split_MiDi_6(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
-    let mut  L1_Xhi_64: BID_UINT64 = ((X >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
-    let mut  L1_Xlo_64: BID_UINT64 = X as BID_UINT64 - L1_Xhi_64 * (BID_TENTO9 as BID_UINT64);
+pub (crate) fn __l1_split_midi_6(x: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
+    let mut l1_xhi_64: BID_UINT64 = ((x >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
+    let mut l1_xlo_64: BID_UINT64 = x as BID_UINT64 - l1_xhi_64 * (BID_TENTO9 as BID_UINT64);
 
-    if L1_Xlo_64 >= (BID_TENTO9 as BID_UINT64) {
-        L1_Xlo_64 -= BID_TENTO9 as BID_UINT64;
-        L1_Xhi_64 += 1;
+    if l1_xlo_64 >= (BID_TENTO9 as BID_UINT64) {
+        l1_xlo_64 -= BID_TENTO9 as BID_UINT64;
+        l1_xhi_64 += 1;
     }
 
-    let L1_X_hi: BID_UINT32 = L1_Xhi_64 as BID_UINT32;
-    let L1_X_lo: BID_UINT32 = L1_Xlo_64 as BID_UINT32;
+    let l1_x_hi: BID_UINT32 = l1_xhi_64 as BID_UINT32;
+    let l1_x_lo: BID_UINT32 = l1_xlo_64 as BID_UINT32;
 
-    __L0_Split_MiDi_3(L1_X_hi, vec);
-    __L0_Split_MiDi_3(L1_X_lo, vec);
+    __l0_split_midi_3(l1_x_hi, vec);
+    __l0_split_midi_3(l1_x_lo, vec);
 }
 
-pub (crate) fn __L1_Split_MiDi_6_Lead(X: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
-    let L1_X_hi: BID_UINT32;
-    let L1_X_lo: BID_UINT32;
-    let mut L1_Xhi_64: BID_UINT64;
-    let mut L1_Xlo_64: BID_UINT64;
+pub (crate) fn __l1_split_midi_6_lead(x: BID_UINT64, vec: &mut Vec<BID_UINT32>) {
+    let l1_x_hi: BID_UINT32;
+    let l1_x_lo: BID_UINT32;
+    let mut l1_xhi_64: BID_UINT64;
+    let mut l1_xlo_64: BID_UINT64;
 
-    if X >= (BID_TENTO9 as BID_UINT64) {
-        L1_Xhi_64 = ((X >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
-        L1_Xlo_64 = X - L1_Xhi_64 * BID_TENTO9 as BID_UINT64;
+    if x >= (BID_TENTO9 as BID_UINT64) {
+        l1_xhi_64 = ((x >> 28) * (BID_INV_TENTO9 as BID_UINT64)) >> 33;
+        l1_xlo_64 = x - l1_xhi_64 * BID_TENTO9 as BID_UINT64;
 
-        if L1_Xlo_64 >= (BID_TENTO9 as BID_UINT64) {
-            L1_Xlo_64 -= BID_TENTO9 as BID_UINT64;
-            L1_Xhi_64 += 1;
+        if l1_xlo_64 >= (BID_TENTO9 as BID_UINT64) {
+            l1_xlo_64 -= BID_TENTO9 as BID_UINT64;
+            l1_xhi_64 += 1;
         }
 
-        L1_X_hi = L1_Xhi_64 as BID_UINT32;
-        L1_X_lo = L1_Xlo_64 as BID_UINT32;
+        l1_x_hi = l1_xhi_64 as BID_UINT32;
+        l1_x_lo = l1_xlo_64 as BID_UINT32;
 
-        if L1_X_hi >= BID_TENTO6 {
-            __L0_Split_MiDi_3(L1_X_hi, vec);
-            __L0_Split_MiDi_3(L1_X_lo, vec);
-        } else if L1_X_hi >= BID_TENTO3 {
-            __L0_Split_MiDi_2(L1_X_hi, vec);
-            __L0_Split_MiDi_3(L1_X_lo, vec);
+        if l1_x_hi >= BID_TENTO6 {
+            __l0_split_midi_3(l1_x_hi, vec);
+            __l0_split_midi_3(l1_x_lo, vec);
+        } else if l1_x_hi >= BID_TENTO3 {
+            __l0_split_midi_2(l1_x_hi, vec);
+            __l0_split_midi_3(l1_x_lo, vec);
         } else {
-            vec.push(L1_X_hi);
-            __L0_Split_MiDi_3(L1_X_lo, vec);
+            vec.push(l1_x_hi);
+            __l0_split_midi_3(l1_x_lo, vec);
         }
     } else {
-        L1_X_lo = X as BID_UINT32;
-        if L1_X_lo >= BID_TENTO6 {
-            __L0_Split_MiDi_3(L1_X_lo, vec);
-        } else if L1_X_lo >= BID_TENTO3 {
-            __L0_Split_MiDi_2(L1_X_lo, vec);
+        l1_x_lo = x as BID_UINT32;
+        if l1_x_lo >= BID_TENTO6 {
+            __l0_split_midi_3(l1_x_lo, vec);
+        } else if l1_x_lo >= BID_TENTO3 {
+            __l0_split_midi_2(l1_x_lo, vec);
         } else {
-            vec.push(L1_X_lo);
+            vec.push(l1_x_lo);
         }
     }
 }
 
-pub (crate) fn __L0_MiDi2Str(X: BID_UINT32, str: &mut String) {
-    str.push_str(BID_MIDI_TBL[X as usize]);
+pub (crate) fn __l0_midi_2_str(x: BID_UINT32, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+    fmt.write_str(BID_MIDI_TBL[x as usize])
 }
 
-pub (crate) fn __L0_MiDi2Str_Lead(X: BID_UINT32, str: &mut String) {
-    if X >= 100 {
-        str.push_str(BID_MIDI_TBL[X as usize]);
-    } else if X >= 10 {
-        str.push_str(&BID_MIDI_TBL[X as usize][1..]);
+pub (crate) fn __l0_midi_2_str_lead(x: BID_UINT32, fmt: &mut Formatter<'_>) -> std::fmt::Result {
+    if x >= 100 {
+        fmt.write_str(BID_MIDI_TBL[x as usize])
+    } else if x >= 10 {
+        fmt.write_str(&BID_MIDI_TBL[x as usize][1..])
     } else {
-        str.push_str(&BID_MIDI_TBL[X as usize][2..]);
+        fmt.write_str(&BID_MIDI_TBL[x as usize][2..])
     }
 }

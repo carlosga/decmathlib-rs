@@ -1004,25 +1004,25 @@ impl PartialOrd for d128 {
 
 impl Debug for d128 {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(fmt, "{}", bid128_to_string(self, true))
+        bid128_to_string(self, fmt, true)
     }
 }
 
 impl Display for d128 {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(fmt, "{}", bid128_to_string(self, true))
+        bid128_to_string(self, fmt, true)
     }
 }
 
 impl LowerExp for d128 {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(fmt, "{}", bid128_to_string(self, false))
+        bid128_to_string(self, fmt, false)
     }
 }
 
 impl UpperExp for d128 {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(fmt, "{}", bid128_to_string(self, true))
+        bid128_to_string(self, fmt, true)
     }
 }
 

@@ -8,12 +8,12 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(non_snake_case)]
-#![allow(unused_assignments)]
 
 //////////////////////////////////////////////
 //    BID128_to_string
 //////////////////////////////////////////////
 
+use std::fmt::{Formatter, Write};
 use crate::bid128::{BID_CHAR_TABLE2, BID_CHAR_TABLE3};
 use crate::bid128_2_str_macros::*;
 use crate::bid128_2_str_tables::MOD10_18_TBL;
@@ -22,10 +22,10 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 const MAX_FORMAT_DIGITS_128: usize = 34;
 const MAX_STRING_DIGITS_128: usize = 100;
-// const MAX_SEARCH: usize            = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
+// const MAX_SEARCH: usize         = MAX_STRING_DIGITS_128 - MAX_FORMAT_DIGITS_128 - 1;
 
 /// Convert 128-bit decimal floating-point value (binary encoding) to string format
-pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
+pub (crate) fn bid128_to_string(x: &BID_UINT128, fmt: &mut Formatter<'_>, upperExp: bool) -> std::fmt::Result {
     let x_sign: BID_UINT64;
     let mut x_exp: BID_UINT64;
     let mut exp: i32;   // unbiased exponent
@@ -40,7 +40,6 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
     let mut MiDi: Vec<BID_UINT32> = vec!();
     let mut midi_ind: i32;
     let mut k_lcv: usize;
-    let mut str = String::new();
 
     #[cfg(target_endian = "big")]
     let mut x = *x;
@@ -54,20 +53,20 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
         return if (x.w[1] & MASK_NAN) == MASK_NAN {   // x is NAN
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {    // x is SNAN
                 // set invalid flag
-                if (x.w[1] as BID_SINT64) < 0 { String::from("-SNaN") } else { String::from("+SNaN") }
+                if (x.w[1] as BID_SINT64) < 0 { fmt.write_str("-SNaN") } else { fmt.write_str("+SNaN") }
             } else {
                 // x is QNaN
-                if (x.w[1] as BID_SINT64) < 0 { String::from("-NaN") } else { String::from("+NaN") }
+                if (x.w[1] as BID_SINT64) < 0 { fmt.write_str("-NaN") } else { fmt.write_str("+NaN") }
             }
         } else { // x is not a NaN, so it must be infinity
-            if (x.w[1] & MASK_SIGN) == 0x0u64 { String::from("+Inf") } else { String::from("-Inf") }
+            if (x.w[1] & MASK_SIGN) == 0x0u64 { fmt.write_str("+Inf") } else { fmt.write_str("-Inf") }
         };
     } else if ((x.w[1] & MASK_COEFF) == 0x0u64) && (x.w[0] == 0x0u64) {
         //determine if +/-
         if upperExp {
-            str.push_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0E" } else { "+0E" });
+            fmt.write_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0E" } else { "+0E" })?;
         } else {
-            str.push_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0e" } else { "+0e" });
+            fmt.write_str(if (x.w[1] & MASK_SIGN) == MASK_SIGN { "-0e" } else { "+0e" })?;
         }
 
         // extract the exponent and print
@@ -77,11 +76,9 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
             exp = ((((x.w[1] << 2) & MASK_EXP) >> 49) as i32) - 6176;
         }
         if exp >= 0 {
-            str.push('+');
+            fmt.write_char('+')?;
         }
-        str.push_str(&exp.to_string());
-
-        return str;
+        return fmt.write_str(&exp.to_string());
     } else { // x is not special and is not zero
         // unpack x
         x_sign = x.w[1] & MASK_SIGN;            // 0 for positive, MASK_SIGN for negative
@@ -96,7 +93,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
         exp     = ((x_exp >> 49) - 6176) as i32;
 
         // determine sign's representation as a char
-        str.push(if x_sign != 0 { '-' /* negative number */ } else { '+' /* positive number */ });
+        fmt.write_char(if x_sign != 0 { '-' /* negative number */ } else { '+' /* positive number */ })?;
 
         // determine coefficient's representation as a decimal string
 
@@ -104,7 +101,7 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
         if (C1.w[1]  > 0x0001ed09bead87c0u64)
         || (C1.w[1] == 0x0001ed09bead87c0u64 && (C1.w[0] > 0x378d8e63ffffffffu64))
         || ((x.w[1]  & 0x6000000000000000u64) == 0x6000000000000000u64) || ((C1.w[1] == 0) && (C1.w[0] == 0)) {
-            str.push('0');
+            fmt.write_char('0')?;
         } else {
             /* ****************************************************
               This takes a bid coefficient in C1.w[1],C1.w[0]
@@ -147,30 +144,30 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
                 midi_ind  += 1;
                 LO_18Dig  += MOD10_18_TBL[k_lcv][midi_ind as usize];
                 k_lcv     += 1;
-                __L0_Normalize_10to18(&mut HI_18Dig, &mut LO_18Dig);
+                __l0_normalize_10to18(&mut HI_18Dig, &mut LO_18Dig);
             }
 
             if HI_18Dig == 0u64 {
-                __L1_Split_MiDi_6_Lead(LO_18Dig, &mut MiDi);
+                __l1_split_midi_6_lead(LO_18Dig, &mut MiDi);
             } else {
-                __L1_Split_MiDi_6_Lead(HI_18Dig, &mut MiDi);
-                __L1_Split_MiDi_6(LO_18Dig, &mut MiDi);
+                __l1_split_midi_6_lead(HI_18Dig, &mut MiDi);
+                __l1_split_midi_6(LO_18Dig, &mut MiDi);
             }
 
             /* now convert the MiDi into character strings */
-            __L0_MiDi2Str_Lead(MiDi[0], &mut str);
+            __l0_midi_2_str_lead(MiDi[0], fmt)?;
             for midi in MiDi[1..].iter() {
-                __L0_MiDi2Str(*midi, &mut str);
+                __l0_midi_2_str(*midi, fmt)?;
             }
         }
 
         // print E and sign of exponent
-        str.push(if upperExp { 'E' } else { 'e' });
+        fmt.write_char(if upperExp { 'E' } else { 'e' })?;
         if exp < 0 {
             exp = -exp;
-            str.push('-');
+            fmt.write_char('-')?;
         } else {
-            str.push('+');
+            fmt.write_char('+')?;
         }
 
         // determine exponent's representation as a decimal string
@@ -181,32 +178,32 @@ pub (crate) fn bid128_to_string(x: &BID_UINT128, upperExp: bool) -> String {
 
         if d0 != 0 {
             // 1000 <= exp <= 6144 => 4 digits to return
-            str.push(char::from_digit(d0, 10).unwrap());     // ASCII for decimal digit d0
+            fmt.write_char(char::from_digit(d0, 10).unwrap())?;     // ASCII for decimal digit d0
             ind = (3 * d123) as i32;
-            str.push(BID_CHAR_TABLE3[ind as usize]);
-            str.push(BID_CHAR_TABLE3[(ind + 1) as usize]);
-            str.push(BID_CHAR_TABLE3[(ind + 2) as usize]);
+            fmt.write_char(BID_CHAR_TABLE3[ind as usize])?;
+            fmt.write_char(BID_CHAR_TABLE3[(ind + 1) as usize])?;
+            fmt.write_char(BID_CHAR_TABLE3[(ind + 2) as usize])?;
         } else {
             // 0 <= exp <= 999 => d0 = 0
             if d123 < 10 {
                 // 0 <= exp <= 9 => 1 digit to return
-                str.push(char::from_digit(d123, 10).unwrap()); // ASCII
+                fmt.write_char(char::from_digit(d123, 10).unwrap())?; // ASCII
             } else if d123 < 100 {
                 // 10 <= exp <= 99 => 2 digits to return
                 ind = (2 * (d123 - 10)) as i32;
-                str.push(BID_CHAR_TABLE2[ind as usize]);
-                str.push(BID_CHAR_TABLE2[(ind + 1) as usize]);
+                fmt.write_char(BID_CHAR_TABLE2[ind as usize])?;
+                fmt.write_char(BID_CHAR_TABLE2[(ind + 1) as usize])?;
             } else {
                 // 100 <= exp <= 999 => 3 digits to return
                 ind = (3 * d123) as i32;
-                str.push(BID_CHAR_TABLE3[ind as usize]);
-                str.push(BID_CHAR_TABLE3[(ind + 1) as usize]);
-                str.push(BID_CHAR_TABLE3[(ind + 2) as usize]);
+                fmt.write_char(BID_CHAR_TABLE3[ind as usize])?;
+                fmt.write_char(BID_CHAR_TABLE3[(ind + 1) as usize])?;
+                fmt.write_char(BID_CHAR_TABLE3[(ind + 2) as usize])?;
             }
         }
     }
 
-    str
+    Ok(())
 }
 
 /// Convert a decimal floating-point value represented in string format
@@ -245,9 +242,6 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
     }
 
     // eliminate leading white space
-    // while (str.chars().nth(ps) == Some(' ')) || (str.chars().nth(ps) == Some('\t')) {
-    //     ps += 1;
-    // }
 
     ps += str.chars().take_while(|c| *c == ' ' || *c == '\t').count();
 
@@ -366,7 +360,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
     // initialize local variables
     ndigits_before = 0;
     ndigits_after  = 0;
-    ndigits_total  = 0;
+    // ndigits_total  = 0;
     sgn_exp        = 0;
     // pstart_coefficient = ps;
 
