@@ -180,13 +180,13 @@ pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF8000000
 /// The number of digits in the coefficient.
 pub const MANTISSA_DIGITS: u32 = 34;
 
-/// The difference between 1 and the least value greater than 1 that is representable in the given floating point type.
+/// The difference between 1 and the least value greater than 1 that is representable in the given floating point type (1E-33DL).
 pub const EPSILON: d128 = d128 { w: [0x1u64, 0x2FFE000000000000u64] };
 
-/// Smallest finite d128 value.
+/// Smallest finite value (1E-6143).
 pub const MIN: d128 = d128 { w: [0x1u64, 0x42000000000000u64] };
 
-/// Largest finite value.
+/// Largest finite value (9.999999999999999999999999999999999E6144).
 pub const MAX: d128 = d128 { w: [0x378D8E63FFFFFFFFu64, 0x5FFFED09BEAD87C0u64] };
 
 /// The minimum exponent.
