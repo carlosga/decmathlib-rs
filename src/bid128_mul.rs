@@ -7,7 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
 #![allow(dead_code)]
 
 #[cfg(target_endian = "big")]

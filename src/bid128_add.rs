@@ -8,7 +8,6 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(unused_assignments)]
-#![allow(non_snake_case)]
 #![allow(dead_code)]
 
 #[cfg(target_endian = "big")]

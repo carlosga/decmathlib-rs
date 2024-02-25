@@ -7,7 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
 #![allow(overflowing_literals)]
 
 use crate::bid128::*;

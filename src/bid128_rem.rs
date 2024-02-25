@@ -6,11 +6,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128, BID_POWER10_TABLE_128};
 use crate::bid_div_macros::bid___div_128_by_128;
-use crate::bid_internal::{__mul_128x128_low, __mul_128x128_to_256, __set_status_flags, __sub_128_128, __sub_256_128_to_256, __unsigned_compare_ge_256_128, __unsigned_compare_gt_128, __unsigned_compare_gt_128_256, bid_get_BID128_very_fast, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT64, INFINITY_MASK64, NAN_MASK64, QUIET_MASK64, SNAN_MASK64, unpack_BID128_value};
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// Decimal floating-point remainder

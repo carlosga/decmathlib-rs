@@ -7,7 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(unused_assignments)]
 #![allow(dead_code)]
 
 use crate::bid128::{BID_TEN2K128, BID_TEN2K64};
@@ -24,12 +23,12 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
     let mut sig_t: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,
@@ -157,10 +156,10 @@ pub (crate) fn bid128_quiet_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mu
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
-    let mut x_is_zero = false;
-    let mut y_is_zero = false;
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
+    let mut x_is_zero: bool = false;
+    let mut y_is_zero: bool = false;
     let non_canon_x: bool;
     let non_canon_y: bool;
 
@@ -394,12 +393,12 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,
@@ -627,12 +626,12 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,
@@ -862,12 +861,12 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,
@@ -1095,12 +1094,12 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,
@@ -1329,12 +1328,12 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
     let mut diff: i32;
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered
@@ -1562,12 +1561,12 @@ pub (crate) fn bid128_quiet_not_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
     let mut sig_x: BID_UINT128 = BID_UINT128::default();
     let mut sig_y: BID_UINT128 = BID_UINT128::default();
     let mut sig_t: BID_UINT128 = BID_UINT128::default();
-    let mut sig_n_prime192: BID_UINT192 = BID_UINT192::default();
-    let mut sig_n_prime256: BID_UINT256 = BID_UINT256::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
     let mut y_is_zero: bool = false;
-    let mut non_canon_x: bool = false;
-    let mut non_canon_y: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
     // NaN (CASE1)
     // if either number is NAN, the comparison is unordered,

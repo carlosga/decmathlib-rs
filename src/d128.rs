@@ -180,7 +180,7 @@ pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF8000000
 /// The number of digits in the coefficient.
 pub const MANTISSA_DIGITS: u32 = 34;
 
-/// The difference between 1 and the least value greater than 1 that is representable in the given floating point type (1E-33DL).
+/// The difference between 1 and the least value greater than 1 that is representable in the given floating point type (1E-33).
 pub const EPSILON: d128 = d128 { w: [0x1u64, 0x2FFE000000000000u64] };
 
 /// Smallest finite value (1E-6143).

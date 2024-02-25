@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_convert_data::{BID_CONVERT_TABLE, BID_FACTORS, BID_PACKED_10000_ZEROS};
 use crate::bid_decimal_data::*;
 use crate::bid_div_macros::{bid___div_128_by_128, bid___div_256_by_128};

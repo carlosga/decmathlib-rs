@@ -7,10 +7,8 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE_128};
-use crate::bid_internal::{__add_128_128, __add_carry_in_out, __add_carry_out, __mul_128x128_low, __mul_128x128_to_256, __set_status_flags, __shr_128, __unsigned_compare_ge_128, bid_get_BID128_very_fast, BID_UI32FLOAT, BID_UINT128, BID_UINT256, BID_UINT32, BID_UINT64, QUIET_MASK64, SNAN_MASK64, unpack_BID128_value};
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Quantize(x, y) is a floating-point number in the same format that

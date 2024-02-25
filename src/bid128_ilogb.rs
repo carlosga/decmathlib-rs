@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_INDEX_BINEXP_128};
 use crate::bid_internal::{DECIMAL_EXPONENT_BIAS_128, __set_status_flags, BID_SINT64, BID_UI32FLOAT, BID_UINT128, BID_UINT64, unpack_BID128_value};
 use crate::d128::{_IDEC_flags, StatusFlags};

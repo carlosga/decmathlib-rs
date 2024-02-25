@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_internal::*;
 
 pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID_UINT128, BID_UINT128){

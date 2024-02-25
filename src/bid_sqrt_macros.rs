@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 use crate::bid_internal::*;
 
 pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {

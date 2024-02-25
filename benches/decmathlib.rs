@@ -9,6 +9,7 @@
 #![allow(non_snake_case)]
 
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use decmathlib_rs::d128::{_IDEC_flags, d128};#[derive(Debug, Copy, Clone)]
 
@@ -48,7 +49,7 @@ fn carbon_gas_benchmark(c: &mut Criterion) {
     // precision and counteract the resulting noise.
     group.significance_level(0.1).sample_size(10);
     group.bench_with_input(BenchmarkId::new("carbon_gas", inputs), &inputs, |b, &i| {
-        b.iter(|| carbon_gas(i.k, i.T, i.a, i.b, i.N, i.p, i.V, i.iterations));
+        b.iter(|| carbon_gas(black_box(i.k), black_box(i.T), black_box(i.a), black_box(i.b), black_box(i.N), black_box(i.p), black_box(i.V), black_box(i.iterations)));
     });
     group.finish();
 }
@@ -110,7 +111,7 @@ fn kepler_benchmark(c: &mut Criterion) {
     // precision and counteract the resulting noise.
     group.significance_level(0.1).sample_size(10);
     group.bench_with_input(BenchmarkId::new("kepler", inputs), &inputs, |b, &i| {
-        b.iter(|| kepler(i.x1, i.x2, i.x3, i.x4, i.iterations));
+        b.iter(|| kepler(black_box(i.x1), black_box(i.x2), black_box(i.x3), black_box(i.x4), black_box(i.iterations)));
     });
     group.finish();
 }
@@ -136,5 +137,14 @@ fn kepler(x1: d128, x2: d128, x3: d128, x4: d128, maxiter: u32) -> d128 {
     black_box(rnd128)
 }
 
-criterion_group!(benches, kepler_benchmark, carbon_gas_benchmark);
+fn from_string_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("decmathlib");
+    // Configure Criterion.rs to detect smaller differences and increase sample size to improve
+    // precision and counteract the resulting noise.
+    group.significance_level(0.1).sample_size(10);
+    group.bench_function("from_string", |b| b.iter(|| d128::from_str("9.999999999999999999999999999999999E6144")));
+    group.finish();
+}
+
+criterion_group!(benches, from_string_benchmark, kepler_benchmark, carbon_gas_benchmark);
 criterion_main!(benches);

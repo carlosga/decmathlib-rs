@@ -7,7 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
 #![allow(overflowing_literals)]
 
 use crate::bid128::{BID_MASKHIGH128, BID_MIDPOINT128, BID_MIDPOINT64, BID_NR_DIGITS, BID_ONEHALF128, BID_SHIFTRIGHT128, BID_TEN2K128, BID_TEN2K64, BID_TEN2MK128, BID_TEN2MK128TRUNC};

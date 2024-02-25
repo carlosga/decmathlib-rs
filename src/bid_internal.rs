@@ -8,7 +8,6 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_assignments)]
 
@@ -786,7 +785,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 #[inline]
 pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
     let mut coeff: BID_UINT128 = BID_UINT128::default();
-    let mut T33: BID_UINT128 = BID_UINT128::default();
+    let T33: &BID_UINT128;
     let T34: &BID_UINT128;
     let ex: BID_UINT64;
 
@@ -803,7 +802,7 @@ pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &m
             return 0;
         }
         // 10^33
-        T33 = BID_POWER10_TABLE_128[33];
+        T33 = &BID_POWER10_TABLE_128[33];
 
         pcoefficient_x.w[BID_LOW_128W]  = x.w[BID_LOW_128W];
         pcoefficient_x.w[BID_HIGH_128W] = (x.w[BID_HIGH_128W]) & 0x00003fffffffffffu64;
@@ -1602,7 +1601,7 @@ pub (crate) fn __sqr128_to_256(P256: &mut BID_UINT256, A: &BID_UINT128) {
 #[inline]
 pub (crate) fn __mul_64x320_to_512(A: BID_UINT64, B: &BID_UINT512) -> BID_UINT512 {
     let mut P: BID_UINT512 = BID_UINT512::default();
-    let mut lC: BID_UINT64 = 0;
+    let mut lC: BID_UINT64;
 	let lP0: BID_UINT128 = __mul_64x64_to_128(A, B.w[0]);
 	let lP1: BID_UINT128 = __mul_64x64_to_128(A, B.w[1]);
 	let lP2: BID_UINT128 = __mul_64x64_to_128(A, B.w[2]);

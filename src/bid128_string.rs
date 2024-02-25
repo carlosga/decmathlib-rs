@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(non_snake_case)]
-
 //////////////////////////////////////////////
 //    BID128_to_string
 //////////////////////////////////////////////
@@ -416,8 +414,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
         while c.is_some() && char::is_digit(c.unwrap(), 10) /*&& ndigits_total < MAX_STRING_DIGITS_128*/ {
             if ndigits_total < MAX_FORMAT_DIGITS_128 {
                 buffer[ndigits_total] = c.unwrap();
-            }
-            else if ndigits_total < MAX_STRING_DIGITS_128  {
+            } else if ndigits_total < MAX_STRING_DIGITS_128  {
                 buffer[ndigits_total] = c.unwrap();
                 if c.unwrap() as i32 > '0' as i32 {
                     set_inexact = true;
@@ -469,9 +466,10 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
             ps       += 1;
 
             if dec_expon == 0 {
-                while str.chars().nth(ps) == Some('0') {
-                    ps += 1;
-                }
+                ps += str.char_indices().take_while(|(i, c)| *i >= ps && *c == '0').count();
+                // while str.chars().nth(ps) == Some('0') {
+                //     ps += 1;
+                // }
             }
 
             if str.chars().nth(ps).is_some() {
