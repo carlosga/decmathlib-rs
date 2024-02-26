@@ -9,8 +9,7 @@
 
 use crate::bid128_add::bid128_sub;
 use crate::bid128_round_integral::bid128_round_integral_zero;
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::BID_UINT128;
+use crate::bid_internal::{BID_HIGH_128W, BID_LOW_128W, BID_UINT128};
 use crate::d128::{_IDEC_flags, RoundingMode};
 
 /// Decomposes given decimal floating point value num into integral and fractional parts.

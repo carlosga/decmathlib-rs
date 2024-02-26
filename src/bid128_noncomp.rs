@@ -34,8 +34,7 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_string::bid128_from_string;
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_64x128_to_192, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL};
+use crate::bid_internal::*;
 use crate::d128::{DEFAULT_ROUNDING_MODE, _IDEC_flags, ClassTypes};
 
 /// Return true if and only if x has negative sign

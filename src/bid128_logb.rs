@@ -11,8 +11,7 @@
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128_ilogb::bid128_ilogb;
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{QUIET_MASK64, __set_status_flags, BID_UINT128, BID_UINT64, unpack_BID128_value};
+use crate::bid_internal::{QUIET_MASK64, __set_status_flags, BID_UINT128, BID_UINT64, unpack_BID128_value, BID_HIGH_128W, BID_LOW_128W};
 use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// Returns the exponent e of x, a signed integral value, determined

@@ -11,9 +11,31 @@
 #![allow(dead_code)]
 #![allow(unused_assignments)]
 
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_decimal_data::{BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE, BID_ROUND_CONST_TABLE_128};
 use crate::d128::{_IDEC_flags, RoundingMode, StatusFlags};
+
+//////////////////////////////////////////////
+// Endianess
+//////////////////////////////////////////////
+
+#[cfg(target_endian = "big")]
+pub (crate) const BID_HIGH_128W: usize = 0;
+
+#[cfg(target_endian = "big")]
+pub (crate) const BID_LOW_128W: usize = 1;
+
+#[cfg(target_endian = "little")]
+pub (crate) const BID_HIGH_128W: usize = 1;
+
+#[cfg(target_endian = "little")]
+pub (crate) const BID_LOW_128W: usize = 0;
+
+#[cfg(target_endian = "big")]
+pub (crate) fn BID_SWAP128(x: &mut crate::bid_internal::BID_UINT128) {
+    let sw: crate::bid_internal::BID_UINT64 = x.w[1];
+    x.w[1] = x.w[0];
+    x.w[0] = sw;
+}
 
 //////////////////////////////////////////////
 // Structs & Types

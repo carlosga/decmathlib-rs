@@ -9,7 +9,6 @@
 
 use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_not_equal};
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 

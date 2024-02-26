@@ -52,9 +52,8 @@ use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid128_to_uint64::*;
 use crate::bid64_to_bid128::{bid128_to_bid64, bid64_to_bid128};
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
-use crate::bid_internal::{BID_UINT128, BID_UINT64, DEC_FE_DIVBYZERO, DEC_FE_INEXACT, DEC_FE_INVALID, DEC_FE_OVERFLOW, DEC_FE_UNDERFLOW, DEC_FE_UNNORMAL, MASK_COEFF, MASK_EXP};
+use crate::bid_internal::*;
 use crate::d64::d64;
 
 /// A classification of decimal floating point numbers.

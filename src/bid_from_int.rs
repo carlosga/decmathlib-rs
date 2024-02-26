@@ -10,8 +10,7 @@
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
 
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{BID_UINT128, BID_UINT64, SIGNMASK32, SIGNMASK64};
+use crate::bid_internal::{BID_HIGH_128W, BID_LOW_128W, BID_UINT128, BID_UINT64, SIGNMASK32, SIGNMASK64};
 
 pub (crate) fn bid128_from_int32(x: i32) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128::default();

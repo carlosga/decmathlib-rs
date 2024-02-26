@@ -51,7 +51,6 @@ mod bid128_to_int32;
 mod bid128_to_int64;
 mod bid128_to_uint32;
 mod bid128_to_uint64;
-mod bid_conf;
 mod bid_convert_data;
 mod bid_decimal_data;
 mod bid_div_macros;

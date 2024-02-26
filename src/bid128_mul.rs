@@ -14,8 +14,7 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128_fma::{bid128_fma, bid64qqq_fma};
 use crate::bid64_to_bid128::bid64_to_bid128;
-use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{BID_SINT64, BID_UINT128, BID_UINT64, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN};
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, RoundingMode};
 
 pub (crate) fn bid64dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
