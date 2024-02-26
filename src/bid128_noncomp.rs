@@ -29,8 +29,6 @@
 /*  - bid128_total_order_mag                                                                          */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(dead_code)]
-
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;
 
@@ -913,10 +911,10 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
 }
 
 /// Return the radix b of the format of x, 2 or 10
-pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
-    // (x.w[BID_LOW_128W]) { 10 } else { 10 }
-    10
-}
+// pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
+//     // (x.w[BID_LOW_128W]) { 10 } else { 10 }
+//     10
+// }
 
 pub (crate) fn bid128_inf() -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128::default();

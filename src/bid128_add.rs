@@ -18,7 +18,7 @@ use crate::bid128_fma::bid64qqq_fma;
 use crate::bid64_to_bid128::bid64_to_bid128;
 use crate::bid_conf::BID_HIGH_128W;
 use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, EXP_MAX_P1, EXP_P1, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34};
-use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode, ONE};
 
 /////////////////////////////////////
 /// BID64/BID128 add
@@ -37,9 +37,7 @@ pub (crate) fn bid64qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMod
 }
 
 pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let one: BID_UINT128 = BID_UINT128::new(0x0000000000000001u64, 0x3040000000000000u64);
-    // Swapped on ::new
-    // BID_SWAP128(one);
+    let one: BID_UINT128 = ONE;
     let res: BID_UINT64 = bid64qqq_fma(&one, x, y, rnd_mode, pfpsf);
     res
 }
@@ -82,10 +80,8 @@ pub (crate) fn bid64qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMod
 }
 
 pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let one: BID_UINT128   = BID_UINT128::new(0x0000000000000001u64, 0x3040000000000000u64);
+    let one: BID_UINT128   = ONE;
     let mut y: BID_UINT128 = *y;
-    // swapped on ::new
-    // BID_SWAP128(one);
     if (y.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN {   // y is not NAN
         // change its sign
         let y_sign = y.w[BID_HIGH_128W] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative

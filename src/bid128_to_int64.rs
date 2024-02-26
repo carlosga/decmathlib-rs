@@ -9,8 +9,8 @@
 
 #![allow(overflowing_literals)]
 
-use crate::bid128::{BID_MASKHIGH128, BID_MIDPOINT128, BID_MIDPOINT64, BID_NR_DIGITS, BID_ONEHALF128, BID_SHIFTRIGHT128, BID_TEN2K64, BID_TEN2MK128, BID_TEN2MK128TRUNC};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, MASK_COEFF, MASK_EXP, MASK_SIGN, MASK_SPECIAL};
+use crate::bid128::*;
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// Convert 128-bit decimal floating-point value to 64-bit signed

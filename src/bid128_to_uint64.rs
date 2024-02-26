@@ -10,7 +10,7 @@
 #![allow(overflowing_literals)]
 
 use crate::bid128::*;
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, MASK_COEFF, MASK_EXP, MASK_SIGN, MASK_SPECIAL};
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// Convert 128-bit decimal floating-point value to 64-bit unsigned

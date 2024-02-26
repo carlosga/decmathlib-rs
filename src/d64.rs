@@ -12,6 +12,6 @@
 use crate::bid_internal::BID_UINT64;
 
 /// The 64-bit decimal type.
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 #[repr(transparent)]
 pub struct d64(pub BID_UINT64);

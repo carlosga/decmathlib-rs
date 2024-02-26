@@ -7,8 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-#![allow(unused)]
-
 use crate::bid_internal::{BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, DEC_DIGITS};
 
 /// the first entry of BID_NR_DIGITS[i - 1] (where 1 <= i <= 113), indicates
@@ -478,6 +476,7 @@ pub (crate) const  BID_ONEHALF128: [BID_UINT64; 34] = [
     0x0000002000000000u64   // 102 bits
 ];
 
+/*
 pub (crate) const  BID_TEN2MK64: [BID_UINT64; 16] = [
     0x199999999999999au64,  //  10^(-1) * 2^ 64
     0x028f5c28f5c28f5du64,  //  10^(-2) * 2^ 64
@@ -496,6 +495,7 @@ pub (crate) const  BID_TEN2MK64: [BID_UINT64; 16] = [
     0x0024075f3dceac2cu64,  // 10^(-15) * 2^103
     0x0039a5652fb11379u64,  // 10^(-16) * 2^107
 ];
+*/
 
 /// BID_TEN2MK128TRUNC[] contains T*, the top Ex >= 128 bits of 10^(-k),
 /// for 1 <= k <= 34 the 64-bit word order is L, H
@@ -536,6 +536,7 @@ pub (crate) const  BID_TEN2MK128TRUNC: [BID_UINT128; 34] = [
     BID_UINT128 { w: [0xad2f56bc4efbc2c4u64, 0x00213b0f25f69892u64] },  // 10^(-34) * 2^230
 ];
 
+/*
 /// BID_TEN2MK128M[k - 1] = 10^(-k) * 2^exp (k), where 1 <= k <= 4 and
 /// exp (k) = BID_SHIFTRIGHT128[k - 1] + 128
 /// the 64-bit word order is L, H
@@ -792,6 +793,7 @@ pub (crate) const  BID_ONEHALF256M: [BID_UINT64; 11] = [
     0x0000100000000000u64,  //  45 = 365 - 320 bits
     0x0000800000000000u64   //  48 = 368 - 320 bits
 ];
+*/
 
 /// BID_CHAR_TABLE2[] is used to convert n to string, where 10 <= n <= 99
 pub (crate) const  BID_CHAR_TABLE2: [char; 180] = [
@@ -940,6 +942,7 @@ pub (crate) const  BID_CHAR_TABLE3: [char; 3000] = [
     '6', '9', '9', '7', '9', '9', '8', '9', '9', '9'
 ];
 
+/*
 /// BID_TEN2M3K64[], BID_SHIFT_TEN2M3K64[] used for conversion from BID128 to string
 pub (crate) const  BID_TEN2M3K64: [BID_UINT64; 5] = [
     0x4189374bc6a7ef9eu64,  // 4189374bc6a7ef9e * 2^-72  = (10^-3)RP,63
@@ -984,6 +987,7 @@ pub (crate) const  BID_SHIFT_TEN2M3K128: [u32; 11] = [
     32,  // 224 - 192
     44   // 236 - 192
 ];
+*/
 
 /***************************************************************************
  *************** TABLES FOR GENERAL ROUNDING FUNCTIONS *********************

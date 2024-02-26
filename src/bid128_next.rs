@@ -10,7 +10,7 @@
 use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_not_equal};
 use crate::bid_conf::{BID_HIGH_128W, BID_LOW_128W};
-use crate::bid_internal::{__mul_128x64_to_128, __mul_64x64_to_128MACH, BID_UI64DOUBLE, BID_UINT128, BID_UINT64, EXP_MIN, EXP_P1, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34};
+use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 
 /// Returns the least 128-bit decimal floating-point number that
