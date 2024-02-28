@@ -94,14 +94,14 @@ pub (crate) fn bid128_to_int32_rnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -427,14 +427,14 @@ pub (crate) fn bid128_to_int32_xrnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = (33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = (1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    =  C1.w[1] as f64; // exact conversion
-                x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -835,14 +835,14 @@ pub (crate) fn bid128_to_int32_floor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -1222,14 +1222,14 @@ pub (crate) fn bid128_to_int32_xfloor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -1622,14 +1622,14 @@ pub (crate) fn bid128_to_int32_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -2008,14 +2008,14 @@ pub (crate) fn bid128_to_int32_xceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -2405,14 +2405,14 @@ pub (crate) fn bid128_to_int32_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> 
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -2771,14 +2771,14 @@ pub (crate) fn bid128_to_int32_xint(x: & BID_UINT128, pfpsf: &mut _IDEC_flags) -
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -3151,14 +3151,14 @@ pub (crate) fn bid128_to_int32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = 33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d    = C1.w[0] as f64; // exact conversion
-                    x_nr_bits = 1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    x_nr_bits = 1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d    = C1.w[1] as f64; // exact conversion
-                x_nr_bits = 65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                x_nr_bits = 65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -3464,16 +3464,16 @@ pub (crate) fn bid128_to_int32_xrninta(x : &BID_UINT128, pfpsf: &mut _IDEC_flags
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d = (C1.w[0] >> 32) as f64; // exact conversion
                     x_nr_bits =
-                        33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                        33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 } else { // if x < 2^53
                     tmp1.d = C1.w[0] as f64; // exact conversion
                     x_nr_bits =
-                        1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                        1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp1.d = C1.w[1] as f64; // exact conversion
                 x_nr_bits =
-                    65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff);
+                    65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff);
             }
         }
         q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;

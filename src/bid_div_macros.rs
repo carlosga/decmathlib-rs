@@ -40,7 +40,7 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
 
     // 2^64
     unsafe {
-        t64.i = 0x43f0000000000000u64;
+        t64.ui64 = 0x43f0000000000000u64;
         lx = (CX.w[1] as f64) * t64.d + (CX.w[0] as f64);
         ly = (CY.w[1] as f64) * t64.d + (CY.w[0] as f64);
         lq = lx / ly;
@@ -58,7 +58,7 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
 
         unsafe {
             // 2^(-60)*CX/CY
-            d60.i = 0x3c30000000000000u64;
+            d60.ui64 = 0x3c30000000000000u64;
             lq   *= d60.d;
             Q     = (lq as BID_UINT64) - 4u64;
 
@@ -87,7 +87,7 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
             // Q > 2^51
 
             // 2^(-49)*CX/CY
-            d49.i = 0x3ce0000000000000u64;
+            d49.ui64 = 0x3ce0000000000000u64;
             lq   *= d49.d;
 
             Q = (lq as BID_UINT64) - 1u64;
@@ -180,7 +180,7 @@ pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT25
 
     unsafe {
         // 2^64
-        t64.i = 0x43f0000000000000u64;
+        t64.ui64 = 0x43f0000000000000u64;
         d128  = t64.d * t64.d;
         d192  = d128 * t64.d;
         lx    = (CA4.w[3] as f64) * d192 + ((CA4.w[2] as f64) * d128 + ((CA4.w[1] as f64) * t64.d + (CA4.w[0] as f64)));
@@ -199,7 +199,7 @@ pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT25
     if CA4.w[3] > CY36.w[2] || (CA4.w[3] == CY36.w[2] && (CA4.w[2] > CY36.w[1] || (CA4.w[2] == CY36.w[1] && CA4.w[1] >= CY36.w[0]))) {
         unsafe  {
             // 2^(-60)*CA4/CY
-            d60.i = 0x3c30000000000000u64;
+            d60.ui64 = 0x3c30000000000000u64;
             lq   *= d60.d;
             Q     = (lq as BID_UINT64) - 4u64;
 
@@ -237,7 +237,7 @@ pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT25
             // Q > 2^51
 
             // 2^(-49)*CA4/CY
-            d49.i = 0x3ce0000000000000u64;
+            d49.ui64 = 0x3ce0000000000000u64;
             lq   *= d49.d;
 
             Q = (lq as BID_UINT64) - 1u64;
