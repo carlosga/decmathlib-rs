@@ -143,7 +143,7 @@ pub (crate) fn bid128_fmod(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_f
         return res;
     }
     // 2^64
-    f64.i  = 0x5f800000;
+    f64.ui32  = 0x5f800000;
     scale0 = 38;
 
     if CY.w[1] == 0 {
@@ -155,7 +155,7 @@ pub (crate) fn bid128_fmod(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_f
             // get number of digits in CX and scale=38-digits
             // fx ~ CX
             fx.d         = (CX.w[1] as f32) * f64.d + (CX.w[0] as f32);
-            bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
+            bin_expon_cx = (((fx.ui32 >> 23) & 0xff) - 0x7f) as i32;
             scale        = scale0 - BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
             // scale = 38-estimate_decimal_digits[bin_expon_cx];
             D            = (CX.w[1] - BID_POWER10_INDEX_BINEXP_128[bin_expon_cx as usize].w[1]) as BID_SINT64;

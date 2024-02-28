@@ -1079,14 +1079,14 @@ pub (crate) fn bid128_ext_fma(
                 if C1.w[0] >= 0x0020000000000000u64 { // x >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp.d     = (C1.w[0] >> 32) as f64; // exact conversion
-                    x_nr_bits = (33 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (33 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else { // if x < 2^53
                     tmp.d     = C1.w[0] as f64;         // exact conversion
-                    x_nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (1 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             } else { // C1.w[1] != 0 => nr. bits = 64 + nr_bits (C1.w[1])
                 tmp.d     = C1.w[1] as f64;             // exact conversion
-                x_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (65 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
             q1 = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
             if q1 == 0 {
@@ -1106,14 +1106,14 @@ pub (crate) fn bid128_ext_fma(
                 if C2.w[0] >= 0x0020000000000000u64 { // y >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp.d     = (C2.w[0] >> 32) as f64; // exact conversion
-                    y_nr_bits = (33 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    y_nr_bits = (33 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else { // if y < 2^53
                     tmp.d     = C2.w[0] as f64;         // exact conversion
-                    y_nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    y_nr_bits = (1 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             } else { // C2.w[1] != 0 => nr. bits = 64 + nr_bits (C2.w[1])
                 tmp.d     = C2.w[1] as f64;           // exact conversion
-                y_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                y_nr_bits = (65 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
             q2 = BID_NR_DIGITS[(y_nr_bits - 1) as usize].digits as i32;
             if q2 == 0 {
@@ -1133,14 +1133,14 @@ pub (crate) fn bid128_ext_fma(
                 if C3.w[0] >= 0x0020000000000000u64 { // z >= 2^53
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp.d     = (C3.w[0] >> 32) as f64; // exact conversion
-                    z_nr_bits = (33 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    z_nr_bits = (33 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else { // if z < 2^53
                     tmp.d     = C3.w[0] as f64;         // exact conversion
-                    z_nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    z_nr_bits = (1 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             } else { // C3.w[1] != 0 => nr. bits = 64 + nr_bits (C3.w[1])
                 tmp.d     = C3.w[1] as f64;          // exact conversion
-                z_nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                z_nr_bits = (65 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
             q3 = BID_NR_DIGITS[(z_nr_bits - 1) as usize].digits as i32;
             if q3 == 0 {
@@ -3389,9 +3389,9 @@ pub (crate) fn bid128_ext_fma(
             p_sign    = tmp_sign;
             // TODO: Avoid
             unsafe  {
-                tmp.i = z_exp;
+                tmp.ui64 = z_exp;
                 z_exp = p_exp;
-                p_exp = tmp.i;
+                p_exp = tmp.ui64;
             }
 
 // TODO: Try to ge around C goto
@@ -4218,14 +4218,14 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
             if C.w[0] >= 0x0020000000000000u64 {  // x >= 2^53
                 // split the 64-bit value in two 32-bit halves to avoid rounding errors
                 tmp.d   = (C.w[0] >> 32) as f64;    // exact conversion
-                nr_bits = (33 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                nr_bits = (33 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             } else { // if x < 2^53
                 tmp.d   = C.w[0] as f64;            // exact conversion
-                nr_bits = (1 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                nr_bits = (1 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         } else { // C.w[1] != 0 => nr. bits = 64 + nr_bits (C.w[1])
             tmp.d   = C.w[1] as f64;              // exact conversion
-            nr_bits = (65 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+            nr_bits = (65 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
     q = BID_NR_DIGITS[(nr_bits - 1) as usize].digits as i32;

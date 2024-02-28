@@ -145,13 +145,13 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
             // CX < CY
 
             // 2^64
-            f64.i = 0x5f800000;
+            f64.ui32 = 0x5f800000;
 
             // fx ~ CX,   fy ~ CY
             fx.d      = (CX.w[1] as f32) * f64.d + (CX.w[0] as f32);
             fy.d      = (CY.w[1] as f32) * f64.d + (CY.w[0] as f32);
             // expon_cy - expon_cx
-            bin_index = ((fy.i - fx.i) >> 23) as i32;
+            bin_index = ((fy.ui32 - fx.ui32) >> 23) as i32;
 
             CA = if CX.w[1] != 0 {
                 T = BID_POWER10_INDEX_BINEXP_128[bin_index as usize].w[0];
@@ -186,10 +186,10 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
         unsafe  {
             // get number of decimal digits in CQ
             // 2^64
-            f64.i     = 0x5f800000;
+            f64.ui32     = 0x5f800000;
             fx.d      = (CQ.w[1] as f32) * f64.d + (CQ.w[0] as f32);
             // binary expon. of CQ
-            bin_expon = ((fx.i - 0x3f800000) >> 23) as i32;
+            bin_expon = ((fx.ui32 - 0x3f800000) >> 23) as i32;
 
             digits_q   = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon as usize];
             TP128.w[0] = BID_POWER10_INDEX_BINEXP_128[bin_expon as usize].w[0];

@@ -82,7 +82,7 @@ pub (crate) struct DEC_DIGITS {
 }
 
 pub (crate) union BID_UI32FLOAT {
-    pub (crate) i: BID_UINT32,
+    pub (crate) ui32: BID_UINT32,
     pub (crate) d: f32
 }
 
@@ -90,13 +90,13 @@ impl Default for BID_UI32FLOAT {
     #[must_use]
     fn default() -> Self {
         Self {
-            i: 0
+            ui32: 0
         }
     }
 }
 
 pub (crate) union BID_UI64DOUBLE {
-    pub (crate) i: BID_UINT64,
+    pub (crate) ui64: BID_UINT64,
     pub (crate) d: f64
 }
 
@@ -104,7 +104,7 @@ impl Default for BID_UI64DOUBLE {
     #[must_use]
     fn default() -> Self {
         Self {
-            i: 0
+            ui64: 0
         }
     }
 }

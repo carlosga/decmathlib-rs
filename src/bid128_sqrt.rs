@@ -77,11 +77,11 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _
 
     unsafe {
         // 2^64
-        f64.i = 0x5f800000;
+        f64.ui32 = 0x5f800000;
 
         // fx ~ CX
         fx.d         = (CX.w[1] as f32) * f64.d + (CX.w[0] as f32);
-        bin_expon_cx = (((fx.i >> 23) & 0xff) - 0x7f) as i32;
+        bin_expon_cx = (((fx.ui32 >> 23) & 0xff) - 0x7f) as i32;
         digits       = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx as usize];
     }
 

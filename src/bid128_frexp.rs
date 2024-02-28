@@ -78,19 +78,19 @@ pub (crate) fn bid128_frexp(x: &BID_UINT128) -> (BID_UINT128, i32) {
                     // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     if sig_x.w[0] >= 0x0000000100000000u64 { // z >= 2^32
                         tmp.d     = (sig_x.w[0] >> 32) as f64; // exact conversion
-                        x_nr_bits = (32 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
+                        x_nr_bits = (32 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
                     } else { // z < 2^32
                         tmp.d     = sig_x.w[0] as f64; // exact conversion
-                        x_nr_bits = ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff) as usize;
+                        x_nr_bits = ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as usize;
 
                     }
                 } else { // if z < 2^53
                     tmp.d     = sig_x.w[0] as f64; // exact conversion
-                    x_nr_bits = ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff) as usize;
+                    x_nr_bits = ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as usize;
                 }
             } else { // sig_x.w[1] != 0 => nr. bits = 65 + nr_bits (sig_x.w[1])
                 tmp.d     = sig_x.w[1] as f64; // exact conversion
-                x_nr_bits = (64 + ((((tmp.i >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
+                x_nr_bits = (64 + ((((tmp.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as usize;
             }
         }
         q = BID_NR_DIGITS[x_nr_bits].digits as i32;

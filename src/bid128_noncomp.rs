@@ -88,14 +88,14 @@ pub (crate) fn bid128_is_normal(x: &BID_UINT128) -> bool {
             if C1_lo >= 0x0020000000000000u64 {	// x >= 2^53
                 // split the 64-bit value in two 32-bit halves to avoid rounding errors
                 tmp1.d    = (C1_lo >> 32) as f64;	// exact conversion
-                x_nr_bits = (33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             } else {	// if x < 2^53
                 tmp1.d    = C1_lo as f64;	// exact conversion
-                x_nr_bits = (1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         } else {	// C1_hi != 0 => nr. bits = 64 + nr_bits (C1_hi)
             tmp1.d    = C1_hi as f64;	// exact conversion
-            x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+            x_nr_bits = (65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
     q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;
@@ -158,14 +158,14 @@ pub (crate) fn bid128_is_subnormal(x: &BID_UINT128) -> bool {
             if C1_lo >= 0x0020000000000000u64 {	// x >= 2^53
                 // split the 64-bit value in two 32-bit halves to avoid rounding errors
                 tmp1.d    = (C1_lo >> 32) as f64;	// exact conversion
-                x_nr_bits = (33 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (33 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             } else {	// if x < 2^53
                 tmp1.d    = C1_lo as f64;	// exact conversion
-                x_nr_bits = (1 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (1 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         } else {	// C1_hi != 0 => nr. bits = 64 + nr_bits (C1_hi)
             tmp1.d    = C1_hi as f64;	// exact conversion
-            x_nr_bits = (65 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+            x_nr_bits = (65 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
         }
     }
     q = BID_NR_DIGITS[(x_nr_bits - 1) as usize].digits as i32;

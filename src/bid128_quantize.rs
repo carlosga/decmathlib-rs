@@ -122,10 +122,10 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: Round
         // get number of decimal digits in coefficient_x
         if CX.w[1] != 0 {
             tempx.d      = CX.w[1] as f32;
-            bin_expon_cx = (((tempx.i >> 23) & 0xff) - 0x7f + 64) as i32;
+            bin_expon_cx = (((tempx.ui32 >> 23) & 0xff) - 0x7f + 64) as i32;
         } else {
             tempx.d      = CX.w[0] as f32;
-            bin_expon_cx = (((tempx.i >> 23) & 0xff) - 0x7f) as i32;
+            bin_expon_cx = (((tempx.ui32 >> 23) & 0xff) - 0x7f) as i32;
         }
     }
 

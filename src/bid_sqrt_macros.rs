@@ -27,12 +27,12 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
 
     unsafe {
         // 2^64
-        f64.i = 0x43f0000000000000u64;
+        f64.ui64 = 0x43f0000000000000u64;
         l64   = f64.d;
         lx    = (A10.w[1] as f64) * l64 + (A10.w[0] as f64);
         ly.d  = 1.0 / lx.sqrt();
-        MY    = (ly.i & 0x000fffffffffffffu64) | 0x0010000000000000u64;
-        ey    = (0x3ff - (ly.i >> 52)) as i32;
+        MY    = (ly.ui64 & 0x000fffffffffffffu64) | 0x0010000000000000u64;
+        ey    = (0x3ff - (ly.ui64 >> 52)) as i32;
     }
     // A10*RS^2
     ARS0 = __mul_64x128_to_256(MY, A10);
@@ -122,7 +122,7 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
 
     unsafe {
         // 2^64
-        f64.i = 0x43f0000000000000u64;
+        f64.ui64 = 0x43f0000000000000u64;
         l64   = f64.d;
 
         l128 = l64 * l64;
@@ -136,8 +136,8 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
         // sqrt(C256)
         ly.d = 1.0 / lx.sqrt();
 
-        MY = (ly.i & 0x000fffffffffffffu64) | 0x0010000000000000u64;
-        ey = (0x3ff - (ly.i >> 52)) as i32;
+        MY = (ly.ui64 & 0x000fffffffffffffu64) | 0x0010000000000000u64;
+        ey = (0x3ff - (ly.ui64 >> 52)) as i32;
     }
 
     // A10*RS^2, scaled by 2^(2*ey+104)

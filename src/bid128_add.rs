@@ -373,14 +373,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                                                                 // split the 64-bit value in two 32-bit halves to avoid
                                                                 // rounding errors
                             tmp2.d    = (C2_lo >> 32) as f64;   // exact conversion
-                            y_nr_bits = (32 + ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                            y_nr_bits = (32 + ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                         } else {                                // if y < 2^53
                             tmp2.d    = C2_lo as f64;           // exact conversion
-                            y_nr_bits = ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
+                            y_nr_bits = ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
                         }
                     } else {                                    // C2_hi != 0 => nr. bits = 64 + nr_bits (C2_hi)
                         tmp2.d    = C2_hi as f64;               // exact conversion
-                        y_nr_bits = (64 + ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                        y_nr_bits = (64 + ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                     }
                 }
                 q2 = BID_NR_DIGITS[y_nr_bits as usize].digits as i32;
@@ -446,14 +446,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                                                             // split the 64-bit value in two 32-bit halves to avoid
                                                             // rounding errors
                         tmp1.d    = (C1_lo >> 32) as f64;   // exact conversion
-                        x_nr_bits = (32 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                        x_nr_bits = (32 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                     } else {                                // if x < 2^53
                         tmp1.d    = C1_lo as f64;           // exact conversion
-                        x_nr_bits = ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
+                        x_nr_bits = ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
                     }
                 } else {                                    // C1_hi != 0 => nr. bits = 64 + nr_bits (C1_hi)
                     tmp1.d    = C1_hi as f64;               // exact conversion
-                    x_nr_bits = (64 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (64 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 }
             }
             q1 = BID_NR_DIGITS[x_nr_bits as usize].digits as i32;
@@ -525,14 +525,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                 if C1_lo >= 0x0020000000000000u64 {   // x >= 2^53
                                                         // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp1.d    = (C1_lo >> 32) as f64;   // exact conversion
-                    x_nr_bits = (32 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    x_nr_bits = (32 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else {                                // if x < 2^53
                     tmp1.d    = C1_lo as f64;           // exact conversion
-                    x_nr_bits = ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
+                    x_nr_bits = ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
                 }
             } else {                                    // C1_hi != 0 => nr. bits = 64 + nr_bits (C1_hi)
                 tmp1.d    = C1_hi as f64;               // exact conversion
-                x_nr_bits = (64 + ((((tmp1.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                x_nr_bits = (64 + ((((tmp1.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         }
 
@@ -552,14 +552,14 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                 if C2_lo >= 0x0020000000000000u64 {   // y >= 2^53
                                                         // split the 64-bit value in two 32-bit halves to avoid rounding errors
                     tmp2.d    = (C2_lo >> 32) as f64;   // exact conversion
-                    y_nr_bits = (32 + ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                    y_nr_bits = (32 + ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
                 } else {                                // if y < 2^53
                     tmp2.d    = C2_lo as f64;           // exact conversion
-                    y_nr_bits = ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
+                    y_nr_bits = ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff) as i32;
                 }
             } else {                                    // C2_hi != 0 => nr. bits = 64 + nr_bits (C2_hi)
                 tmp2.d    = C2_hi as f64;               // exact conversion
-                y_nr_bits = (64 + ((((tmp2.i >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
+                y_nr_bits = (64 + ((((tmp2.ui64 >> 52) as u32) & 0x7ff) - 0x3ff)) as i32;
             }
         }
 

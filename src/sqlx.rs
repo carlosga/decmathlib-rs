@@ -108,7 +108,7 @@ fn __get_dec_digits64(X: &BID_UINT128) -> i32 {
         unsafe {
             //--- get number of bits in the coefficients of x and y ---
             tempx.d      = X.w[0] as f64;
-            bin_expon_cx = (((tempx.i & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
+            bin_expon_cx = (((tempx.ui64 & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
         }
         // get number of decimal digits in the coeff_x
         digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx];
@@ -119,7 +119,7 @@ fn __get_dec_digits64(X: &BID_UINT128) -> i32 {
     }
     unsafe {
         tempx.d      = X.w[1] as f64;
-        bin_expon_cx = (((tempx.i & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
+        bin_expon_cx = (((tempx.ui64 & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
     }
     // get number of decimal digits in the coeff_x
     digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx + 64];
