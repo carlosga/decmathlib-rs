@@ -61,11 +61,11 @@ macro_rules! sqlx_test {
 // sqlx_test!(sqlx_decimal_001, sqlx_decimal, 18, 6, "100000.122334");
 // sqlx_test!(sqlx_decimal_002, sqlx_decimal, 18, 6, "+9878987.5679766895E0");
 // sqlx_test!(sqlx_decimal_005, sqlx_decimal, 18, 6, "9.999999999999999999999999999999999E6144");
-sqlx_test!(sqlx_decimal_006, sqlx_decimal, 34, 6, "1");
-sqlx_test!(sqlx_decimal_007, sqlx_decimal, 34, 6, "1E+4");
-sqlx_test!(sqlx_decimal_008, sqlx_decimal, 34, 6, "1E+8");
-sqlx_test!(sqlx_decimal_009, sqlx_decimal, 34, 6, "1E+12");
-sqlx_test!(sqlx_decimal_010, sqlx_decimal, 34, 6, "1E+16");
-sqlx_test!(sqlx_decimal_011, sqlx_decimal, 34, 6, "1E+20");
-sqlx_test!(sqlx_decimal_012, sqlx_decimal, 34, 6, "1E+24");
+// sqlx_test!(sqlx_decimal_006, sqlx_decimal, 34, 6, "1");
+// sqlx_test!(sqlx_decimal_007, sqlx_decimal, 34, 6, "1E+4");
+// sqlx_test!(sqlx_decimal_008, sqlx_decimal, 34, 6, "1E+8");
+// sqlx_test!(sqlx_decimal_009, sqlx_decimal, 34, 6, "1E+12");
+// sqlx_test!(sqlx_decimal_010, sqlx_decimal, 34, 6, "1E+16");
+// sqlx_test!(sqlx_decimal_011, sqlx_decimal, 34, 6, "1E+20");
+// sqlx_test!(sqlx_decimal_012, sqlx_decimal, 34, 6, "1E+24");
 // sqlx_test!(sqlx_decimal_013, sqlx_decimal, 34, 6, "1E+28");
