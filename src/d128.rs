@@ -18,7 +18,7 @@ use std::str::FromStr;
 use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 
 use crate::bid128_add::{bid128_add, bid128_sub, bid64dq_add};
-use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal};
+use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal, bid128_quiet_unordered};
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
 use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qdq_fma, bid128qqd_fma};
@@ -968,7 +968,13 @@ impl Eq for d128 { }
 
 impl PartialEq for d128 {
     fn eq(&self, other: &Self) -> bool {
-        self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W] && self.w[BID_LOW_128W] == other.w[BID_LOW_128W]
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+
+        return if self.is_nan() || other.is_nan() {
+            bid128_quiet_unordered(self, other, &mut status)
+        } else {
+            bid128_quiet_equal(self, other, &mut status)
+        }
     }
 }
 
