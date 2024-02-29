@@ -7,9 +7,6 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018 Intel Corp.                        */
 /* -------------------------------------------------------------------------------------------------- */
 
-#[cfg(feature = "sqlx")]
-use std::str::FromStr;
-
 #[macro_export]
 macro_rules! sqlx_test {
     ($name:ident, sqlx_decimal, $precision:expr, $scale:expr, $input1:expr) => {
