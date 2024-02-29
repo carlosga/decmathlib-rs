@@ -2162,7 +2162,7 @@ pub (crate) fn bid128_quiet_unordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &
         }
         return true;
     }
-    return false;
+    false
 }
 
 /*
