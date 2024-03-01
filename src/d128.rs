@@ -43,6 +43,7 @@ use crate::bid128_quantexp::bid128_quantexp;
 use crate::bid128_quantize::bid128_quantize;
 use crate::bid128_quantum::bid128_quantum;
 use crate::bid128_rem::bid128_rem;
+use crate::bid128_round_integral::bid128_round_integral_zero;
 use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
 use crate::bid128_sqrt::bid128_sqrt;
@@ -975,6 +976,14 @@ impl d128 {
     #[must_use]
     pub fn quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_not_equal(lhs, rhs, status)
+    }
+
+    /// Round 128-bit decimal floating-point value to integral-valued decimal
+    /// floating-point value in the same format, using the rounding-to-zero mode;
+    /// do not signal inexact exceptions
+    #[must_use]
+    pub fn round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+        bid128_round_integral_zero(x, pfpsf)
     }
 }
 

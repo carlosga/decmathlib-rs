@@ -11,6 +11,9 @@ use crate::bid128::{BID_NR_DIGITS, BID_SHIFTRIGHT128, BID_TEN2MK128};
 use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags};
 
+/// Round 128-bit decimal floating-point value to integral-valued decimal
+/// floating-point value in the same format, using the rounding-to-zero mode;
+/// do not signal inexact exceptions
 pub (crate) fn bid128_round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = BID_UINT128::default();
     let x_sign: BID_UINT64;
