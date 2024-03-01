@@ -2130,28 +2130,19 @@ if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_pr
     return res;
 }
 }
-
-BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_quiet_ordered, x, y)
-
-int res;
-
-// NaN (CASE1)
-// if either number is NAN, the comparison is ordered : return 1
-if (((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN)) {
-    if ((x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN) {
-        *pfpsf |= BID_INVALID_EXCEPTION;
-    }
-    {
-        res = 0;
-        return res;
-    }
-}
-{
-    res = 1;
-    return res;
-}
-}
 */
+
+pub (crate) fn bid128_quiet_ordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
+    // NaN (CASE1)
+    // if either number is NAN, the comparison is ordered : return 1
+    if ((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN) {
+        if (x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN {
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+        }
+        return false;
+    }
+    true
+}
 
 pub (crate) fn bid128_quiet_unordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
     // NaN (CASE1)
