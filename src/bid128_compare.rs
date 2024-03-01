@@ -2130,49 +2130,33 @@ if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_pr
     return res;
 }
 }
+*/
 
-BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_quiet_ordered, x, y)
-
-int res;
-
-// NaN (CASE1)
-// if either number is NAN, the comparison is ordered : return 1
-if (((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN)) {
-    if ((x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN) {
-        *pfpsf |= BID_INVALID_EXCEPTION;
+pub (crate) fn bid128_quiet_ordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
+    // NaN (CASE1)
+    // if either number is NAN, the comparison is ordered : return 1
+    if ((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN) {
+        if (x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN {
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+        }
+        return false;
     }
-    {
-        res = 0;
-        return res;
+    true
+}
+
+pub (crate) fn bid128_quiet_unordered(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
+    // NaN (CASE1)
+    // if either number is NAN, the comparison is unordered : return 1
+    if ((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN) {
+        if (x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN {
+            *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+        }
+        return true;
     }
-}
-{
-    res = 1;
-    return res;
-}
+    false
 }
 
-BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_quiet_unordered, x, y)
-
-int res;
-
-// NaN (CASE1)
-// if either number is NAN, the comparison is unordered : return 1
-if (((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN)) {
-    if ((x.w[1] & MASK_SNAN) == MASK_SNAN || (y.w[1] & MASK_SNAN) == MASK_SNAN) {
-        *pfpsf |= BID_INVALID_EXCEPTION;
-    }
-    {
-        res = 1;
-        return res;
-    }
-}
-{
-    res = 0;
-    return res;
-}
-}
-
+/*
 BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_signaling_greater, x, y)
 
 int res;
