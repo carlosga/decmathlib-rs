@@ -938,6 +938,13 @@ impl d128 {
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
+    pub fn quiet_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_unordered(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
     pub fn quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater_equal(lhs, rhs, status)
     }
