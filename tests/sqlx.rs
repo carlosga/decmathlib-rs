@@ -48,7 +48,7 @@ macro_rules! sqlx_test {
                 .fetch_one(&pool)
                 .await?;
 
-            assert_eq!(dec1, result.value);
+            assert_eq!(dec1.to_string(), result.value.to_string());
 
             Ok(())
         }
@@ -66,3 +66,4 @@ macro_rules! sqlx_test {
 // sqlx_test!(sqlx_decimal_011, sqlx_decimal, 34, 6, "1E+20");
 // sqlx_test!(sqlx_decimal_012, sqlx_decimal, 34, 6, "1E+24");
 // sqlx_test!(sqlx_decimal_013, sqlx_decimal, 34, 6, "1E+28");
+
