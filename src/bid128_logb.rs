@@ -19,8 +19,8 @@ use crate::d128::{_IDEC_flags, StatusFlags};
 pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut exponent_x: i32 = 0;
     let mut sign_x: BID_UINT64 = 0;
-    let mut res: BID_UINT128 = BID_UINT128::default();
-    let mut CX: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
+    let mut CX: BID_UINT128 = Default::default();
 
     #[cfg(target_endian = "big")]
     let mut x = *x;

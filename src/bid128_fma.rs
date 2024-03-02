@@ -15,7 +15,7 @@ use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128::*;
 use crate::bid64_to_bid128::{bid128_to_bid64, bid64_to_bid128};
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x128_full, __mul_64x128_to_128, __mul_64x64_to_128MACH, BID_HIGH_128W, BID_LOW_128W, BID_SINT64, BID_UI64DOUBLE, BID_UINT128, BID_UINT192, BID_UINT256, BID_UINT64, EXP_MAX16_UNBIASED, EXP_MAX_UNBIASED, EXP_MIN16_UNBIASED, EXP_MIN_UNBIASED, EXP_P1, MASK_ANY_INF, MASK_BINARY_SIG1, MASK_BINARY_SIG2, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_STEERING_BITS, P16, P34};
+use crate::bid_internal::*;
 use crate::bid_round::*;
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
@@ -128,7 +128,7 @@ pub (crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x + yl assume the sum fits in 256 bits
     let mut x: BID_UINT256 = *x;
     let y: BID_UINT256 = *y;
-    let mut z: BID_UINT256 = BID_UINT256::default();
+    let mut z: BID_UINT256 = Default::default();
     z.w[0] = x.w[0] + y.w[0];
     if z.w[0] < x.w[0] {
         x.w[1] += 1;
@@ -157,7 +157,7 @@ pub (crate) fn bid_add256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
 pub (crate) fn bid_sub256(x: &BID_UINT256, y: &BID_UINT256) -> BID_UINT256 {
     // *z = x - y; assume x >= y
     let mut x: BID_UINT256 = *x;
-    let mut z: BID_UINT256 = BID_UINT256::default();
+    let mut z: BID_UINT256 = Default::default();
     z.w[0] = x.w[0] - y.w[0];
     if z.w[0] > x.w[0] {
         x.w[1] -= 1;
@@ -257,16 +257,16 @@ pub (crate) fn bid_add_and_round(
     ptr_is_inexact_gt_midpoint: &mut bool,
     ptrfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 
-    let mut ptrres: BID_UINT128 = BID_UINT128::default();
+    let mut ptrres: BID_UINT128 = Default::default();
     let mut scale: i32;
     let mut x0: i32;
     let mut ind: i32;
     let R64: BID_UINT64;
-    let mut P128: BID_UINT128 = BID_UINT128::default();
-    let mut R128: BID_UINT128 = BID_UINT128::default();
-    let mut P192: BID_UINT192 = BID_UINT192::default();
+    let mut P128: BID_UINT128 = Default::default();
+    let mut R128: BID_UINT128 = Default::default();
+    let mut P192: BID_UINT192 = Default::default();
     let R192: BID_UINT192;
-    let mut R256: BID_UINT256 = BID_UINT256::default();
+    let mut R256: BID_UINT256 = Default::default();
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;
     let mut is_inexact_lt_midpoint: bool = false;
@@ -687,10 +687,10 @@ pub (crate) fn bid128_ext_fma(
     let mut z_exp: BID_UINT64 = 0;
     let mut p_exp: BID_UINT64;
     let true_p_exp: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C2: BID_UINT128 = BID_UINT128::default();
-    let mut C3: BID_UINT128 = BID_UINT128::default();
-    let mut C4: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C2: BID_UINT128 = Default::default();
+    let mut C3: BID_UINT128 = Default::default();
+    let mut C4: BID_UINT256 = Default::default();
     let mut q1: i32 = 0;
     let mut q2: i32 = 0;
     let mut q3: i32 = 0;
@@ -704,7 +704,7 @@ pub (crate) fn bid128_ext_fma(
     let mut delta: i32;
     let mut x0: i32;
     let p34: i32 = P34; // used to modify the limit on the number of digits
-    let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: i32;
     let y_nr_bits: i32;
     let z_nr_bits: i32;
@@ -725,11 +725,11 @@ pub (crate) fn bid128_ext_fma(
     let mut is_tiny: bool = false;
     let mut R64: BID_UINT64;
     let tmp64: BID_UINT64;
-    let mut P128: BID_UINT128 = BID_UINT128::default();
-    let mut R128: BID_UINT128 = BID_UINT128::default();
-    let mut P192: BID_UINT192 = BID_UINT192::default();
+    let mut P128: BID_UINT128 = Default::default();
+    let mut R128: BID_UINT128 = Default::default();
+    let mut P192: BID_UINT192 = Default::default();
     let mut R192: BID_UINT192;
-    let mut R256: BID_UINT256 = BID_UINT256::default();
+    let mut R256: BID_UINT256 = Default::default();
     let mut x: BID_UINT128 = *x;
     let mut y: BID_UINT128 = *y;
     let mut z: BID_UINT128 = *z;
@@ -4120,7 +4120,7 @@ pub (crate) fn bid64qqq_fma(x: &BID_UINT128, y: &BID_UINT128, z: &BID_UINT128, r
     let exp: BID_UINT64;
     let mut unbexp: i32;
     let mut C: BID_UINT128 = Default::default();
-    let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp: BID_UI64DOUBLE = Default::default();
     let nr_bits: i32;
     let mut q: i32;
     let mut x0: i32;

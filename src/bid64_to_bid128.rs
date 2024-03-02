@@ -16,8 +16,8 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
 pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut new_coeff: BID_UINT128    = BID_UINT128::default();
-    let mut res: BID_UINT128          = BID_UINT128::default();
+    let mut new_coeff: BID_UINT128    = Default::default();
+    let mut res: BID_UINT128          = Default::default();
     let mut sign_x: BID_UINT64        = 0;
     let mut exponent_x: i32           = 0;
     let mut coefficient_x: BID_UINT64 = 0;
@@ -42,23 +42,23 @@ pub fn bid64_to_bid128(x: BID_UINT64, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
 
 /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
 pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let mut CX: BID_UINT128    = BID_UINT128::default();
+    let mut CX: BID_UINT128    = Default::default();
     let mut T128: BID_UINT128;
     let TP128: BID_UINT128;
     let mut Qh: BID_UINT128;
     let Ql: BID_UINT128;
     let mut Qh1: BID_UINT128;
-    let mut Stemp: BID_UINT128 = BID_UINT128::default();
-    let mut Tmp: BID_UINT128   = BID_UINT128::default();
+    let mut Stemp: BID_UINT128 = Default::default();
+    let mut Tmp: BID_UINT128   = Default::default();
     let Tmp1: BID_UINT128;
-    let mut CX1: BID_UINT128   = BID_UINT128::default();
+    let mut CX1: BID_UINT128   = Default::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut carry: BID_UINT64;
     let cy: BID_UINT64;
     let res: BID_UINT64;
     let D: BID_SINT64;
-    let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
-    let mut fx: BID_UI32FLOAT  = BID_UI32FLOAT::default();
+    let mut f64: BID_UI32FLOAT = Default::default();
+    let mut fx: BID_UI32FLOAT  = Default::default();
     let mut exponent_x: i32    = 0;
     let mut extra_digits: i32;
     let amount: i32;

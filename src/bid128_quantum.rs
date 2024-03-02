@@ -12,7 +12,7 @@ use crate::bid_internal::{BID_UINT64, BID_UINT128, MASK_ANY_INF, MASK_INF, MASK_
 /// The quantumdN functions compute the quantum of a finite argument.
 /// If x is infinite, the result is +Inf. If x is NaN, the result is NaN.
 pub (crate) fn bid128_quantum(x: &BID_UINT128) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     // If x is infinite, the result is +Inf. If x is NaN, the result is NaN
     if (x.w[1] & MASK_ANY_INF) == MASK_INF {

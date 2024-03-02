@@ -38,8 +38,8 @@ pub (crate) fn bid64qq_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingM
     let y_exp: BID_UINT64;
     let p_exp: BID_UINT64;
     let true_p_exp: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C2: BID_UINT128 = BID_UINT128::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C2: BID_UINT128 = Default::default();
 
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut z);
@@ -141,8 +141,8 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     let y_exp: BID_UINT64;
     let p_exp: BID_UINT64;
     let true_p_exp: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C2: BID_UINT128 = BID_UINT128::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C2: BID_UINT128 = Default::default();
 
     #[cfg(target_endian = "big")]
     let mut x = *x;

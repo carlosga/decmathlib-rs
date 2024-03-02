@@ -19,13 +19,13 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
     let exp: i32;                      // unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let tmp64: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: usize;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // check for NaN or Infinity

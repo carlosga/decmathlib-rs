@@ -159,8 +159,8 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     let mut tmp64: BID_UINT64;
     let mut tmp64A: BID_UINT64;
     let mut tmp64B: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut tmp2: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
+    let mut tmp2: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: i32;
     let y_nr_bits: i32;
     let mut q1: i32;
@@ -173,13 +173,13 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     let mut tmp_inexact: bool = false;
     let halfulp64: BID_UINT64;
     let halfulp128: &BID_UINT128;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C2: BID_UINT128 = BID_UINT128::default();
-    let mut ten2m1: BID_UINT128 = BID_UINT128::default();
-    let mut highf2star: BID_UINT128 = BID_UINT128::default(); // top 128 bits in f2*; low 128 bits in R256[1], R256[0]
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C2: BID_UINT128 = Default::default();
+    let mut ten2m1: BID_UINT128 = Default::default();
+    let mut highf2star: BID_UINT128 = Default::default(); // top 128 bits in f2*; low 128 bits in R256[1], R256[0]
     let mut P256: BID_UINT256;
     let mut Q256: BID_UINT256;
-    let mut R256: BID_UINT256 = BID_UINT256::default();
+    let mut R256: BID_UINT256 = Default::default();
     let mut is_inexact: bool = false;
     let mut is_midpoint_lt_even: bool = false;
     let mut is_midpoint_gt_even: bool = false;

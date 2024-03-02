@@ -13,15 +13,15 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
     let mut ARS: BID_UINT256;
     let ARS0: BID_UINT256;
     let AE0: BID_UINT256;
-    let mut AE: BID_UINT256 = BID_UINT256::default();
-    let mut S: BID_UINT256 = BID_UINT256::default();
+    let mut AE: BID_UINT256 = Default::default();
+    let mut S: BID_UINT256 = Default::default();
     let MY: BID_UINT64;
     let mut ES: BID_UINT64;
     let mut CY: BID_UINT64;
     let lx: f64;
     let l64: f64;
-    let mut f64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut ly: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut f64: BID_UI64DOUBLE = Default::default();
+    let mut ly: BID_UI64DOUBLE = Default::default();
     let ey: i32;
     let mut k: i32;
 
@@ -98,13 +98,13 @@ pub (crate) fn short_sqrt128(A10: &BID_UINT128) -> BID_UINT64 {
 pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     let ARS0: BID_UINT512;
     let ARS: BID_UINT512;
-    let mut ARS00: BID_UINT256 = BID_UINT256::default();
+    let mut ARS00: BID_UINT256 = Default::default();
     let AE: BID_UINT256;
     let AE2: BID_UINT256;
-    let mut S: BID_UINT256 = BID_UINT256::default();
-    let mut ES: BID_UINT128 = BID_UINT128::default();
+    let mut S: BID_UINT256 = Default::default();
+    let mut ES: BID_UINT128 = Default::default();
     let ES2: BID_UINT128;
-    let mut ARS1: BID_UINT128 = BID_UINT128::default();
+    let mut ARS1: BID_UINT128 = Default::default();
     let ES32: BID_UINT64;
     let mut CY: BID_UINT64;
     let MY: BID_UINT64;
@@ -114,8 +114,8 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     let l2: f64;
     let l1: f64;
     let l0: f64;
-    let mut f64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut ly: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut f64: BID_UI64DOUBLE = Default::default();
+    let mut ly: BID_UI64DOUBLE = Default::default();
     let ey: i32;
     let mut k: i32;
     let mut k2: i32;

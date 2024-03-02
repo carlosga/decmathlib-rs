@@ -19,8 +19,8 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
     let exp_x: i32;
     let exp_y: i32;
     let mut diff: i32;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
-    let mut sig_y: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
@@ -269,8 +269,8 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     let exp_x: i32;
     let exp_y: i32;
     let mut diff: i32;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
-    let mut sig_y: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x: BID_UINT128 = *x;
@@ -532,8 +532,8 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
     let exp_x: i32;
     let exp_y: i32;
     let mut diff: i32;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
-    let mut sig_y: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x_is_zero: bool = false;
@@ -777,8 +777,8 @@ pub (crate) fn bid128_maxnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     let exp_x: i32;
     let exp_y: i32;
     let mut diff: i32;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
-    let mut sig_y: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x: BID_UINT128 = *x;

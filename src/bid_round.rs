@@ -105,7 +105,7 @@ pub (crate) fn bid_round64_2_18(
     ptr_is_inexact_gt_midpoint: &mut bool) -> BID_UINT64 {
 
     let P128: BID_UINT128;
-    let mut fstar: BID_UINT128 = BID_UINT128::default();
+    let mut fstar: BID_UINT128 = Default::default();
     let mut Cstar: BID_UINT64;
     let tmp64: BID_UINT64;
     let shift: i32;
@@ -207,8 +207,8 @@ pub (crate) fn bid_round128_19_38(
     ptr_is_inexact_gt_midpoint: &mut bool) -> BID_UINT128 {
 
     let P256: BID_UINT256;
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();
+    let mut fstar: BID_UINT256 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
     let mut ind: usize;
@@ -416,7 +416,7 @@ pub (crate) fn bid_round192_39_57(
 
     let P384: BID_UINT384;
     let mut fstar: BID_UINT384 = BID_UINT384::default();
-    let mut Cstar: BID_UINT192 = BID_UINT192::default();
+    let mut Cstar: BID_UINT192 = Default::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
     let mut ind: usize;
@@ -717,7 +717,7 @@ pub (crate) fn bid_round256_58_76(
 
     let P512: BID_UINT512;
     let mut fstar: BID_UINT512 = BID_UINT512::default();
-    let mut Cstar: BID_UINT256 = BID_UINT256::default();
+    let mut Cstar: BID_UINT256 = Default::default();
     let mut tmp64: BID_UINT64;
     let shift: i32;
     let mut ind: usize;

@@ -13,7 +13,7 @@ use crate::bid_conf::BID_SWAP128;
 use crate::bid_internal::{BID_HIGH_128W, BID_LOW_128W, BID_UINT128, BID_UINT64, SIGNMASK32, SIGNMASK64};
 
 pub (crate) fn bid128_from_int32(x: i32) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     // if integer is negative, use the absolute value
     if (x & (SIGNMASK32 as i32)) == (SIGNMASK32 as i32)  {
@@ -28,7 +28,7 @@ pub (crate) fn bid128_from_int32(x: i32) -> BID_UINT128 {
 }
 
 pub (crate) fn bid128_from_uint32(x: u32) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     res.w[BID_HIGH_128W] = 0x3040000000000000u64;
     res.w[BID_LOW_128W]  = x as u64;
@@ -37,7 +37,7 @@ pub (crate) fn bid128_from_uint32(x: u32) -> BID_UINT128 {
 }
 
 pub (crate) fn bid128_from_int64(x: i64) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     // if integer is negative, use the absolute value
     if (x & (SIGNMASK64 as i64)) == (SIGNMASK64 as i64) {
@@ -52,7 +52,7 @@ pub (crate) fn bid128_from_int64(x: i64) -> BID_UINT128 {
 }
 
 pub (crate) fn bid128_from_uint64(x: u64) -> BID_UINT128 {
-    let mut res : BID_UINT128 = BID_UINT128::default();
+    let mut res : BID_UINT128 = Default::default();
 
     res.w[BID_HIGH_128W] = 0x3040000000000000u64;
     res.w[BID_LOW_128W]  = x;

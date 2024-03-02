@@ -132,7 +132,7 @@ fn __get_dec_digits64(X: &BID_UINT128) -> i32 {
 impl Encode<'_, sqlx::postgres::Postgres> for d128 {
     // adapted from https://github.com/pgjdbc/pgjdbc/blob/master/pgjdbc/src/main/java/org/postgresql/util/ByteConverter.java
     fn encode_by_ref(&self, buf: &mut sqlx::postgres::PgArgumentBuffer) -> sqlx::encode::IsNull {
-        let mut coeff: BID_UINT128 = BID_UINT128::default();
+        let mut coeff: BID_UINT128 = Default::default();
         let mut sign: BID_UINT64   = 0;
         let mut exponent: i32      = 0;
         let mut weight: i32        = -1;

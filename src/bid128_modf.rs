@@ -19,7 +19,7 @@ pub (crate) fn bid128_modf(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> (BID_UIN
 
 	// check for Infinity
 	if (x.w[BID_HIGH_128W] & 0x7c00000000000000u64) == 0x7800000000000000u64 {
-	    res = BID_UINT128::default();
+	    res = Default::default();
 		res.w[BID_HIGH_128W]= (x.w[BID_HIGH_128W] & 0x8000000000000000u64)|0x5ffe000000000000u64;
 		res.w[BID_LOW_128W] = 0;
 	} else {

@@ -22,15 +22,15 @@ pub (crate) fn bid128_to_uint64_rnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let tmp64: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -385,15 +385,15 @@ pub (crate) fn bid128_to_uint64_xrnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let mut tmp64: BID_UINT64;
     let mut tmp64A: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -816,14 +816,14 @@ pub (crate) fn bid128_to_uint64_floor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
     let P256: BID_UINT256;
 
     // unpack x
@@ -1076,15 +1076,15 @@ pub (crate) fn bid128_to_uint64_xfloor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -1375,15 +1375,15 @@ pub (crate) fn bid128_to_uint64_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -1712,15 +1712,15 @@ pub (crate) fn bid128_to_uint64_xceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -2057,14 +2057,14 @@ pub (crate) fn bid128_to_uint64_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
     let P256: BID_UINT256;
 
     // unpack x
@@ -2347,15 +2347,15 @@ pub (crate) fn bid128_to_uint64_xint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
     let x_exp: BID_UINT64;
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x
@@ -2676,14 +2676,14 @@ pub (crate) fn bid128_to_uint64_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags)
     let exp: i32;			// unbiased exponent
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let tmp64: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
     let P256: BID_UINT256;
 
     // unpack x
@@ -3023,15 +3023,15 @@ pub (crate) fn bid128_to_uint64_xrninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags
     // Note: C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (all are BID_UINT64)
     let mut tmp64: BID_UINT64;
     let mut tmp64A: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: u32;
     let mut q: i32;
     let ind: i32;
     let shift: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default();
-    let mut C: BID_UINT128 = BID_UINT128::default();
-    let mut Cstar: BID_UINT128 = BID_UINT128::default();    // C* represents up to 34 decimal digits ~ 113 bits
-    let mut fstar: BID_UINT256 = BID_UINT256::default();
+    let mut C1: BID_UINT128 = Default::default();
+    let mut C: BID_UINT128 = Default::default();
+    let mut Cstar: BID_UINT128 = Default::default();    // C* represents up to 34 decimal digits ~ 113 bits
+    let mut fstar: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
 
     // unpack x

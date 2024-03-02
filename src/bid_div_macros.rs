@@ -10,21 +10,21 @@
 use crate::bid_internal::*;
 
 pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID_UINT128, BID_UINT128){
-    let mut CY36: BID_UINT128 = BID_UINT128::default();
-    let mut CY51: BID_UINT128 = BID_UINT128::default();
-    let mut CQ: BID_UINT128 = BID_UINT128::default();
+    let mut CY36: BID_UINT128 = Default::default();
+    let mut CY51: BID_UINT128 = Default::default();
+    let mut CQ: BID_UINT128 = Default::default();
     let mut A2: BID_UINT128;
-    let mut CX: BID_UINT128 = BID_UINT128::default();
-    let mut CQT: BID_UINT128 = BID_UINT128::default();
+    let mut CX: BID_UINT128 = Default::default();
+    let mut CQT: BID_UINT128 = Default::default();
     let mut Q: BID_UINT64;
-    let mut t64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut d49: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut d60: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut t64: BID_UI64DOUBLE = Default::default();
+    let mut d49: BID_UI64DOUBLE = Default::default();
+    let mut d60: BID_UI64DOUBLE = Default::default();
     let mut lx: f64;
     let ly: f64;
     let mut lq: f64;
-    let mut pCQ: BID_UINT128 = BID_UINT128::default();
-    let mut pCR: BID_UINT128 = BID_UINT128::default();
+    let mut pCQ: BID_UINT128 = Default::default();
+    let mut pCR: BID_UINT128 = Default::default();
 
     if CX0.w[1] == 0 && CY.w[1] == 0 {
         pCQ.w[0] = CX0.w[0] / CY.w[0];
@@ -148,19 +148,19 @@ pub (crate) fn bid___div_128_by_128(CX0: &BID_UINT128, CY: &BID_UINT128) -> (BID
 }
 
 pub (crate) fn bid___div_256_by_128(pCQ: &mut BID_UINT128, pCA4: &mut BID_UINT256, CY: &BID_UINT128) {
-    let mut CA4: BID_UINT256 = BID_UINT256::default();
-    let mut CA2: BID_UINT256 = BID_UINT256::default();
-    let mut CY51: BID_UINT256 = BID_UINT256::default();
-    let mut CY36: BID_UINT256 = BID_UINT256::default();
-    let mut CQ: BID_UINT128 = BID_UINT128::default();
+    let mut CA4: BID_UINT256 = Default::default();
+    let mut CA2: BID_UINT256 = Default::default();
+    let mut CY51: BID_UINT256 = Default::default();
+    let mut CY36: BID_UINT256 = Default::default();
+    let mut CQ: BID_UINT128 = Default::default();
     let mut A2: BID_UINT128;
     let mut A2h: BID_UINT128;
-    let mut CQT: BID_UINT128 = BID_UINT128::default();
+    let mut CQT: BID_UINT128 = Default::default();
     let mut Q: BID_UINT64;
     let mut carry64: BID_UINT64;
-    let mut t64: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut d49: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
-    let mut d60: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut t64: BID_UI64DOUBLE = Default::default();
+    let mut d49: BID_UI64DOUBLE = Default::default();
+    let mut d60: BID_UI64DOUBLE = Default::default();
     let mut lx: f64;
     let ly: f64;
     let mut lq: f64;

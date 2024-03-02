@@ -15,15 +15,15 @@ use crate::d128::{_IDEC_flags, StatusFlags};
 /// Returns the least 128-bit decimal floating-point number that
 /// compares greater than the operand
 pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
     let x_sign: BID_UINT64;
     let mut x_exp: BID_UINT64;
     let exp: i32;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: usize;
     let mut q1: i32;
     let ind: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default(); // C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (BID_UINT64)
+    let mut C1: BID_UINT128 = Default::default(); // C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (BID_UINT64)
 
     //BID_SWAP128 (x);
     // unpack the argument
@@ -241,15 +241,15 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
 /// Returns the greatest 128-bit decimal floating-point number that
 /// compares less than the operand
 pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
     let x_sign: BID_UINT64;
     let mut x_exp: BID_UINT64;
     let exp: i32;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: usize;
     let mut q1: i32;
     let ind: i32;
-    let mut C1: BID_UINT128 = BID_UINT128::default(); // C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (BID_UINT64)
+    let mut C1: BID_UINT128 = Default::default(); // C1.w[1], C1.w[0] represent x_signif_hi, x_signif_lo (BID_UINT64)
 
     //BID_SWAP128 (x);
     // unpack the argument
@@ -464,10 +464,10 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
 /// Returns the next 128-bit decimal floating-point number that neighbors
 /// the first operand in the direction toward the second operand
 pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
-    let mut tmp1: BID_UINT128 = BID_UINT128::default();
-    let mut tmp2: BID_UINT128 = BID_UINT128::default();
-    let mut tmp3: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
+    let mut tmp1: BID_UINT128 = Default::default();
+    let mut tmp2: BID_UINT128 = Default::default();
+    let mut tmp3: BID_UINT128 = Default::default();
     let mut tmp_fpsf: _IDEC_flags;		// dummy fpsf for calls to comparison functions
     let mut res1: bool;
     let mut res2: bool;

@@ -15,18 +15,18 @@ use crate::d128::{_IDEC_flags, StatusFlags};
 /// Computes the decimal floating point remainder of the division operation x / y.
 pub (crate) fn bid128_fmod(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let P256: BID_UINT256;
-    let mut CX: BID_UINT128 = BID_UINT128::default();
-    let mut CY: BID_UINT128 = BID_UINT128::default();
+    let mut CX: BID_UINT128 = Default::default();
+    let mut CY: BID_UINT128 = Default::default();
     let CR: BID_UINT128;
     let mut T: &BID_UINT128;
     let mut CXS: BID_UINT128;
-    let mut P128: BID_UINT128 = BID_UINT128::default();
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut P128: BID_UINT128 = Default::default();
+    let mut res: BID_UINT128 = Default::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut sign_y: BID_UINT64 = 0;
     let mut D: BID_SINT64;
-    let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
-    let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
+    let mut f64: BID_UI32FLOAT = Default::default();
+    let mut fx: BID_UI32FLOAT = Default::default();
     let mut exponent_x: i32 = 0;
     let mut exponent_y: i32 = 0;
     let mut diff_expon: i32;

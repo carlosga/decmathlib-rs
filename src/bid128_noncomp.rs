@@ -47,7 +47,7 @@ pub (crate) fn bid128_is_normal(x: &BID_UINT128) -> bool {
     let x_exp: BID_UINT64;
     let C1_hi: BID_UINT64;
     let C1_lo: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let exp: i32;
     let mut q: i32;
     let x_nr_bits: i32;
@@ -117,7 +117,7 @@ pub (crate) fn bid128_is_subnormal(x: &BID_UINT128) -> bool {
     let x_exp: BID_UINT64;
     let C1_hi: BID_UINT64;
     let C1_lo: BID_UINT64;
-    let mut tmp1: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp1: BID_UI64DOUBLE = Default::default();
     let exp: i32;
     let mut q: i32;
     let x_nr_bits: i32;
@@ -190,7 +190,7 @@ pub (crate) fn bid128_is_finite(x: &BID_UINT128) -> bool {
 
 /// Return true if and only if x is +0 or -0
 pub (crate) fn bid128_is_zero(x: &BID_UINT128) -> bool {
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
 
     #[cfg(target_endian = "big")]
     let mut x = *x;
@@ -224,7 +224,7 @@ pub (crate) fn bid128_is_signaling(x: &BID_UINT128) -> bool {
 
 /// Return true if and only if x is a finite number, infinity, or NaN that is canonical
 pub (crate) fn bid128_is_canonical(x: &BID_UINT128) -> bool {
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
 
     #[cfg(target_endian = "big")]
     let mut x = *x;
@@ -296,7 +296,7 @@ pub (crate) fn bid128_copy_sign(x: &BID_UINT128, y: &BID_UINT128) -> BID_UINT128
 pub (crate) fn bid128_class(x: &BID_UINT128) -> ClassTypes {
     let sig_x_prime256: BID_UINT256;
     let sig_x_prime192: BID_UINT192;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
     let exp_x: i32;
 
     #[cfg(target_endian = "big")]
@@ -402,10 +402,10 @@ pub (crate) fn bid128_same_quantum(x: &BID_UINT128, y: &BID_UINT128) -> bool {
 pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let mut exp_x: i32;
     let mut exp_y: i32;
-    let mut sig_x: BID_UINT128  = BID_UINT128::default();
-    let mut sig_y: BID_UINT128  = BID_UINT128::default();
-    let mut pyld_y: BID_UINT128 = BID_UINT128::default();
-    let mut pyld_x: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128  = Default::default();
+    let mut sig_y: BID_UINT128  = Default::default();
+    let mut pyld_y: BID_UINT128 = Default::default();
+    let mut pyld_x: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x_is_zero = false;
@@ -686,10 +686,10 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
 pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let mut exp_x: i32;
     let mut exp_y: i32;
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
-    let mut sig_y: BID_UINT128 = BID_UINT128::default();
-    let mut pyld_y: BID_UINT128 = BID_UINT128::default();
-    let mut pyld_x: BID_UINT128 = BID_UINT128::default();
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
+    let mut pyld_y: BID_UINT128 = Default::default();
+    let mut pyld_x: BID_UINT128 = Default::default();
     let sig_n_prime192: BID_UINT192;
     let sig_n_prime256: BID_UINT256;
     let mut x_is_zero = false;
@@ -916,14 +916,14 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
 // }
 
 pub (crate) fn bid128_inf() -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
     res.w[BID_HIGH_128W] = 0x7800000000000000u64; // +inf
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
     res
 }
 
 pub (crate) fn bid128_nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     res.w[BID_HIGH_128W] = 0x7c00000000000000u64; // +QNaN
     res.w[BID_LOW_128W]  = 0x0000000000000000u64;

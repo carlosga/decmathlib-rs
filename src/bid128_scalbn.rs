@@ -14,10 +14,10 @@ use crate::d128::{_IDEC_flags, RoundingMode, StatusFlags};
 
 /// Returns x * 10^N
 pub (crate) fn bid128_scalbn(x: &BID_UINT128, n: i32, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut CX: BID_UINT128 = BID_UINT128::default();
-    let mut CX2: BID_UINT128 = BID_UINT128::default();
-    let mut CBID_X8: BID_UINT128 = BID_UINT128::default();
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut CX: BID_UINT128 = Default::default();
+    let mut CX2: BID_UINT128 = Default::default();
+    let mut CBID_X8: BID_UINT128 = Default::default();
+    let mut res: BID_UINT128 = Default::default();
     let mut exp64: BID_SINT64;
     let mut sign_x: BID_UINT64 = 0;
     let mut exponent_x: i32 = 0;

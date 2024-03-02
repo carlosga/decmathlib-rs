@@ -357,7 +357,7 @@ pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pco
 /// BID64 pack macro (general form)
 #[inline]
 pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
-    let mut Stemp: BID_UINT128 = BID_UINT128::default();
+    let mut Stemp: BID_UINT128 = Default::default();
     let Q_low: BID_UINT128;
     let QH: BID_UINT64;
     let mut r: BID_UINT64;
@@ -540,11 +540,11 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     let mut Qh: BID_UINT128;
     let Ql: BID_UINT128;
     let mut Qh1: BID_UINT128;
-    let mut Stemp: BID_UINT128 = BID_UINT128::default();
-    let mut Tmp: BID_UINT128 = BID_UINT128::default();
+    let mut Stemp: BID_UINT128 = Default::default();
+    let mut Tmp: BID_UINT128 = Default::default();
     let Tmp1: BID_UINT128;
-    let mut CQ2: BID_UINT128 = BID_UINT128::default();
-    let mut CQ8: BID_UINT128 = BID_UINT128::default();
+    let mut CQ2: BID_UINT128 = Default::default();
+    let mut CQ8: BID_UINT128 = Default::default();
     let mut carry: BID_UINT64;
     let CY: BID_UINT64;
     let ed2: i32;
@@ -552,7 +552,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
     let mut rmode: RoundingMode;
     let mut status: _IDEC_flags;
     let mut CQ: BID_UINT128 = *CQ;
-    let mut pres: BID_UINT128 = BID_UINT128::default();
+    let mut pres: BID_UINT128 = Default::default();
 
     // UF occurs
     if expon + (MAX_FORMAT_DIGITS_128 as i32) < 0 {
@@ -684,8 +684,8 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
     let mut Qh: BID_UINT128;
     let Ql: BID_UINT128;
     let mut Qh1: BID_UINT128;
-    let mut Stemp: BID_UINT128 = BID_UINT128::default();
-    let mut Tmp: BID_UINT128 = BID_UINT128::default();
+    let mut Stemp: BID_UINT128 = Default::default();
+    let mut Tmp: BID_UINT128 = Default::default();
     let Tmp1: BID_UINT128;
     let mut carry: BID_UINT64;
     let CY: BID_UINT64;
@@ -693,7 +693,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
     let amount: i32;
     let mut rmode: RoundingMode;
     let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
-    let mut pres: BID_UINT128 = BID_UINT128::default();
+    let mut pres: BID_UINT128 = Default::default();
     let mut CQ: BID_UINT128 = *CQ;
     let mut expon = expon;
 
@@ -806,7 +806,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 ///  BID128 unpack, input passed by value  (used in transcendental functions only)
 #[inline]
 pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
-    let mut coeff: BID_UINT128 = BID_UINT128::default();
+    let mut coeff: BID_UINT128 = Default::default();
     let T33: &BID_UINT128;
     let T34: &BID_UINT128;
     let ex: BID_UINT64;
@@ -937,7 +937,7 @@ pub (crate) fn unpack_BID128_value(psign_x: &mut BID_UINT64, pexponent_x: &mut i
 ///  BID128 unpack, input pased by reference
 #[inline]
 pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, px: &BID_UINT128) -> BID_UINT64 {
-    let mut coeff: BID_UINT128 = BID_UINT128::default();
+    let mut coeff: BID_UINT128 = Default::default();
     let T33: &BID_UINT128;
     let T34: &BID_UINT128;
     let ex: BID_UINT64;
@@ -993,7 +993,7 @@ pub (crate) fn unpack_BID128(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pc
 #[inline]
 pub (crate) fn bid_get_BID128_very_fast(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
     let mut tmp: BID_UINT64;
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     res.w[0] = coeff.w[0];
     tmp      = expon as BID_UINT64;
@@ -1007,7 +1007,7 @@ pub (crate) fn bid_get_BID128_very_fast(sgn: BID_UINT64, expon: i32, coeff: &BID
 #[inline]
 pub (crate) fn bid_get_BID128_very_fast_BLE(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
     let mut tmp: BID_UINT64;
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
 
     res.w[BID_LOW_128W] = coeff.w[BID_LOW_128W];
     tmp                 = expon as BID_UINT64;
@@ -1021,7 +1021,7 @@ pub (crate) fn bid_get_BID128_very_fast_BLE(sgn: BID_UINT64, expon: i32, coeff: 
 #[inline]
 pub (crate) fn bid_get_BID128_fast(sgn: BID_UINT64, expon: &mut i32, coeff: &mut BID_UINT128) -> BID_UINT128 {
     let mut tmp: BID_UINT64;
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
     // coeff==10^34?
     if coeff.w[1] == 0x0001ed09bead87c0u64 && coeff.w[0] == 0x378d8e6400000000u64 {
       *expon += 1;
@@ -1044,7 +1044,7 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
     let mut tmp2: BID_UINT64;
     let mut expon: i32 = expon;
     let mut coeff: BID_UINT128 = *coeff;
-    let mut pres: BID_UINT128 = BID_UINT128::default();
+    let mut pres: BID_UINT128 = Default::default();
 
     // coeff==10^34?
     if coeff.w[1] == 0x0001ed09bead87c0u64 && coeff.w[0] == 0x378d8e6400000000u64 {
@@ -1122,7 +1122,7 @@ pub (crate) fn is_inexact(fpsc: _IDEC_flags) -> bool{
 
 #[inline]
 pub (crate) fn __shr_128(A: &BID_UINT128, k: i32) -> BID_UINT128 {
-    let mut Q: BID_UINT128 = BID_UINT128::default();
+    let mut Q: BID_UINT128 = Default::default();
 
     Q.w[0]  = A.w[0] >> k;
     Q.w[0] |= A.w[1] << (64 - k);
@@ -1133,7 +1133,7 @@ pub (crate) fn __shr_128(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 
 #[inline]
 pub (crate) fn __shr_256(A: &BID_UINT256, k: i32) -> BID_UINT256 {
-    let mut Q: BID_UINT256 = BID_UINT256::default();
+    let mut Q: BID_UINT256 = Default::default();
 
     Q.w[0]  = A.w[0] >> k;
     Q.w[0] |= A.w[1] << (64 - k);
@@ -1144,7 +1144,7 @@ pub (crate) fn __shr_256(A: &BID_UINT256, k: i32) -> BID_UINT256 {
 
 #[inline]
 pub (crate) fn __shr_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
-    let mut Q: BID_UINT128 = BID_UINT128::default();
+    let mut Q: BID_UINT128 = Default::default();
 
     if k < 64 {
         Q.w[0]  = A.w[0] >> k;
@@ -1160,7 +1160,7 @@ pub (crate) fn __shr_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 
 #[inline]
 pub (crate) fn __shl_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
-    let mut Q: BID_UINT128 = BID_UINT128::default();
+    let mut Q: BID_UINT128 = Default::default();
 
     if k < 64 {
         Q.w[1]  = A.w[1] << k;
@@ -1182,7 +1182,7 @@ pub (crate) fn __shl_128_long(A: &BID_UINT128, k: i32) -> BID_UINT128 {
 #[inline]
 pub (crate) fn __add_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 {
     let mut R64H: BID_UINT64  = A128.w[1];
-    let mut R128: BID_UINT128 = BID_UINT128::default();
+    let mut R128: BID_UINT128 = Default::default();
     R128.w[0] = B64 + A128.w[0];
     if R128.w[0] < B64 {
         R64H += 1;
@@ -1195,7 +1195,7 @@ pub (crate) fn __add_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 
 #[inline]
 pub (crate) fn __sub_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 {
     let mut R64H: BID_UINT64 = A128.w[1];
-    let mut R128: BID_UINT128 = BID_UINT128::default();
+    let mut R128: BID_UINT128 = Default::default();
     if A128.w[0] < B64 {
         R64H -= 1;
     }
@@ -1207,8 +1207,8 @@ pub (crate) fn __sub_128_64(A128: &BID_UINT128, B64: BID_UINT64) -> BID_UINT128 
 // add 128-bit value to 128-bit - assume no carry-out
 #[inline]
 pub (crate) fn __add_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT128 {
-    let mut Q128: BID_UINT128 = BID_UINT128::default();
-    let mut R128: BID_UINT128 = BID_UINT128::default();
+    let mut Q128: BID_UINT128 = Default::default();
+    let mut R128: BID_UINT128 = Default::default();
     Q128.w[1] = A128.w[1] + B128.w[1];
     Q128.w[0] = B128.w[0] + A128.w[0];
     if Q128.w[0] < B128.w[0] {
@@ -1222,8 +1222,8 @@ pub (crate) fn __add_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
 
 #[inline]
 pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT128 {
-    let mut Q128: BID_UINT128 = BID_UINT128::default();
-    let mut R128: BID_UINT128 = BID_UINT128::default();
+    let mut Q128: BID_UINT128 = Default::default();
+    let mut R128: BID_UINT128 = Default::default();
     Q128.w[1] = A128.w[1] - B128.w[1];
     Q128.w[0] = A128.w[0] - B128.w[0];
     if A128.w[0] < B128.w[0] {
@@ -1237,8 +1237,8 @@ pub (crate) fn __sub_128_128(A128: &BID_UINT128, B128: &BID_UINT128) -> BID_UINT
 
 #[inline]
 pub (crate) fn __sub_256_128_to_256(A128: &BID_UINT256, B128: &BID_UINT128) -> BID_UINT256 {
-    let mut Q128: BID_UINT128 = BID_UINT128::default();
-    let mut R256: BID_UINT256 = BID_UINT256::default();
+    let mut Q128: BID_UINT128 = Default::default();
+    let mut R256: BID_UINT256 = Default::default();
     Q128.w[1] = A128.w[1] - B128.w[1];
     Q128.w[0] = A128.w[0] - B128.w[0];
     if A128.w[0] < B128.w[0] {
@@ -1365,7 +1365,7 @@ pub (crate) fn __mul_128x128_high(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT1
 
 #[inline]
 pub (crate) fn __mul_128x128_full(A: &BID_UINT128, B: &BID_UINT128) -> (BID_UINT128, BID_UINT128) {
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let mut Ql: BID_UINT128 = Default::default();
     let ALBH: BID_UINT128 = __mul_64x64_to_128(A.w[0], B.w[1]);
     let AHBL: BID_UINT128 = __mul_64x64_to_128(B.w[0], A.w[1]);
     let ALBL: BID_UINT128 = __mul_64x64_to_128(A.w[0], B.w[0]);
@@ -1381,7 +1381,7 @@ pub (crate) fn __mul_128x128_full(A: &BID_UINT128, B: &BID_UINT128) -> (BID_UINT
 
 #[inline]
 pub (crate) fn __mul_128x128_low(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT128 {
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let mut Ql: BID_UINT128 = Default::default();
     let ALBL: BID_UINT128   = __mul_64x64_to_128(A.w[0], B.w[0]);
     let QM64: BID_UINT64    = B.w[0] * A.w[1] + A.w[0] * B.w[1];
 
@@ -1393,7 +1393,7 @@ pub (crate) fn __mul_128x128_low(A: &BID_UINT128, B: &BID_UINT128) -> BID_UINT12
 
 #[inline]
 pub (crate) fn __mul_64x128_low(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT128 {
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let mut Ql: BID_UINT128 = Default::default();
     let ALBH: BID_UINT128   = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128   = __mul_64x64_to_128(A, B.w[0]);
     Ql.w[0] = ALBL.w[0];
@@ -1405,7 +1405,7 @@ pub (crate) fn __mul_64x128_low(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT128 {
 
 #[inline]
 pub (crate) fn __mul_64x128_full(A: BID_UINT64, B: &BID_UINT128) -> (BID_UINT64, BID_UINT128) {
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let mut Ql: BID_UINT128 = Default::default();
     let ALBH: BID_UINT128   = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128   = __mul_64x64_to_128(A, B.w[0]);
 
@@ -1419,7 +1419,7 @@ pub (crate) fn __mul_64x128_full(A: BID_UINT64, B: &BID_UINT128) -> (BID_UINT64,
 
 #[inline]
 pub (crate) fn __mul_64x128_to_192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT192 {
-    let mut Q: BID_UINT192 = BID_UINT192::default();
+    let mut Q: BID_UINT192 = Default::default();
     let ALBH: BID_UINT128  = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128  = __mul_64x64_to_128(A, B.w[0]);
 
@@ -1433,7 +1433,7 @@ pub (crate) fn __mul_64x128_to_192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT19
 
 #[inline]
 pub (crate) fn __mul_64x128_to_256(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT256 {
-    let mut Q: BID_UINT256 = BID_UINT256::default();
+    let mut Q: BID_UINT256 = Default::default();
     let ALBH: BID_UINT128  = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128  = __mul_64x64_to_128(A, B.w[0]);
 
@@ -1447,7 +1447,7 @@ pub (crate) fn __mul_64x128_to_256(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT25
 
 #[inline]
 pub (crate) fn __mul_64x128_to192(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT192 {
-    let mut Q: BID_UINT192 = BID_UINT192::default();
+    let mut Q: BID_UINT192 = Default::default();
     let ALBH: BID_UINT128  = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128  = __mul_64x64_to_128(A, B.w[0]);
 
@@ -1465,7 +1465,7 @@ pub (crate) fn __mul_128x128_to_256(A: &BID_UINT128, B: &BID_UINT128) -> BID_UIN
     let CY2: BID_UINT64;
     let (Phl, Qll) = __mul_64x128_full(A.w[0], B);
     let (Phh, Qlh) = __mul_64x128_full(A.w[1], B);
-    let mut P256: BID_UINT256 = BID_UINT256::default();
+    let mut P256: BID_UINT256 = Default::default();
 
     P256.w[0] = Qll.w[0];
     (P256.w[1], CY1) = __add_carry_out(Qlh.w[0], Qll.w[1]);
@@ -1513,7 +1513,7 @@ pub (crate) fn __mul_64x64_to_128HIGH(CX64: BID_UINT64, CY64: BID_UINT64) -> BID
 #[inline]
 pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT256 {
     let mut lC: BID_UINT64;
-    let mut lP: BID_UINT256 = BID_UINT256::default();
+    let mut lP: BID_UINT256 = Default::default();
     let lP0: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[0]);
     let lP1: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[1]);
     let lP2: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[2]);
@@ -1528,7 +1528,7 @@ pub (crate) fn __mul_64x192_to_256(lA: BID_UINT64, lB: &BID_UINT192) -> BID_UINT
 #[inline]
 pub (crate) fn __mul_64x256_to_256(lA: BID_UINT64, lB: &BID_UINT256) -> BID_UINT256 {
     let mut lC: BID_UINT64;
-    let mut lP: BID_UINT256 = BID_UINT256::default();
+    let mut lP: BID_UINT256 = Default::default();
     let lP0: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[0]);
     let lP1: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[1]);
     let lP2: BID_UINT128    = __mul_64x64_to_128(lA, lB.w[2]);
@@ -1551,7 +1551,7 @@ pub (crate) fn __mul_128x64_to_128(A64: BID_UINT64, B128: &BID_UINT128) -> BID_U
 /// might simplify by calculating just QM2.w[0]
 #[inline]
 pub (crate) fn __mul_64x128_to_128(A: BID_UINT64, B: &BID_UINT128) -> BID_UINT128 {
-    let mut Ql: BID_UINT128 = BID_UINT128::default();
+    let mut Ql: BID_UINT128 = Default::default();
     let ALBH: BID_UINT128   = __mul_64x64_to_128(A, B.w[1]);
     let ALBL: BID_UINT128   = __mul_64x64_to_128(A, B.w[0]);
     Ql.w[0] = ALBL.w[0];

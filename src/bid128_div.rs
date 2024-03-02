@@ -16,18 +16,18 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 /// Decimal floating-point division
 pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut CA4: BID_UINT256;
-    let mut CA4r: BID_UINT256 = BID_UINT256::default();
+    let mut CA4r: BID_UINT256 = Default::default();
     let P256: BID_UINT256;
-    let mut CX: BID_UINT128 = BID_UINT128::default();
-    let mut CY: BID_UINT128 = BID_UINT128::default();
-    let mut T128: BID_UINT128 = BID_UINT128::default();
-    let mut CQ: BID_UINT128 = BID_UINT128::default();
+    let mut CX: BID_UINT128 = Default::default();
+    let mut CY: BID_UINT128 = Default::default();
+    let mut T128: BID_UINT128 = Default::default();
+    let mut CQ: BID_UINT128 = Default::default();
     let CR: BID_UINT128;
     let CA: BID_UINT128;
-    let mut TP128: BID_UINT128 = BID_UINT128::default();
+    let mut TP128: BID_UINT128 = Default::default();
     let Qh: BID_UINT128;
     let mut _Ql: BID_UINT128;
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut sign_y: BID_UINT64 = 0;
     let T: BID_UINT64;
@@ -37,9 +37,9 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     let Q_low: BID_UINT64;
     let QX: BID_UINT64;
     let PD: BID_UINT64;
-    let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
-    let mut fy: BID_UI32FLOAT = BID_UI32FLOAT::default();
-    let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
+    let mut fx: BID_UI32FLOAT = Default::default();
+    let mut fy: BID_UI32FLOAT = Default::default();
+    let mut f64: BID_UI32FLOAT = Default::default();
     let mut QX32: BID_UINT32;
     let mut tdigit: [BID_UINT32; 3] = [0u32; 3];
     let mut digit: BID_UINT32;

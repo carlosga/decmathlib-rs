@@ -20,10 +20,10 @@ pub (crate) fn bid128_frexp(x: &BID_UINT128) -> (BID_UINT128, i32) {
       result are zero frexp does not raise any exceptions
     */
 
-    let mut res: BID_UINT128 = BID_UINT128::default();
-    let mut sig_x: BID_UINT128 = BID_UINT128::default();
+    let mut res: BID_UINT128 = Default::default();
+    let mut sig_x: BID_UINT128 = Default::default();
     let exp_x: u32;
-    let mut tmp: BID_UI64DOUBLE = BID_UI64DOUBLE::default();
+    let mut tmp: BID_UI64DOUBLE = Default::default();
     let x_nr_bits: usize;
     let mut q: i32;
     let exp: i32;

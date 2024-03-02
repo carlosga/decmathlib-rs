@@ -14,25 +14,25 @@ use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /// Decimal floating-point square root, UINT128 -> UINT128
 pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let mut M256: BID_UINT256 = BID_UINT256::default();
+    let mut M256: BID_UINT256 = Default::default();
     let C256: BID_UINT256;
-    let mut C4: BID_UINT256 = BID_UINT256::default();
-    let mut C8: BID_UINT256 = BID_UINT256::default();
-    let mut CX: BID_UINT128 = BID_UINT128::default();
+    let mut C4: BID_UINT256 = Default::default();
+    let mut C8: BID_UINT256 = Default::default();
+    let mut CX: BID_UINT128 = Default::default();
     let CX1: BID_UINT128;
-    let mut CX2: BID_UINT128 = BID_UINT128::default();
+    let mut CX2: BID_UINT128 = Default::default();
     let mut A10: BID_UINT128;
     let S2: BID_UINT128;
     let T128: &BID_UINT128;
     let TP128: &BID_UINT128;
-    let mut CS: BID_UINT128 = BID_UINT128::default();
-    let mut CSM: BID_UINT128 = BID_UINT128::default();
-    let mut res: BID_UINT128 = BID_UINT128::default();
+    let mut CS: BID_UINT128 = Default::default();
+    let mut CSM: BID_UINT128 = Default::default();
+    let mut res: BID_UINT128 = Default::default();
     let mut sign_x: BID_UINT64 = 0;
     let mut Carry: BID_UINT64;
     let D: BID_SINT64;
-    let mut fx: BID_UI32FLOAT = BID_UI32FLOAT::default();
-    let mut f64: BID_UI32FLOAT = BID_UI32FLOAT::default();
+    let mut fx: BID_UI32FLOAT = Default::default();
+    let mut f64: BID_UI32FLOAT = Default::default();
     let mut exponent_x: i32 = 0;
     let bin_expon_cx: i32;
     let mut digits: i32;
