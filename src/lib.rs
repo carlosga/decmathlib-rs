@@ -9,7 +9,6 @@
 
 #![allow(clippy::needless_late_init)]
 #![allow(clippy::redundant_guards)]
-
 #![allow(non_snake_case)]
 
 mod bid64_to_bid128;

@@ -826,7 +826,7 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             let mut x: BID_UINT128 = *x;
 
             // if x = NaN, then res = Q (x)
@@ -834,7 +834,7 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
             if ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
             && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
+                x.w[1] &= 0xffffc00000000000u64;
                 x.w[0] = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
@@ -848,7 +848,7 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
                 res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
                 res.w[0] = x.w[0];
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if (x.w[1] & MASK_SIGN) == 0x0u64 {	// x is +inf
                 // return +inf
@@ -859,7 +859,7 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
                 res.w[1] = 0xf800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
             }
-            return res;
+            res
         }
     }
     // unpack x
@@ -939,7 +939,7 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
-        return res;
+        res
     } else if (q + exp) >= 0 {	// exp < 0 and 1 <= -exp <= q
         // need to shift right -exp digits from the coefficient; the exp will be 0
         ind = -exp;	// 1 <= ind <= 34; ind is a synonym for 'x'
@@ -947,10 +947,10 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
         // C1 = C1 + 1/2 * 10^x where the result C1 fits in 127 bits
         tmp64 = C1.w[0];
         if ind <= 19 {
-            C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
+            C1.w[0] += BID_MIDPOINT64[(ind - 1) as usize];
         } else {
-            C1.w[0] = C1.w[0] + BID_MIDPOINT128[(ind - 20) as usize].w[0];
-            C1.w[1] = C1.w[1] + BID_MIDPOINT128[(ind - 20) as usize].w[1];
+            C1.w[0] += BID_MIDPOINT128[(ind - 20) as usize].w[0];
+            C1.w[1] += BID_MIDPOINT128[(ind - 20) as usize].w[1];
         }
         if C1.w[0] < tmp64 {
             C1.w[1] += 1;
@@ -1022,13 +1022,13 @@ pub (crate) fn bid128_round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _
                 res.w[0] -= 1;
             }
         }
-        res.w[1] = x_sign | 0x3040000000000000u64 | res.w[1];
-        return res;
+        res.w[1] |= x_sign | 0x3040000000000000u64;
+        res
     } else {	// if ((q + exp) < 0) <=> q < -exp
         // the result is +0 or -0
         res.w[1] = x_sign | 0x3040000000000000u64;
         res.w[0] = 0x0000000000000000u64;
-        return res;
+        res
     }
 }
 
@@ -1054,15 +1054,15 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             let mut x: BID_UINT128 = *x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
             if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
@@ -1075,7 +1075,7 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
                 res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
                 res.w[0] = x.w[0];
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if (x.w[1] & MASK_SIGN) == 0x0u64 {	// x is +inf
                 // return +inf
@@ -1086,7 +1086,7 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
                 res.w[1] = 0xf800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
             }
-            return res;
+            res
         }
     }
     // unpack x
@@ -1175,7 +1175,7 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
-        return res;
+        res
     } else if (q + exp) > 0 {	// exp < 0 and 1 <= -exp < q
         // need to shift right -exp digits from the coefficient; the exp will be 0
         ind = -exp;	// 1 <= ind <= 34; ind is a synonym for 'x'
@@ -1272,8 +1272,8 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
                 }
             }
         }
-        res.w[1] = x_sign | 0x3040000000000000u64 | res.w[1];
-        return res;
+        res.w[1] |= x_sign | 0x3040000000000000u64;
+        res
     } else {	// if exp < 0 and q + exp <= 0
         if x_sign != 0 {	// negative rounds down to -1.0
             res.w[1] = 0xb040000000000000u64;
@@ -1282,7 +1282,7 @@ pub (crate) fn bid128_round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC
             res.w[1] = 0x3040000000000000u64;
             res.w[0] = 0x0000000000000000u64;
         }
-        return res;
+        res
     }
 }
 
@@ -1308,15 +1308,15 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             let mut x: BID_UINT128 = *x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
             if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
@@ -1329,7 +1329,7 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
                 res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
                 res.w[0] = x.w[0];
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if (x.w[1] & MASK_SIGN) == 0x0u64 {	// x is +inf
                 // return +inf
@@ -1340,7 +1340,7 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
                 res.w[1] = 0xf800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
             }
-            return res;
+            res
         }
     }
     // unpack x
@@ -1429,7 +1429,7 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
-        return res;
+        res
     } else if (q + exp) > 0 {	// exp < 0 and 1 <= -exp < q
         // need to shift right -exp digits from the coefficient; exp will be 0
         ind = -exp;	// 1 <= ind <= 34; ind is a synonym for 'x'
@@ -1525,8 +1525,8 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
                 }
             }
         }
-        res.w[1] = x_sign | 0x3040000000000000u64 | res.w[1];
-        return res;
+        res.w[1] |= x_sign | 0x3040000000000000u64;
+        res
     } else {	// if exp < 0 and q + exp <= 0
         if x_sign != 0 {	// negative rounds up to -0.0
             res.w[1] = 0xb040000000000000u64;
@@ -1535,7 +1535,7 @@ pub (crate) fn bid128_round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC
             res.w[1] = 0x3040000000000000u64;
             res.w[0] = 0x0000000000000001u64;
         }
-        return res;
+        res
     }
 }
 
@@ -1744,15 +1744,15 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
+        return if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             let mut x: BID_UINT128 = * x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
             if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
-                x.w[1] = x.w[1] & 0xffffc00000000000u64;
-                x.w[0] = 0x0u64;
+                x.w[1] &= 0xffffc00000000000u64;
+                x.w[0]  = 0x0u64;
             }
             if (x.w[1] & MASK_SNAN) == MASK_SNAN {	// x is SNAN
                 // set invalid flag
@@ -1765,7 +1765,7 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
                 res.w[1] = x.w[1] & 0xfc003fffffffffffu64;	// clear out G[6]-G[16]
                 res.w[0] = x.w[0];
             }
-            return res;
+            res
         } else {	// x is not a NaN, so it must be infinity
             if (x.w[1] & MASK_SIGN) == 0x0u64 {	// x is +inf
                 // return +inf
@@ -1776,7 +1776,7 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
                 res.w[1] = 0xf800000000000000u64;
                 res.w[0] = 0x0000000000000000u64;
             }
-            return res;
+            res
         }
     }
     // unpack x
@@ -1856,7 +1856,7 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
         // the argument is an integer already
         res.w[1] = x.w[1];
         res.w[0] = x.w[0];
-        return res;
+        res
     } else if (q + exp) >= 0 {	// exp < 0 and 1 <= -exp <= q
         // need to shift right -exp digits from the coefficient; the exp will be 0
         ind = -exp;	// 1 <= ind <= 34; ind is a synonym for 'x'
@@ -1864,10 +1864,10 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
         // C1 = C1 + 1/2 * 10^x where the result C1 fits in 127 bits
         tmp64 = C1.w[0];
         if ind <= 19 {
-            C1.w[0] = C1.w[0] + BID_MIDPOINT64[(ind - 1) as usize];
+            C1.w[0] += BID_MIDPOINT64[(ind - 1) as usize];
         } else {
-            C1.w[0] = C1.w[0] + BID_MIDPOINT128[(ind - 20) as usize].w[0];
-            C1.w[1] = C1.w[1] + BID_MIDPOINT128[(ind - 20) as usize].w[1];
+            C1.w[0] += BID_MIDPOINT128[(ind - 20) as usize].w[0];
+            C1.w[1] += BID_MIDPOINT128[(ind - 20) as usize].w[1];
         }
         if C1.w[0] < tmp64 {
             C1.w[1] += 1;
@@ -1908,11 +1908,11 @@ pub (crate) fn bid128_round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _
         }
         // if the result was a midpoint, it was already rounded away from zero
         res.w[1] |= x_sign | 0x3040000000000000u64;
-        return res;
+        res
     } else {	// if ((q + exp) < 0) <=> q < -exp
         // the result is +0 or -0
         res.w[1] = x_sign | 0x3040000000000000u64;
         res.w[0] = 0x0000000000000000u64;
-        return res;
+        res
     }
 }
