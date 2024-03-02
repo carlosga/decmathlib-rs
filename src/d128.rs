@@ -355,7 +355,7 @@ impl d128 {
 
     /// Computes x * y + z as if to infinite precision and rounded only once to fit the result type.
     #[must_use]
-    pub fn fma(x: &Self, y: &Self, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn fused_multiply_add(x: &Self, y: &Self, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fma(x, y, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -445,7 +445,7 @@ impl d128 {
     /// Returns the exponent e of x, a signed integral value, determined
     /// as though x were represented with infinite range and minimum exponent
     #[must_use]
-    pub fn ilogb(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn log_b(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_ilogb(self, pfpsf)
     }
 
@@ -453,14 +453,14 @@ impl d128 {
     /// x if y < x, the canonicalized floating-point number if one operand is a
     /// floating-point number and the other a quiet NaN.
     #[must_use]
-    pub fn max(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn max_num(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_maxnum(x, y, pfpsf)
     }
 
     /// Returns the canonicalized floating-point number x if |x| > |y|,
     /// y if |y| > |x|, otherwise this function is identical to `max`
     #[must_use]
-    pub fn maxnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn max_num_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_maxnum_mag(x, y, pfpsf)
     }
 
@@ -468,14 +468,14 @@ impl d128 {
     /// y if y < x, the canonicalized floating-point number if one operand is
     /// a floating-point number and the other a quiet NaN. Otherwise it is either x or y, canonicalized.
     #[must_use]
-    pub fn min(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn min_num(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_minnum(x, y, pfpsf)
     }
 
     /// Returns the canonicalized floating-point number x if |x| < |y|,
     /// y if |y| < |x|, otherwise this function is identical to `min`
     #[must_use]
-    pub fn minnum_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn min_num_mag(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_minnum_mag(x, y, pfpsf)
     }
 
@@ -494,27 +494,27 @@ impl d128 {
     /// Returns the next 128-bit decimal floating-point number that neighbors
     /// the first operand in the direction toward the second operand
     #[must_use]
-    pub fn nextafter(x: &Self, y:&Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn next_after(x: &Self, y:&Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextafter(x, y, pfpsf)
     }
 
     /// Returns the greatest 128-bit decimal floating-point number that
     /// compares less than the operand
     #[must_use]
-    pub fn nextdown(&self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn next_down(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextdown(self, pfpsf)
     }
 
     /// Returns the next representable value after x in the direction of y.
     #[must_use]
-    pub fn nexttoward(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn next_toward(x: &Self, y: &Self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nexttoward(x, y, pfpsf)
     }
 
     /// Returns the least 128-bit decimal floating-point number that
     /// compares greater than the operand
     #[must_use]
-    pub fn nextup(&self, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn next_up(&self, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_nextup(self, pfpsf)
     }
 
@@ -582,7 +582,7 @@ impl d128 {
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scalbn(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scale_b(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -594,7 +594,7 @@ impl d128 {
 
     /// Decimal floating-point square root
     #[must_use]
-    pub fn sqrt(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn square_root(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_sqrt(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -607,286 +607,286 @@ impl d128 {
     /// Convert 128-bit decimal floating-point value to 32-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i32_rnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-even mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i32_xrnint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_exact_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-down mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i32_floor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-down mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_exact_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-up mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i32_ceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-up mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i32_xceil(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_exact_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-zero; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i32_int(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-zero; inexact exceptions signale
     #[must_use]
-    pub fn to_i32_xint(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_exact_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-away; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i32_rninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed integer
     /// in rounding-to-nearest-away; inexact exceptions signaled
     #[must_use]
-    pub fn to_i32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i32 {
+    pub fn convert_to_i32_exact_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> i32 {
         bid128_to_int32_xrninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-up mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i64_ceil(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-down mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i64_floor(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-to-zero; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i64_int(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i64_rnint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-away; inexact exceptions not signaled
     #[must_use]
-    pub fn to_i64_rninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-up mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i64_xceil(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_exact_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-down mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i64_xfloor(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_exact_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed integer
     /// in rounding-to-zero; inexact exceptions signaled
     #[must_use]
-    pub fn to_i64_xint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_exact_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_i64_xrnint(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_exact_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit signed
     /// integer in rounding-to-nearest-away; inexact exceptions signaled
     #[must_use]
-    pub fn to_i64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> i64 {
+    pub fn convert_to_i64_exact_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> i64 {
         bid128_to_int64_xrninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-up mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u32_ceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-down mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u32_floor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-zero; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u32_int(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_ui32_rnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-nearest-away; inexact exceptions not signaled
     #[must_use]
-    pub fn to_ui32_rninta(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-up mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u32_xceil(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_exact_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-down mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u32_xfloor(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_exact_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-zero; inexact exceptions signaled
     #[must_use]
-    pub fn to_u32_xint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_exact_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u32_xrnint(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_exact_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit unsigned
     /// integer in rounding-to-nearest-away; inexact exceptions signaled
     #[must_use]
-    pub fn to_u32_xrninta(&self, pfpsf: &mut _IDEC_flags) -> u32 {
+    pub fn convert_to_u32_exact_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> u32 {
         bid128_to_uint32_xrninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-up mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u64_ceil(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_ceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-down mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u64_floor(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_floor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-zero; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u64_int(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_int(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u64_rnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_rnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-away; inexact exceptions not signaled
     #[must_use]
-    pub fn to_u64_rninta(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_rninta(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-up mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u64_xceil(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_exact_toward_positive(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xceil(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-down mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u64_xfloor(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_exact_toward_negative(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xfloor(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-zero; inexact exceptions signaled
     #[must_use]
-    pub fn to_u64_xint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_exact_toward_zero(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-even mode; inexact exceptions signaled
     #[must_use]
-    pub fn to_u64_xrnint(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_exact_ties_to_even(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xrnint(self, pfpsf)
     }
 
     /// Convert 128-bit decimal floating-point value to 64-bit unsigned
     /// integer in rounding-to-nearest-away; inexact exceptions signaled
     #[must_use]
-    pub fn to_u64_xrninta(&self, pfpsf: &mut _IDEC_flags) -> u64 {
+    pub fn convert_to_u64_exact_ties_to_away(&self, pfpsf: &mut _IDEC_flags) -> u64 {
         bid128_to_uint64_xrninta(self, pfpsf)
     }
 
     /// Decimal floating-point addition, d128 + d128 -> d128
     #[must_use]
-    pub fn add(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
+    pub fn addition(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
@@ -900,13 +900,13 @@ impl d128 {
 
     /// Decimal floating-point division, d128 / d128 -> d128
     #[must_use]
-    pub fn divide(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
+    pub fn division(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_div(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
     /// Decimal floating-point multiplication, d128 / d128 -> d128
     #[must_use]
-    pub fn multiply(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
+    pub fn multiplication(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_mul(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
@@ -918,7 +918,7 @@ impl d128 {
 
     /// Decimal floating-point subtraction, d128 - d128 -> d128
     #[must_use]
-    pub fn subtract(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
+    pub fn subtraction(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_sub(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
     }
 
@@ -979,10 +979,18 @@ impl d128 {
     }
 
     /// Round 128-bit decimal floating-point value to integral-valued decimal
+    /// floating-point value in the same format, using the current rounding mode;
+    /// signal inexact exceptions
+    #[must_use]
+    pub fn round_to_integral_exact(x: &BID_UINT128, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> d128 {
+        bid128_round_integral_exact(x, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Round 128-bit decimal floating-point value to integral-valued decimal
     /// floating-point value in the same format, using the rounding-to-nearest-away mode;
     /// do not signal inexact exceptions
     #[must_use]
-    pub fn round_integral_nearest_away(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+    pub fn round_to_integral_ties_to_away(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
         bid128_round_integral_nearest_away(x, pfpsf)
     }
 
@@ -990,7 +998,7 @@ impl d128 {
     /// floating-point value in the same format, using the rounding-to-nearest-even mode;
     /// do not signal inexact exceptions
     #[must_use]
-    pub fn round_integral_nearest_even(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+    pub fn round_to_integral_ties_to_even(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
         bid128_round_integral_nearest_even(x, pfpsf)
     }
 
@@ -998,7 +1006,7 @@ impl d128 {
     /// floating-point value in the same format, using the rounding-down mode; do not
     /// signal inexact exceptions
     #[must_use]
-    pub fn round_integral_negative(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+    pub fn round_to_integral_ties_toward_negative(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
         bid128_round_integral_negative(x, pfpsf)
     }
 
@@ -1006,23 +1014,15 @@ impl d128 {
     /// floating-point value in the same format, using the rounding-up mode; do not
     /// signal inexact exceptions
     #[must_use]
-    pub fn round_integral_positive(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+    pub fn round_to_integral_ties_toward_positive(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
         bid128_round_integral_positive(x, pfpsf)
-    }
-
-    /// Round 128-bit decimal floating-point value to integral-valued decimal
-    /// floating-point value in the same format, using the current rounding mode;
-    /// signal inexact exceptions
-    #[must_use]
-    pub fn round_integral_exact(x: &BID_UINT128, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> d128 {
-        bid128_round_integral_exact(x, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Round 128-bit decimal floating-point value to integral-valued decimal
     /// floating-point value in the same format, using the rounding-to-zero mode;
     /// do not signal inexact exceptions
     #[must_use]
-    pub fn round_integral_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
+    pub fn round_to_integral_ties_toward_zero(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> d128 {
         bid128_round_integral_zero(x, pfpsf)
     }
 }
