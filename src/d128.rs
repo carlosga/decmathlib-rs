@@ -53,6 +53,7 @@ use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid128_to_uint64::*;
 use crate::bid64_to_bid128::{bid128_to_bid64, bid64_to_bid128};
+use crate::bid_dpd::{bid_dpd_to_bid128, bid_to_dpd128};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
 use crate::bid_internal::*;
 use crate::d64::d64;
@@ -223,6 +224,18 @@ impl d128 {
 
         #[cfg(target_endian = "little")]
         return Self { w: [l, h] };
+    }
+
+    /// Convert a 128-bit decimal floating-point value encoded in BID format
+    /// to the same value encoded in DPD
+    pub fn encode_decimal(&self) -> Self {
+        bid_to_dpd128(self)
+    }
+
+    /// Convert a 128-bit decimal floating-point value encoded in DPD format
+    /// to the same value encoded in BID format
+    pub fn decode_decimal(&self) -> Self {
+        bid_dpd_to_bid128(self)
     }
 
     /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, changing the sign to positive
@@ -582,13 +595,13 @@ impl d128 {
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scale_b(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scaleb(&self, n: i32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbn(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scale_bln(&self, n: i64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scalebln(&self, n: i64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 

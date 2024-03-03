@@ -10,8 +10,8 @@ use byteorder::{BigEndian, ByteOrder};
 use sqlx::Decode;
 use sqlx::encode::Encode;
 use sqlx::postgres::PgValueFormat;
-use crate::bid_decimal_data::{BID_ESTIMATE_DECIMAL_DIGITS, BID_POWER10_TABLE_128};
-use crate::bid_internal::{__unsigned_compare_ge_128, BID_UI64DOUBLE, BID_UINT128, BID_UINT64, MASK_BINARY_EXPONENT, unpack_BID128};
+
+use crate::bid_internal::{ BID_UINT128, BID_UINT64, unpack_BID128};
 use crate::d128::{d128, INFINITY, NAN, NEGATIVE_INFINITY};
 
 // https://doxygen.postgresql.org/backend_2utils_2adt_2numeric_8c_source.html

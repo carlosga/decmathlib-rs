@@ -820,7 +820,7 @@ macro_rules! dec_test {
             let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
-            let res1     = dec1.scale_b($n, rnd_mode, &mut status);
+            let res1     = dec1.scaleb($n, rnd_mode, &mut status);
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status)
@@ -834,7 +834,7 @@ macro_rules! dec_test {
             let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
-            let res1     = dec1.scale_bln($n, rnd_mode, &mut status);
+            let res1     = dec1.scalebln($n, rnd_mode, &mut status);
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status)
@@ -1453,6 +1453,32 @@ macro_rules! dec_test {
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status)
+        }
+    };
+
+    ($name:ident, bid_dpd_to_bid128, $rnd_mode:expr, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let _status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let _rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
+            let exp      = decmathlib_rs::d128::d128::from($exp);
+            let x        = decmathlib_rs::d128::d128::from($input1);
+            let res1     = decmathlib_rs::d128::d128::decode_decimal(&x);
+
+            assert_eq!(exp, res1);
+        }
+    };
+
+    ($name:ident, bid_to_dpd128, $rnd_mode:expr, $input1:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let _status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let _rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
+            let exp      = decmathlib_rs::d128::d128::from($exp);
+            let x        = decmathlib_rs::d128::d128::from($input1);
+            let res1     = decmathlib_rs::d128::d128::encode_decimal(&x);
+
+            assert_eq!(exp, res1);
         }
     };
 }
