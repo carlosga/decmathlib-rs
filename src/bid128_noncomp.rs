@@ -909,18 +909,18 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
  || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] > sig_x.w[0])
 }
 
-/// Return the radix b of the format of x, 2 or 10
+// Return the radix b of the format of x, 2 or 10
 // pub (crate) fn bid128_radix(_: &BID_UINT128) -> i32 {
 //     // (x.w[BID_LOW_128W]) { 10 } else { 10 }
 //     10
 // }
 
-pub (crate) fn bid128_inf() -> BID_UINT128 {
-    let mut res: BID_UINT128 = Default::default();
-    res.w[BID_HIGH_128W] = 0x7800000000000000u64; // +inf
-    res.w[BID_LOW_128W]  = 0x0000000000000000u64;
-    res
-}
+// pub (crate) fn bid128_inf() -> BID_UINT128 {
+//     let mut res: BID_UINT128 = Default::default();
+//     res.w[BID_HIGH_128W] = 0x7800000000000000u64; // +inf
+//     res.w[BID_LOW_128W]  = 0x0000000000000000u64;
+//     res
+// }
 
 pub (crate) fn bid128_nan(tagp: &str, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let mut res: BID_UINT128 = Default::default();

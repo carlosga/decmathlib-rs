@@ -12,7 +12,7 @@ macro_rules! dec_test {
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec64 = decmathlib_rs::d64::d64($input1);
-            let res1  = decmathlib_rs::d128::d128::from_decimal64(dec64, &mut status);
+            let res1  = decmathlib_rs::d128::d128::convert_from_decimal64(dec64, &mut status);
             let exp   = decmathlib_rs::d128::d128::from($exp);
 
             assert_eq!(exp, res1);
@@ -166,7 +166,7 @@ macro_rules! dec_test {
         fn $name() {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
-            let dec = decmathlib_rs::d128::d128::from_string($input1, rnd_mode, &mut status);
+            let dec = decmathlib_rs::d128::d128::convert_from_decimal_character($input1, rnd_mode, &mut status);
             let exp = decmathlib_rs::d128::d128::from($expected);
 
             assert_eq!($status, status);
@@ -199,10 +199,9 @@ macro_rules! dec_test {
     ($name:ident, bid128_inf, $exp:expr) => {
         #[test]
         fn $name() {
-            let res1 = decmathlib_rs::d128::d128::infinity();
             let exp  = decmathlib_rs::d128::d128::from($exp);
 
-            assert_eq!(exp, res1);
+            assert_eq!(exp, decmathlib_rs::d128::INFINITY);
         }
     };
 
@@ -229,7 +228,7 @@ macro_rules! dec_test {
         fn $name() {
             let res1 = decmathlib_rs::d128::d128::from($input1);
 
-            assert_eq!($exp, res1.is_infinity());
+            assert_eq!($exp, res1.is_infinite());
         }
     };
 
@@ -265,7 +264,7 @@ macro_rules! dec_test {
         fn $name() {
             let res1 = decmathlib_rs::d128::d128::from($input1);
 
-            assert_eq!($exp, res1.is_signed());
+            assert_eq!($exp, res1.is_sign_minus());
         }
     };
 
@@ -597,7 +596,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_equal(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_equal(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -610,7 +609,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_greater(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_greater(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -623,7 +622,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_greater_equal(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_greater_equal(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -636,7 +635,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_less(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_less(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -649,7 +648,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_less_equal(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_less_equal(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -662,7 +661,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_not_equal(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_not_equal(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -675,7 +674,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_ordered(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_ordered(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -688,7 +687,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let dec1 = decmathlib_rs::d128::d128::from($input1);
             let dec2 = decmathlib_rs::d128::d128::from($input2);
-            let res1 = decmathlib_rs::d128::d128::quiet_unordered(&dec1, &dec2, &mut status);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_unordered(&dec1, &dec2, &mut status);
 
             assert_eq!($exp, res1);
             assert_eq!($exp_status, status)
@@ -835,7 +834,7 @@ macro_rules! dec_test {
             let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
             let exp      = decmathlib_rs::d128::d128::from($exp);
-            let res1     = dec1.scalbln($n, rnd_mode, &mut status);
+            let res1     = dec1.scale_bln($n, rnd_mode, &mut status);
 
             assert_eq!(exp, res1);
             assert_eq!($exp_status, status)
@@ -862,7 +861,7 @@ macro_rules! dec_test {
             let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
             let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
             let dec1     = decmathlib_rs::d128::d128::from($input1);
-            let res1     = dec1.to_decimal64(rnd_mode, &mut status);
+            let res1     = dec1.convert_to_decimal64(rnd_mode, &mut status);
 
             assert_eq!($exp, res1.0);
             assert_eq!($exp_status, status)

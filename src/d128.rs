@@ -244,11 +244,6 @@ impl d128 {
     #[must_use]
     pub fn copy_sign(&self, other: &Self) -> Self { bid128_copy_sign(self, other) }
 
-    #[must_use]
-    pub fn infinity() -> Self {
-        bid128_inf()
-    }
-
     /// Return true if and only if x is a finite number, infinity, or NaN that is canonical
     #[must_use]
     pub fn is_canonical(&self) -> bool {
@@ -263,7 +258,7 @@ impl d128 {
 
     /// Return true if and only if x is infinite
     #[must_use]
-    pub fn is_infinity(&self) -> bool {
+    pub fn is_infinite(&self) -> bool {
         bid128_is_inf(self)
     }
 
@@ -287,7 +282,7 @@ impl d128 {
 
     /// Return true if and only if x has negative sign
     #[must_use]
-    pub fn is_signed(&self) -> bool {
+    pub fn is_sign_minus(&self) -> bool {
         bid128_is_signed(self)
     }
 
@@ -297,12 +292,14 @@ impl d128 {
         bid128_is_subnormal(self)
     }
 
-    /// Copies a 128-bit decimal floating-point operand x to a destination in the same format, reversing the sign
+    /// Return true if and only if x is +0 or -0
     #[must_use]
     pub fn is_zero(&self) -> bool {
         bid128_is_zero(self)
     }
 
+    /// Copies a 128-bit decimal floating-point operand x to a destination
+    /// in the same format, reversing the sign
     #[must_use]
     pub fn negate(x: &Self) -> Self {
         bid128_negate(x)
@@ -337,13 +334,13 @@ impl d128 {
     /// Convert a decimal floating-point value represented in string format
     /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
     #[must_use]
-    pub fn from_string(value: &str, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn convert_from_decimal_character(value: &str, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
     #[must_use]
-    pub fn from_decimal64(bid: d64, status: &mut _IDEC_flags) -> Self {
+    pub fn convert_from_decimal64(bid: d64, status: &mut _IDEC_flags) -> Self {
         bid64_to_bid128(bid.0, status)
     }
 
@@ -588,7 +585,7 @@ impl d128 {
 
     /// Returns x * 10^N
     #[must_use]
-    pub fn scalbln(&self, n: i64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+    pub fn scale_bln(&self, n: i64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_scalbln(self, n, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
@@ -600,7 +597,7 @@ impl d128 {
 
     /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
     #[must_use]
-    pub fn to_decimal64(&self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> d64 {
+    pub fn convert_to_decimal64(&self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> d64 {
         d64(bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status))
     }
 
@@ -925,56 +922,56 @@ impl d128 {
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_equal(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_unordered(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_ordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_ordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_ordered(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_greater_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_greater_equal(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less_equal(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
-    pub fn quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+    pub fn compare_quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_not_equal(lhs, rhs, status)
     }
 

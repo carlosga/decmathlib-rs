@@ -35,13 +35,13 @@ fn carbon_gas_benchmark(c: &mut Criterion) {
     let mut pfpsf: _IDEC_flags = 0;
     let inputs = CarbonGasInputs {
         iterations: 10_000_000,
-        k: d128::from_string("1.3806503e-23", None, &mut pfpsf),
-        T: d128::from_string("300.0"        , None, &mut pfpsf),
-        a: d128::from_string("0.401"        , None, &mut pfpsf),
-        b: d128::from_string("42.7e-6"      , None, &mut pfpsf),
-        N: d128::from_string("1000"         , None, &mut pfpsf),
-        p: d128::from_string("3.5e7"        , None, &mut pfpsf),
-        V: d128::from_string("0.5"          , None, &mut pfpsf),
+        k: d128::convert_from_decimal_character("1.3806503e-23", None, &mut pfpsf),
+        T: d128::convert_from_decimal_character("300.0"        , None, &mut pfpsf),
+        a: d128::convert_from_decimal_character("0.401"        , None, &mut pfpsf),
+        b: d128::convert_from_decimal_character("42.7e-6"      , None, &mut pfpsf),
+        N: d128::convert_from_decimal_character("1000"         , None, &mut pfpsf),
+        p: d128::convert_from_decimal_character("3.5e7"        , None, &mut pfpsf),
+        V: d128::convert_from_decimal_character("0.5"          , None, &mut pfpsf),
     };
 
     let mut group = c.benchmark_group("decmathlib");
@@ -100,10 +100,10 @@ fn kepler_benchmark(c: &mut Criterion) {
     let mut pfpsf: _IDEC_flags = 0;
     let inputs = KeplerInputs {
         iterations: 10_000_000,
-        x1: d128::from_string("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
-        x2: d128::from_string("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
-        x3: d128::from_string("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
-        x4: d128::from_string("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf)
+        x1: d128::convert_from_decimal_character("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
+        x2: d128::convert_from_decimal_character("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
+        x3: d128::convert_from_decimal_character("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf),
+        x4: d128::convert_from_decimal_character("636000000000000031974423109204508364200592041015625E-50", None, &mut pfpsf)
     };
 
     let mut group = c.benchmark_group("decmathlib");
