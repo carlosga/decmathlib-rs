@@ -245,13 +245,13 @@ impl Encode<'_, sqlx::postgres::Postgres> for d128 {
         let size_in_bytes: usize = 8 + (digits.len() * std::mem::size_of::<i16>());
         let mut buffer: Vec<u8>  = vec![0u8; size_in_bytes];
         let mut pos: usize = 0;
-        let sign = if self.is_infinity() && !self.is_signed() {
+        let sign = if self.is_infinite() && !self.is_sign_minus() {
             NUMERIC_PINF
-        } else if self.is_infinity() && self.is_signed() {
+        } else if self.is_infinite() && self.is_sign_minus() {
             NUMERIC_NINF
         } else if self.is_nan() || self.is_signaling() {
             NUMERIC_NAN
-        } else if self.is_signed() {
+        } else if self.is_sign_minus() {
             NUMERIC_NEG
         } else {
             NUMERIC_POS
