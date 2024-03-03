@@ -150,6 +150,9 @@ pub struct d128 {
     pub (crate) w: [BID_UINT64; 2]
 }
 
+/// The radix or base of the internal representation of `d128`.
+pub const RADIX: i32 = 10;
+
 /// The number minus one (-1).
 pub const MINUS_ONE: d128 = d128 { w: [0x0000000000000001u64, 0xb040000000000000u64] };
 

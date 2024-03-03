@@ -54,6 +54,7 @@ mod bid_convert_data;
 mod bid_decimal_data;
 mod bid_div_macros;
 mod bid_from_int;
+mod bid_inline_add;
 mod bid_internal;
 mod bid_round;
 mod bid_sqrt_macros;

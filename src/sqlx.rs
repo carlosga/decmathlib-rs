@@ -96,39 +96,6 @@ impl sqlx::postgres::PgHasArrayType for d128 {
     }
 }
 
-fn __get_dec_digits64(X: &BID_UINT128) -> i32 {
-    let mut tempx: BID_UI64DOUBLE = BID_UI64DOUBLE:: default();
-    let mut digits_x: i32;
-    let bin_expon_cx: usize;
-
-    if X.w[1] == 0 {
-        if X.w[0] == 0 {
-            return 0;
-        }
-        unsafe {
-            //--- get number of bits in the coefficients of x and y ---
-            tempx.d      = X.w[0] as f64;
-            bin_expon_cx = (((tempx.ui64 & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
-        }
-        // get number of decimal digits in the coeff_x
-        digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx];
-        if X.w[0] >= BID_POWER10_TABLE_128[digits_x as usize].w[0] {
-            digits_x += 1;
-        }
-        return digits_x;
-    }
-    unsafe {
-        tempx.d      = X.w[1] as f64;
-        bin_expon_cx = (((tempx.ui64 & MASK_BINARY_EXPONENT) >> 52) - 0x3ff) as usize;
-    }
-    // get number of decimal digits in the coeff_x
-    digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx + 64];
-    if __unsigned_compare_ge_128(&X, &BID_POWER10_TABLE_128[digits_x as usize]) {
-        digits_x += 1;
-    }
-    return digits_x;
-}
-
 impl Encode<'_, sqlx::postgres::Postgres> for d128 {
     // adapted from https://github.com/pgjdbc/pgjdbc/blob/master/pgjdbc/src/main/java/org/postgresql/util/ByteConverter.java
     fn encode_by_ref(&self, buf: &mut sqlx::postgres::PgArgumentBuffer) -> sqlx::encode::IsNull {
