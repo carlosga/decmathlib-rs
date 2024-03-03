@@ -36,8 +36,8 @@ pub (crate) fn __get_dec_digits64(X: &BID_UINT128) -> i32 {
     }
     // get number of decimal digits in the coeff_x
     digits_x = BID_ESTIMATE_DECIMAL_DIGITS[bin_expon_cx + 64];
-    if __unsigned_compare_ge_128(&X, &BID_POWER10_TABLE_128[digits_x as usize]) {
+    if __unsigned_compare_ge_128(X, &BID_POWER10_TABLE_128[digits_x as usize]) {
         digits_x += 1;
     }
-    return digits_x;
+    digits_x
 }
