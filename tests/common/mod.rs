@@ -668,6 +668,19 @@ macro_rules! dec_test {
         }
     };
 
+    ($name:ident, bid128_quiet_not_greater, $input1:expr, $input2:expr, $exp:expr, $exp_status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let dec1 = decmathlib_rs::d128::d128::from($input1);
+            let dec2 = decmathlib_rs::d128::d128::from($input2);
+            let res1 = decmathlib_rs::d128::d128::compare_quiet_not_greater(&dec1, &dec2, &mut status);
+
+            assert_eq!($exp, res1);
+            assert_eq!($exp_status, status)
+        }
+    };
+
     ($name:ident, bid128_quiet_ordered, $input1:expr, $input2:expr, $exp:expr, $exp_status:expr) => {
         #[test]
         fn $name() {

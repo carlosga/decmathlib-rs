@@ -18,7 +18,7 @@ use std::str::FromStr;
 use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 
 use crate::bid128_add::{bid128_add, bid128_sub, bid64dq_add};
-use crate::bid128_compare::{bid128_quiet_equal, bid128_quiet_greater, bid128_quiet_greater_equal, bid128_quiet_less, bid128_quiet_less_equal, bid128_quiet_not_equal, bid128_quiet_ordered, bid128_quiet_unordered};
+use crate::bid128_compare::*;
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
 use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qdq_fma, bid128qqd_fma};
@@ -989,6 +989,13 @@ impl d128 {
     #[must_use]
     pub fn compare_quiet_not_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_not_equal(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_quiet_not_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_not_greater(lhs, rhs, status)
     }
 
     /// Round 128-bit decimal floating-point value to integral-valued decimal
