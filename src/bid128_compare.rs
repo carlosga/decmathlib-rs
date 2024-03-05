@@ -2335,227 +2335,226 @@ pub (crate) fn bid128_signaling_greater(x: &BID_UINT128, y: &BID_UINT128, pfpsf:
     res
 }
 
-/*
-BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_signaling_greater_equal, x, y)
+pub (crate) fn bid128_signaling_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> bool {
+    let res: bool;
+    let exp_x: i32;
+    let exp_y: i32;
+    let mut diff: i32;
+    let mut sig_x: BID_UINT128 = Default::default();
+    let mut sig_y: BID_UINT128 = Default::default();
+    let sig_n_prime192: BID_UINT192;
+    let sig_n_prime256: BID_UINT256;
+    let mut x_is_zero: bool = false;
+    let mut y_is_zero: bool = false;
+    let non_canon_x: bool;
+    let non_canon_y: bool;
 
-int res;
-int exp_x, exp_y;
-int diff;
-BID_UINT128 sig_x, sig_y;
-BID_UINT192 sig_n_prime192;
-BID_UINT256 sig_n_prime256;
-char x_is_zero = 0, y_is_zero = 0, non_canon_x, non_canon_y;
-
-// NaN (CASE1)
-// if either number is NAN, the comparison is unordered,
-// rather than equal : return 1
-if (((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN)) {
-    *pfpsf |= BID_INVALID_EXCEPTION;
-    {
-        res = 0;
+    // NaN (CASE1)
+    // if either number is NAN, the comparison is unordered,
+    // rather than equal : return 1
+    if ((x.w[1] & MASK_NAN) == MASK_NAN) || ((y.w[1] & MASK_NAN) == MASK_NAN) {
+        *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
+        res     = false;
         return res;
     }
-}
-// SIMPLE (CASE2)
-// if all the bits are the same, these numbers are equal (not Greater).
-if (x.w[0] == y.w[0] && x.w[1] == y.w[1]) {
-    res = 1;
-    return res;
-}
-// INFINITY (CASE3)
-if ((x.w[1] & MASK_INF) == MASK_INF) {
-    // if x==neg_inf, { res = (y == neg_inf)?1:0; BID_RETURN_VAL (res) }
-    if ((x.w[1] & MASK_SIGN) == MASK_SIGN)
-    // x is -inf, so it is less than y unless y is -inf
-    {
-        res = (((y.w[1] & MASK_INF) == MASK_INF) && (y.w[1] & MASK_SIGN) == MASK_SIGN);
-        return res;
-    } else
-    // x is pos_inf, no way for it to be less than y
-    {
-        res = 1;
+    // SIMPLE (CASE2)
+    // if all the bits are the same, these numbers are equal (not Greater).
+    if x.w[0] == y.w[0] && x.w[1] == y.w[1] {
+        res = true;
         return res;
     }
-} else if ((y.w[1] & MASK_INF) == MASK_INF) {
-    // x is finite, so if y is positive infinity, then x is less, return 0
-    //                 if y is negative infinity, then x is greater, return 1
-    {
-        res = ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+    // INFINITY (CASE3)
+    if (x.w[1] & MASK_INF) == MASK_INF {
+        // if x==neg_inf, { res = (y == neg_inf)?1:0; BID_RETURN_VAL (res) }
+        if (x.w[1] & MASK_SIGN) == MASK_SIGN {    // x is -inf, so it is less than y unless y is -inf
+            res = ((y.w[1] & MASK_INF) == MASK_INF) && (y.w[1] & MASK_SIGN) == MASK_SIGN;
+            return res;
+        } else {                                    // x is pos_inf, no way for it to be less than y
+            res = true;
+            return res;
+        }
+    } else if (y.w[1] & MASK_INF) == MASK_INF {
+        // x is finite, so if y is positive infinity, then x is less, return 0
+        //                 if y is negative infinity, then x is greater, return 1
+        res = (y.w[1] & MASK_SIGN) == MASK_SIGN;
         return res;
     }
-}
-// CONVERT X
-sig_x.w[1] = x.w[1] & 0x0001ffffffffffffu64;
-sig_x.w[0] = x.w[0];
-exp_x = (x.w[1] >> 49) & 0x000000000003fffu64;
+    // CONVERT X
+    sig_x.w[1] = x.w[1] & 0x0001ffffffffffffu64;
+    sig_x.w[0] = x.w[0];
+    exp_x      = ((x.w[1] >> 49) & 0x000000000003fffu64) as i32;
 
-// CHECK IF X IS CANONICAL
-// 9999999999999999999999999999999999(decimal) =
-//   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
-// [0, 10^34) is the 754 supported canonical range.
-//     If the value exceeds that, it is interpreted as 0.
-if ((sig_x.w[1] > 0x0001ed09bead87c0u64) || ((sig_x.w[1] == 0x0001ed09bead87c0u64) && (sig_x.w[0] > 0x378d8e63ffffffffu64)) ||
-    ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64))
-    non_canon_x = 1;
-else
-    non_canon_x = 0;
+    // CHECK IF X IS CANONICAL
+    // 9999999999999999999999999999999999(decimal) =
+    //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
+    // [0, 10^34) is the 754 supported canonical range.
+    //     If the value exceeds that, it is interpreted as 0.
+    if (sig_x.w[1] > 0x0001ed09bead87c0u64)
+    || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+     && (sig_x.w[0] > 0x378d8e63ffffffffu64))
+    || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+        non_canon_x = true;
+    } else {
+        non_canon_x = false;
+    }
 
-// CONVERT Y
-exp_y = (y.w[1] >> 49) & 0x0000000000003fffu64;
-sig_y.w[1] = y.w[1] & 0x0001ffffffffffffu64;
-sig_y.w[0] = y.w[0];
+    // CONVERT Y
+    exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
+    sig_y.w[1] = y.w[1] & 0x0001ffffffffffffu64;
+    sig_y.w[0] = y.w[0];
 
-// CHECK IF Y IS CANONICAL
-// 9999999999999999999999999999999999(decimal) =
-//   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
-// [0, 10^34) is the 754 supported canonical range.
-//     If the value exceeds that, it is interpreted as 0.
-if ((sig_y.w[1] > 0x0001ed09bead87c0u64) || ((sig_y.w[1] == 0x0001ed09bead87c0u64) && (sig_y.w[0] > 0x378d8e63ffffffffu64)) ||
-    ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64))
-    non_canon_y = 1;
-else
-    non_canon_y = 0;
+    // CHECK IF Y IS CANONICAL
+    // 9999999999999999999999999999999999(decimal) =
+    //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
+    // [0, 10^34) is the 754 supported canonical range.
+    //     If the value exceeds that, it is interpreted as 0.
+    if (sig_y.w[1] > 0x0001ed09bead87c0u64)
+    || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+     && (sig_y.w[0] > 0x378d8e63ffffffffu64))
+    || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64) {
+        non_canon_y = true;
+    } else {
+        non_canon_y = false;
+    }
 
-// ZERO (CASE4)
-// some properties:
-//    (+ZERO == -ZERO) => therefore ignore the sign
-//    (ZERO x 10^A == ZERO x 10^B) for any valid A, B => therefore
-//    ignore the exponent field
-//    (Any non-canonical # is considered 0)
-if (non_canon_x || ((sig_x.w[1] == 0) && (sig_x.w[0] == 0))) {
-    x_is_zero = 1;
-}
-if (non_canon_y || ((sig_y.w[1] == 0) && (sig_y.w[0] == 0))) {
-    y_is_zero = 1;
-}
-// if both numbers are zero, neither is greater => return NOTGREATERTHAN
-if (x_is_zero && y_is_zero) {
-    res = 1;
-    return res;
-}
-// is x is zero, it is greater if Y is negative
-else if (x_is_zero) {
-    res = ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-    return res;
-}
-// is y is zero, X is greater if it is positive
-else if (y_is_zero) {
-    res = ((x.w[1] & MASK_SIGN) != MASK_SIGN);
-    return res;
-}
-// OPPOSITE SIGN (CASE5)
-// now, if the sign bits differ, x is greater if y is negative
-if (((x.w[1] ^ y.w[1]) & MASK_SIGN) == MASK_SIGN) {
-    res = ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-    return res;
-}
-// REDUNDANT REPRESENTATIONS (CASE6)
-// if exponents are the same, then we have a simple comparison
-// of the significands
-if (exp_y == exp_x) {
-    res = (((sig_x.w[1] > sig_y.w[1]) || (sig_x.w[1] == sig_y.w[1] && sig_x.w[0] >= sig_y.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN));
-    return res;
-}
-// if both components are either bigger or smaller,
-// it is clear what needs to be done
-if (sig_x.w[1] >= sig_y.w[1] && sig_x.w[0] >= sig_y.w[0] && exp_x > exp_y) {
-    res = ((x.w[1] & MASK_SIGN) != MASK_SIGN);
-    return res;
-}
-if (sig_x.w[1] <= sig_y.w[1] && sig_x.w[0] <= sig_y.w[0] && exp_x < exp_y) {
-    res = ((x.w[1] & MASK_SIGN) == MASK_SIGN);
-    return res;
-}
-
-diff = exp_x - exp_y;
-
-// if |exp_x - exp_y| < 33, it comes down to the compensated significand
-if (diff > 0) { // to simplify the loop below,
-
-    // if exp_x is 33 greater than exp_y, no need for compensation
-    if (diff > 33) {
-        res = ((x.w[1] & MASK_SIGN) != MASK_SIGN);
+    // ZERO (CASE4)
+    // some properties:
+    //    (+ZERO == -ZERO) => therefore ignore the sign
+    //    (ZERO x 10^A == ZERO x 10^B) for any valid A, B => therefore
+    //    ignore the exponent field
+    //    (Any non-canonical # is considered 0)
+    if non_canon_x || ((sig_x.w[1] == 0) && (sig_x.w[0] == 0)) {
+        x_is_zero = true;
+    }
+    if non_canon_y || ((sig_y.w[1] == 0) && (sig_y.w[0] == 0)) {
+        y_is_zero = true;
+    }
+    if x_is_zero && y_is_zero {   // if both numbers are zero, neither is greater => return NOTGREATERTHAN
+        res = true;
         return res;
-    } // difference cannot be greater than 10^33
+    } else if x_is_zero {         // is x is zero, it is greater if Y is negative
+        res = (y.w[1] & MASK_SIGN) == MASK_SIGN;
+        return res;
+    } else if y_is_zero {         // is y is zero, X is greater if it is positive
+        res = (x.w[1] & MASK_SIGN) != MASK_SIGN;
+        return res;
+    }
+    // OPPOSITE SIGN (CASE5)
+    // now, if the sign bits differ, x is greater if y is negative
+    if ((x.w[1] ^ y.w[1]) & MASK_SIGN) == MASK_SIGN {
+        res = (y.w[1] & MASK_SIGN) == MASK_SIGN;
+        return res;
+    }
+    // REDUNDANT REPRESENTATIONS (CASE6)
+    // if exponents are the same, then we have a simple comparison
+    // of the significands
+    if exp_y == exp_x {
+        res = ((sig_x.w[1] > sig_y.w[1]) || (sig_x.w[1] == sig_y.w[1] && sig_x.w[0] >= sig_y.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+        return res;
+    }
+    // if both components are either bigger or smaller,
+    // it is clear what needs to be done
+    if sig_x.w[1] >= sig_y.w[1] && sig_x.w[0] >= sig_y.w[0] && exp_x > exp_y {
+        res = (x.w[1] & MASK_SIGN) != MASK_SIGN;
+        return res;
+    }
+    if sig_x.w[1] <= sig_y.w[1] && sig_x.w[0] <= sig_y.w[0] && exp_x < exp_y {
+        res = (x.w[1] & MASK_SIGN) == MASK_SIGN;
+        return res;
+    }
 
-    if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-        __mul_128x128_to_256(sig_n_prime256, sig_x, BID_TEN2K128[(diff - 20) as usize]);
+    diff = exp_x - exp_y;
+
+    // if |exp_x - exp_y| < 33, it comes down to the compensated significand
+    if diff > 0 { // to simplify the loop below,
+
+        // if exp_x is 33 greater than exp_y, no need for compensation
+        if diff > 33 {
+            res = (x.w[1] & MASK_SIGN) != MASK_SIGN;
+            return res;
+        } // difference cannot be greater than 10^33
+
+        if diff > 19 { // 128 by 128 bit multiply -> 256 bits
+            sig_n_prime256 = __mul_128x128_to_256(&sig_x, &BID_TEN2K128[(diff - 20) as usize]);
+
+            // if postitive, return whichever significand is larger
+            // (converse if negative)
+            if sig_n_prime256.w[3] == 0
+            && (sig_n_prime256.w[2] == 0)
+             && sig_n_prime256.w[1] == sig_y.w[1]
+            && (sig_n_prime256.w[0] == sig_y.w[0]) {
+                res = true;
+                return res;
+            } // if equal, return 1
+            res = (((sig_n_prime256.w[3]  > 0)
+                   || sig_n_prime256.w[2]  > 0)
+                  || (sig_n_prime256.w[1]  > sig_y.w[1])
+                  || (sig_n_prime256.w[1] == sig_y.w[1]
+                   && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+            return res;
+        }
+        // else { //128 by 64 bit multiply -> 192 bits
+        sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_x);
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
-        if (sig_n_prime256.w[3] == 0 && (sig_n_prime256.w[2] == 0) && sig_n_prime256.w[1] == sig_y.w[1] &&
-            (sig_n_prime256.w[0] == sig_y.w[0])) {
-            res = 1;
+        if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0]) {
+            res = true;
             return res;
         } // if equal, return 1
-        {
-            res = ((((sig_n_prime256.w[3] > 0) || sig_n_prime256.w[2] > 0) || (sig_n_prime256.w[1] > sig_y.w[1]) ||
-                    (sig_n_prime256.w[1] == sig_y.w[1] && sig_n_prime256.w[0] > sig_y.w[0])) ^
-                   ((y.w[1] & MASK_SIGN) == MASK_SIGN));
+        res = ((sig_n_prime192.w[2] > 0)
+            || (sig_n_prime192.w[1] > sig_y.w[1])
+            || (sig_n_prime192.w[1] == sig_y.w[1]
+             && sig_n_prime192.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+        return res;
+    }
+
+    diff = exp_y - exp_x;
+
+    // if exp_x is 33 less than exp_y, no need for compensation
+    if diff > 33 {
+        res = (x.w[1] & MASK_SIGN) == MASK_SIGN;
+        return res;
+    }
+
+    if diff > 19 { // 128 by 128 bit multiply -> 256 bits
+        // adjust the y significand upwards
+        sig_n_prime256 = __mul_128x128_to_256(&sig_y, &BID_TEN2K128[(diff - 20) as usize]);
+
+        // if postitive, return whichever significand is larger
+        // (converse if negative)
+        if sig_n_prime256.w[3] == 0
+        && (sig_n_prime256.w[2] == 0)
+         && sig_n_prime256.w[1] == sig_x.w[1]
+        && (sig_n_prime256.w[0] == sig_x.w[0]) {
+            res = true;
             return res;
-        }
+        } // if equal, return 1
+        res = (sig_n_prime256.w[3] == 0
+            && sig_n_prime256.w[2] == 0
+           && (sig_n_prime256.w[1]  < sig_x.w[1]
+           || (sig_n_prime256.w[1] == sig_x.w[1]
+            && sig_n_prime256.w[0]  < sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+        return res;
     }
     // else { //128 by 64 bit multiply -> 192 bits
-    __mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_x);
+    //  adjust the y significand upwards
+    sig_n_prime192 = __mul_64x128_to192(BID_TEN2K64[diff as usize], &sig_y);
 
     // if postitive, return whichever significand is larger
     // (converse if negative)
-    if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_y.w[1] && (sig_n_prime192.w[0] == sig_y.w[0])) {
-        res = 1;
+    if (sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0]) {
+        res = true;
         return res;
     } // if equal, return 1
-    {
-        res = (((sig_n_prime192.w[2] > 0) || (sig_n_prime192.w[1] > sig_y.w[1]) ||
-                (sig_n_prime192.w[1] == sig_y.w[1] && sig_n_prime192.w[0] > sig_y.w[0])) ^
-               ((y.w[1] & MASK_SIGN) == MASK_SIGN));
-        return res;
-    }
+    res = (sig_n_prime192.w[2] == 0
+       && (sig_n_prime192.w[1]  < sig_x.w[1]
+       || (sig_n_prime192.w[1] == sig_x.w[1]
+        && sig_n_prime192.w[0]  < sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+    res
 }
 
-diff = exp_y - exp_x;
-
-// if exp_x is 33 less than exp_y, no need for compensation
-if (diff > 33) {
-    res = ((x.w[1] & MASK_SIGN) == MASK_SIGN);
-    return res;
-}
-
-if (diff > 19) { // 128 by 128 bit multiply -> 256 bits
-    // adjust the y significand upwards
-    __mul_128x128_to_256(sig_n_prime256, sig_y, BID_TEN2K128[(diff - 20) as usize]);
-
-    // if postitive, return whichever significand is larger
-    // (converse if negative)
-    if (sig_n_prime256.w[3] == 0 && (sig_n_prime256.w[2] == 0) && sig_n_prime256.w[1] == sig_x.w[1] &&
-        (sig_n_prime256.w[0] == sig_x.w[0])) {
-        res = 1;
-        return res;
-    } // if equal, return 1
-    {
-        res = ((sig_n_prime256.w[3] == 0 && sig_n_prime256.w[2] == 0 &&
-                (sig_n_prime256.w[1] < sig_x.w[1] || (sig_n_prime256.w[1] == sig_x.w[1] && sig_n_prime256.w[0] < sig_x.w[0]))) ^
-               ((x.w[1] & MASK_SIGN) == MASK_SIGN));
-        return res;
-    }
-}
-// else { //128 by 64 bit multiply -> 192 bits
-//  adjust the y significand upwards
-__mul_64x128_to192(sig_n_prime192, BID_TEN2K64[diff as usize], sig_y);
-
-// if postitive, return whichever significand is larger
-// (converse if negative)
-if ((sig_n_prime192.w[2] == 0) && sig_n_prime192.w[1] == sig_x.w[1] && (sig_n_prime192.w[0] == sig_x.w[0])) {
-    res = 1;
-    return res;
-} // if equal, return 1
-{
-    res = (sig_n_prime192.w[2] == 0 &&
-           (sig_n_prime192.w[1] < sig_x.w[1] || (sig_n_prime192.w[1] == sig_x.w[1] && sig_n_prime192.w[0] < sig_x.w[0]))) ^
-          ((y.w[1] & MASK_SIGN) == MASK_SIGN);
-    return res;
-}
-}
-
+/*
 BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(int, bid128_signaling_greater_unordered, x, y)
 
 int res;
