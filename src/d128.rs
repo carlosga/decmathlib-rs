@@ -1005,6 +1005,13 @@ impl d128 {
         bid128_quiet_not_less(lhs, rhs, status)
     }
 
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_greater(lhs, rhs, status)
+    }
+
     /// Round 128-bit decimal floating-point value to integral-valued decimal
     /// floating-point value in the same format, using the current rounding mode;
     /// signal inexact exceptions
