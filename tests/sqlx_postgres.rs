@@ -6,14 +6,15 @@
 /* -------------------------------------------------------------------------------------------------- */
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018 Intel Corp.                        */
 /* -------------------------------------------------------------------------------------------------- */
-
 #[macro_export]
 macro_rules! sqlx_test {
     ($name:ident, sqlx_decimal, $precision:expr, $scale:expr, $input1:expr) => {
-        #[cfg(feature = "sqlx")]
+        #[cfg(feature = "sqlx_postgres")]
         #[sqlx::test]
         #[allow(dead_code)]
         async fn $name() -> sqlx::Result<()> {
+            use std::str::FromStr;
+
             let table_name = stringify!($name);
 
             // Create a connection pool to your PostgreSQL database
@@ -48,7 +49,7 @@ macro_rules! sqlx_test {
                 .fetch_one(&pool)
                 .await?;
 
-            assert_eq!(dec1.to_string(), result.value.to_string());
+            assert_eq!(dec1, result.value);
 
             Ok(())
         }
@@ -66,4 +67,3 @@ macro_rules! sqlx_test {
 // sqlx_test!(sqlx_decimal_011, sqlx_decimal, 34, 6, "1E+20");
 // sqlx_test!(sqlx_decimal_012, sqlx_decimal, 34, 6, "1E+24");
 // sqlx_test!(sqlx_decimal_013, sqlx_decimal, 34, 6, "1E+28");
-

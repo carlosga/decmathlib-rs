@@ -66,5 +66,5 @@ pub mod d128;
 #[cfg(feature = "serde")]
 pub mod serde;
 
-#[cfg(feature = "sqlx")]
-pub mod sqlx;
+#[cfg(feature = "sqlx_postgres")]
+pub mod sqlx_postgres;
