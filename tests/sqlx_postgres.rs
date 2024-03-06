@@ -9,7 +9,7 @@
 #[macro_export]
 macro_rules! sqlx_test {
     ($name:ident, sqlx_decimal, $precision:expr, $scale:expr, $input1:expr) => {
-        #[cfg(feature = "sqlx_postgres")]
+        #[cfg(feature = "sqlx-postgres")]
         #[sqlx::test]
         #[allow(dead_code)]
         async fn $name() -> sqlx::Result<()> {

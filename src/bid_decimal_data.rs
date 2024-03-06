@@ -9,6 +9,7 @@
 
 use crate::bid_internal::{BID_UINT64, BID_UINT128};
 
+/*
 pub (crate) const BID_ROUND_CONST_TABLE: [[u64; 19]; 5] = [
     [	// RN
         0u64,	// 0 extra digits
@@ -116,6 +117,7 @@ pub (crate) const BID_ROUND_CONST_TABLE: [[u64; 19]; 5] = [
         500000000000000000u64	// 18 extra digits
     ]
 ];
+*/
 
 pub (crate) const BID_ROUND_CONST_TABLE_128: [[BID_UINT128; 36]; 5] = [
     [	//RN

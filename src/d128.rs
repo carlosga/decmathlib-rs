@@ -180,7 +180,7 @@ pub const INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0x7800000000000000u
 pub const NEGATIVE_INFINITY: d128 = d128 { w: [0x0000000000000000u64, 0xF800000000000000u64] };
 
 /// The number of digits in the coefficient.
-pub const MANTISSA_DIGITS: u32 = 34;
+pub const MANTISSA_DIGITS: u32 = BID128_MAXDIGITS;
 
 /// The difference between 1 and the least value greater than 1 that is representable in the given floating point type (1E-33).
 pub const EPSILON: d128 = d128 { w: [0x1u64, 0x2FFE000000000000u64] };

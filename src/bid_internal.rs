@@ -11,7 +11,7 @@
 #![allow(dead_code)]
 #![allow(unused_assignments)]
 
-use crate::bid_decimal_data::{BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE, BID_ROUND_CONST_TABLE_128};
+use crate::bid_decimal_data::{BID_POWER10_TABLE_128, BID_RECIP_SCALE, BID_RECIPROCALS10_128, BID_ROUND_CONST_TABLE_128};
 use crate::d128::{_IDEC_flags, RoundingMode, StatusFlags};
 
 //////////////////////////////////////////////
@@ -113,17 +113,17 @@ impl Default for BID_UI64DOUBLE {
 //      BID Pack/Unpack Macros
 //////////////////////////////////////////////
 
-pub (crate) const P7: i32  = 7;
-pub (crate) const P16: i32 = 16;
+// pub (crate) const P7: i32  = 7;
+// pub (crate) const P16: i32 = 16;
 pub (crate) const P34: i32 = 34;
 
 pub (crate) const MASK_STEERING_BITS: u64         = 0x6000000000000000u64;
-pub (crate) const MASK_BINARY_EXPONENT1: u64      = 0x7fe0000000000000u64;
-pub (crate) const MASK_BINARY_SIG1: u64           = 0x001fffffffffffffu64;
-pub (crate) const MASK_BINARY_EXPONENT2: u64      = 0x1ff8000000000000u64; //used to take G[2:w+3] (sec 3.3)
-pub (crate) const MASK_BINARY_SIG2: u64           = 0x0007ffffffffffffu64; //used to mask out G4:T0 (sec 3.3)
-pub (crate) const MASK_BINARY_OR2: u64            = 0x0020000000000000u64; //used to prefix 8+G4 to T (sec 3.3)
-pub (crate) const UPPER_EXPON_LIMIT: u32          = 51;
+// pub (crate) const MASK_BINARY_EXPONENT1: u64      = 0x7fe0000000000000u64;
+// pub (crate) const MASK_BINARY_SIG1: u64           = 0x001fffffffffffffu64;
+// pub (crate) const MASK_BINARY_EXPONENT2: u64      = 0x1ff8000000000000u64; //used to take G[2:w+3] (sec 3.3)
+// pub (crate) const MASK_BINARY_SIG2: u64           = 0x0007ffffffffffffu64; //used to mask out G4:T0 (sec 3.3)
+// pub (crate) const MASK_BINARY_OR2: u64            = 0x0020000000000000u64; //used to prefix 8+G4 to T (sec 3.3)
+// pub (crate) const UPPER_EXPON_LIMIT: u32          = 51;
 pub (crate) const MASK_EXP: u64                   = 0x7ffe000000000000u64;
 pub (crate) const MASK_EXP2: u64                  = 0x1fff800000000000u64;
 pub (crate) const MASK_SPECIAL: u64               = 0x7800000000000000u64;
@@ -133,49 +133,49 @@ pub (crate) const MASK_ANY_INF: u64               = 0x7c00000000000000u64;
 pub (crate) const MASK_INF: u64                   = 0x7800000000000000u64;
 pub (crate) const MASK_SIGN: u64                  = 0x8000000000000000u64;
 pub (crate) const MASK_COEFF: u64                 = 0x0001ffffffffffffu64;
-pub (crate) const BIN_EXP_BIAS: u64               = 0x1820u64 << 49;
+// pub (crate) const BIN_EXP_BIAS: u64               = 0x1820u64 << 49;
 
-pub (crate) const EXP_MIN32: u32                  = 0x00000000;
-pub (crate) const EXP_MAX32: u32                  = 0x5f800000;
+// pub (crate) const EXP_MIN32: u32                  = 0x00000000;
+// pub (crate) const EXP_MAX32: u32                  = 0x5f800000;
 pub (crate) const EXP_MIN: u64                    = 0x0000000000000000;     // EXP_MIN = (-6176 + 6176) << 49
-pub (crate) const EXP_MAX: u64                    = 0x5ffe000000000000u64;  // EXP_MAX = (6111 + 6176) << 49
+// pub (crate) const EXP_MAX: u64                    = 0x5ffe000000000000u64;  // EXP_MAX = (6111 + 6176) << 49
 pub (crate) const EXP_MAX_P1: u64                 = 0x6000000000000000u64;  // EXP_MAX + 1 = (6111 + 6176 + 1) << 49
 pub (crate) const EXP_P1: u64                     = 0x0002000000000000u64;  // EXP_ P1= 1 << 49
 pub (crate) const EXP_MIN_UNBIASED: i32           = -6176; // min unbiased exponent
 pub (crate) const EXP_MAX_UNBIASED: i32           = 6111; // max unbiased exponent
-pub (crate) const EXP_MIN16_UNBIASED: i32         = -398; // min unbiased exponent
-pub (crate) const EXP_MAX16_UNBIASED: i32         = 369; // max unbiased exponent
-pub (crate) const EXP_MIN7_UNBIASED: i32          = -101; // min unbiased exponent
-pub (crate) const EXP_MAX7_UNBIASED: i32          = 90;
+// pub (crate) const EXP_MIN16_UNBIASED: i32         = -398; // min unbiased exponent
+// pub (crate) const EXP_MAX16_UNBIASED: i32         = 369; // max unbiased exponent
+// pub (crate) const EXP_MIN7_UNBIASED: i32          = -101; // min unbiased exponent
+// pub (crate) const EXP_MAX7_UNBIASED: i32          = 90;
 
-pub (crate) const MASK_INF32: u32                 = 0x78000000;
-pub (crate) const MASK_ANY_INF32: u32             = 0x7c000000;
-pub (crate) const MASK_SIGN32: u32                = 0x80000000;
-pub (crate) const MASK_NAN32: u32                 = 0x7c000000;
-pub (crate) const MASK_SNAN32: u32                = 0x7e000000;
+// pub (crate) const MASK_INF32: u32                 = 0x78000000;
+// pub (crate) const MASK_ANY_INF32: u32             = 0x7c000000;
+// pub (crate) const MASK_SIGN32: u32                = 0x80000000;
+// pub (crate) const MASK_NAN32: u32                 = 0x7c000000;
+// pub (crate) const MASK_SNAN32: u32                = 0x7e000000;
 pub (crate) const SIGNMASK32: u32                 = 0x80000000;
-pub (crate) const BID32_SIG_MAX: u32              = 0x0098967f;
-pub (crate) const BID64_SIG_MAX: u64              = 0x002386F26FC0FFFFu64;
+// pub (crate) const BID32_SIG_MAX: u32              = 0x0098967f;
+// pub (crate) const BID64_SIG_MAX: u64              = 0x002386F26FC0FFFFu64;
 pub (crate) const SIGNMASK64: u64                 = 0x8000000000000000u64;
-pub (crate) const MASK_STEERING_BITS32: u32       = 0x60000000;
-pub (crate) const MASK_BINARY_EXPONENT1_32: u32   = 0x7f800000;
-pub (crate) const MASK_BINARY_SIG1_32: u32        = 0x007fffff;
-pub (crate) const MASK_BINARY_EXPONENT2_32: u32   = 0x1fe00000;
-//used to take G[2:w+3] (sec 3.3)
-pub (crate) const MASK_BINARY_SIG2_32: u32        = 0x001fffff;
-//used to mask out G4:T0 (sec 3.3)
-pub (crate) const MASK_BINARY_OR2_32: u32         = 0x00800000;
-pub (crate) const MASK_SPECIAL32: u32             = 0x78000000;
+// pub (crate) const MASK_STEERING_BITS32: u32       = 0x60000000;
+// pub (crate) const MASK_BINARY_EXPONENT1_32: u32   = 0x7f800000;
+// pub (crate) const MASK_BINARY_SIG1_32: u32        = 0x007fffff;
+// pub (crate) const MASK_BINARY_EXPONENT2_32: u32   = 0x1fe00000;
+// //used to take G[2:w+3] (sec 3.3)
+// pub (crate) const MASK_BINARY_SIG2_32: u32        = 0x001fffff;
+// //used to mask out G4:T0 (sec 3.3)
+// pub (crate) const MASK_BINARY_OR2_32: u32         = 0x00800000;
+// pub (crate) const MASK_SPECIAL32: u32             = 0x78000000;
 
 // TYPE parameters
 pub (crate) const BID128_MAXDIGITS: u32 = 34;
-pub (crate) const BID64_MAXDIGITS: u32  = 16;
-pub (crate) const BID32_MAXDIGITS: u32  = 7;
+// pub (crate) const BID64_MAXDIGITS: u32  = 16;
+// pub (crate) const BID32_MAXDIGITS: u32  = 7;
 
 // status
-pub (crate) const BID_FLAG_MASK: u32     = 0x0000003f;
-pub (crate) const DEC_FE_ALL_EXCEPT: u32 = 0x0000003f;
-pub (crate) const BID_IEEE_FLAGS: u32    = 0x0000003d;
+// pub (crate) const BID_FLAG_MASK: u32     = 0x0000003f;
+// pub (crate) const DEC_FE_ALL_EXCEPT: u32 = 0x0000003f;
+// pub (crate) const BID_IEEE_FLAGS: u32    = 0x0000003d;
 
 pub (crate) const DEC_FE_INVALID:u32    = 0x01;
 pub (crate) const DEC_FE_UNNORMAL:u32   = 0x02;
@@ -184,20 +184,13 @@ pub (crate) const DEC_FE_OVERFLOW:u32   = 0x08;
 pub (crate) const DEC_FE_UNDERFLOW:u32  = 0x10;
 pub (crate) const DEC_FE_INEXACT:u32    = 0x20;
 
-pub (crate) const BID_MODE_MASK:u32        = 0x00001f80;
-pub (crate) const BID_INEXACT_MODE:u32     = 0x00001000;
-pub (crate) const BID_UNDERFLOW_MODE:u32   = 0x00000800;
-pub (crate) const BID_OVERFLOW_MODE:u32    = 0x00000400;
-pub (crate) const BID_ZERO_DIVIDE_MODE:u32 = 0x00000200;
-pub (crate) const BID_DENORMAL_MODE:u32    = 0x00000100;
-pub (crate) const BID_INVALID_MODE:u32     = 0x00000080;
-
-//////////////////////////////////////////////
-// BID64 definitions
-//////////////////////////////////////////////
-pub (crate) const DECIMAL_MAX_EXPON_64: i32  = 767;
-pub (crate) const DECIMAL_EXPONENT_BIAS: i32 = 398;
-pub (crate) const MAX_FORMAT_DIGITS: u32     = 16;
+// pub (crate) const BID_MODE_MASK:u32        = 0x00001f80;
+// pub (crate) const BID_INEXACT_MODE:u32     = 0x00001000;
+// pub (crate) const BID_UNDERFLOW_MODE:u32   = 0x00000800;
+// pub (crate) const BID_OVERFLOW_MODE:u32    = 0x00000400;
+// pub (crate) const BID_ZERO_DIVIDE_MODE:u32 = 0x00000200;
+// pub (crate) const BID_DENORMAL_MODE:u32    = 0x00000100;
+// pub (crate) const BID_INVALID_MODE:u32     = 0x00000080;
 
 //////////////////////////////////////////////
 // BID128 definitions
@@ -207,49 +200,42 @@ pub (crate) const DECIMAL_EXPONENT_BIAS_128: i32 = 6176;
 pub (crate) const MAX_FORMAT_DIGITS_128: u32     = 34;
 
 //////////////////////////////////////////////
-// BID32 definitions
-//////////////////////////////////////////////
-pub (crate) const DECIMAL_MAX_EXPON_32: u32     = 191;
-pub (crate) const DECIMAL_EXPONENT_BIAS_32: u32 = 101;
-pub (crate) const MAX_FORMAT_DIGITS_32: u32     = 7;
-
-//////////////////////////////////////////////
 // Constant Definitions
 //////////////////////////////////////////////
 pub (crate) const SPECIAL_ENCODING_MASK64: u64  = 0x6000000000000000;
 pub (crate) const INFINITY_MASK64: u64          = 0x7800000000000000;
 pub (crate) const SINFINITY_MASK64: u64         = 0xf800000000000000;
-pub (crate) const SSNAN_MASK64: u64             = 0xfc00000000000000;
+// pub (crate) const SSNAN_MASK64: u64             = 0xfc00000000000000;
 pub (crate) const NAN_MASK64: u64               = 0x7c00000000000000;
 pub (crate) const SNAN_MASK64: u64              = 0x7e00000000000000;
 pub (crate) const QUIET_MASK64: u64             = 0xfdffffffffffffff;
-pub (crate) const LARGE_COEFF_MASK64: u64       = 0x0007ffffffffffff;
-pub (crate) const LARGE_COEFF_HIGH_BIT64: u64   = 0x0020000000000000;
-pub (crate) const SMALL_COEFF_MASK64: u64       = 0x001fffffffffffff;
-pub (crate) const EXPONENT_MASK64: u64          = 0x3ff;
-pub (crate) const EXPONENT_SHIFT_LARGE64: u64   = 51;
-pub (crate) const EXPONENT_SHIFT_SMALL64: u64   = 53;
-pub (crate) const LARGEST_BID64: u64            = 0x77fb86f26fc0ffff;
-pub (crate) const SMALLEST_BID64: u64           = 0xf7fb86f26fc0ffff;
+// pub (crate) const LARGE_COEFF_MASK64: u64       = 0x0007ffffffffffff;
+// pub (crate) const LARGE_COEFF_HIGH_BIT64: u64   = 0x0020000000000000;
+// pub (crate) const SMALL_COEFF_MASK64: u64       = 0x001fffffffffffff;
+// pub (crate) const EXPONENT_MASK64: u64          = 0x3ff;
+// pub (crate) const EXPONENT_SHIFT_LARGE64: u64   = 51;
+// pub (crate) const EXPONENT_SHIFT_SMALL64: u64   = 53;
+// pub (crate) const LARGEST_BID64: u64            = 0x77fb86f26fc0ffff;
+// pub (crate) const SMALLEST_BID64: u64           = 0xf7fb86f26fc0ffff;
 pub (crate) const SMALL_COEFF_MASK128: u64      = 0x0001ffffffffffff;
 pub (crate) const LARGE_COEFF_MASK128: u64      = 0x00007fffffffffff;
 pub (crate) const EXPONENT_MASK128: i32         = 0x3fff;
 pub (crate) const LARGEST_BID128_HIGH: u64      = 0x5fffed09bead87c0;
 pub (crate) const LARGEST_BID128_LOW: u64       = 0x378d8e63ffffffff;
-pub (crate) const SPECIAL_ENCODING_MASK32: u32  = 0x60000000;
-pub (crate) const SINFINITY_MASK32: u32         = 0xf8000000;
-pub (crate) const INFINITY_MASK32: u32          = 0x78000000;
-pub (crate) const LARGE_COEFF_MASK32: u32       = 0x007fffff;
-pub (crate) const LARGE_COEFF_HIGH_BIT32: u32   = 0x00800000;
-pub (crate) const SMALL_COEFF_MASK32: u32       = 0x001fffff;
-pub (crate) const EXPONENT_MASK32: u32          = 0xff;
-pub (crate) const LARGEST_BID32: u32            = 0x77f8967f;
-pub (crate) const NAN_MASK32: u32               = 0x7c000000;
-pub (crate) const SNAN_MASK32: u32              = 0x7e000000;
-pub (crate) const SSNAN_MASK32: u32             = 0xfc000000;
-pub (crate) const QUIET_MASK32: u32             = 0xfdffffff;
+// pub (crate) const SPECIAL_ENCODING_MASK32: u32  = 0x60000000;
+// pub (crate) const SINFINITY_MASK32: u32         = 0xf8000000;
+// pub (crate) const INFINITY_MASK32: u32          = 0x78000000;
+// pub (crate) const LARGE_COEFF_MASK32: u32       = 0x007fffff;
+// pub (crate) const LARGE_COEFF_HIGH_BIT32: u32   = 0x00800000;
+// pub (crate) const SMALL_COEFF_MASK32: u32       = 0x001fffff;
+// pub (crate) const EXPONENT_MASK32: u32          = 0xff;
+// pub (crate) const LARGEST_BID32: u32            = 0x77f8967f;
+// pub (crate) const NAN_MASK32: u32               = 0x7c000000;
+// pub (crate) const SNAN_MASK32: u32              = 0x7e000000;
+// pub (crate) const SSNAN_MASK32: u32             = 0xfc000000;
+// pub (crate) const QUIET_MASK32: u32             = 0xfdffffff;
 pub (crate) const MASK_BINARY_EXPONENT: u64     = 0x7ff0000000000000;
-pub (crate) const BINARY_EXPONENT_BIAS: u32     = 0x3ff;
+// pub (crate) const BINARY_EXPONENT_BIAS: u32     = 0x3ff;
 
 //////////////////////////////////////////////
 // SWAP
@@ -260,271 +246,6 @@ pub (crate) fn swap<T: Copy>(A: &mut T, B: &mut T, T: &mut T) {
     *T = *A;
     *A = *B;
     *B = *T;
-}
-
-//////////////////////////////////////////////
-// BID32 pack/unpack macros
-//////////////////////////////////////////////
-
-///  BID32 unpack, input pased by reference
-#[inline]
-pub (crate) fn unpack_BID32(psign_x: &mut BID_UINT32, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT32, x: BID_UINT32) -> BID_UINT32 {
-    let tmp: BID_UINT32;
-
-    *psign_x = x & 0x80000000;
-
-    if (x & SPECIAL_ENCODING_MASK32) == SPECIAL_ENCODING_MASK32 {
-        // special encodings
-        if (x & INFINITY_MASK32) == INFINITY_MASK32 {
-            *pcoefficient_x = x & 0xfe0fffff;
-            if (x & 0x000fffff) >= 1000000 {
-                *pcoefficient_x = x & 0xfe000000;
-            }
-            if (x & NAN_MASK32) == INFINITY_MASK32 {
-                *pcoefficient_x = x & 0xf8000000;
-            }
-            *pexponent_x = 0;
-
-            return 0; // NaN or Infinity
-        }
-        // coefficient
-        *pcoefficient_x = (x & SMALL_COEFF_MASK32) | LARGE_COEFF_HIGH_BIT32;
-        // check for non-canonical value
-        if *pcoefficient_x >= 10000000 {
-            *pcoefficient_x = 0;
-        }
-        // get exponent
-        tmp = x >> 21;
-        *pexponent_x = (tmp & EXPONENT_MASK32) as i32;
-        return *pcoefficient_x;
-    }
-    // exponent
-    tmp = x >> 23;
-    *pexponent_x    = (tmp & EXPONENT_MASK32) as i32;
-    // coefficient
-    *pcoefficient_x = x & LARGE_COEFF_MASK32;
-
-    *pcoefficient_x
-}
-
-//////////////////////////////////////////////
-// BID64 pack/unpack macros
-//////////////////////////////////////////////
-
-///  BID64 unpack, input pased by reference
-#[inline]
-pub (crate) fn unpack_BID64(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT64, x: BID_UINT64) -> BID_UINT64 {
-    let tmp: BID_UINT64;
-    let mut coeff: BID_UINT64;
-
-    *psign_x = x & 0x8000000000000000u64;
-
-    if (x & SPECIAL_ENCODING_MASK64) == SPECIAL_ENCODING_MASK64 {
-        // special encodings
-        // coefficient
-        coeff = (x & LARGE_COEFF_MASK64) | LARGE_COEFF_HIGH_BIT64;
-
-        if (x & INFINITY_MASK64) == INFINITY_MASK64 {
-            *pexponent_x    = 0i32;
-            *pcoefficient_x = x & 0xfe03ffffffffffffu64;
-            if (x & 0x0003ffffffffffffu64) >= 1000000000000000u64 {
-                *pcoefficient_x = x & 0xfe00000000000000u64;
-            }
-            if (x & NAN_MASK64) == INFINITY_MASK64 {
-                *pcoefficient_x = x & SINFINITY_MASK64;
-            }
-            return 0; // NaN or Infinity
-        }
-        // check for non-canonical values
-        if coeff >= 10000000000000000u64 {
-            coeff = 0;
-        }
-        *pcoefficient_x = coeff;
-        // get exponent
-        tmp          = x >> EXPONENT_SHIFT_LARGE64;
-        *pexponent_x = (tmp & EXPONENT_MASK64) as i32;
-        return coeff;
-    }
-    // exponent
-    tmp             = x >> EXPONENT_SHIFT_SMALL64;
-    *pexponent_x    = (tmp & EXPONENT_MASK64) as i32;
-    // coefficient
-    *pcoefficient_x = x & SMALL_COEFF_MASK64;
-
-    *pcoefficient_x
-}
-
-/// BID64 pack macro (general form)
-#[inline]
-pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64, mut rmode: RoundingMode, pfpsc: &mut _IDEC_flags) -> BID_UINT64 {
-    let mut Stemp: BID_UINT128 = Default::default();
-    let Q_low: BID_UINT128;
-    let QH: BID_UINT64;
-    let mut r: BID_UINT64;
-    let mut mask: BID_UINT64;
-    let mut _C64: BID_UINT64 = 0;
-    let mut remainder_h: BID_UINT64;
-    let CY: BID_UINT64;
-    let carry: BID_UINT64;
-    let extra_digits: i32;
-    let amount: i32;
-    let amount2: i32;
-    let mut status: u32;
-
-    if coeff > 9999999999999999u64 {
-        expon += 1;
-        coeff  = 1000000000000000u64;
-    }
-    // check for possible underflow/overflow
-    if (expon as u32) >= 3 * 256 {
-        if expon < 0 {
-            // underflow
-            if expon + (MAX_FORMAT_DIGITS as i32) < 0 {
-                __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
-
-                if rmode == RoundingMode::Downward && sgn != 0 {
-                    return 0x8000000000000001u64;
-                }
-                if rmode == RoundingMode::Upward && sgn == 0 {
-                    return 1u64;
-                }
-                // result is 0
-                return sgn;
-            }
-            if sgn != 0 && ((rmode as u32 - 1u32) < 2) {
-                rmode = RoundingMode::from(3 - (rmode as u32));
-            }
-
-            // get digits to be shifted out
-            extra_digits = -expon;
-            coeff       += BID_ROUND_CONST_TABLE[rmode as usize][extra_digits as usize];
-
-            // get coeff*(2^M[extra_digits])/10^extra_digits
-            (QH, Q_low) = __mul_64x128_full(coeff, &BID_RECIPROCALS10_128[extra_digits as usize]);
-
-            // now get P/10^extra_digits: shift Q_high right by M[extra_digits]-128
-            amount = BID_RECIP_SCALE[extra_digits as usize];
-
-            _C64 = QH >> amount;
-
-            if rmode == RoundingMode::NearestEven {
-                if (_C64 & 1) == 1 {
-                    // check whether fractional part of initial_P/10^extra_digits is exactly .5
-
-                    // get remainder
-                    amount2       = 64 - amount;
-                    remainder_h   = 0;
-                    remainder_h   = ((remainder_h as BID_SINT64) - 1) as BID_UINT64;
-                    remainder_h >>= amount2;
-                    remainder_h  &= QH;
-
-                    if remainder_h == 0
-                        && (Q_low.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                        || (Q_low.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                         && Q_low.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
-                        _C64 -= 1;
-                    }
-                }
-
-                if is_inexact(*pfpsc) {
-                    __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION);
-                } else {
-                    status = StatusFlags::BID_INEXACT_EXCEPTION;
-                    // get remainder
-                    remainder_h = QH << (64 - amount);
-
-                    match rmode {
-                        RoundingMode::NearestEven | RoundingMode::NearestAway => {
-                            if remainder_h == 0x8000000000000000u64
-                            && (Q_low.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                            || (Q_low.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                             && Q_low.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
-                                status = StatusFlags::BID_EXACT_STATUS;
-                            }
-                        },
-                        RoundingMode::Downward | RoundingMode::TowardZero => { // test whether fractional part is 0
-                            if remainder_h == 0
-                            && (Q_low.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                            || (Q_low.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
-                             && Q_low.w[0]  < BID_RECIPROCALS10_128[extra_digits as usize].w[0])) {
-                                status = StatusFlags::BID_EXACT_STATUS;
-                            }
-                        },
-                        _ => { // round up
-                            (Stemp.w[0], CY)    = __add_carry_out(Q_low.w[0], BID_RECIPROCALS10_128[extra_digits as usize].w[0]);
-                            (Stemp.w[1], carry) = __add_carry_in_out(Q_low.w[1], BID_RECIPROCALS10_128[extra_digits as usize].w[1], CY);
-                            if (remainder_h >> (64 - amount)) + carry >= ((1u64) << amount) {
-                                status = StatusFlags::BID_EXACT_STATUS;
-                            }
-                        }
-                    };
-
-                    if status != StatusFlags::BID_EXACT_STATUS {
-                        __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | status);
-                    }
-                }
-
-                return sgn | _C64;
-            }
-        }
-        if coeff == 0 && expon > DECIMAL_MAX_EXPON_64 {
-            expon = DECIMAL_MAX_EXPON_64;
-        }
-        while coeff < 1000000000000000u64 && expon >= 3 * 256 {
-            expon -= 1;
-            coeff = (coeff << 3) + (coeff << 1);
-        }
-        if expon > DECIMAL_MAX_EXPON_64 {
-            __set_status_flags(pfpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
-            // overflow
-            r = sgn | INFINITY_MASK64;
-            match rmode {
-                RoundingMode::Downward => {
-                    if sgn == 0 {
-                        r = LARGEST_BID64;
-                    }
-                },
-                RoundingMode::TowardZero => r = sgn | LARGEST_BID64,
-                RoundingMode::Upward => { // round up
-                    if sgn != 0 {
-                        r = SMALLEST_BID64;
-                    }
-                },
-                _ => {}
-            };
-            return r;
-        }
-    }
-
-    mask   = 1;
-    mask <<= EXPONENT_SHIFT_SMALL64;
-
-    // check whether coefficient fits in 10*5+3 bits
-    if coeff < mask {
-        r   = expon as BID_UINT64;
-        r <<= EXPONENT_SHIFT_SMALL64;
-        r  |= coeff | sgn;
-        return r;
-    }
-    // special format
-
-    // eliminate the case coeff==10^16 after rounding
-    if coeff == 10000000000000000u64 {
-        r = (expon + 1) as BID_UINT64;
-        r <<= EXPONENT_SHIFT_SMALL64;
-        r |= 1000000000000000u64 | sgn;
-        return r;
-    }
-
-    r      = expon as BID_UINT64;
-    r    <<= EXPONENT_SHIFT_LARGE64;
-    r     |= sgn | SPECIAL_ENCODING_MASK64;
-    // add coeff, without leading bits
-    mask   = (mask >> 2) - 1;
-    coeff &= mask;
-    r     |= coeff;
-
-    r
 }
 
 //////////////////////////////////////////////
@@ -803,6 +524,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
     pres
 }
 
+/*
 ///  BID128 unpack, input passed by value  (used in transcendental functions only)
 #[inline]
 pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &mut i32, pcoefficient_x: &mut BID_UINT128, x: &BID_UINT128) -> BID_UINT64 {
@@ -868,6 +590,7 @@ pub (crate) fn unpack_BID128_value_BLE(psign_x: &mut BID_UINT64, pexponent_x: &m
 
     coeff.w[BID_LOW_128W] | coeff.w[BID_HIGH_128W]
 }
+*/
 
 ///  BID128 unpack, input passed by value
 #[inline]
@@ -1003,6 +726,7 @@ pub (crate) fn bid_get_BID128_very_fast(sgn: BID_UINT64, expon: i32, coeff: &BID
     res
 }
 
+/*
 // same as above, but for either endian mode
 #[inline]
 pub (crate) fn bid_get_BID128_very_fast_BLE(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128) -> BID_UINT128 {
@@ -1016,6 +740,7 @@ pub (crate) fn bid_get_BID128_very_fast_BLE(sgn: BID_UINT64, expon: i32, coeff: 
 
     res
 }
+*/
 
 /// No overflow/underflow checks
 #[inline]

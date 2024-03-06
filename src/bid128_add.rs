@@ -8,7 +8,6 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #![allow(unused_assignments)]
-#![allow(dead_code)]
 
 #[cfg(target_endian = "big")]
 use crate::bid_conf::BID_SWAP128;

@@ -11,7 +11,7 @@ use sqlx::Decode;
 use sqlx::encode::Encode;
 use sqlx::postgres::PgValueFormat;
 
-use crate::bid_internal::{ BID_UINT128, BID_UINT64, unpack_BID128};
+use crate::bid_internal::{BID_UINT128, BID_UINT64, unpack_BID128};
 use crate::d128::{d128, INFINITY, NAN, NEGATIVE_INFINITY};
 
 // https://doxygen.postgresql.org/backend_2utils_2adt_2numeric_8c_source.html
