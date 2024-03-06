@@ -21,7 +21,7 @@ use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::*;
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
-use crate::bid128_fma::{bid128_fma, bid128ddd_fma, bid128dqd_fma, bid128qdq_fma, bid128qqd_fma};
+use crate::bid128_fma::{bid128_fma};
 use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
@@ -52,11 +52,9 @@ use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid128_to_uint64::*;
-use crate::bid64_to_bid128::{bid128_to_bid64, bid64_to_bid128};
 use crate::bid_dpd::{bid_dpd_to_bid128, bid_to_dpd128};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
 use crate::bid_internal::*;
-use crate::d64::d64;
 
 /// A classification of decimal floating point numbers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -354,12 +352,6 @@ impl d128 {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
-    /// Convert 64-bit decimal floating-point value to 128-bit decimal floating-point format (binary encoding)
-    #[must_use]
-    pub fn convert_from_decimal64(bid: d64, status: &mut _IDEC_flags) -> Self {
-        bid64_to_bid128(bid.0, status)
-    }
-
     /// fdim returns x - y if x > y, and +0 is x <= y
     #[must_use]
     pub fn fdim(&self, rhs: &BID_UINT128, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
@@ -370,30 +362,6 @@ impl d128 {
     #[must_use]
     pub fn fused_multiply_add(x: &Self, y: &Self, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_fma(x, y, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Decimal floating-point fused multiply-add, UINT64 * UINT64 + UINT64 -> UINT128
-    #[must_use]
-    pub fn ddd_fma(x: d64, y: d64, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128ddd_fma(x.0, y.0, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Decimal floating-point fused multiply-add d64 * d128 + d64 -> d128
-    #[must_use]
-    pub fn dqd_fma(x: d64, y: &Self, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128dqd_fma(x.0, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Decimal floating-point fused multiply-add, d128 * d64 + d128 -> d128
-    #[must_use]
-    pub fn qdq_fma(x: &Self, y: d64, z: &Self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128qdq_fma(x, y.0, z, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Decimal floating-point fused multiply-add, UINT128 * UINT128 + UINT64
-    #[must_use]
-    pub fn qqd_fma(x: &Self, y: &Self, z: d64, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
-        bid128qqd_fma(x, y, z.0, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// Computes the decimal floating point remainder of the division operation x / y.
@@ -609,12 +577,6 @@ impl d128 {
     #[must_use]
     pub fn square_root(&self, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_sqrt(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
-    }
-
-    /// Convert 128-bit decimal floating-point value to 64-bit decimal floating-point format (binary encoding)
-    #[must_use]
-    pub fn convert_to_decimal64(&self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> d64 {
-        d64(bid128_to_bid64(self, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status))
     }
 
     /// Convert 128-bit decimal floating-point value to 32-bit signed
@@ -1268,43 +1230,6 @@ impl From<u64> for d128 {
     /// ```
     fn from(value: u64) -> Self {
         bid128_from_uint64(value)
-    }
-}
-
-impl From<d64> for d128 {
-    /// Converts decimal64 to decimal128.
-    /// # Examples
-    ///
-    /// ```
-    /// let dec64 = decmathlib_rs::d64::d64(0x002462d53c8abac0u64);
-    /// let dec1 = decmathlib_rs::d128::d128::from(dec64);
-    /// ```
-    fn from(value: d64) -> Self {
-        let mut status: _IDEC_flags = 0;
-        bid64_to_bid128(value.0, &mut status)
-    }
-}
-
-impl TryInto<d64> for d128 {
-    type Error = _IDEC_flags;
-
-    /// Tries to convert decimal128 to decimal64
-    /// # Examples
-    ///
-    /// ```
-    /// use decmathlib_rs::d64::d64;
-    /// use decmathlib_rs::d128::{_IDEC_flags, d128};
-    /// let res: d128 = decmathlib_rs::d128::d128::from(0x2cffed09bead87c0378d8e63ffffffffu128);
-    /// let dec64: Result<d64, _IDEC_flags> = res.try_into();
-    /// ```
-    fn try_into(self) -> Result<d64, Self::Error> {
-         let mut status: _IDEC_flags = 0;
-         let dec64: BID_UINT64 = bid128_to_bid64(&self, DEFAULT_ROUNDING_MODE, &mut status);
-
-         match status {
-            0 => Ok(d64(dec64)),
-            _ => Err(status)
-         }
     }
 }
 

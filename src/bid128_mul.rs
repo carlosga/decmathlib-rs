@@ -13,28 +13,8 @@
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128_fma::{bid128_fma};
-use crate::bid64_to_bid128::bid64_to_bid128;
 use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, RoundingMode};
-
-pub (crate) fn bid128dd_mul(x: &BID_UINT64, y: &BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128 = bid64_to_bid128(*x, pfpsf);
-    let y1: BID_UINT128 = bid64_to_bid128(*y, pfpsf);
-
-    bid128_mul(&x1, &y1, rnd_mode, pfpsf)
-}
-
-pub (crate) fn bid128dq_mul(x: &BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128  = bid64_to_bid128(*x, pfpsf);
-
-    bid128_mul(&x1, y, rnd_mode, pfpsf)
-}
-
-pub (crate) fn bid128qd_mul(x: &BID_UINT128, y: &BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-  let y1: BID_UINT128 = bid64_to_bid128(*y, pfpsf);
-
-  bid128_mul(x, &y1, rnd_mode, pfpsf)
-}
 
 /// Decimal floating-point multiplication
 pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {

@@ -14,59 +14,8 @@
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128::*;
-use crate::bid64_to_bid128::bid64_to_bid128;
 use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
-
-/////////////////////////////////////
-/// BID64/BID128 add
-/////////////////////////////////////
-
-pub (crate) fn bid128dd_add(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
-    let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT128 = bid128_add(&x1, &y1, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid128dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
-    let res: BID_UINT128 = bid128_add(&x1, y, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let y1: BID_UINT128  = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT128 = bid128_add(x, &y1, rnd_mode, pfpsf);
-    res
-}
-
-// bid128_add stands for bid128qq_add
-
-/////////////////////////////////////
-/// BID64/BID128 sub
-/////////////////////////////////////
-
-pub (crate) fn bid128dd_sub(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
-    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-
-    bid128_sub(&x1, &y1, rnd_mode, pfpsf)
-}
-
-pub (crate) fn bid128dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
-
-    bid128_sub(&x1, y, rnd_mode, pfpsf)
-}
-
-pub (crate) fn bid128qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
-    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-
-    bid128_sub(x, &y1, rnd_mode, pfpsf)
-}
-
-// bid128_sub stands for bid128qq_sub
 
 /////////////////////////////////////
 ///  BID128 sub
