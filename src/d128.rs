@@ -973,6 +973,13 @@ impl d128 {
     /// Compare 128-bit decimal floating-point numbers for specified relation;
     /// do not signal invalid exception for quiet NaNs
     #[must_use]
+    pub fn compare_quiet_greater_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_greater_unordered(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
     pub fn compare_quiet_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less(lhs, rhs, status)
     }
@@ -982,6 +989,13 @@ impl d128 {
     #[must_use]
     pub fn compare_quiet_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_quiet_less_equal(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_quiet_less_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_quiet_less_unordered(lhs, rhs, status)
     }
 
     /// Compare 128-bit decimal floating-point numbers for specified relation;
@@ -1024,6 +1038,41 @@ impl d128 {
     #[must_use]
     pub fn compare_signaling_greater_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
         bid128_signaling_greater_unordered(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_less(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_less_equal(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_less_equal(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_less_unordered(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_less_unordered(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_not_greater(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_not_greater(lhs, rhs, status)
+    }
+
+    /// Compare 128-bit decimal floating-point numbers for specified relation;
+    /// do not signal invalid exception for quiet NaNs
+    #[must_use]
+    pub fn compare_signaling_not_less(lhs: &Self, rhs: &Self, status: &mut _IDEC_flags) -> bool {
+        bid128_signaling_not_less(lhs, rhs, status)
     }
 
     /// Round 128-bit decimal floating-point value to integral-valued decimal
