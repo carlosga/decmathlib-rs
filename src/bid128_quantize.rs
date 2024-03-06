@@ -168,7 +168,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: Round
             CR = __shr_128(&CX2, amount);
         }
 
-        if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CR.w[0] & 1) == 1 {
+        if rnd_mode == RoundingMode::NearestEven && (CR.w[0] & 1) == 1 {
             // check whether fractional part of initial_P/10^extra_digits is
             // exactly .5 this is the same as fractional part of
             // (initial_P + 0.5*10^extra_digits)/10^extra_digits is exactly zero
@@ -201,7 +201,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: Round
         }
 
         match rmode {
-            RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+            RoundingMode::NearestEven | RoundingMode::NearestAway => {
                 // test whether fractional part is 0
                 if REM_H.w[1] == 0x8000000000000000u64 && REM_H.w[0] == 0
                 && (CT.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
@@ -210,7 +210,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: Round
                     status = StatusFlags::BID_EXACT_STATUS;
                  }
             },
-            RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => {
+            RoundingMode::Downward | RoundingMode::TowardZero => {
                 if (REM_H.w[1] | REM_H.w[0]) == 0
                 && (CT.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
                 || (CT.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
@@ -255,7 +255,7 @@ pub (crate) fn bid128_quantize(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: Round
         if sign_x != 0 && ((rmode as u32 - 1u32) < 2) {
             rmode = RoundingMode::from(3 - (rmode as u32));
         }
-        if rmode == RoundingMode::BID_ROUNDING_UP {
+        if rmode == RoundingMode::Upward {
             CR.w[0] = 1;
         }
         __set_status_flags(pfpsf, StatusFlags::BID_INEXACT_EXCEPTION);

@@ -23,7 +23,7 @@ pub (crate) fn bid128_modf(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> (BID_UIN
 		res.w[BID_HIGH_128W]= (x.w[BID_HIGH_128W] & 0x8000000000000000u64)|0x5ffe000000000000u64;
 		res.w[BID_LOW_128W] = 0;
 	} else {
-	    res = bid128_sub(x, &xi, RoundingMode::BID_ROUNDING_TO_NEAREST, pfpsf);
+	    res = bid128_sub(x, &xi, RoundingMode::NearestEven, pfpsf);
 	}
 
 	xi.w[BID_HIGH_128W]  |=  x.w[BID_HIGH_128W] & 0x8000000000000000u64;

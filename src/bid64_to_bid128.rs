@@ -143,7 +143,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &
                 exponent_x   = DECIMAL_EXPONENT_BIAS_128 - DECIMAL_EXPONENT_BIAS;
                 //uf_check = 2;
             } else {
-                rmode = RoundingMode::BID_ROUNDING_TO_ZERO;
+                rmode = RoundingMode::TowardZero;
             }
         }
 
@@ -163,7 +163,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &
             CX = __shr_128(&Qh, amount);
         }
 
-        if rmode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CX.w[0] & 1) == 1 {
+        if rmode == RoundingMode::NearestEven && (CX.w[0] & 1) == 1 {
             // check whether fractional part of initial_P/10^ed1 is exactly .5
 
             // get remainder
@@ -182,7 +182,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &
             // get remainder
             Qh1 = __shl_128_long(&Qh, 128 - amount);
             match rmode {
-                RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+                RoundingMode::NearestEven | RoundingMode::NearestAway => {
                     // test whether fractional part is 0
                     if Qh1.w[1] == 0x8000000000000000u64 && Qh1.w[0] == 0
                     && (Ql.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
@@ -191,7 +191,7 @@ pub (crate) fn bid128_to_bid64(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &
                         status = StatusFlags::BID_EXACT_STATUS;
                     }
                 },
-                RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => {
+                RoundingMode::Downward | RoundingMode::TowardZero => {
                     if (Qh1.w[1] == 0) && (Qh1.w[0] == 0)
                     && (Ql.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
                     || (Ql.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]

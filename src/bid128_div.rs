@@ -381,7 +381,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
             rmode = RoundingMode::from(3 - (rmode as u32));
         }
         match rmode {
-            RoundingMode::BID_ROUNDING_TO_NEAREST =>  { // round to nearest code
+            RoundingMode::NearestEven =>  { // round to nearest code
                 // rounding
                 // 2*CA4 - CY
                 CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
@@ -397,7 +397,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                     CQ.w[1] += 1;
                 }
             },
-            RoundingMode::BID_ROUNDING_TIES_AWAY => {
+            RoundingMode::NearestAway => {
                 // rounding
                 // 2*CA4 - CY
                 CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
@@ -413,7 +413,7 @@ pub (crate) fn bid128_div(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                     CQ.w[1] += 1;
                 }
             },
-            RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => { },
+            RoundingMode::Downward | RoundingMode::TowardZero => { },
             _ =>  {
                 CQ.w[0] += 1;
                 if CQ.w[0] == 0 {
@@ -816,7 +816,7 @@ if (diff_expon >= 0) {
     if (sign_x ^ sign_y && (unsigned)(rmode - 1) < 2)
         rmode = 3 - rmode;
     switch (rmode) {
-        case BID_ROUNDING_TO_NEAREST: // round to nearest code
+        case BidRoundingToNearest: // round to nearest code
             // rounding
             // 2*CA4 - CY
             CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
@@ -842,7 +842,7 @@ if (diff_expon >= 0) {
             if (CQ.w[0] < carry64)
                 CQ.w[1]++;
             break;
-        case BID_ROUNDING_DOWN:
+        case BidRoundingDown:
         case BID_ROUNDING_TO_ZERO:
             break;
         default: // rounding up
@@ -1252,7 +1252,7 @@ if (diff_expon >= 0) {
     if (sign_x ^ sign_y && (unsigned)(rmode - 1) < 2)
         rmode = 3 - rmode;
     switch (rmode) {
-        case BID_ROUNDING_TO_NEAREST: // round to nearest code
+        case BidRoundingToNearest: // round to nearest code
             // rounding
             // 2*CA4 - CY
             CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
@@ -1278,7 +1278,7 @@ if (diff_expon >= 0) {
             if (CQ.w[0] < carry64)
                 CQ.w[1]++;
             break;
-        case BID_ROUNDING_DOWN:
+        case BidRoundingDown:
         case BID_ROUNDING_TO_ZERO:
             break;
         default: // rounding up
@@ -1679,7 +1679,7 @@ if (diff_expon >= 0) {
     if (sign_x ^ sign_y && (unsigned)(rmode - 1) < 2)
         rmode = 3 - rmode;
     switch (rmode) {
-        case BID_ROUNDING_TO_NEAREST: // round to nearest code
+        case BidRoundingToNearest: // round to nearest code
             // rounding
             // 2*CA4 - CY
             CA4r.w[1] = (CA4.w[1] + CA4.w[1]) | (CA4.w[0] >> 63);
@@ -1705,7 +1705,7 @@ if (diff_expon >= 0) {
             if (CQ.w[0] < carry64)
                 CQ.w[1]++;
             break;
-        case BID_ROUNDING_DOWN:
+        case BidRoundingDown:
         case BID_ROUNDING_TO_ZERO:
             break;
         default: // rounding up

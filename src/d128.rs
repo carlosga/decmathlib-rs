@@ -7,9 +7,9 @@
 /* Intel® Decimal Floating-Point Math Library - Copyright (c) 2018, Intel Corp.                       */
 /* -------------------------------------------------------------------------------------------------- */
 
-//! A 128-bit decimal floating point type (IEEE Standard 754-2008 compliant).
-
 #![allow(non_camel_case_types)]
+
+//! A 128-bit decimal floating point type (IEEE Standard 754-2008 compliant).
 
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter, LowerExp, UpperExp};
@@ -43,7 +43,7 @@ use crate::bid128_quantexp::bid128_quantexp;
 use crate::bid128_quantize::bid128_quantize;
 use crate::bid128_quantum::bid128_quantum;
 use crate::bid128_rem::bid128_rem;
-use crate::bid128_round_integral::{bid128_round_integral_exact, bid128_round_integral_nearest_away, bid128_round_integral_nearest_even, bid128_round_integral_negative, bid128_round_integral_positive, bid128_round_integral_zero};
+use crate::bid128_round_integral::*;
 use crate::bid128_scalbln::bid128_scalbln;
 use crate::bid128_scalbn::bid128_scalbn;
 use crate::bid128_sqrt::bid128_sqrt;
@@ -96,35 +96,35 @@ pub enum ClassTypes {
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum RoundingMode {
     /// Rounding towards nearest representable value.
-    BID_ROUNDING_TO_NEAREST  = 0x00000,
+    NearestEven = 0x00000,
 
     /// Rounding towards negative infinity.
-    BID_ROUNDING_DOWN        = 0x00001,
+    Downward    = 0x00001,
 
     /// Rounding towards positive infinity.
-    BID_ROUNDING_UP          = 0x00002,
+    Upward      = 0x00002,
 
     /// Rounding towards zero.
-    BID_ROUNDING_TO_ZERO     = 0x00003,
+    TowardZero  = 0x00003,
 
     /// Rounding towards the nearest value, breaks ties by rounding away from zero.
-    BID_ROUNDING_TIES_AWAY   = 0x00004
+    NearestAway = 0x00004
 }
 
 impl From<u32> for RoundingMode {
     fn from(value: u32) -> Self {
         match value {
-            0x00000 => RoundingMode::BID_ROUNDING_TO_NEAREST,
-            0x00001 => RoundingMode::BID_ROUNDING_DOWN,
-            0x00002 => RoundingMode::BID_ROUNDING_UP,
-            0x00003 => RoundingMode::BID_ROUNDING_TO_ZERO,
-            0x00004 => RoundingMode::BID_ROUNDING_TIES_AWAY,
+            0x00000 => RoundingMode::NearestEven,
+            0x00001 => RoundingMode::Downward,
+            0x00002 => RoundingMode::Upward,
+            0x00003 => RoundingMode::TowardZero,
+            0x00004 => RoundingMode::NearestAway,
             _ => panic!("Unknown rounding mode")
         }
     }
 }
 
-pub const DEFAULT_ROUNDING_MODE: RoundingMode = RoundingMode::BID_ROUNDING_TO_NEAREST;
+pub const DEFAULT_ROUNDING_MODE: RoundingMode = RoundingMode::NearestEven;
 
 /// Status flags.
 pub struct StatusFlags;

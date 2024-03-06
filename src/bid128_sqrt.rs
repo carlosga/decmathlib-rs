@@ -252,7 +252,7 @@ pub(crate) fn bid128_sqrt(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _
             }
         }
         // RU?
-        if (rnd_mode) == RoundingMode::BID_ROUNDING_UP {
+        if (rnd_mode) == RoundingMode::Upward {
             CS.w[0] += 1;
             if CS.w[0] == 0 {
                 CS.w[1] += 1;

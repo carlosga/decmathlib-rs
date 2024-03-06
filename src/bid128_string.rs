@@ -569,7 +569,7 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
         i = MAX_FORMAT_DIGITS_128;
 
         match rnd_mode {
-            RoundingMode::BID_ROUNDING_TO_NEAREST => {
+            RoundingMode::NearestEven => {
                 carry = ((('4' as i32 - buffer[i] as i32) as u32) >> 31) as BID_UINT64;
                 if (buffer[i] == '5' && (coeff_low & 1) != 1) || dec_expon < 0 {
                     if dec_expon >= 0 {
@@ -581,22 +581,22 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
                     }
                 }
             },
-            RoundingMode::BID_ROUNDING_DOWN => {
+            RoundingMode::Downward => {
                 if sign_x != 0
                 && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
                     carry = 1;
                 }
             },
-            RoundingMode::BID_ROUNDING_UP => {
+            RoundingMode::Upward => {
                 if sign_x == 0
                 && buffer[i..ndigits_total].iter().any(|c| *c as i32 > '0' as i32) {
                     carry = 1;
                 }
             },
-            RoundingMode::BID_ROUNDING_TO_ZERO => {
+            RoundingMode::TowardZero => {
                 carry = 0;
             },
-            RoundingMode::BID_ROUNDING_TIES_AWAY => {
+            RoundingMode::NearestAway => {
                 let digit = char::to_digit(buffer[i], 10).unwrap() as i32;
                 carry = (((4 - digit) as u32) >> 31) as BID_UINT64;
                 if dec_expon < 0

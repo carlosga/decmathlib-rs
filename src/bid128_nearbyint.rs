@@ -104,7 +104,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
     // x is not special and is not zero
 
     match rnd_mode {
-        RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+        RoundingMode::NearestEven | RoundingMode::NearestAway => {
             // if (exp <= -(p+1)) return 0.0
             if x_exp <= 0x2ffa000000000000u64 {       // 0x2ffa000000000000u64 == -35
                 res.w[1] = x_sign | 0x3040000000000000u64;
@@ -112,7 +112,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 return res;
             }
         },
-        RoundingMode::BID_ROUNDING_DOWN => {
+        RoundingMode::Downward => {
             // if (exp <= -p) return -1.0 or +0.0
             if x_exp <= 0x2ffc000000000000u64 {       // 0x2ffa000000000000u64 == -34
                 if x_sign != 0 {
@@ -129,7 +129,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 return res;
             }
         },
-        RoundingMode::BID_ROUNDING_UP => {
+        RoundingMode::Upward => {
             // if (exp <= -p) return -0.0 or +1.0
             if x_exp <= 0x2ffc000000000000u64 {       // 0x2ffc000000000000u64 == -34
                 if x_sign != 0 {
@@ -146,7 +146,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 return res;
             }
         },
-        RoundingMode::BID_ROUNDING_TO_ZERO => {
+        RoundingMode::TowardZero => {
             // if (exp <= -p) return -0.0 or +0.0
             if x_exp <= 0x2ffc000000000000u64 {       // 0x2ffc000000000000u64 == -34
                 res.w[1] = x_sign | 0x3040000000000000u64;
@@ -192,7 +192,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
     }
     // exp < 0
     match rnd_mode {
-        RoundingMode::BID_ROUNDING_TO_NEAREST => {
+        RoundingMode::NearestEven => {
             if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
@@ -285,7 +285,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 res
             }
         },
-        RoundingMode::BID_ROUNDING_TIES_AWAY => {
+        RoundingMode::NearestAway => {
             if (q + exp) >= 0 {  // exp < 0 and 1 <= -exp <= q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
@@ -348,7 +348,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 res
             }
         },
-        RoundingMode::BID_ROUNDING_DOWN => {
+        RoundingMode::Downward => {
             if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
@@ -463,7 +463,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 res
             }
         },
-        RoundingMode::BID_ROUNDING_UP => {
+        RoundingMode::Upward => {
             if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'
@@ -578,7 +578,7 @@ pub (crate) fn bid128_nearbyint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: 
                 res
             }
         },
-        RoundingMode::BID_ROUNDING_TO_ZERO => {
+        RoundingMode::TowardZero => {
             if (q + exp) > 0 {   // exp < 0 and 1 <= -exp < q
                 // need to shift right -exp digits from the coefficient; exp will be 0
                 ind = -exp;             // 1 <= ind <= 34; ind is a synonym for 'x'

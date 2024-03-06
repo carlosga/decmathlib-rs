@@ -382,10 +382,10 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
             if expon + (MAX_FORMAT_DIGITS as i32) < 0 {
                 __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
 
-                if rmode == RoundingMode::BID_ROUNDING_DOWN && sgn != 0 {
+                if rmode == RoundingMode::Downward && sgn != 0 {
                     return 0x8000000000000001u64;
                 }
-                if rmode == RoundingMode::BID_ROUNDING_UP && sgn == 0 {
+                if rmode == RoundingMode::Upward && sgn == 0 {
                     return 1u64;
                 }
                 // result is 0
@@ -407,7 +407,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
 
             _C64 = QH >> amount;
 
-            if rmode == RoundingMode::BID_ROUNDING_TO_NEAREST {
+            if rmode == RoundingMode::NearestEven {
                 if (_C64 & 1) == 1 {
                     // check whether fractional part of initial_P/10^extra_digits is exactly .5
 
@@ -434,7 +434,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                     remainder_h = QH << (64 - amount);
 
                     match rmode {
-                        RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+                        RoundingMode::NearestEven | RoundingMode::NearestAway => {
                             if remainder_h == 0x8000000000000000u64
                             && (Q_low.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
                             || (Q_low.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
@@ -442,7 +442,7 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
                                 status = StatusFlags::BID_EXACT_STATUS;
                             }
                         },
-                        RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => { // test whether fractional part is 0
+                        RoundingMode::Downward | RoundingMode::TowardZero => { // test whether fractional part is 0
                             if remainder_h == 0
                             && (Q_low.w[1]  < BID_RECIPROCALS10_128[extra_digits as usize].w[1]
                             || (Q_low.w[1] == BID_RECIPROCALS10_128[extra_digits as usize].w[1]
@@ -479,13 +479,13 @@ pub (crate) fn get_BID64(sgn: BID_UINT64, mut expon: i32, mut coeff: BID_UINT64,
             // overflow
             r = sgn | INFINITY_MASK64;
             match rmode {
-                RoundingMode::BID_ROUNDING_DOWN => {
+                RoundingMode::Downward => {
                     if sgn == 0 {
                         r = LARGEST_BID64;
                     }
                 },
-                RoundingMode::BID_ROUNDING_TO_ZERO => r = sgn | LARGEST_BID64,
-                RoundingMode::BID_ROUNDING_UP => { // round up
+                RoundingMode::TowardZero => r = sgn | LARGEST_BID64,
+                RoundingMode::Upward => { // round up
                     if sgn != 0 {
                         r = SMALLEST_BID64;
                     }
@@ -559,8 +559,8 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
-        if  (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
-	     || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+        if  (sgn != 0 && rnd_mode == RoundingMode::Downward)
+	     || (sgn == 0 && rnd_mode == RoundingMode::Upward) {
             pres.w[0] = 1u64;
         }
         return pres;
@@ -603,7 +603,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
 
     // #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
     // #ifndef IEEE_ROUND_NEAREST
-    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CQ.w[0] & 1) == 1{
+    if rnd_mode == RoundingMode::NearestEven && (CQ.w[0] & 1) == 1{
         // check whether fractional part of initial_P/10^ed1 is exactly .5
 
         // get remainder
@@ -626,7 +626,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
         Qh1 = __shl_128_long(&Qh, 128 - amount);
 
         match rmode {
-            RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+            RoundingMode::NearestEven | RoundingMode::NearestAway => {
                 // test whether fractional part is 0
                 if (Qh1.w[1] == 0x8000000000000000u64)
                 && (Qh1.w[0] == 0)
@@ -636,7 +636,7 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },
-            RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO => {
+            RoundingMode::Downward | RoundingMode::TowardZero => {
                 if  (Qh1.w[1] == 0)
                  && (Qh1.w[0] == 0)
                  && (Ql.w[1]  < BID_RECIPROCALS10_128[ed2 as usize].w[1]
@@ -702,8 +702,8 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
         __set_status_flags(pfpsc, StatusFlags::BID_UNDERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
         pres.w[1] = sgn;
         pres.w[0] = 0;
-        if (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN)
-        || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP) {
+        if (sgn != 0 && rnd_mode == RoundingMode::Downward)
+        || (sgn == 0 && rnd_mode == RoundingMode::Upward) {
           pres.w[0] = 1u64;
         }
         return pres;
@@ -733,7 +733,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
 
     expon = 0;
 
-    if rnd_mode == RoundingMode::BID_ROUNDING_TO_NEAREST && (CQ.w[0] & 1) == 1 {
+    if rnd_mode == RoundingMode::NearestEven && (CQ.w[0] & 1) == 1 {
         // check whether fractional part of initial_P/10^ed1 is exactly .5
 
         // get remainder
@@ -756,7 +756,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
         Qh1 = __shl_128_long(&Qh, 128 - amount);
 
         match rmode {
-            RoundingMode::BID_ROUNDING_TO_NEAREST | RoundingMode::BID_ROUNDING_TIES_AWAY => {
+            RoundingMode::NearestEven | RoundingMode::NearestAway => {
                 // test whether fractional part is 0
                 if  Qh1.w[1] == 0x8000000000000000u64
                 && (Qh1.w[0] == 0)
@@ -766,7 +766,7 @@ pub (crate) fn handle_UF_128(sgn: BID_UINT64, expon: i32, CQ: &BID_UINT128, rnd_
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },
-            RoundingMode::BID_ROUNDING_DOWN | RoundingMode::BID_ROUNDING_TO_ZERO=> {
+            RoundingMode::Downward | RoundingMode::TowardZero=> {
                 if (Qh1.w[1] == 0) && (Qh1.w[0] == 0)
                 && (Ql.w[1]  < BID_RECIPROCALS10_128[ed2 as usize].w[1]
                 || (Ql.w[1] == BID_RECIPROCALS10_128[ed2 as usize].w[1]
@@ -1081,9 +1081,9 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
             }
             // OF
             __set_status_flags (pfpsc, StatusFlags::BID_OVERFLOW_EXCEPTION | StatusFlags::BID_INEXACT_EXCEPTION);
-            if rnd_mode == RoundingMode::BID_ROUNDING_TO_ZERO
-            || (sgn != 0 && rnd_mode == RoundingMode::BID_ROUNDING_UP)
-            || (sgn == 0 && rnd_mode == RoundingMode::BID_ROUNDING_DOWN) {
+            if rnd_mode == RoundingMode::TowardZero
+            || (sgn != 0 && rnd_mode == RoundingMode::Upward)
+            || (sgn == 0 && rnd_mode == RoundingMode::Downward) {
                 pres.w[1] = sgn | LARGEST_BID128_HIGH;
                 pres.w[0] = LARGEST_BID128_LOW;
             } else {
