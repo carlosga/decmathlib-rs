@@ -17,7 +17,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssi
 use std::str::FromStr;
 use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 
-use crate::bid128_add::{bid128_add, bid128_sub, bid64dq_add};
+use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::*;
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
@@ -901,14 +901,6 @@ impl d128 {
     #[must_use]
     pub fn addition(lhs: &Self, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> Self {
         bid128_add(lhs, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status)
-    }
-
-    /// Decimal floating-point addition, UINT64 + UINT128 -> UINT64
-    #[must_use]
-    pub fn add_dq(lhs: &d64, rhs: &Self, rnd_mode: Option<RoundingMode>, status: &mut _IDEC_flags) -> d64 {
-        let res = bid64dq_add(lhs.0, rhs, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), status);
-
-        d64(res)
     }
 
     /// Decimal floating-point division, d128 / d128 -> d128

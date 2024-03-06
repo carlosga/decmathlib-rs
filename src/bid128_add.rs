@@ -14,32 +14,13 @@
 use crate::bid_conf::BID_SWAP128;
 
 use crate::bid128::*;
-use crate::bid128_fma::bid64qqq_fma;
 use crate::bid64_to_bid128::bid64_to_bid128;
-use crate::bid_internal::{__mul_128x128_to_256, __mul_128x64_to_128, __mul_64x64_to_128MACH, BID_HIGH_128W, BID_UI64DOUBLE, BID_UINT128, BID_UINT256, BID_UINT64, EXP_MAX_P1, EXP_P1, MASK_ANY_INF, MASK_COEFF, MASK_EXP, MASK_INF, MASK_NAN, MASK_SIGN, MASK_SNAN, MASK_SPECIAL, P34};
-use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode, ONE};
+use crate::bid_internal::*;
+use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /////////////////////////////////////
 /// BID64/BID128 add
 /////////////////////////////////////
-
-pub (crate) fn bid64dq_add(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
-    let res: BID_UINT64 = bid64qq_add(&x1, y, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid64qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT64 = bid64qq_add(x, &y1, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid64qq_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let one: BID_UINT128 = ONE;
-    let res: BID_UINT64 = bid64qqq_fma(&one, x, y, rnd_mode, pfpsf);
-    res
-}
 
 pub (crate) fn bid128dd_add(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128  = bid64_to_bid128(x, pfpsf);
@@ -65,34 +46,6 @@ pub (crate) fn bid128qd_add(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMo
 /////////////////////////////////////
 /// BID64/BID128 sub
 /////////////////////////////////////
-
-pub (crate) fn bid64dq_sub(x: BID_UINT64, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
-    let res: BID_UINT64 = bid64qq_sub(&x1, y, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid64qd_sub(x: &BID_UINT128, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let y1: BID_UINT128 = bid64_to_bid128(y, pfpsf);
-    let res: BID_UINT64 = bid64qq_sub(x, &y1, rnd_mode, pfpsf);
-    res
-}
-
-pub (crate) fn bid64qq_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT64 {
-    let one: BID_UINT128   = ONE;
-    let mut y: BID_UINT128 = *y;
-    if (y.w[BID_HIGH_128W] & MASK_NAN) != MASK_NAN {   // y is not NAN
-        // change its sign
-        let y_sign = y.w[BID_HIGH_128W] & MASK_SIGN; // 0 for positive, MASK_SIGN for negative
-
-        y.w[BID_HIGH_128W] = if y_sign != 0 {
-            y.w[BID_HIGH_128W] & 0x7fffffffffffffffu64
-        } else {
-            y.w[BID_HIGH_128W] | 0x8000000000000000u64
-        };
-    }
-    bid64qqq_fma(&one, x, &y, rnd_mode, pfpsf)
-}
 
 pub (crate) fn bid128dd_sub(x: BID_UINT64, y: BID_UINT64, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
     let x1: BID_UINT128 = bid64_to_bid128(x, pfpsf);
