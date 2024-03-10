@@ -1547,4 +1547,17 @@ macro_rules! dec_test {
             assert_eq!(exp, res1);
         }
     };
+
+    ($name:ident, binary32_to_bid128, $rnd_mode:expr, $input1:expr, $expected:expr, $status:expr) => {
+        #[test]
+        fn $name() {
+            let mut status: decmathlib_rs::d128::_IDEC_flags = 0;
+            let rnd_mode = Some(decmathlib_rs::d128::RoundingMode::from($rnd_mode));
+            let dec = decmathlib_rs::d128::d128::convert_from_f32($input1 as f32, rnd_mode, &mut status);
+            let exp = decmathlib_rs::d128::d128::from($expected);
+
+            assert_eq!($status, status);
+            assert_eq!(exp, dec);
+        }
+    };
 }

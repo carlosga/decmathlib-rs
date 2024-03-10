@@ -52,6 +52,7 @@ use crate::bid128_to_int32::*;
 use crate::bid128_to_int64::*;
 use crate::bid128_to_uint32::*;
 use crate::bid128_to_uint64::*;
+use crate::bid_binarydecimal::binary32_to_bid128;
 use crate::bid_dpd::{bid_dpd_to_bid128, bid_to_dpd128};
 use crate::bid_from_int::{bid128_from_int32, bid128_from_int64, bid128_from_uint32, bid128_from_uint64};
 use crate::bid_internal::*;
@@ -350,6 +351,13 @@ impl d128 {
     #[must_use]
     pub fn convert_from_decimal_character(value: &str, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
         bid128_from_string(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
+    }
+
+    /// Convert a decimal floating-point value represented in string format
+    /// (decimal character sequence) to 128-bit decimal floating-point format (binary encoding)
+    #[must_use]
+    pub fn convert_from_f32(value: f32, rnd_mode: Option<RoundingMode>, pfpsf: &mut _IDEC_flags) -> Self {
+        binary32_to_bid128(value, rnd_mode.unwrap_or(DEFAULT_ROUNDING_MODE), pfpsf)
     }
 
     /// fdim returns x - y if x > y, and +0 is x <= y
@@ -1178,6 +1186,20 @@ impl FromStr for d128 {
             StatusFlags::BID_EXACT_STATUS | StatusFlags::BID_INEXACT_EXCEPTION => Ok(dec),
             _ => Err(status)
          }
+    }
+}
+
+impl From<f32> for d128 {
+    /// Converts f32 to decimal128.
+    /// # Examples
+    ///
+    /// ```
+    /// let value = 1.1f32;
+    /// let dec1 = decmathlib_rs::d128::d128::from(value);
+    /// ```
+    fn from(value: f32) -> Self {
+        let mut status: _IDEC_flags = 0;
+        binary32_to_bid128(value, DEFAULT_ROUNDING_MODE, &mut status)
     }
 }
 
