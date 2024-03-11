@@ -422,8 +422,7 @@ fn return_binary32_ovf(s: i32, rnd_mode: RoundingMode) -> f32 {
 //
 // Call the given zero, infinity or nan macros if appropriate
 
-fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut i32, zero: &dyn Fn(i32) -> BID_UINT128, inf: &dyn Fn(i32) -> BID_UINT128, nan: &dyn Fn(i32, u64, u64) -> BID_UINT128, pfpsf: &mut _IDEC_flags) {
-    // union { BID_UINT32 i; float f; } x_in;
+fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut i32, zero: &dyn Fn(i32) -> BID_UINT128, inf: &dyn Fn(i32) -> BID_UINT128, nan: &dyn Fn(i32, u64, u64) -> BID_UINT128, pfpsf: &mut _IDEC_flags) -> Option<BID_UINT128> {
     unsafe {
         let mut x_in: BID_UI32FLOAT = Default::default();
         x_in.d = x;
@@ -434,7 +433,7 @@ fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut
         if *e == 0 {
             let l: i32;
             if *c == 0 {
-                zero(*s);
+                return Some(zero(*s));
             }
             l = (clz32(*c as u32) - (32 - 24)) as i32;
             *c = *c << l;
@@ -443,47 +442,50 @@ fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut
             __set_status_flags(pfpsf, StatusFlags::BID_DENORMAL_EXCEPTION);
         } else if (*e as u64) == ((1u64 << 8) - 1) {
             if *c == 0 {
-                inf(*s);
+                return Some(inf(*s));
             }
-            if (*c & (164 << 22)) == 0 {
+            if (*c & (1u64 << 22)) == 0 {
                 __set_status_flags(pfpsf, StatusFlags::BID_INVALID_EXCEPTION);
             }
-            nan(*s, *c << 42, 0u64);
+            return Some(nan(*s, *c << 42, 0u64));
          } else {
             *c += 1u64 << 23;
             *t = ctz32(*c as i32) as i32;
             *e -= 150;
          }
+
+         return None;
     }
 }
 
 /*
-#define unpack_binary64(x,s,e,c,t,zero,inf,nan)                             \
-{ union { BID_UINT64 i; double f; } x_in;                                   \
-  x_in.f = x;                                                               \
-  c = x_in.i;                                                               \
-  e = (c >> 52) & ((1ull<<11)-1);                                           \
-  s = c >> 63;                                                              \
-  c = c & ((1ull<<52)-1);                                                   \
-  if (e == 0)                                                               \
-   { int l;                                                                 \
-     if (c == 0) zero;                                                      \
-     l = clz64(c) - (64 - 53);                                              \
-     c = c << l;                                                            \
-     e = -(l + 1074);                                                       \
-     t = 0;                                                                 \
-     __set_status_flags(pfpsf,BID_DENORMAL_EXCEPTION);                      \
-   }                                                                        \
-  else if (e == ((1ull<<11)-1))                                             \
-   { if (c == 0) inf;                                                       \
-     if ((c&(1ull<<51))==0) __set_status_flags(pfpsf,BID_INVALID_EXCEPTION);\
-     nan(s,(((unsigned long long) c) << 13),0u64)                           \
-   }                                                                        \
-  else                                                                      \
-   { c += 1ull<<52;                                                         \
-     t = ctz64(c);                                                          \
-     e -= 1075;                                                             \
-   }                                                                        \
+fn unpack_binary32(x: f64, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut i32, zero: &dyn Fn(i32) -> BID_UINT128, inf: &dyn Fn(i32) -> BID_UINT128, nan: &dyn Fn(i32, u64, u64) -> BID_UINT128, pfpsf: &mut _IDEC_flags) -> Option<BID_UINT128> {
+BID_UI64DOUBLE
+ union { BID_UINT64 i; double f; } x_in;
+  x_in.f = x;
+  c = x_in.i;
+  e = (c >> 52) & ((1ull<<11)-1);
+  s = c >> 63;
+  c = c & ((1ull<<52)-1);
+  if (e == 0)
+   { int l;
+     if (c == 0) zero;
+     l = clz64(c) - (64 - 53);
+     c = c << l;
+     e = -(l + 1074);
+     t = 0;
+     __set_status_flags(pfpsf,BID_DENORMAL_EXCEPTION);
+   }
+  else if (e == ((1ull<<11)-1))
+   { if (c == 0) inf;
+     if ((c&(1ull<<51))==0) __set_status_flags(pfpsf,BID_INVALID_EXCEPTION);
+     nan(s,(((unsigned long long) c) << 13),0u64)
+   }
+  else
+   { c += 1ull<<52;
+     t = ctz64(c);
+     e -= 1075;
+   }
 }
 */
 
@@ -22634,7 +22636,6 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     let mut c_prov_hi: BID_UINT64;
     let mut c_prov_lo: BID_UINT64;
     let mut r: BID_UINT256 = Default::default();
-    // let mut z: BID_UINT384 = Default::default();
     let mut z: BID_UINT512 = Default::default();
 
     let mut e: i32 = 0;
@@ -22648,7 +22649,20 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
 
     // Unpack the input
 
-    unpack_binary32(x, &mut s, &mut e, &mut c.w[1], &mut t, &return_bid128_zero, &return_bid128_inf, &return_bid128_nan, pfpsf);
+    let res: Option<BID_UINT128> = unpack_binary32(
+        x,
+        &mut s,
+        &mut e,
+        &mut c.w[1],
+        &mut t,
+        &return_bid128_zero,
+        &return_bid128_inf,
+        &return_bid128_nan,
+        pfpsf);
+
+    if res.is_some() {
+        return res.unwrap();
+    }
 
     // Now -172<=e<=104 (104 for max normal, -149 for min normal, -172 for min denormal)
 
@@ -22695,7 +22709,7 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
         if a <= 0 {
             (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 - e) as u64);
             if lt128 (cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
-                return_bid128(s, 6176, cint.w[1], cint.w[0]);
+                return return_bid128(s, 6176, cint.w[1], cint.w[0]);
             }
         } else if a <= 48 {
             let mut pow5: BID_UINT128 = bid_coefflimits_bid128[a as usize];
@@ -22755,8 +22769,9 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // I feel there ought to be a smarter way of doing the multiplication
 
     if lt128 (z.w[5], z.w[4], 54210108624275u64, 4089650035136921600u64) {
-        __mul_10x384_to_384(z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
-                            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
+        (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = __mul_10x384_to_384(
+            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
+            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
         e_out = e_out - 1;
     }
     // Set up provisional results
@@ -22789,38 +22804,40 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     return_bid128(s, e_out, c_prov_hi, c_prov_lo)
 }
 
-/*
 // **********************************************************************
 
+/*
 pub (crate) fn binary64_to_bid128(x: f64) -> BID_UINT128 {
-  BID_UINT128 c;
-  BID_UINT64 c_prov_hi, c_prov_lo;
-  BID_UINT256 r;
-  BID_UINT384 z;
+    let mut c: BID_UINT128 = Default::default();
+    let mut c_prov_hi: BID_UINT64;
+    let mut c_prov_lo: BID_UINT64;
+    let mut r: BID_UINT256 = Default::default();
+    let mut z: BID_UINT512 = Default::default();
 
-  int e, s, t, e_out, e_plus, e_hi, e_lo, f;
+    let mut e: i32;
+    let mut s: i32;
+    let mut t: i32;
+    let mut e_out: i32;
+    let mut e_plus: i32;
+    let mut e_hi: i32;
+    let mut e_lo: i32;
+    let mut f: i32;
 
-#if DECIMAL_CALL_BY_REFERENCE
-#if !DECIMAL_GLOBAL_ROUNDING
-  _IDEC_round rnd_mode = *prnd_mode;
-#endif
-#endif
+    // Unpack the input
 
-// Unpack the input
+    unpack_binary64(x, &mut s, &mut e, &mut c.w[1], &mut t, &return_bid128_zero, &return_bid128_inf, &return_bid128_nan, pfpsf);
 
-  unpack_binary64 (x, s, e, c.w[1], t, return_bid128_zero (s),
-                   return_bid128_inf (s), return_bid128_nan);
-  // Now -1126<=e<=971 (971 for max normal, -1074 for min normal, -1126 for min denormal)
+    // Now -1126<=e<=971 (971 for max normal, -1074 for min normal, -1126 for min denormal)
 
-// Shift up to the top: like a pure quad coefficient with a shift of 15.
-// In our case, this is 2^{113-53+15} times the core, so unpack at the
-// high end shifted by 11.
+    // Shift up to the top: like a pure quad coefficient with a shift of 15.
+    // In our case, this is 2^{113-53+15} times the core, so unpack at the
+    // high end shifted by 11.
 
-  c.w[0] = 0;
-  c.w[1] = c.w[1] << 11;
+    c.w[0] = 0;
+    c.w[1] = c.w[1] << 11;
 
-  t += (113 - 53);
-  e -= (113 - 53); // Now e belongs [-1186;911].
+    t += (113 - 53);
+    e -= (113 - 53); // Now e belongs [-1186;911].
 
 // (We never need to check for overflow: this format is the biggest of all!)
 
