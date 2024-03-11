@@ -99,18 +99,16 @@ fn ctz64(n: i64) -> u64 {
 // Note that shifts of 64 can't be relied on as ANSI
 
 fn srl128_short(hi: u64, lo: u64, c: u64) -> (u64, u64) {
-    (hi >> c, hi << (64 - c) + (lo >> c))
+    (hi >> c, ((hi) << (64 - (c))) + ((lo) >> (c)))
 }
 
 fn srl128(hi: u64, lo: u64, c: u64) -> (u64, u64) {
     if c == 0 {
         (hi, lo)
+    } else if c >= 64 {
+        (0, hi >> (c - 64))
     } else {
-        if c >= 64 {
-            (0, hi >> (c - 64))
-        } else {
-            srl128_short(hi, lo, c)
-        }
+        srl128_short(hi, lo, c)
     }
 }
 
@@ -160,7 +158,7 @@ fn __mul_128x256_to_384(A: &BID_UINT128, B: &BID_UINT256) -> BID_UINT512 {
 
 fn __mul_10x64(sum: &mut u64, carryout: &mut u64, input: u64, carryin: u64) {
     let mut s3: u64 = input + ((input) >> 2);
-    *carryout = ((if s3 < (input as u64) { 1 } else { 0 }) << 3) + (s3 >> 61);
+    *carryout = ((if s3 < (input) { 1 } else { 0 }) << 3) + (s3 >> 61);
     s3        = (s3 << 3) + ((input & 3) << 1);
     *sum      = s3 + (carryin);
     if *sum < s3 { *carryout += 1 }
@@ -205,19 +203,19 @@ fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut
     unsafe {
         let mut x_in: BID_UI32FLOAT = Default::default();
         x_in.d = x;
-        *c = x_in.ui32 as BID_UINT64;
-        *e = ((*c >> 23) & ((1u64 << 8) - 1)) as i32;
-        *s = (*c >> 31) as i32;
-        *c = *c & ((1u64 << 23) - 1);
+        *c     = x_in.ui32 as BID_UINT64;
+        *e     = ((*c >> 23) & ((1u64 << 8) - 1)) as i32;
+        *s     = (*c >> 31) as i32;
+        *c    &= (1u64 << 23) - 1;
         if *e == 0 {
             let l: i32;
             if *c == 0 {
                 return Some(zero(*s));
             }
-            l = (clz32(*c as u32) - (32 - 24)) as i32;
-            *c = *c << l;
-            *e = -(l + 149);
-            *t = 0;
+            l    = (clz32(*c as u32) - (32 - 24)) as i32;
+            *c <<= l;
+            *e   = -(l + 149);
+            *t   = 0;
             __set_status_flags(pfpsf, StatusFlags::BID_DENORMAL_EXCEPTION);
         } else if (*e as u64) == ((1u64 << 8) - 1) {
             if *c == 0 {
@@ -233,26 +231,27 @@ fn unpack_binary32(x: f32, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut
             *e -= 150;
          }
 
-         return None;
+        None
     }
 }
 
 fn unpack_binary64(x: f64, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut i32, zero: &dyn Fn(i32) -> BID_UINT128, inf: &dyn Fn(i32) -> BID_UINT128, nan: &dyn Fn(i32, u64, u64) -> BID_UINT128, pfpsf: &mut _IDEC_flags) -> Option<BID_UINT128> {
-    let mut x_in: BID_UI64DOUBLE = Default::default();
     unsafe {
+        let mut x_in: BID_UI64DOUBLE = Default::default();
+
         x_in.d = x;
-        *c = x_in.ui64;
-        *e = ((*c >> 52) & ((1u64 << 11) - 1)) as i32;
-        *s =  (*c >> 63) as i32;
-        *c =  *c & ((1u64 << 52) - 1);
+        *c     = x_in.ui64;
+        *e     = ((*c >> 52) & ((1u64 << 11) - 1)) as i32;
+        *s     =  (*c >> 63) as i32;
+        *c    &= (1u64 << 52) - 1;
         if *e == 0 {
             if *c == 0 {
                 return Some(zero(*s));
             }
             let l = (clz64(*c) - (64 - 53)) as i32;
-            *c = *c << l;
-            *e = -(l + 1074);
-            *t = 0;
+            *c <<= l;
+            *e   = -(l + 1074);
+            *t   = 0;
             __set_status_flags(pfpsf,StatusFlags::BID_DENORMAL_EXCEPTION);
         } else if (*e as u64) == ((1u64 << 11) - 1) {
             if *c == 0 {
@@ -267,9 +266,9 @@ fn unpack_binary64(x: f64, s: &mut i32, e: &mut i32, c: &mut BID_UINT64, t: &mut
             *t = ctz64(*c as i64) as i32;
             *e -= 1075;
         }
-    }
 
-    return None;
+        None
+    }
 }
 
 fn return_bid128(s: i32, e: i32, c_hi: u64, c_lo: u64) -> BID_UINT128 {
@@ -288,10 +287,10 @@ fn return_bid128_inf(s: i32) -> BID_UINT128 {
 }
 
 fn return_bid128_nan(s: i32, c_hi: u64,c_lo: u64)  -> BID_UINT128 {
-    if lt128(54210108624275u64,4089650035136921599u64, c_hi >> 18,(c_lo >> 18) + c_hi << 46) {
+    if lt128(54210108624275u64,4089650035136921599u64, c_hi >> 18,(c_lo >> 18) + (c_hi << 46)) {
         return_bid128(s,0x1F<<9,0u64,0u64)
     } else {
-        return_bid128(s,0x1F<<9,c_hi>>18,(c_lo>>18)+(c_hi<<46))
+        return_bid128(s,0x1F<<9,c_hi >> 18,(c_lo >> 18) + (c_hi << 46))
     }
 }
 
@@ -902,8 +901,8 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // In our case, this is 2^{113-24+15} times the core, so unpack at the
     // high end shifted by 40.
 
-    c.w[0] = 0;
-    c.w[1] = c.w[1] << 40;
+    c.w[0]   = 0;
+    c.w[1] <<= 40;
 
     t += 113 - 24;
     e -= 113 - 24; // Now e belongs [-238..15]
@@ -968,9 +967,9 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
 
     // Set up pointers into the bipartite table
 
-    e_hi = 11232 - e_out;
-    e_lo = e_hi & 127;
-    e_hi = e_hi >> 7;
+    e_hi   = 11232 - e_out;
+    e_lo   = e_hi & 127;
+    e_hi >>= 7;
 
     // Look up the inner entry first
 
@@ -1004,7 +1003,7 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
         (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = __mul_10x384_to_384(
             z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
             z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
-        e_out = e_out - 1;
+        e_out -= 1;
     }
     // Set up provisional results
 
@@ -1016,13 +1015,13 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
 
     if lt128(BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[1],
              BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[0], z.w[3], z.w[2]) {
-        c_prov_lo = c_prov_lo + 1;
+        c_prov_lo += 1;
         if c_prov_lo == 0 {
-            c_prov_hi = c_prov_hi + 1;
+            c_prov_hi += 1;
         } else if (c_prov_lo == 4003012203950112768u64) && (c_prov_hi == 542101086242752u64) {
             c_prov_hi = 54210108624275u64;
             c_prov_lo = 4089650035136921600u64;
-            e_out = e_out + 1;
+            e_out    += 1;
         }
     }
     // Don't need to check overflow or underflow; however set inexact flag
@@ -1068,8 +1067,8 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
     // In our case, this is 2^{113-53+15} times the core, so unpack at the
     // high end shifted by 11.
 
-    c.w[0] = 0;
-    c.w[1] = c.w[1] << 11;
+    c.w[0]   = 0;
+    c.w[1] <<= 11;
 
     t += 113 - 53;
     e -= 113 - 53; // Now e belongs [-1186;911].
@@ -1135,9 +1134,9 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
 
     // Set up pointers into the bipartite table
 
-    e_hi = 11232 - e_out;
-    e_lo = e_hi & 127;
-    e_hi = e_hi >> 7;
+    e_hi   = 11232 - e_out;
+    e_lo   = e_hi & 127;
+    e_hi >>= 7;
 
     // Look up the inner entry first
 
@@ -1171,7 +1170,7 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
         (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = __mul_10x384_to_384(
             z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
             z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
-        e_out = e_out - 1;
+        e_out -= 1;
     }
 
     // Set up provisional results
@@ -1184,14 +1183,14 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
 
     if lt128(BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[1],
               BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[0], z.w[3], z.w[2]) {
-        c_prov_lo = c_prov_lo + 1;
+        c_prov_lo += 1;
         if c_prov_lo == 0 {
-            c_prov_hi = c_prov_hi + 1;
+            c_prov_hi += 1;
         } else if (c_prov_lo == 4003012203950112768u64)
-                && (c_prov_hi == 542101086242752u64) {
+               && (c_prov_hi == 542101086242752u64) {
             c_prov_hi = 54210108624275u64;
             c_prov_lo = 4089650035136921600u64;
-            e_out     = e_out + 1;
+            e_out    += 1;
         }
     }
 
