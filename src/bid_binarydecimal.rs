@@ -114,15 +114,13 @@ fn srl128(hi: u64, lo: u64, c: u64) -> (u64, u64) {
 
 // Similarly for 6-part result
 
-fn srl384_short(x5: u64, x4: u64, x3: u64, x2: u64, x1: u64, x0: u64, c: i32) -> (u64, u64, u64, u64, u64, u64) {
-    let x0 = (x1 << (64 - c)) + (x0 >> c);
-    let x1 = (x2 << (64 - c)) + (x1 >> c);
-    let x2 = (x3 << (64 - c)) + (x2 >> c);
-    let x3 = (x4 << (64 - c)) + (x3 >> c);
-    let x4 = (x5 << (64 - c)) + (x4 >> c);
-    let x5 =  x5 >> c;
-
-    (x5, x4, x3, x2, x1, x0)
+fn srl384_short(x: &mut BID_UINT512, c: i32) {
+    x.w[0]   = (x.w[1] << (64 - c)) + (x.w[0] >> c);
+    x.w[1]   = (x.w[2] << (64 - c)) + (x.w[1] >> c);
+    x.w[2]   = (x.w[3] << (64 - c)) + (x.w[2] >> c);
+    x.w[3]   = (x.w[4] << (64 - c)) + (x.w[3] >> c);
+    x.w[4]   = (x.w[5] << (64 - c)) + (x.w[4] >> c);
+    x.w[5] >>= c;
 }
 
 // Compare "<" two 2-part unsigned integers
@@ -166,27 +164,20 @@ fn __mul_10x64(sum: &mut u64, carryout: &mut u64, input: u64, carryin: u64) {
 
 // Likewise a 384-bit number
 
-fn __mul_10x384_to_384(p5: u64, p4: u64, p3: u64, p2: u64, p1: u64, p0: u64, a5: u64, a4: u64, a3: u64, a2: u64, a1: u64, a0: u64) -> (u64, u64, u64, u64, u64, u64) {
+fn __mul_10x384_to_384(p: &mut BID_UINT512) {
+    let a: BID_UINT512 = p.clone();
     let mut c0: u64 = 0;
     let mut c1: u64 = 0;
     let mut c2: u64 = 0;
     let mut c3: u64 = 0;
     let mut c4: u64 = 0;
     let mut c5: u64 = 0;
-    let mut p5: u64 = p5;
-    let mut p4: u64 = p4;
-    let mut p3: u64 = p3;
-    let mut p2: u64 = p2;
-    let mut p1: u64 = p1;
-    let mut p0: u64 = p0;
-    __mul_10x64(&mut p0, &mut c0, a0,0u64);
-    __mul_10x64(&mut p1, &mut c1, a1, c0);
-    __mul_10x64(&mut p2, &mut c2, a2, c1);
-    __mul_10x64(&mut p3, &mut c3, a3, c2);
-    __mul_10x64(&mut p4, &mut c4, a4, c3);
-    __mul_10x64(&mut p5, &mut c5, a5, c4);
-
-    (p5, p4, p3, p2, p1, p0)
+    __mul_10x64(&mut p.w[0], &mut c0, a.w[0],0u64);
+    __mul_10x64(&mut p.w[1], &mut c1, a.w[1], c0);
+    __mul_10x64(&mut p.w[2], &mut c2, a.w[2], c1);
+    __mul_10x64(&mut p.w[3], &mut c3, a.w[3], c2);
+    __mul_10x64(&mut p.w[4], &mut c4, a.w[4], c3);
+    __mul_10x64(&mut p.w[5], &mut c5, a.w[5], c4);
 }
 
 // Unpack binary floating-point number x into
@@ -288,16 +279,16 @@ fn return_bid128_inf(s: i32) -> BID_UINT128 {
 
 fn return_bid128_nan(s: i32, c_hi: u64,c_lo: u64)  -> BID_UINT128 {
     if lt128(54210108624275u64,4089650035136921599u64, c_hi >> 18,(c_lo >> 18) + (c_hi << 46)) {
-        return_bid128(s,0x1F<<9,0u64,0u64)
+        return_bid128(s,0x1F << 9,0u64,0u64)
     } else {
-        return_bid128(s,0x1F<<9,c_hi >> 18,(c_lo >> 18) + (c_hi << 46))
+        return_bid128(s,0x1F << 9,c_hi >> 18,(c_lo >> 18) + (c_hi << 46))
     }
 }
 
 const BID_ROUNDBOUND_128: [BID_UINT128; 20] = [
-    BID_UINT128 { w: [0u64 , 1u64 << 63] },   // BID_ROUNDING_TO_NEAREST | positive | even
+    BID_UINT128 { w: [0u64 , 1u64 << 63] },         // BID_ROUNDING_TO_NEAREST | positive | even
     BID_UINT128 { w: [!0u64, (1u64 << 63) - 1] },   // BID_ROUNDING_TO_NEAREST | positive | odd
-    BID_UINT128 { w: [0u64 , 1u64 << 63] },   // BID_ROUNDING_TO_NEAREST | negative | even
+    BID_UINT128 { w: [0u64 , 1u64 << 63] },         // BID_ROUNDING_TO_NEAREST | negative | even
     BID_UINT128 { w: [!0u64, (1u64 << 63) - 1] },   // BID_ROUNDING_TO_NEAREST | negative | odd
 
     BID_UINT128 { w: [!0u64, !0u64] },   // BID_ROUNDING_DOWN       | positive | even
@@ -939,12 +930,12 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
         cint.w[0] = c.w[0];
         if a <= 0 {
             (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 - e) as u64);
-            if lt128 (cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
+            if lt128(cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
                 return return_bid128(s, 6176, cint.w[1], cint.w[0]);
             }
         } else if a <= 48 {
             let mut pow5: BID_UINT128 = BID_COEFFLIMITS_BID128[a as usize];
-            srl128 (cint.w[1], cint.w[0], (15 + t) as u64);
+            srl128(cint.w[1], cint.w[0], (15 + t) as u64);
             if le128(cint.w[1], cint.w[0], pow5.w[1], pow5.w[0]) {
                 let mut cc: BID_UINT128 = Default::default();
                 cc.w[1] = cint.w[1];
@@ -979,10 +970,10 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // If we need the other entry, multiply significands and add exponents
 
     if e_hi != 39 {
-        let s_prime: BID_UINT256 = BID_OUTERTABLE_SIG[e_hi as usize];
+        let s_prime: &BID_UINT256 = &BID_OUTERTABLE_SIG[e_hi as usize];
         let t_prime: BID_UINT512;
         f       = f + 256 + BID_OUTERTABLE_EXP[e_hi as usize];
-        t_prime = __mul_256x256_to_512(&r, &s_prime);
+        t_prime = __mul_256x256_to_512(&r, s_prime);
         r.w[0]  = t_prime.w[4] + 1;
         r.w[1]  = t_prime.w[5];
         r.w[2]  = t_prime.w[6];
@@ -994,15 +985,13 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // Make adjustive shift, ignoring the lower 128 bits
 
     e = -(241 + e + f);
-    (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = srl384_short(z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0], e);
+    srl384_short(&mut z, e);
 
     // Now test against 10^33 and so decide on adjustment
     // I feel there ought to be a smarter way of doing the multiplication
 
-    if lt128 (z.w[5], z.w[4], 54210108624275u64, 4089650035136921600u64) {
-        (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = __mul_10x384_to_384(
-            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
-            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
+    if lt128(z.w[5], z.w[4], 54210108624275u64, 4089650035136921600u64) {
+        __mul_10x384_to_384(&mut z);
         e_out -= 1;
     }
     // Set up provisional results
@@ -1013,8 +1002,9 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // Round using round-sticky words
     // If we spill over into the next decade, correct
 
-    if lt128(BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[1],
-             BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[0], z.w[3], z.w[2]) {
+    let rb = BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize];
+
+    if lt128(rb.w[1], rb.w[0], z.w[3], z.w[2]) {
         c_prov_lo += 1;
         if c_prov_lo == 0 {
             c_prov_hi += 1;
@@ -1104,14 +1094,14 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
         cint.w[1] = c.w[1];
         cint.w[0] = c.w[0];
         if a <= 0 {
-            srl128 (cint.w[1], cint.w[0], (15 - e) as u64);
-            if lt128 (cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
+            srl128(cint.w[1], cint.w[0], (15 - e) as u64);
+            if lt128(cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
                 return return_bid128(s, 6176, cint.w[1], cint.w[0]);
             }
         } else if a <= 48 {
             let mut pow5: BID_UINT128 = BID_COEFFLIMITS_BID128[a as usize];
-            srl128 (cint.w[1], cint.w[0], (15 + t) as u64);
-            if le128 (cint.w[1], cint.w[0], pow5.w[1], pow5.w[0]) {
+            srl128(cint.w[1], cint.w[0], (15 + t) as u64);
+            if le128(cint.w[1], cint.w[0], pow5.w[1], pow5.w[0]) {
                 let mut cc: BID_UINT128 = Default::default();
                 cc.w[1] = cint.w[1];
                 cc.w[0] = cint.w[0];
@@ -1146,10 +1136,10 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
     // If we need the other entry, multiply significands and add exponents
 
     if e_hi != 39 {
-        let s_prime: BID_UINT256 = BID_OUTERTABLE_SIG[e_hi as usize];
+        let s_prime: &BID_UINT256 = &BID_OUTERTABLE_SIG[e_hi as usize];
         let t_prime: BID_UINT512;
         f = f + 256 + BID_OUTERTABLE_EXP[e_hi as usize];
-        t_prime = __mul_256x256_to_512(&r, &s_prime);
+        t_prime = __mul_256x256_to_512(&r, s_prime);
         r.w[0] = t_prime.w[4] + 1;
         r.w[1] = t_prime.w[5];
         r.w[2] = t_prime.w[6];
@@ -1161,15 +1151,13 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
     // Make adjustive shift, ignoring the lower 128 bits
 
     e = -(241 + e + f);
-    (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = srl384_short(z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0], e);
+    srl384_short(&mut z, e);
 
     // Now test against 10^33 and so decide on adjustment
     // I feel there ought to be a smarter way of doing the multiplication
 
-    if lt128 (z.w[5], z.w[4], 54210108624275u64, 4089650035136921600u64) {
-        (z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]) = __mul_10x384_to_384(
-            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0],
-            z.w[5], z.w[4], z.w[3], z.w[2], z.w[1], z.w[0]);
+    if lt128(z.w[5], z.w[4], 54210108624275u64, 4089650035136921600u64) {
+        __mul_10x384_to_384(&mut z);
         e_out -= 1;
     }
 
@@ -1181,8 +1169,9 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
     // Round using round-sticky words
     // If we spill over into the next decade, correct
 
-    if lt128(BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[1],
-              BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize].w[0], z.w[3], z.w[2]) {
+    let rb = &BID_ROUNDBOUND_128[(((rnd_mode as u64) << 2) + (((s as u64) & 1) << 1) + (c_prov_lo & 1)) as usize];
+
+    if lt128(rb.w[1], rb.w[0], z.w[3], z.w[2]) {
         c_prov_lo += 1;
         if c_prov_lo == 0 {
             c_prov_hi += 1;
