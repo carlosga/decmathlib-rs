@@ -927,6 +927,7 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
         let mut cint: BID_UINT128 = Default::default();
         let a: i32 = -(e + t);
         cint.w[1] = c.w[1];
+        cint.w[1] = c.w[1];
         cint.w[0] = c.w[0];
         if a <= 0 {
             (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 - e) as u64);
@@ -934,14 +935,14 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
                 return return_bid128(s, 6176, cint.w[1], cint.w[0]);
             }
         } else if a <= 48 {
-            let mut pow5: BID_UINT128 = BID_COEFFLIMITS_BID128[a as usize];
-            srl128(cint.w[1], cint.w[0], (15 + t) as u64);
+            let mut pow5: &BID_UINT128 = &BID_COEFFLIMITS_BID128[a as usize];
+            (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 + t) as u64);
             if le128(cint.w[1], cint.w[0], pow5.w[1], pow5.w[0]) {
                 let mut cc: BID_UINT128 = Default::default();
                 cc.w[1] = cint.w[1];
                 cc.w[0] = cint.w[0];
-                pow5    = BID_POWER_FIVE[a as usize];
-                cc      = __mul_128x128_low(&cc, &pow5);
+                pow5    = &BID_POWER_FIVE[a as usize];
+                cc      = __mul_128x128_low(&cc, pow5);
                 return return_bid128(s, 6176 - a, cc.w[1], cc.w[0]);
             }
         }
@@ -954,7 +955,7 @@ pub (crate) fn binary32_to_bid128(x: f32, rnd_mode: RoundingMode, pfpsf: &mut _I
     // NB: this is the *biased* exponent
 
     e_plus = e + 42152;
-    e_out = (((19728 * e_plus) + ((19779 * e_plus) >> 16)) >> 16) - 6512;
+    e_out  = (((19728 * e_plus) + ((19779 * e_plus) >> 16)) >> 16) - 6512;
 
     // Set up pointers into the bipartite table
 
@@ -1094,19 +1095,19 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
         cint.w[1] = c.w[1];
         cint.w[0] = c.w[0];
         if a <= 0 {
-            srl128(cint.w[1], cint.w[0], (15 - e) as u64);
+            (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 - e) as u64);
             if lt128(cint.w[1], cint.w[0], 542101086242752u64, 4003012203950112768u64) {
                 return return_bid128(s, 6176, cint.w[1], cint.w[0]);
             }
         } else if a <= 48 {
-            let mut pow5: BID_UINT128 = BID_COEFFLIMITS_BID128[a as usize];
-            srl128(cint.w[1], cint.w[0], (15 + t) as u64);
+            let mut pow5: &BID_UINT128 = &BID_COEFFLIMITS_BID128[a as usize];
+            (cint.w[1], cint.w[0]) = srl128(cint.w[1], cint.w[0], (15 + t) as u64);
             if le128(cint.w[1], cint.w[0], pow5.w[1], pow5.w[0]) {
                 let mut cc: BID_UINT128 = Default::default();
                 cc.w[1] = cint.w[1];
                 cc.w[0] = cint.w[0];
-                pow5    = BID_POWER_FIVE[a as usize];
-                cc      = __mul_128x128_low(&cc, &pow5);
+                pow5    = &BID_POWER_FIVE[a as usize];
+                cc      = __mul_128x128_low(&cc, pow5);
                 return return_bid128(s, 6176 - a, cc.w[1], cc.w[0]);
             }
         }
@@ -1138,12 +1139,12 @@ pub (crate) fn binary64_to_bid128(x: f64, rnd_mode: RoundingMode, pfpsf: &mut _I
     if e_hi != 39 {
         let s_prime: &BID_UINT256 = &BID_OUTERTABLE_SIG[e_hi as usize];
         let t_prime: BID_UINT512;
-        f = f + 256 + BID_OUTERTABLE_EXP[e_hi as usize];
+        f       = f + 256 + BID_OUTERTABLE_EXP[e_hi as usize];
         t_prime = __mul_256x256_to_512(&r, s_prime);
-        r.w[0] = t_prime.w[4] + 1;
-        r.w[1] = t_prime.w[5];
-        r.w[2] = t_prime.w[6];
-        r.w[3] = t_prime.w[7];
+        r.w[0]  = t_prime.w[4] + 1;
+        r.w[1]  = t_prime.w[5];
+        r.w[2]  = t_prime.w[6];
+        r.w[3]  = t_prime.w[7];
     }
 
     z = __mul_128x256_to_384(&c, &r);
