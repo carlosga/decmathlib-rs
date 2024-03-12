@@ -12,6 +12,20 @@ license = "MIT"
 [profile.dev]
 overflow-checks = false     # Disable integer overflow checks.
 
+[profile.profiling]
+inherits = "release"
+debug = true
+
+[profile.bench]
+codegen-units = 1
+lto = true
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 serde = ["serde/default", "serde_json/default"]
