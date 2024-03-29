@@ -1062,7 +1062,7 @@ pub (crate) fn bid128_ext_fma(
         *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
 
         #[cfg(target_endian = "big")]
-        BID_SWAP128 (res);
+        BID_SWAP128(&mut res);
 
         return res;
     }
@@ -1193,7 +1193,7 @@ pub (crate) fn bid128_ext_fma(
         *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
 
         #[cfg(target_endian = "big")]
-        BID_SWAP128(& mut res);
+        BID_SWAP128(&mut res);
 
         return res;
     } else {
@@ -1768,7 +1768,7 @@ pub (crate) fn bid128_ext_fma(
         *ptr_is_inexact_gt_midpoint  = is_inexact_gt_midpoint;
 
         #[cfg(target_endian = "big")]
-        BID_SWAP128(&res);
+        BID_SWAP128(&mut res);
 
         return res;
     } // else we have f * f + f
@@ -2227,7 +2227,7 @@ pub (crate) fn bid128_ext_fma(
                     *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
 
                     #[cfg(target_endian = "big")]
-                    BID_SWAP128 (res);
+                    BID_SWAP128(&mut res);
 
                     return res;
                 }
@@ -3874,7 +3874,7 @@ pub (crate) fn bid128_ext_fma(
             *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
 
             #[cfg(target_endia = "big")]
-            BID_SWAP128 (res);
+            BID_SWAP128(&mut res);
 
             return res;
         } else if (p34 <= delta && delta + q3 <= q4)                    // Case (15)

@@ -155,7 +155,7 @@ pub (crate) fn bid_to_dpd128(ba: &BID_UINT128) -> BID_UINT128 {
     res.w[1] |= nanb;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128(&res);
+    BID_SWAP128(&mut res);
 
     res
 }
@@ -247,7 +247,7 @@ pub (crate) fn bid_dpd_to_bid128(da: &BID_UINT128) -> BID_UINT128 {
     res.w[1] |= nanb;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128(&res);
+    BID_SWAP128(&mut res);
 
     res
 }

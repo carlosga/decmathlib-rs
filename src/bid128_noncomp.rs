@@ -194,7 +194,7 @@ pub (crate) fn bid128_is_zero(x: &BID_UINT128) -> bool {
     let mut x = *x;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128(x);
+    BID_SWAP128(&mut x);
 
     if (x.w[1] & MASK_INF) == MASK_INF {
         return false;
@@ -413,13 +413,13 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
     let mut x = *x;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128(x);
+    BID_SWAP128(&mut x);
 
     #[cfg(target_endian = "big")]
     let mut y = *y;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128(y);
+    BID_SWAP128(&mut y);
 
     // NaN (CASE 1)
     // if x and y are unordered numerically because either operand is NaN
@@ -696,10 +696,10 @@ pub (crate) fn bid128_total_order_mag(x: &BID_UINT128, y: &BID_UINT128) -> bool 
     let mut y = *y;
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128 (x);
+    BID_SWAP128(&mut x);
 
     #[cfg(target_endian = "big")]
-    BID_SWAP128 (y);
+    BID_SWAP128(&mut y);
 
     x.w[1] &= 0x7fffffffffffffffu64;
     y.w[1] &= 0x7fffffffffffffffu64;
