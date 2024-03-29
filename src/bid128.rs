@@ -180,6 +180,7 @@ pub (crate) const  BID_MIDPOINT128: [BID_UINT128; 19] = [	           // the 64-b
     BID_UINT128 { w: [0x04c5112000000000u64, 0x259da6542d43623du64] }  // 1/2 * 10^38 = 5 * 10^37
 ];
 
+
 /// BID_MIDPOINT192[i - 39] = 1/2 * 10^i = 5 * 10^(i-1), 39 <= i <= 58
 pub (crate) const BID_MIDPOINT192: [BID_UINT192; 20] = [ // the 64-bit word order is L, M, H
     BID_UINT192 { w: [0x2fb2ab4000000000u64, 0x78287f49c4a1d662u64, 0x0000000000000001u64 ] },  // 1/2 * 10^39 = 5 * 10^38
@@ -224,7 +225,7 @@ pub (crate) const BID_MIDPOINT256: [BID_UINT256; 19] = [  // the 64-bit word ord
     BID_UINT256{ w: [0x0000000000000000u64, 0xba32821c1653f200u64, 0x6298d2d2c78fdda5u64, 0x001c4c8b1349b9b5u64 ] },	// 1/2 * 10^74 = 5 * 10^73
     BID_UINT256{ w: [0x0000000000000000u64, 0x45f91518df477400u64, 0xd9f83c3bcb9ea879u64, 0x011afd6ec0e14115u64 ] },	// 1/2 * 10^75 = 5 * 10^74
     BID_UINT256{ w: [0x0000000000000000u64, 0xbbbad2f8b8ca8800u64, 0x83b25a55f43294bcu64, 0x0b0de65388cc8adau64 ] },	// 1/2 * 10^76 = 5 * 10^75
-    BID_UINT256{ w: [0x0000000000000000u64, 0x554c3db737e95000u64, 0x24f7875b89f9cf5fu64, 0x6e8aff4357fd6c89u64 ] }	// 1/2 * 10^77 = 5 * 10^76
+    BID_UINT256{ w: [0x0000000000000000u64, 0x554c3db737e95000u64, 0x24f7875b89f9cf5fu64, 0x6e8aff4357fd6c89u64 ] }	    // 1/2 * 10^77 = 5 * 10^76
 ];
 
 pub (crate) const BID_TEN2K64: [BID_UINT64; 20] = [
