@@ -28,7 +28,7 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #[cfg(target_endian = "big")]
-use crate::bid_conf::BID_SWAP128;
+use crate::bid_internal::BID_SWAP128;
 
 use crate::bid128::{BID_NR_DIGITS, BID_TEN2K128, BID_TEN2K64};
 use crate::bid128_string::bid128_from_string;

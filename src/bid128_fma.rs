@@ -10,7 +10,7 @@
 #![allow(unused_assignments)]
 
 #[cfg(target_endian = "big")]
-use crate::bid_conf::BID_SWAP128;
+use crate::bid_internal::BID_SWAP128;
 
 use crate::bid128::*;
 use crate::bid_internal::*;
@@ -428,7 +428,7 @@ pub (crate) fn bid_add_and_round(
             R128.w[0] = R256.w[0];
         }
 
-        #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
+        #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
         if e4 + x0 < EXP_MIN_UNBIASED { // for all rounding modes
             is_tiny = true;
         }
@@ -436,7 +436,7 @@ pub (crate) fn bid_add_and_round(
         // the rounded result has p34 = 34 digits
         e4 = e4 + x0 + if incr_exp { 1 } else { 0 };
         if rnd_mode == RoundingMode::NearestEven {
-            #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
+            #[cfg(feature = "decimal_tiny_detection_after_rounding")]
             if e4 < EXP_MIN_UNBIASED {
                 is_tiny = true; // for other rounding modes apply correction
             }
@@ -456,7 +456,7 @@ pub (crate) fn bid_add_and_round(
 
             scale = (((P128.w[1] & MASK_EXP) >> 49) - 6176) as i32; // -1, 0, or +1
             // the number of digits in the significand is p34 = 34
-            #[cfg(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING")]
+            #[cfg(feature = "decimal_tiny_detection_after_rounding")]
             if (e4 + scale) < EXP_MIN_UNBIASED {
                 is_tiny = true;
             }
@@ -731,6 +731,8 @@ pub (crate) fn bid128_ext_fma(
     let mut x: BID_UINT128 = *x;
     let mut y: BID_UINT128 = *y;
     let mut z: BID_UINT128 = *z;
+
+    #[cfg(feature = "decimal_tiny_detection_after_rounding")]
     let C4gt5toq4m1: bool;
 
     // the following are based on the table of special cases for fma; the NaN
@@ -1416,7 +1418,7 @@ pub (crate) fn bid128_ext_fma(
             if incr_exp {
                 e4 += 1;
 
-                #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
+                #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
                 if q4 + e4 == EXP_MIN_UNBIASED + p34 {
                     *pfpsf |= StatusFlags::BID_INEXACT_EXCEPTION | StatusFlags::BID_UNDERFLOW_EXCEPTION;
                 }
@@ -1975,14 +1977,16 @@ pub (crate) fn bid128_ext_fma(
                         res.w[1] |= z_sign | (((e3 + 6176) as BID_UINT64) << 49);
                     }
                     if e3 == EXP_MIN_UNBIASED {
-                        if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
-                            if R64 < 5 || (R64 == 5 && !is_inexact_lt_midpoint) {
-                                // result not tiny (in round-to-nearest mode)
-                                // rounds to 10^33 * 10^emin
-                            } else {
-                                *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
-                            }
+                        #[cfg(feature = "decimal_tiny_detection_after_rounding")]
+                        if R64 < 5 || (R64 == 5 && !is_inexact_lt_midpoint) {
+                            // result not tiny (in round-to-nearest mode)
+                            // rounds to 10^33 * 10^emin
                         } else {
+                            *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
+                        }
+
+                        #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
+                        {
                             *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION; // tiny if detected before rounding
                         }
                     }
@@ -2023,45 +2027,48 @@ pub (crate) fn bid128_ext_fma(
             //      endif
             //    endif
 
-            if cfg!(DECIMAL_TINY_DETECTION_AFTER_ROUNDING = "1") {
+            #[cfg(feature = "decimal_tiny_detection_after_rounding")]
+            {
                 // determine if C4 > 5 * 10^(q4-1)
-                if q4 <= 19 {
-                    C4gt5toq4m1 = C4.w[0] > BID_MIDPOINT64[(q4 - 1) as usize];
+                C4gt5toq4m1 = if q4 <= 19 {
+                    C4.w[0] > BID_MIDPOINT64[(q4 - 1) as usize]
                 } else if q4 <= 38 {
-                    C4gt5toq4m1 = C4.w[1]  > BID_MIDPOINT128[(q4 - 1) as usize].w[1]
-                              || (C4.w[1] == BID_MIDPOINT128[(q4 - 1) as usize].w[1]
-                               && C4.w[0]  > BID_MIDPOINT128[(q4 - 1) as usize].w[0]);
+                    C4.w[1]  > BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                || (C4.w[1] == BID_MIDPOINT128[(q4 - 20) as usize].w[1]
+                 && C4.w[0]  > BID_MIDPOINT128[(q4 - 20) as usize].w[0])
                 } else if q4 <= 58 {
-                    C4gt5toq4m1 = C4.w[2]  > BID_MIDPOINT192[(q4 - 1) as usize].w[2]
-                              || (C4.w[2] == BID_MIDPOINT192[(q4 - 1) as usize].w[2]
-                              && C4.w[1]   > BID_MIDPOINT192[(q4 - 1) as usize].w[1])
-                              || (C4.w[2] == BID_MIDPOINT192[(q4 - 1) as usize].w[2]
-                               && C4.w[1] == BID_MIDPOINT192[(q4 - 1) as usize].w[1]
-                               && C4.w[0]  > BID_MIDPOINT192[(q4 - 1) as usize].w[0]);
+                    C4.w[2]  > BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                || (C4.w[2] == BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                && C4.w[1]   > BID_MIDPOINT192[(q4 - 39) as usize].w[1])
+                || (C4.w[2] == BID_MIDPOINT192[(q4 - 39) as usize].w[2]
+                 && C4.w[1] == BID_MIDPOINT192[(q4 - 39) as usize].w[1]
+                 && C4.w[0]  > BID_MIDPOINT192[(q4 - 39) as usize].w[0])
                 } else { // if (q4 <= 68)
-                    C4gt5toq4m1 =
-                         C4.w[3]  > BID_MIDPOINT256[(q4 - 1) as usize].w[3] ||
-                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2]  > BID_MIDPOINT256[(q4 - 1) as usize].w[2]) ||
-                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2] == BID_MIDPOINT256[(q4 - 1) as usize].w[2] &&
-                         C4.w[1]  > BID_MIDPOINT256[(q4 - 1) as usize].w[1]) ||
-                        (C4.w[3] == BID_MIDPOINT256[(q4 - 1) as usize].w[3] &&
-                         C4.w[2] == BID_MIDPOINT256[(q4 - 1) as usize].w[2] &&
-                         C4.w[1] == BID_MIDPOINT256[(q4 - 1) as usize].w[1] &&
-                         C4.w[0]  > BID_MIDPOINT256[(q4 - 1) as usize].w[0]);
-                }
+                    C4.w[3]  > BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                 && C4.w[2]  > BID_MIDPOINT256[(q4 - 59) as usize].w[2])
+                || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                 && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                 && C4.w[1]  > BID_MIDPOINT256[(q4 - 59) as usize].w[1])
+                || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                 && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                 && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
+                 && C4.w[0]  > BID_MIDPOINT256[(q4 - 59) as usize].w[0])
+                };
 
                 if (e3 == EXP_MIN_UNBIASED && (q3 + scale) < p34)
                 || (e3 == EXP_MIN_UNBIASED && (q3 + scale) == p34
                 && (res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64 // 10^33_high
-                 && res.w[0] == 0x38c15b0a00000000u64 // 10^33_low
+                 && res.w[0] == 0x38c15b0a00000000u64               // 10^33_low
                 && z_sign != p_sign
                 && (rnd_mode == RoundingMode::NearestEven || rnd_mode == RoundingMode::NearestAway)
                 && (delta == (p34 + 1)) && C4gt5toq4m1) {
                     *pfpsf |= StatusFlags::BID_UNDERFLOW_EXCEPTION;
                 }
-            } else {
+            }
+
+            #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
+            {
                 if (e3 == EXP_MIN_UNBIASED && (q3 + scale) < p34)
                 || (e3 == EXP_MIN_UNBIASED && (q3 + scale) == p34
                 && (res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64 	// 10^33_high
@@ -2934,7 +2941,7 @@ pub (crate) fn bid128_ext_fma(
                       && res.w[0] < 0x38c15b0a00000000u64) {
                         is_tiny = true;
                     }
-                    #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
+                    #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
                     if ((res.w[1] & 0x7fffffffffffffffu64) == 0x0000314dc6448d93u64) &&
                         (res.w[0] == 0x38c15b0a00000000u64) &&  // 10^33*10^-6176
                         (z_sign != p_sign) {
@@ -3848,7 +3855,7 @@ pub (crate) fn bid128_ext_fma(
                     e4, &mut res, pfpsf);
             }
             // correction needed for tininess detection before rounding
-            #[cfg(not(feature = "DECIMAL_TINY_DETECTION_AFTER_ROUNDING"))]
+            #[cfg(not(feature = "decimal_tiny_detection_after_rounding"))]
             if (((res.w[1] & 0x7fffffffffffffffu64) == 0x0000314dc6448d93u64)  // 10^33*10^-6176_high
               && (res.w[0] == 0x38c15b0a00000000u64))                          // 10^33*10^-6176_low
             && (((rnd_mode == RoundingMode::NearestEven

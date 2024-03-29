@@ -8,7 +8,7 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #[cfg(target_endian = "big")]
-use crate::bid_conf::BID_SWAP128;
+use crate::bid_internal::BID_SWAP128;
 
 use crate::bid128_ilogb::bid128_ilogb;
 use crate::bid_internal::{QUIET_MASK64, __set_status_flags, BID_UINT128, BID_UINT64, unpack_BID128_value, BID_HIGH_128W, BID_LOW_128W};
@@ -28,7 +28,7 @@ pub (crate) fn bid128_logb(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UINT
     #[cfg(target_endian = "big")]
     BID_SWAP128(&mut x);
 
-    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, x) == 0 {
+    if unpack_BID128_value(&mut sign_x, &mut exponent_x, &mut CX, &x) == 0 {
         // test if x is NaN/Inf
         #[cfg(target_endian = "big")]
         BID_SWAP128(&mut x);
