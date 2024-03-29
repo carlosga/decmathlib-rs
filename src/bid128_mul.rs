@@ -8,7 +8,7 @@
 /* -------------------------------------------------------------------------------------------------- */
 
 #[cfg(target_endian = "big")]
-use crate::bid_conf::BID_SWAP128;
+use crate::bid_internal::BID_SWAP128;
 
 use crate::bid128_fma::{bid128_fma};
 use crate::bid_internal::*;
@@ -16,7 +16,12 @@ use crate::d128::{_IDEC_flags, RoundingMode};
 
 /// Decimal floating-point multiplication
 pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> BID_UINT128 {
+    #[cfg(target_endian = "big")]
+    let mut z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
+
+    #[cfg(target_endian = "little")]
     let z: BID_UINT128 = BID_UINT128 { w: [0x0000000000000000u64, 0x5ffe000000000000u64] };
+
     let x_sign: BID_UINT64;
     let y_sign: BID_UINT64;
     let p_sign: BID_UINT64;
@@ -100,10 +105,14 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
         if (C1.w[1] == 0x0 && C1.w[0] == 0x0) || (C2.w[1] == 0x0 && C2.w[0] == 0x0) {
             // x = 0 or y = 0
             // the result is 0
+            #[cfg(target_endian = "big")]
+            let mut res = BID_UINT128 { w: [0x0, p_sign | p_exp] }; // preferred exponent in [EXP_MIN, EXP_MAX]
+
+            #[cfg(target_endian = "little")]
             let res = BID_UINT128 { w: [0x0, p_sign | p_exp] }; // preferred exponent in [EXP_MIN, EXP_MAX]
 
             #[cfg(target_endian = "big")]
-            BID_SWAP128(&mut resres);
+            BID_SWAP128(&mut res);
 
             return res;
         }	// else continue
@@ -119,5 +128,9 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     BID_SWAP128(&mut z);
 
     // swap x and y - ensure that a NaN in x has 'higher precedence' than one in y
-    bid128_fma(y, x, &z, rnd_mode, pfpsf)
+    #[cfg(target_endian = "big")]
+    return bid128_fma(&y, &x, &z, rnd_mode, pfpsf);
+
+    #[cfg(target_endian = "little")]
+    return bid128_fma(y, x, &z, rnd_mode, pfpsf);
 }

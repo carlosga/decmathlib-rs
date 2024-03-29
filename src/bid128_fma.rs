@@ -10,7 +10,7 @@
 #![allow(unused_assignments)]
 
 #[cfg(target_endian = "big")]
-use crate::bid_conf::BID_SWAP128;
+use crate::bid_internal::BID_SWAP128;
 
 use crate::bid128::*;
 use crate::bid_internal::*;
