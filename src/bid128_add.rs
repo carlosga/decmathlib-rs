@@ -806,10 +806,10 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                                     C1_lo  = 0x378d8e63ffffffffu64;
                                     x_exp -= EXP_P1; // no underflow, because n1 >> n2
                                 }
-                            } else if  (rnd_mode == RoundingMode::NearestEven && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::NearestAway  && x_sign == y_sign)
-                                    || (rnd_mode == RoundingMode::Downward       && x_sign != 0 && y_sign != 0)
-                                    || (rnd_mode == RoundingMode::Upward         && x_sign == 0 && y_sign == 0) {
+                            } else if (rnd_mode == RoundingMode::NearestEven && x_sign == y_sign)
+                                   || (rnd_mode == RoundingMode::NearestAway && x_sign == y_sign)
+                                   || (rnd_mode == RoundingMode::Downward    && x_sign != 0 && y_sign != 0)
+                                   || (rnd_mode == RoundingMode::Upward      && x_sign == 0 && y_sign == 0) {
                                 // the result is x + 1
                                 // for RN x_sign = y_sign, i.e. n1*n2 > 0
                                 C1_lo += 1;
@@ -1053,9 +1053,9 @@ pub (crate) fn bid128_add(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
                                     x_exp -= EXP_P1; // no underflow, because n1 >> n2
                                 }
                             } else if (rnd_mode == RoundingMode::NearestEven && x_sign == y_sign)
-                                   || (rnd_mode == RoundingMode::NearestAway  && x_sign == y_sign)
-                                   || (rnd_mode == RoundingMode::Downward       && x_sign != 0 && y_sign != 0)
-                                   || (rnd_mode == RoundingMode::Upward         && x_sign == 0 && y_sign == 0) {
+                                   || (rnd_mode == RoundingMode::NearestAway && x_sign == y_sign)
+                                   || (rnd_mode == RoundingMode::Downward    && x_sign != 0 && y_sign != 0)
+                                   || (rnd_mode == RoundingMode::Upward      && x_sign == 0 && y_sign == 0) {
                                 // the result is x + 1
                                 // for RN x_sign = y_sign, i.e. n1*n2 > 0
                                 C1_lo += 1;

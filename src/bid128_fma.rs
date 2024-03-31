@@ -1709,12 +1709,11 @@ pub (crate) fn bid128_ext_fma(
                 is_midpoint_gt_even,
                 e4, &mut res, pfpsf);
             // if e4 = EXP_MIN_UNBIASED && significand < 10^33 => result is tiny (for RD, RZ)
-            if e4 == EXP_MIN_UNBIASED {
-                if  (res.w[1] & MASK_COEFF)  < 0x0000314dc6448d93u64
-                || ((res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64
-                  && res.w[0]                < 0x38c15b0a00000000u64) {
-                    is_tiny = true;
-                }
+            if e4 == EXP_MIN_UNBIASED
+            && ((res.w[1] & MASK_COEFF)  < 0x0000314dc6448d93u64
+            || ((res.w[1] & MASK_COEFF) == 0x0000314dc6448d93u64
+              && res.w[0]                < 0x38c15b0a00000000u64)) {
+                is_tiny = true;
             }
         }
 
@@ -2165,26 +2164,24 @@ pub (crate) fn bid128_ext_fma(
                 } else { // > 1/2 ulp
                     gt_half_ulp = true;
                 }
-            } else {
-                if C4.w[3]  < BID_MIDPOINT256[(q4 - 59) as usize].w[3]
-               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
-                && C4.w[2]  < BID_MIDPOINT256[(q4 - 59) as usize].w[2])
-               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
-                && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
-                && C4.w[1]  < BID_MIDPOINT256[(q4 - 59) as usize].w[1])
-               || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
-                && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
-                && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
-                && C4.w[0]  < BID_MIDPOINT256[(q4 - 59) as usize].w[0]) { // < 1/2 ulp
-                    lt_half_ulp = true;
-                } else if C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
-                       && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
-                       && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
-                       && C4.w[0] == BID_MIDPOINT256[(q4 - 59) as usize].w[0] { // = 1/2 ulp
-                    eq_half_ulp = true;
-                } else { // > 1/2 ulp
-                    gt_half_ulp = true;
-                }
+            } else if C4.w[3]  < BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                  || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                   && C4.w[2]  < BID_MIDPOINT256[(q4 - 59) as usize].w[2])
+                  || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                   && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                   && C4.w[1]  < BID_MIDPOINT256[(q4 - 59) as usize].w[1])
+                  || (C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                   && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                   && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
+                   && C4.w[0]  < BID_MIDPOINT256[(q4 - 59) as usize].w[0]) { // < 1/2 ulp
+                lt_half_ulp = true;
+            } else if C4.w[3] == BID_MIDPOINT256[(q4 - 59) as usize].w[3]
+                   && C4.w[2] == BID_MIDPOINT256[(q4 - 59) as usize].w[2]
+                   && C4.w[1] == BID_MIDPOINT256[(q4 - 59) as usize].w[1]
+                   && C4.w[0] == BID_MIDPOINT256[(q4 - 59) as usize].w[0] { // = 1/2 ulp
+                eq_half_ulp = true;
+            } else { // > 1/2 ulp
+                gt_half_ulp = true;
             }
 
             if p_sign == z_sign {
@@ -2773,10 +2770,15 @@ pub (crate) fn bid128_ext_fma(
                     }
                     // adjust exponent
                     e3 += 1;
-                    if !is_midpoint_lt_even && !is_midpoint_gt_even && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                        if is_midpoint_lt_even0 || is_midpoint_gt_even0 || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0 {
-                            is_inexact_lt_midpoint = true;
-                        }
+                    if !is_midpoint_lt_even
+                    && !is_midpoint_gt_even
+                    && !is_inexact_lt_midpoint
+                    && !is_inexact_gt_midpoint
+                    && (is_midpoint_lt_even0
+                     || is_midpoint_gt_even0
+                     || is_inexact_lt_midpoint0
+                     || is_inexact_gt_midpoint0) {
+                        is_inexact_lt_midpoint = true;
                     }
                 } else {
                     // this is the result rounded with unbounded exponent, unless a
@@ -3086,12 +3088,15 @@ pub (crate) fn bid128_ext_fma(
                     }
                     // adjust exponent
                     e3 += x0;
-                    if !is_midpoint_lt_even    && !is_midpoint_gt_even
-                    && !is_inexact_lt_midpoint && !is_inexact_gt_midpoint {
-                        if is_midpoint_lt_even0    || is_midpoint_gt_even0
-                        || is_inexact_lt_midpoint0 || is_inexact_gt_midpoint0 {
-                            is_inexact_lt_midpoint = true;
-                        }
+                    if !is_midpoint_lt_even
+                    && !is_midpoint_gt_even
+                    && !is_inexact_lt_midpoint
+                    && !is_inexact_gt_midpoint
+                    && (is_midpoint_lt_even0
+                     || is_midpoint_gt_even0
+                     || is_inexact_lt_midpoint0
+                     || is_inexact_gt_midpoint0) {
+                        is_inexact_lt_midpoint = true;
                     }
                 },
                 _ => {

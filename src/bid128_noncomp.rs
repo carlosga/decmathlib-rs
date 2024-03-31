@@ -107,7 +107,8 @@ pub (crate) fn bid128_is_normal(x: &BID_UINT128) -> bool {
     }
     exp = (x_exp >> 49) as i32 - 6176;
     // test for subnormal values of x
-    if exp + q <= -6143 { false } else { true }
+    // if exp + q <= -6143 { false } else { true }
+    exp + q > -6143
 }
 
 /// Return true if and only if x is subnormal
@@ -241,7 +242,8 @@ pub (crate) fn bid128_is_canonical(x: &BID_UINT128) -> bool {
            || (sig_x.w[1] == 0x0000314dc6448d93u64
             && sig_x.w[0]  < 0x38c15b0a00000000u64)
     } else if (x.w[1] & MASK_INF) == MASK_INF {	// infinity
-        return if (x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0 { false } else { true };
+        // return if (x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0 { false } else { true };
+        return !((x.w[1] & 0x03ffffffffffffffu64) != 0 || x.w[0] != 0);
     }
     // not NaN or infinity; extract significand to ensure it is canonical
     sig_x.w[1] = x.w[1] & 0x0001ffffffffffffu64;

@@ -1649,38 +1649,36 @@ pub (crate) fn bid128_to_uint64_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
                     // else // if (f* > T*) then
                     //   the result is inexact
                     if ind - 1 <= 2 {
-                        if  fstar.w[1]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
+                        if (fstar.w[1]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
                         || (fstar.w[1] == BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
-                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]) {
-                            if x_sign == 0 {	// positive and inexact
-                                Cstar.w[0] += 1;
-                                if Cstar.w[0] == 0x0 {
-                                    Cstar.w[1] += 1;
-                                }
+                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]))
+                        && x_sign == 0 {	// positive and inexact
+                            Cstar.w[0] += 1;
+                            if Cstar.w[0] == 0x0 {
+                                Cstar.w[1] += 1;
                             }
                         }	// else the result is exact
                     } else if ind - 1 <= 21 {	// if 3 <= ind <= 21
-                        if  fstar.w[2] != 0
+                        if (fstar.w[2] != 0
                          || fstar.w[1]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
                         || (fstar.w[1] == BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
-                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]) {
-                            if x_sign == 0 {	// positive and inexact
-                                Cstar.w[0] += 1;
-                                if Cstar .w[0] == 0x0 {
-                                    Cstar.w[1] += 1;
-                                }
+                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]))
+                        && x_sign == 0 {	// positive and inexact
+                            Cstar.w[0] += 1;
+                            if Cstar .w[0] == 0x0 {
+                                Cstar.w[1] += 1;
                             }
                         }	// else the result is exact
                     } else {	// if 22 <= ind <= 33
-                        if  fstar.w[3] != 0 || fstar.w[2] != 0
+                        if (fstar.w[3] != 0
+                         || fstar.w[2] != 0
                          || fstar.w[1]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
                         || (fstar.w[1] == BID_TEN2MK128TRUNC[(ind - 1) as usize].w[1]
-                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]) {
-                            if x_sign == 0 {	// positive and inexact
-                                Cstar.w[0] += 1;
-                                if Cstar.w[0] == 0x0 {
-                                    Cstar.w[1] += 1;
-                                }
+                         && fstar.w[0]  > BID_TEN2MK128TRUNC[(ind - 1) as usize].w[0]))
+                        && x_sign == 0 {	// positive and inexact
+                            Cstar.w[0] += 1;
+                            if Cstar.w[0] == 0x0 {
+                                Cstar.w[1] += 1;
                             }
                         }	// else the result is exact
                     }
