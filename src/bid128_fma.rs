@@ -3885,7 +3885,7 @@ pub (crate) fn bid128_ext_fma(
             *ptr_is_inexact_lt_midpoint = is_inexact_lt_midpoint;
             *ptr_is_inexact_gt_midpoint = is_inexact_gt_midpoint;
 
-            #[cfg(target_endia = "big")]
+            #[cfg(target_endian = "big")]
             BID_SWAP128(&mut res);
 
             return res;

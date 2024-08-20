@@ -1,6 +1,6 @@
 [package]
 name = "decmathlib-rs"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Carlos Guzmán Álvarez"]
 description = "Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust."
@@ -34,10 +34,10 @@ decimal_tiny_detection_after_rounding = []
 
 [dependencies]
 forward_ref = { version = "1.0.0" }
-byteorder = { version = "1.5", features = ["default"], default-features = false, optional = true }
+byteorder = { version = "1.5.0", features = ["default"], default-features = false, optional = true }
 serde = { version = "1.0", default-features = false, optional = true }
-serde_json = { version = "1.0.113", default-features = false, optional = true }
-sqlx = { version = "0.7", features = [ "postgres", "runtime-async-std", "runtime-async-std-rustls" ], default-features = false, optional = true }
+serde_json = { version = "1.0", default-features = false, optional = true }
+sqlx = { version = "0.8.0", features = [ "postgres", "runtime-async-std", "runtime-async-std-rustls" ], default-features = false, optional = true }
 async-std = { version = "1.12.0", features = ["default"], default-features = false, optional = true }
 
 [dev-dependencies]
