@@ -1,6 +1,6 @@
 [package]
 name = "decmathlib-rs"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 authors = ["Carlos Guzmán Álvarez"]
 description = "Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust."

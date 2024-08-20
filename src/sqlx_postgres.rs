@@ -98,7 +98,7 @@ impl sqlx::postgres::PgHasArrayType for d128 {
 
 impl Encode<'_, sqlx::postgres::Postgres> for d128 {
     // adapted from https://github.com/pgjdbc/pgjdbc/blob/master/pgjdbc/src/main/java/org/postgresql/util/ByteConverter.java
-    fn encode_by_ref(&self, buf: &mut sqlx::postgres::PgArgumentBuffer) -> sqlx::encode::IsNull {
+    fn encode_by_ref(&self, buf: &mut sqlx::postgres::PgArgumentBuffer) -> Result<sqlx::encode::IsNull, Box<dyn std::error::Error + Send + Sync>> {
         let mut coeff: BID_UINT128 = Default::default();
         let mut sign: BID_UINT64   = 0;
         let mut exponent: i32      = 0;
@@ -240,13 +240,13 @@ impl Encode<'_, sqlx::postgres::Postgres> for d128 {
 
         buf.extend(&buffer);
 
-        sqlx::encode::IsNull::No
+        Ok(sqlx::encode::IsNull::No)
     }
 }
 
 impl Decode<'_, sqlx::postgres::Postgres> for d128 {
     // adapted from https://github.com/carlosga/pgsqlclient-core/blob/main/src/PostgreSql.Data.SqlClient/src/PostgreSql/Data/Frontend/MessageReader.Numeric.cs
-    fn decode(value: <sqlx::postgres::Postgres as sqlx::database::HasValueRef<'_>>::ValueRef) -> Result<Self, sqlx::error::BoxDynError> {
+    fn decode(value: <sqlx::postgres::Postgres as sqlx::database::Database>::ValueRef<'_>) -> Result<Self, sqlx::error::BoxDynError> {
         let res = match value.format() {
             PgValueFormat::Binary => {
                 let buf: &[u8]       = value.as_bytes()?;
