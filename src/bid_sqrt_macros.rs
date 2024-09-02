@@ -123,7 +123,7 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     unsafe {
         // 2^64
         f64.ui64 = 0x43f0000000000000u64;
-        l64   = f64.d;
+        l64      = f64.d;
 
         l128 = l64 * l64;
         lx   = (C256.w[3] as f64) * l64 * l128;
@@ -147,8 +147,8 @@ pub (crate) fn bid_long_sqrt128(pCS: &mut BID_UINT128, C256: &BID_UINT256) {
     // shr by k=(2*ey+104)-128
     // expect k is in the range (192, 256) if result in [10^33, 10^34)
     // apply an additional signed shift by 1 at the same time (to get eps=eps0/2)
-    k = (ey << 1) + 104 - 128 - 192;
-    k2 = 64 - k;
+    k       = (ey << 1) + 104 - 128 - 192;
+    k2      = 64 - k;
     ES.w[0] = (ARS.w[3] >> (k + 1)) | (ARS.w[4] << (k2 - 1));
     ES.w[1] = (ARS.w[4] >> k) | (ARS.w[5] << k2);
     ES.w[1] = (ES.w[1] as BID_SINT64 >> 1) as BID_UINT64;

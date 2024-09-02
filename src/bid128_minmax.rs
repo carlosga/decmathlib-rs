@@ -256,9 +256,9 @@ pub (crate) fn bid128_minnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
     sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_y);
     // if postitive, return whichever significand is larger (converse if negative)
     res = if (sig_n_prime192.w[2] != 0
-           || (sig_n_prime192.w[1] > sig_x.w[1]
-           || (sig_n_prime192.w[1] == sig_x.w[1]
-            && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
+          || (sig_n_prime192.w[1]  > sig_x.w[1]
+          || (sig_n_prime192.w[1] == sig_x.w[1]
+           && sig_n_prime192.w[0]  > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
     res
 }
 
@@ -462,11 +462,11 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
                 res = if (y.w[1] & MASK_SIGN) == MASK_SIGN { y } else { x }; // if equal
                 return res;
             }
-            res = if ((sig_n_prime256.w[3] > 0)
-                    || sig_n_prime256.w[2] > 0)
-                   || (sig_n_prime256.w[1] > sig_y.w[1])
+            res = if ((sig_n_prime256.w[3]  > 0)
+                    || sig_n_prime256.w[2]  > 0)
+                   || (sig_n_prime256.w[1]  > sig_y.w[1])
                    || (sig_n_prime256.w[1] == sig_y.w[1]
-                    && sig_n_prime256.w[0] > sig_y.w[0]) { y } else { x };
+                    && sig_n_prime256.w[0]  > sig_y.w[0]) { y } else { x };
             return res;
         }
         sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
@@ -504,9 +504,9 @@ pub (crate) fn bid128_minnum_mag(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         }
         res = if sig_n_prime256.w[3] == 0
               && sig_n_prime256.w[2] == 0
-             && (sig_n_prime256.w[1] < sig_x.w[1]
+             && (sig_n_prime256.w[1]  < sig_x.w[1]
              || (sig_n_prime256.w[1] == sig_x.w[1]
-              && sig_n_prime256.w[0] < sig_x.w[0])) { y } else { x };
+              && sig_n_prime256.w[0]  < sig_x.w[0])) { y } else { x };
         return res;
     }
     // adjust the y significand upwards
@@ -727,19 +727,19 @@ pub (crate) fn bid128_maxnum(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _IDEC
             // if postitive, return whichever significand is larger
             // (converse if negative)
             res = if (((sig_n_prime256.w[3]  > 0)
-                      || sig_n_prime256.w[2]  > 0)
-                     || (sig_n_prime256.w[1]  > sig_y.w[1])
-                     || (sig_n_prime256.w[1] == sig_y.w[1]
-                      && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
+                     || sig_n_prime256.w[2]  > 0)
+                    || (sig_n_prime256.w[1]  > sig_y.w[1])
+                    || (sig_n_prime256.w[1] == sig_y.w[1]
+                     && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
             return res;
         }
         sig_n_prime192 = __mul_64x128_to_192(BID_TEN2K64[diff as usize], &sig_x);
         // if postitive, return whichever significand is larger
         // (converse if negative)
         res = if ((sig_n_prime192.w[2]  > 0)
-                || (sig_n_prime192.w[1]  > sig_y.w[1])
-                || (sig_n_prime192.w[1] == sig_y.w[1]
-                 && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
+               || (sig_n_prime192.w[1]  > sig_y.w[1])
+               || (sig_n_prime192.w[1] == sig_y.w[1]
+                && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN) { x } else { y };
         return res;
     }
     diff = exp_y - exp_x;

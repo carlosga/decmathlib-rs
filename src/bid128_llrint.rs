@@ -24,9 +24,9 @@ use crate::d128::_IDEC_flags;
 pub (crate) fn bid128_llrint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> i64 {
     match rnd_mode {
         RoundingMode::NearestEven => bid128_to_int64_xrnint(x, pfpsf),
-        RoundingMode::NearestAway  => bid128_to_int64_xrninta(x, pfpsf),
-        RoundingMode::Downward       => bid128_to_int64_xfloor(x, pfpsf),
-        RoundingMode::Upward         => bid128_to_int64_xceil(x, pfpsf),
-        _                                     => bid128_to_int64_xint(x, pfpsf) // if (rnd_mode == BID_ROUNDING_TO_ZERO)
+        RoundingMode::NearestAway => bid128_to_int64_xrninta(x, pfpsf),
+        RoundingMode::Downward    => bid128_to_int64_xfloor(x, pfpsf),
+        RoundingMode::Upward      => bid128_to_int64_xceil(x, pfpsf),
+        _                         => bid128_to_int64_xint(x, pfpsf) // if (rnd_mode == BID_ROUNDING_TO_ZERO)
     }
 }

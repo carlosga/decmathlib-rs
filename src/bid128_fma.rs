@@ -194,9 +194,9 @@ pub (crate) fn bid_bid_nr_digits256(R256: &BID_UINT256) -> i32 {
         ind += 1;
         // ind digits
     } else if R256.w[3]  == 0x0 && R256.w[2] == 0x0
-           && (R256.w[1]  < BID_TEN2K128[0].w[1]
-           || (R256.w[1] == BID_TEN2K128[0].w[1]
-            && R256.w[0]  < BID_TEN2K128[0].w[0])) {
+          && (R256.w[1]  < BID_TEN2K128[0].w[1]
+          || (R256.w[1] == BID_TEN2K128[0].w[1]
+           && R256.w[0]  < BID_TEN2K128[0].w[0])) {
         // 20 digits
         ind = 20;
     } else if R256.w[3] == 0x0 && R256.w[2] == 0x0 {
@@ -796,7 +796,7 @@ pub (crate) fn bid128_ext_fma(
     } else if (z.w[1] & MASK_NAN) == MASK_NAN { // z is NAN
         // if x = {0, f, inf, NaN}, y = {0, f, inf}, z = NaN then res = Q (z)
         // check first for non-canonical NaN payload
-        if ((z.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+        if  ((z.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
         || (((z.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
           && (z.w[0] > 0x38c15b09ffffffffu64)) {
             z.w[1] &= 0xffffc00000000000u64;
@@ -830,7 +830,7 @@ pub (crate) fn bid128_ext_fma(
     } else if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
         // if x = NaN, y = {0, f, inf}, z = {0, f, inf} then res = Q (x)
         // check first for non-canonical NaN payload
-        if ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+        if  ((x.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
         || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
           && (x.w[0] > 0x38c15b09ffffffffu64)) {
             x.w[1] &= 0xffffc00000000000u64;

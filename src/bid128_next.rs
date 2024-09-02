@@ -39,7 +39,7 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
             let mut x = *x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
-            if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            if  ((x.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64))
             {
@@ -143,7 +143,7 @@ pub (crate) fn bid128_nextup(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_UI
             q1 = BID_NR_DIGITS[x_nr_bits - 1].digits as i32;
             if q1 == 0 {
                 q1 = BID_NR_DIGITS[x_nr_bits - 1].digits1 as i32;
-                if  C1.w[1] > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
+                if  C1.w[1]  > BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
                 || (C1.w[1] == BID_NR_DIGITS[x_nr_bits - 1].threshold_hi
                  && C1.w[0] >= BID_NR_DIGITS[x_nr_bits - 1].threshold_lo) {
                     q1 += 1;
@@ -265,7 +265,7 @@ pub (crate) fn bid128_nextdown(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> BID_
             let mut x = *x;
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
-            if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            if  ((x.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
                 x.w[1] &= 0xffffc00000000000u64;
@@ -489,7 +489,7 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
         if (x.w[1] & MASK_NAN) == MASK_NAN {	// x is NAN
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
-            if  ((x.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            if  ((x.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((x.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (x.w[0] > 0x38c15b09ffffffffu64)) {
                 x.w[1] &= 0xffffc00000000000u64;
@@ -514,7 +514,7 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
         } else if (y.w[1] & MASK_NAN) == MASK_NAN {	// y is NAN
             // if x = NaN, then res = Q (x)
             // check first for non-canonical NaN payload
-            if  ((y.w[1] & 0x00003fffffffffffu64) > 0x0000314dc6448d93u64)
+            if  ((y.w[1] & 0x00003fffffffffffu64)  > 0x0000314dc6448d93u64)
             || (((y.w[1] & 0x00003fffffffffffu64) == 0x0000314dc6448d93u64)
               && (y.w[0] > 0x38c15b09ffffffffu64)) {
                 y.w[1] &= 0xffffc00000000000u64;
@@ -554,9 +554,9 @@ pub (crate) fn bid128_nextafter(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _I
             x.w[0] = 0x0u64;
         } else {	// G0_G1 != 11
             x_exp = x.w[1] & MASK_EXP;	// biased and shifted left 49 bits
-            if (x.w[1] & MASK_COEFF) > 0x0001ed09bead87c0u64 ||
-                    ((x.w[1] & MASK_COEFF) == 0x0001ed09bead87c0u64
-                     && x.w[0] > 0x378d8e63ffffffffu64) {
+            if  (x.w[1] & MASK_COEFF)  > 0x0001ed09bead87c0u64
+            || ((x.w[1] & MASK_COEFF) == 0x0001ed09bead87c0u64
+              && x.w[0] > 0x378d8e63ffffffffu64) {
                 // x is non-canonical if coefficient is larger than 10^34 -1
                 x.w[1] = (x.w[1] & MASK_SIGN) | x_exp;
                 x.w[0] = 0x0u64;

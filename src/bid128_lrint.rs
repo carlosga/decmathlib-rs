@@ -23,10 +23,9 @@ use crate::d128::{_IDEC_flags, RoundingMode};
 pub (crate) fn bid128_lrint(x: &BID_UINT128, rnd_mode: RoundingMode, pfpsf: &mut _IDEC_flags) -> i64 {
     match rnd_mode {
         RoundingMode::NearestEven => bid128_to_int64_xrnint(x, pfpsf),
-        RoundingMode::NearestAway  => bid128_to_int64_xrninta(x, pfpsf),
-        RoundingMode::Downward       => bid128_to_int64_xfloor(x, pfpsf),
-        RoundingMode::Upward         => bid128_to_int64_xceil(x, pfpsf),
-        _                                     => bid128_to_int64_xint(x, pfpsf)
+        RoundingMode::NearestAway => bid128_to_int64_xrninta(x, pfpsf),
+        RoundingMode::Downward    => bid128_to_int64_xfloor(x, pfpsf),
+        RoundingMode::Upward      => bid128_to_int64_xceil(x, pfpsf),
+        _                         => bid128_to_int64_xint(x, pfpsf)
     }
 }
-

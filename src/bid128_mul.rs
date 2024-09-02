@@ -131,6 +131,5 @@ pub (crate) fn bid128_mul(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
     #[cfg(target_endian = "big")]
     return bid128_fma(&y, &x, &z, rnd_mode, pfpsf);
 
-    #[cfg(target_endian = "little")]
-    return bid128_fma(y, x, &z, rnd_mode, pfpsf);
+    bid128_fma(y, x, &z, rnd_mode, pfpsf)
 }

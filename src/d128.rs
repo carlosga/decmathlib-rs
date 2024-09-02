@@ -221,8 +221,7 @@ impl d128 {
         #[cfg(target_endian = "big")]
         return Self { w: [h, l] };
 
-        #[cfg(target_endian = "little")]
-        return Self { w: [l, h] };
+        Self { w: [l, h] }
     }
 
     /// Convert a 128-bit decimal floating-point value encoded in BID format

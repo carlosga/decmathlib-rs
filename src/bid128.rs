@@ -133,7 +133,6 @@ pub (crate) const  BID_NR_DIGITS: [DEC_DIGITS; 113] = [ // only the first entry 
     //{ 35, 0x0013426172c74d82u64, 0x2b878fe800000000u64, 35 }  // 114-bit n < 10^35
 ];
 
-
 /// BID_MIDPOINT64[i - 1] = 1/2 * 10^i = 5 * 10^(i-1), 1 <= i <= 19
 pub (crate) const  BID_MIDPOINT64: [BID_UINT64; 19] = [
     0x0000000000000005u64,  // 1/2 * 10^1 = 5 * 10^0
@@ -179,7 +178,6 @@ pub (crate) const  BID_MIDPOINT128: [BID_UINT128; 19] = [	           // the 64-b
     BID_UINT128 { w: [0x807a1b5000000000u64, 0x03c2f7086aed236cu64] }, // 1/2 * 10^37 = 5 * 10^36
     BID_UINT128 { w: [0x04c5112000000000u64, 0x259da6542d43623du64] }  // 1/2 * 10^38 = 5 * 10^37
 ];
-
 
 /// BID_MIDPOINT192[i - 39] = 1/2 * 10^i = 5 * 10^(i-1), 39 <= i <= 58
 pub (crate) const BID_MIDPOINT192: [BID_UINT192; 20] = [ // the 64-bit word order is L, M, H

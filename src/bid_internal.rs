@@ -358,11 +358,11 @@ pub (crate) fn bid_handle_UF_128_rem(sgn: BID_UINT64, mut expon: i32, CQ: &BID_U
                 }
             },
             RoundingMode::Downward | RoundingMode::TowardZero => {
-                if  (Qh1.w[1] == 0)
-                 && (Qh1.w[0] == 0)
-                 && (Ql.w[1]  < BID_RECIPROCALS10_128[ed2 as usize].w[1]
-                 || (Ql.w[1] == BID_RECIPROCALS10_128[ed2 as usize].w[1]
-                  && Ql.w[0]  < BID_RECIPROCALS10_128[ed2 as usize].w[0])) {
+                if (Qh1.w[1] == 0)
+                && (Qh1.w[0] == 0)
+                && (Ql.w[1]  < BID_RECIPROCALS10_128[ed2 as usize].w[1]
+                || (Ql.w[1] == BID_RECIPROCALS10_128[ed2 as usize].w[1]
+                 && Ql.w[0]  < BID_RECIPROCALS10_128[ed2 as usize].w[0])) {
                     status = StatusFlags::BID_EXACT_STATUS;
                 }
             },

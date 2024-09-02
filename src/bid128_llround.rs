@@ -21,6 +21,6 @@ use crate::d128::_IDEC_flags;
 ///  EXCEPTIONS SIGNALED:
 ///    invalid
 pub (crate) fn bid128_llround(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> i64 {
-  // the sizeof (long long) = 8 (BID_SIZE_LONG==8)
-  bid128_to_int64_rninta(x, pfpsf)
+    // the sizeof (long long) = 8 (BID_SIZE_LONG==8)
+    bid128_to_int64_rninta(x, pfpsf)
 }

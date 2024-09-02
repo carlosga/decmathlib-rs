@@ -65,10 +65,10 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //   If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -80,10 +80,10 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     // If the value exceeds that, it is interpreted as 0.
-    non_canon_y =  (sig_y.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
-                ||  ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_y = (sig_y.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
+              ||  ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // some properties:
     //    (+ZERO == -ZERO) => therefore ignore the sign
@@ -111,8 +111,8 @@ pub (crate) fn bid128_quiet_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut 
         return res;
     }
     // REDUNDANT REPRESENTATIONS (CASE6)
-    if exp_x > exp_y {                                                      // to simplify the loop below,
-        swap(&mut exp_x, &mut exp_y, &mut exp_t);                           // put the larger exp in y,
+    if exp_x > exp_y {                                              // to simplify the loop below,
+        swap(&mut exp_x, &mut exp_y, &mut exp_t);                   // put the larger exp in y,
         swap(&mut sig_x.w[1], &mut sig_y.w[1], &mut sig_t.w[1]);    // and the smaller exp in x
         swap(&mut sig_x.w[0], &mut sig_y.w[0], &mut sig_t.w[0]);    // and the smaller exp in x
     }
@@ -438,10 +438,10 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -453,10 +453,10 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_y =   (sig_y.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
-                || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_y = (sig_y.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
+              || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // ZERO (CASE4)
     // some properties:
@@ -496,8 +496,8 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
     // significands
     if exp_y == exp_x {
         res = ((sig_x.w[1]  > sig_y.w[1])
-             || (sig_x.w[1] == sig_y.w[1]
-              && sig_x.w[0] >= sig_y.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+            || (sig_x.w[1] == sig_y.w[1]
+             && sig_x.w[0] >= sig_y.w[0])) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
         return res;
     }
     // if both components are either bigger or smaller,
@@ -553,9 +553,9 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
         } // if equal, return 1
         {
             res = ((sig_n_prime192.w[2]  > 0)
-                 || (sig_n_prime192.w[1]  > sig_y.w[1])
-                 || (sig_n_prime192.w[1] == sig_y.w[1]
-                  && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+                || (sig_n_prime192.w[1]  > sig_y.w[1])
+                || (sig_n_prime192.w[1] == sig_y.w[1]
+                 && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
             return res;
         }
     }
@@ -583,10 +583,10 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
         } // if equal, return 1
         {
             res = (sig_n_prime256.w[3] == 0
-                 && sig_n_prime256.w[2] == 0
-                && (sig_n_prime256.w[1]  < sig_x.w[1]
-                || (sig_n_prime256.w[1] == sig_x.w[1]
-                 && sig_n_prime256.w[0] < sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+                && sig_n_prime256.w[2] == 0
+               && (sig_n_prime256.w[1]  < sig_x.w[1]
+               || (sig_n_prime256.w[1] == sig_x.w[1]
+                && sig_n_prime256.w[0]  < sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
             return res;
         }
     }
@@ -604,7 +604,7 @@ pub (crate) fn bid128_quiet_greater_equal(x: &BID_UINT128, y: &BID_UINT128, pfps
         res = (sig_n_prime192.w[2] == 0
            && (sig_n_prime192.w[1]  < sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
-            && sig_n_prime192.w[0] < sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+            && sig_n_prime192.w[0]  < sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
         res
     }
 }
@@ -673,10 +673,10 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1] > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0] > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1] > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0] > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -689,9 +689,9 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
     non_canon_y = (sig_y.w[1] > 0x0001ed09bead87c0u64)
-                || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_y.w[0] > 0x378d8e63ffffffffu64))
-                || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0] > 0x378d8e63ffffffffu64))
+              || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // ZERO (CASE4)
     // some properties:
@@ -759,7 +759,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
-            if sig_n_prime256.w[3] == 0
+            if  sig_n_prime256.w[3] == 0
             && (sig_n_prime256.w[2] == 0)
              && sig_n_prime256.w[1] == sig_y.w[1]
             && (sig_n_prime256.w[0] == sig_y.w[0]) {
@@ -785,10 +785,10 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
             return res;
         } // if equal, return 0
         {
-            res =  ((sig_n_prime192.w[2] > 0)
-                 || (sig_n_prime192.w[1] > sig_y.w[1])
-                 || (sig_n_prime192.w[1] == sig_y.w[1]
-                  && sig_n_prime192.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+            res = ((sig_n_prime192.w[2] > 0)
+                || (sig_n_prime192.w[1] > sig_y.w[1])
+                || (sig_n_prime192.w[1] == sig_y.w[1]
+                 && sig_n_prime192.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
             return res;
         }
     }
@@ -807,7 +807,7 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
-        if sig_n_prime256.w[3] == 0
+        if  sig_n_prime256.w[3] == 0
         && (sig_n_prime256.w[2] == 0)
          && sig_n_prime256.w[1] == sig_x.w[1]
         && (sig_n_prime256.w[0] == sig_x.w[0]) {
@@ -816,10 +816,10 @@ pub (crate) fn bid128_quiet_greater_unordered(x: &BID_UINT128, y: &BID_UINT128, 
         } // if equal, return 0
         {
             res = (sig_n_prime256.w[3] == 0
-                 && sig_n_prime256.w[2] == 0
-                && (sig_n_prime256.w[1]  < sig_x.w[1]
-                || (sig_n_prime256.w[1] == sig_x.w[1]
-                 && sig_n_prime256.w[0] < sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+                && sig_n_prime256.w[2] == 0
+               && (sig_n_prime256.w[1]  < sig_x.w[1]
+               || (sig_n_prime256.w[1] == sig_x.w[1]
+                && sig_n_prime256.w[0] < sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
             return res;
         }
     }
@@ -877,9 +877,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     // INFINITY (CASE3)
     if (x.w[1] & MASK_INF) == MASK_INF {
         // if x==neg_inf, { res = (y == neg_inf)?1:0; BID_RETURN_VAL (res) }
-        return if (x.w[1] & MASK_SIGN) == MASK_SIGN
-        // x is -inf, so it is less than y unless y is -inf
-        {
+        return if (x.w[1] & MASK_SIGN) == MASK_SIGN { // x is -inf, so it is less than y unless y is -inf
             res = ((y.w[1] & MASK_INF) != MASK_INF) || (y.w[1] & MASK_SIGN) != MASK_SIGN;
             res
         } else {    // x is pos_inf, no way for it to be less than y
@@ -904,10 +902,10 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1]   > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1]   > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -920,9 +918,9 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
     non_canon_y = (sig_y.w[1]   > 0x0001ed09bead87c0u64)
-                || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
-                || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0]  > 0x378d8e63ffffffffu64))
+              || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // ZERO (CASE4)
     // some properties:
@@ -990,7 +988,7 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
-            if sig_n_prime256.w[3] == 0
+            if  sig_n_prime256.w[3] == 0
             && (sig_n_prime256.w[2] == 0)
              && sig_n_prime256.w[1] == sig_y.w[1]
             && (sig_n_prime256.w[0] == sig_y.w[0]) {
@@ -998,11 +996,11 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
                 return res;
             } // if equal, return 0
             {
-                res = (((sig_n_prime256.w[3] > 0)
-                       || sig_n_prime256.w[2] > 0)
-                      || (sig_n_prime256.w[1] > sig_y.w[1])
-                      || (sig_n_prime256.w[1] == sig_y.w[1]
-                       && sig_n_prime256.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
+                res = (((sig_n_prime256.w[3]  > 0)
+                      || sig_n_prime256.w[2]  > 0)
+                     || (sig_n_prime256.w[1]  > sig_y.w[1])
+                     || (sig_n_prime256.w[1] == sig_y.w[1]
+                      && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
                 return res;
             }
         }
@@ -1016,10 +1014,10 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
             return res;
         } // if equal, return 0
         {
-            res = ((sig_n_prime192.w[2] > 0)
-                 || (sig_n_prime192.w[1] > sig_y.w[1])
-                 || (sig_n_prime192.w[1] == sig_y.w[1]
-                  && sig_n_prime192.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
+            res = ((sig_n_prime192.w[2]  > 0)
+                || (sig_n_prime192.w[1]  > sig_y.w[1])
+                || (sig_n_prime192.w[1] == sig_y.w[1]
+                 && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
             return res;
         }
     }
@@ -1047,10 +1045,10 @@ pub (crate) fn bid128_quiet_less(x: &BID_UINT128, y: &BID_UINT128, pfpsf: &mut _
         } // if equal, return 1
         {
             res = (sig_n_prime256.w[3] != 0
-                 || sig_n_prime256.w[2] != 0
-                || (sig_n_prime256.w[1]  > sig_x.w[1]
-                || (sig_n_prime256.w[1] == sig_x.w[1]
-                 && sig_n_prime256.w[0] > sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
+                || sig_n_prime256.w[2] != 0
+               || (sig_n_prime256.w[1]  > sig_x.w[1]
+               || (sig_n_prime256.w[1] == sig_x.w[1]
+                && sig_n_prime256.w[0] > sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
             return res;
         }
     }
@@ -1136,10 +1134,10 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0]  > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -1151,10 +1149,10 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_y =   (sig_y.w[1]  > 0x0001ed09bead87c0u64)
-                || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_y.w[0] > 0x378d8e63ffffffffu64))
-                || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_y = (sig_y.w[1]  > 0x0001ed09bead87c0u64)
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0] > 0x378d8e63ffffffffu64))
+              || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // ZERO (CASE4)
     // some properties:
@@ -1222,7 +1220,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
 
             // if postitive, return whichever significand is larger
             // (converse if negative)
-            if sig_n_prime256.w[3] == 0
+            if  sig_n_prime256.w[3] == 0
             && (sig_n_prime256.w[2] == 0)
              && sig_n_prime256.w[1] == sig_y.w[1]
             && (sig_n_prime256.w[0] == sig_y.w[0]) {
@@ -1230,11 +1228,11 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
                 return res;
             } // if equal, return 0
             {
-                res = (((sig_n_prime256.w[3] > 0)
-                       || sig_n_prime256.w[2] > 0)
-                      || (sig_n_prime256.w[1] > sig_y.w[1])
-                      || (sig_n_prime256.w[1] == sig_y.w[1]
-                       && sig_n_prime256.w[0] > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
+                res = (((sig_n_prime256.w[3]  > 0)
+                      || sig_n_prime256.w[2]  > 0)
+                     || (sig_n_prime256.w[1]  > sig_y.w[1])
+                     || (sig_n_prime256.w[1] == sig_y.w[1]
+                      && sig_n_prime256.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
                 return res;
             }
         }
@@ -1249,9 +1247,9 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
         } // if equal, return 0
         {
             res = ((sig_n_prime192.w[2]  > 0)
-                 || (sig_n_prime192.w[1]  > sig_y.w[1])
-                 || (sig_n_prime192.w[1] == sig_y.w[1]
-                  && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
+                || (sig_n_prime192.w[1]  > sig_y.w[1])
+                || (sig_n_prime192.w[1] == sig_y.w[1]
+                 && sig_n_prime192.w[0]  > sig_y.w[0])) ^ ((y.w[1] & MASK_SIGN) != MASK_SIGN);
             return res;
         }
     }
@@ -1270,7 +1268,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
 
         // if postitive, return whichever significand is larger
         // (converse if negative)
-        if sig_n_prime256.w[3] == 0
+        if  sig_n_prime256.w[3] == 0
         && (sig_n_prime256.w[2] == 0)
          && sig_n_prime256.w[1] == sig_x.w[1]
         && (sig_n_prime256.w[0] == sig_x.w[0]) {
@@ -1279,7 +1277,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
         } // if equal, return 0
         {
             res = (sig_n_prime256.w[3] != 0
-                 || sig_n_prime256.w[2] != 0
+                || sig_n_prime256.w[2] != 0
                 || (sig_n_prime256.w[1]  > sig_x.w[1]
                 || (sig_n_prime256.w[1] == sig_x.w[1]
                  && sig_n_prime256.w[0] > sig_x.w[0]))) ^ ((x.w[1] & MASK_SIGN) == MASK_SIGN);
@@ -1300,7 +1298,7 @@ pub (crate) fn bid128_quiet_less_equal(x: &BID_UINT128, y: &BID_UINT128, pfpsf: 
         res = (sig_n_prime192.w[2] != 0
            || (sig_n_prime192.w[1]  > sig_x.w[1]
            || (sig_n_prime192.w[1] == sig_x.w[1]
-            && sig_n_prime192.w[0] > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
+            && sig_n_prime192.w[0]  > sig_x.w[0]))) ^ ((y.w[1] & MASK_SIGN) == MASK_SIGN);
         res
     }
 }
@@ -1366,10 +1364,10 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_x =   (sig_x.w[1] > 0x0001ed09bead87c0u64)
-                || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
-                 && (sig_x.w[0] > 0x378d8e63ffffffffu64))
-                || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_x = (sig_x.w[1] > 0x0001ed09bead87c0u64)
+              || ((sig_x.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_x.w[0] > 0x378d8e63ffffffffu64))
+              || ((x.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // CONVERT Y
     exp_y      = ((y.w[1] >> 49) & 0x0000000000003fffu64) as i32;
@@ -1381,10 +1379,10 @@ pub (crate) fn bid128_quiet_less_unordered(x: &BID_UINT128, y: &BID_UINT128, pfp
     //   1ed09_bead87c0_378d8e63_ffffffff(hexadecimal)
     // [0, 10^34) is the 754 supported canonical range.
     //    If the value exceeds that, it is interpreted as 0.
-    non_canon_y =  (sig_y.w[1] > 0x0001ed09bead87c0u64)
-               || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
-                && (sig_y.w[0] > 0x378d8e63ffffffffu64))
-               ||  ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
+    non_canon_y = (sig_y.w[1] > 0x0001ed09bead87c0u64)
+              || ((sig_y.w[1] == 0x0001ed09bead87c0u64)
+               && (sig_y.w[0] > 0x378d8e63ffffffffu64))
+              || ((y.w[1] & 0x6000000000000000u64) == 0x6000000000000000u64);
 
     // ZERO (CASE4)
     // some properties:

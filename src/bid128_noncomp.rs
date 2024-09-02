@@ -476,8 +476,8 @@ pub (crate) fn bid128_total_order(x: &BID_UINT128, y: &BID_UINT128) -> bool {
                 pyld_x.w[0] = x.w[0];
                 pyld_y.w[1] = y.w[1] & 0x00003fffffffffffu64;
                 pyld_y.w[0] = y.w[0];
-                if (pyld_x.w[1] > 0x0000314dc6448d93u64)
-                    || ((pyld_x.w[1] == 0x0000314dc6448d93u64) && (pyld_x.w[0] > 0x38c15b09ffffffffu64)) {
+                if  (pyld_x.w[1]  > 0x0000314dc6448d93u64)
+                || ((pyld_x.w[1] == 0x0000314dc6448d93u64) && (pyld_x.w[0] > 0x38c15b09ffffffffu64)) {
                     pyld_x.w[1] = 0;
                     pyld_x.w[0] = 0;
                 }

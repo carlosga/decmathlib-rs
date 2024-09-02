@@ -309,8 +309,8 @@ pub (crate) fn bid_round128_19_38(
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[2] - BID_HALF128[ind];
-                if tmp64 != 0
-                || fstar.w[1]   > BID_TEN2MXTRUNC128[ind].w[1]
+                if  tmp64 != 0
+                ||  fstar.w[1]  > BID_TEN2MXTRUNC128[ind].w[1]
                 || (fstar.w[1] == BID_TEN2MXTRUNC128[ind].w[1]
                  && fstar.w[0]  > BID_TEN2MXTRUNC128[ind].w[0]) {	// f* - 1/2 > 10^(-x)
                     *ptr_is_inexact_lt_midpoint = true;
@@ -558,7 +558,7 @@ pub (crate) fn bid_round192_39_57(
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[3] - BID_HALF192[ind];
-                if tmp64 != 0
+                if  tmp64 != 0
                  || fstar.w[2]   > BID_TEN2MXTRUNC192[ind].w[2]
                  || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]
                   && fstar.w[1]  > BID_TEN2MXTRUNC192[ind].w[1])
@@ -615,9 +615,9 @@ pub (crate) fn bid_round192_39_57(
         }
     }
     // check for midpoints (could do this before determining inexactness)
-    if fstar.w[5] == 0
-    && fstar.w[4] == 0
-    && fstar.w[3] == 0
+    if  fstar.w[5] == 0
+     && fstar.w[4] == 0
+     && fstar.w[3] == 0
     && (fstar.w[2]  < BID_TEN2MXTRUNC192[ind].w[2]
     || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]
      && fstar.w[1]  < BID_TEN2MXTRUNC192[ind].w[1])
@@ -935,13 +935,13 @@ pub (crate) fn bid_round256_58_76(
     //   the result is inexact
     match ind {
         val if val <= 18 => {	// if 0 <= ind <= 18
-            if fstar.w[4]   > BID_HALF256[ind]
+            if  fstar.w[4]  > BID_HALF256[ind]
             || (fstar.w[4] == BID_HALF256[ind]
             && (fstar.w[3] != 0 || fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[4] - BID_HALF256[ind];
-                if tmp64 != 0
+                if  tmp64 != 0
                 ||  fstar.w[3]  > BID_TEN2MXTRUNC256[ind].w[2]
                 || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
                  && fstar.w[2]  > BID_TEN2MXTRUNC256[ind].w[2])
@@ -959,15 +959,15 @@ pub (crate) fn bid_round256_58_76(
             }
         },
         val if val <= 37 => {	// if 19 <= ind <= 37
-            if fstar.w[5]   > BID_HALF256[ind]
+            if  fstar.w[5]  > BID_HALF256[ind]
             || (fstar.w[5] == BID_HALF256[ind]
             && (fstar.w[4] != 0 || fstar.w[3] != 0 || fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[5] - BID_HALF256[ind];
-                if tmp64 != 0
-                || fstar.w[4] != 0
-                || fstar.w[3]   > BID_TEN2MXTRUNC256[ind].w[3]
+                if  tmp64 != 0
+                ||  fstar.w[4] != 0
+                ||  fstar.w[3]  > BID_TEN2MXTRUNC256[ind].w[3]
                 || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
                  && fstar.w[2]  > BID_TEN2MXTRUNC256[ind].w[2])
                 || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
@@ -984,7 +984,7 @@ pub (crate) fn bid_round256_58_76(
             }
         },
         val if val <= 57 => {	// if 38 <= ind <= 57
-            if fstar.w[6]   > BID_HALF256[ind]
+            if  fstar.w[6]  > BID_HALF256[ind]
             || (fstar.w[6] == BID_HALF256[ind]
             && (fstar.w[5] != 0
              || fstar.w[4] != 0
@@ -995,9 +995,9 @@ pub (crate) fn bid_round256_58_76(
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[6] - BID_HALF256[ind];
-                if tmp64 != 0
-                || fstar.w[5] != 0
-                || fstar.w[4] != 0
+                if  tmp64      != 0
+                || fstar.w[5]  != 0
+                || fstar.w[4]  != 0
                 || fstar.w[3]   > BID_TEN2MXTRUNC256[ind].w[3]
                 || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
                  && fstar.w[2]  > BID_TEN2MXTRUNC256[ind].w[2])
@@ -1015,7 +1015,7 @@ pub (crate) fn bid_round256_58_76(
             }
         },
         _ => {	// if 58 <= ind <= 74
-            if fstar.w[7]   > BID_HALF256[ind]
+            if  fstar.w[7]  > BID_HALF256[ind]
             || (fstar.w[7] == BID_HALF256[ind]
             && (fstar.w[6] != 0
              || fstar.w[5] != 0
@@ -1027,10 +1027,10 @@ pub (crate) fn bid_round256_58_76(
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[7] - BID_HALF256[ind];
-                if tmp64      != 0
-                || fstar.w[6] != 0
-                || fstar.w[5] != 0
-                || fstar.w[4] != 0
+                if tmp64       != 0
+                || fstar.w[6]  != 0
+                || fstar.w[5]  != 0
+                || fstar.w[4]  != 0
                 || fstar.w[3]   > BID_TEN2MXTRUNC256[ind].w[3]
                 || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
                  && fstar.w[2]  > BID_TEN2MXTRUNC256[ind].w[2])
@@ -1049,8 +1049,8 @@ pub (crate) fn bid_round256_58_76(
         }
     }
     // check for midpoints (could do this before determining inexactness)
-    if fstar.w[7] == 0 && fstar.w[6] == 0
-    && fstar.w[5] == 0 && fstar.w[4] == 0
+    if  fstar.w[7] == 0 && fstar.w[6] == 0
+     && fstar.w[5] == 0 && fstar.w[4] == 0
     && (fstar.w[3]  < BID_TEN2MXTRUNC256[ind].w[3]
     || (fstar.w[3] == BID_TEN2MXTRUNC256[ind].w[3]
      && fstar.w[2]  < BID_TEN2MXTRUNC256[ind].w[2])
