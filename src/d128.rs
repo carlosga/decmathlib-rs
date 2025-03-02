@@ -1,4 +1,4 @@
-/* ---------------------------------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------------------------------- */
 /* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
 /* -------------------------------------------------------------------------------------------------- */
@@ -21,7 +21,7 @@ use crate::bid128_add::{bid128_add, bid128_sub};
 use crate::bid128_compare::*;
 use crate::bid128_div::bid128_div;
 use crate::bid128_fdim::bid128_fdim;
-use crate::bid128_fma::{bid128_fma};
+use crate::bid128_fma::bid128_fma;
 use crate::bid128_fmod::bid128_fmod;
 use crate::bid128_frexp::bid128_frexp;
 use crate::bid128_ilogb::bid128_ilogb;
@@ -98,13 +98,13 @@ pub enum RoundingMode {
     NearestEven = 0x00000,
 
     /// Rounding towards negative infinity.
-    Downward    = 0x00001,
+    Downward = 0x00001,
 
     /// Rounding towards positive infinity.
-    Upward      = 0x00002,
+    Upward = 0x00002,
 
     /// Rounding towards zero.
-    TowardZero  = 0x00003,
+    TowardZero = 0x00003,
 
     /// Rounding towards the nearest value, breaks ties by rounding away from zero.
     NearestAway = 0x00004
@@ -1113,8 +1113,7 @@ impl PartialEq for d128 {
 impl PartialOrd for d128 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
-        let equal: bool = self.w[BID_HIGH_128W] == other.w[BID_HIGH_128W]
-                       && self.w[BID_LOW_128W]  == other.w[BID_LOW_128W];
+        let equal: bool = self.eq(other);
         if equal {
             return Some(Ordering::Equal)
         }
@@ -1283,13 +1282,13 @@ impl From<u128> for d128 {
     /// let dec1 = decmathlib_rs::d128::d128::from(0x150a2e0d6728de4e95595bd43d654036u128);
     /// ```
     fn from(value: u128) -> Self {
-        Self::new((value >> 64) as u64, value as u64, )
+        Self::new((value >> 64) as u64, value as u64)
     }
 }
 
 impl From<&str> for d128 {
     fn from(value: &str) -> Self {
-        let mut status:_IDEC_flags = StatusFlags::BID_EXACT_STATUS;
+        let mut status: _IDEC_flags = StatusFlags::BID_EXACT_STATUS;
         bid128_from_string(value, DEFAULT_ROUNDING_MODE, &mut status)
     }
 }
@@ -1514,25 +1513,25 @@ impl SubAssign for d128 {
 forward_ref_op_assign! { impl SubAssign, sub_assign for d128, d128 }
 
 impl std::iter::Sum for d128 {
-    fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(ZERO, |a, b| a + b)
     }
 }
 
 impl std::iter::Product for d128 {
-    fn product<I: Iterator<Item=Self>>(iter: I) -> Self {
-        iter.fold(ONE,|a, b| a * b)
+    fn product<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(ONE, |a, b| a * b)
     }
 }
 
 impl<'a> std::iter::Sum<&'a d128> for d128 {
-    fn sum<I: Iterator<Item=&'a Self>>(iter: I) -> Self {
+    fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
         iter.fold(ZERO, |a, b| a + b)
     }
 }
 
 impl<'a> std::iter::Product<&'a d128> for d128 {
-    fn product<I: Iterator<Item=&'a Self>>(iter: I) -> Self {
+    fn product<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
         iter.fold(ONE, |a, b| a * b)
     }
 }
