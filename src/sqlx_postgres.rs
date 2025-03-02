@@ -1,4 +1,4 @@
-/* ---------------------------------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------------------------------- */
 /* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
 /* -------------------------------------------------------------------------------------------------- */
@@ -107,6 +107,8 @@ impl Encode<'_, sqlx::postgres::Postgres> for d128 {
 
         unpack_BID128(&mut sign, &mut exponent, &mut coeff, self);
 
+        // TODO: Test change suggested by clippy
+        // let mut unscaled: u128 = ((coeff.w[1] as u128) << 64) | (coeff.w[0] as u128);
         let mut unscaled: u128 = (coeff.w[1] as u128) << 64 | (coeff.w[0] as u128);
         let mut scale: i32     = self.scale();
 

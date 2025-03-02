@@ -1,4 +1,4 @@
-/* ---------------------------------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------------------------------- */
 /* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
 /* -------------------------------------------------------------------------------------------------- */
@@ -550,7 +550,7 @@ pub (crate) fn bid_round192_39_57(
     //   the result is inexact
     match ind {
         val if val <= 18 => {	// if 0 <= ind <= 18
-            if  fstar.w[3] > BID_HALF192[ind]
+            if  fstar.w[3]  > BID_HALF192[ind]
             || (fstar.w[3] == BID_HALF192[ind]
             && (fstar.w[2] != 0
              || fstar.w[1] != 0
@@ -572,14 +572,14 @@ pub (crate) fn bid_round192_39_57(
             }
         },
         val if val <= 37 => {	// if 19 <= ind <= 37
-            if fstar.w[4] > BID_HALF192[ind]
+            if  fstar.w[4]  > BID_HALF192[ind]
             || (fstar.w[4] == BID_HALF192[ind] && (fstar.w[3] != 0|| fstar.w[2] != 0 || fstar.w[1] != 0 || fstar.w[0] != 0)) {
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[4] - BID_HALF192[ind];
                 if  tmp64 != 0
                 ||  fstar.w[3] != 0
-                ||  fstar.w[2] > BID_TEN2MXTRUNC192[ind].w[2]
+                ||  fstar.w[2]  > BID_TEN2MXTRUNC192[ind].w[2]
                 || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]
                  && fstar.w[1]  > BID_TEN2MXTRUNC192[ind].w[1])
                 || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]
@@ -598,10 +598,10 @@ pub (crate) fn bid_round192_39_57(
                 // f* > 1/2 and the result may be exact
                 // Calculate f* - 1/2
                 tmp64 = fstar.w[5] - BID_HALF192[ind];
-                if tmp64 != 0
-                || fstar.w[4] != 0
-                || fstar.w[3] != 0
-                || fstar.w[2]   > BID_TEN2MXTRUNC192[ind].w[2]
+                if  tmp64      != 0
+                ||  fstar.w[4] != 0
+                ||  fstar.w[3] != 0
+                ||  fstar.w[2]  > BID_TEN2MXTRUNC192[ind].w[2]
                 || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]
                  && fstar.w[1]  > BID_TEN2MXTRUNC192[ind].w[1])
                 || (fstar.w[2] == BID_TEN2MXTRUNC192[ind].w[2]

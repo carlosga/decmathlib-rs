@@ -1,4 +1,4 @@
-/* ---------------------------------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------------------------------- */
 /* Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.                     */
 /* decmathlib-rs - Copyright (C) 2023-2024 Carlos Guzmán Álvarez                                      */
 /* -------------------------------------------------------------------------------------------------- */
@@ -26,14 +26,13 @@ struct Decimal128Visitor;
 impl<'de> serde::de::Visitor<'de> for Decimal128Visitor {
     type Value = d128;
 
-    fn expecting(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "a d128 value")
+    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+        write!(formatter, "a d128 value")
     }
 
-    fn visit_str<E>(self, s: &str) -> Result<d128, E>
+    fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
         where E: serde::de::Error
     {
-        use serde::de::Unexpected;
-        d128::from_str(s).map_err(|_| E::invalid_value(Unexpected::Str(s), &self))
+        d128::from_str(s).map_err(|_| E::invalid_value(serde::de::Unexpected::Str(s), &self))
     }
 }
