@@ -780,7 +780,8 @@ pub (crate) fn bid_get_BID128(sgn: BID_UINT64, expon: i32, coeff: &BID_UINT128, 
     }
 
     // check OF, UF
-    if expon < 0 || expon > DECIMAL_MAX_EXPON_128 {
+    // if expon < 0 || expon > DECIMAL_MAX_EXPON_128 {
+    if !(0..=DECIMAL_MAX_EXPON_128).contains(&expon) {
         // check UF
         if expon < 0 {
             return handle_UF_128(sgn, expon, &coeff, rnd_mode, pfpsc);

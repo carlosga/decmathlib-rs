@@ -467,9 +467,6 @@ pub (crate) fn bid128_from_string(str: &str, rnd_mode: RoundingMode, pfpsf: &mut
 
             if dec_expon == 0 {
                 ps += str.char_indices().take_while(|(i, c)| *i >= ps && *c == '0').count();
-                // while str.chars().nth(ps) == Some('0') {
-                //     ps += 1;
-                // }
             }
 
             if str.chars().nth(ps).is_some() {

@@ -42,33 +42,6 @@ pub (crate) fn bid128_to_int32_rnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -375,33 +348,6 @@ pub (crate) fn bid128_to_int32_xrnint(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -783,33 +729,6 @@ pub (crate) fn bid128_to_int32_floor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -1170,33 +1089,6 @@ pub (crate) fn bid128_to_int32_xfloor(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -1570,33 +1462,6 @@ pub (crate) fn bid128_to_int32_ceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) ->
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -1956,33 +1821,6 @@ pub (crate) fn bid128_to_int32_xceil(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -2353,33 +2191,6 @@ pub (crate) fn bid128_to_int32_int(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) -> 
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -2719,33 +2530,6 @@ pub (crate) fn bid128_to_int32_xint(x: & BID_UINT128, pfpsf: &mut _IDEC_flags) -
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -3099,33 +2883,6 @@ pub (crate) fn bid128_to_int32_rninta(x: &BID_UINT128, pfpsf: &mut _IDEC_flags) 
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         // set invalid flag
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
@@ -3412,33 +3169,6 @@ pub (crate) fn bid128_to_int32_xrninta(x : &BID_UINT128, pfpsf: &mut _IDEC_flags
     // check for NaN or Infinity
     if (x.w[1] & MASK_SPECIAL) == MASK_SPECIAL {
         // x is special
-        // return if (x.w[1] & MASK_NAN) == MASK_NAN { // x is NAN
-        //     if (x.w[1] & MASK_SNAN) == MASK_SNAN { // x is SNAN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is QNaN
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // } else { // x is not a NaN, so it must be infinity
-        //     if x_sign == 0 { // x is +inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     } else { // x is -inf
-        //         // set invalid flag
-        //         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
-        //         // return Integer Indefinite
-        //         res = 0x80000000;
-        //     }
-        //     res
-        // }
         *pfpsf |= StatusFlags::BID_INVALID_EXCEPTION;
         // return Integer Indefinite
         res = 0x80000000;

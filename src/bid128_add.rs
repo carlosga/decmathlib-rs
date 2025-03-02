@@ -17,7 +17,7 @@ use crate::bid_internal::*;
 use crate::d128::{_IDEC_flags, StatusFlags, RoundingMode};
 
 /////////////////////////////////////
-///  BID128 sub
+//  BID128 sub
 /////////////////////////////////////
 
 /// Decimal floating-point subtraction
@@ -37,7 +37,7 @@ pub (crate) fn bid128_sub(x: &BID_UINT128, y: &BID_UINT128, rnd_mode: RoundingMo
 }
 
 /////////////////////////////////////
-/// BID128 add
+// BID128 add
 /////////////////////////////////////
 
 /// Decimal floating-point addition
