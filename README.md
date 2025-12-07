@@ -1,5 +1,8 @@
 # decmathlib-rs
 
+# !! This repository has moved !!
+# New location : https://codeberg.org/carlosga/decmathlib-rs
+
 Port of the Intel Decimal Floating-Point Math Library decimal128 type to Rust.
 
 Rust learning project.
